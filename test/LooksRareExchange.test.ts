@@ -67,6 +67,7 @@ describe('LooksRareExchange', () => {
       const makerAsk : MakerOrder = new MakerOrder();
       const takerBid : TakerOrder = new TakerOrder();
 
+      await makerAsk.sign(maker, looksRareExchange.address);
       await looksRareExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
     })
 
@@ -74,6 +75,7 @@ describe('LooksRareExchange', () => {
       const makerBid : MakerOrder = new MakerOrder();
       const takerAsk : TakerOrder = new TakerOrder();
 
+      await makerBid.sign(maker, looksRareExchange.address);
       await looksRareExchange.connect(taker).matchAskWithTakerBid(takerAsk, makerBid);
     })
   })
