@@ -1,30 +1,23 @@
-import { ethers } from 'hardhat'
-import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
-import { BigNumber } from '@ethersproject/bignumber'
+import { ethers } from "hardhat"
+import chai from "chai"
+import { solidity } from "ethereum-waffle"
 import { 
   LooksRareExchange,
   CurrencyManager,
   ExecutionManager,
-  RoyaltyFeeRegistry,
   RoyaltyFeeManager,
   TransferSelectorNFT
-} from '../typechain-types'
-import { Contract } from 'ethers'
+} from "../typechain-types"
+import {
+  deployContract, now
+} from "../utils/test-utils";
+import {
+  TakerOrder,
+  MakerOrder
+} from "../utils/order-types";
 
-const hre = require('hardhat')
 chai.use(solidity)
 const { expect } = chai
-
-const toWei = (amount: number | string): BigNumber => {
-  return ethers.utils.parseEther(amount.toString())
-}
-
-const deployedContract = async (name: string, owner: any, initParams: Array<any>): Promise<Contract> => {
-  const factory = await ethers.getContractFactory(name, owner)
-  const contract = await factory.deploy(...initParams)
-  return contract.deployed();
-}
 
 const STRATEGY_PROTOCAL_FEE = 200;  // 2%
 const ROYALTY_FEE_LIMIT = 500;      // 5%
@@ -36,25 +29,26 @@ describe('LooksRareExchange', () => {
   let transferSelector: TransferSelectorNFT
   let royaltyFeeManager: RoyaltyFeeManager
   let owner: any
+  let maker: any;
+  let taker: any;
 
   before(async () => {
-    const [owner_,] = await ethers.getSigners()
-    owner = owner_;
+    [owner, maker, taker] = await ethers.getSigners()
     
     // currency manager
-    currencyManager = await deployedContract('CurrencyManager', owner, []) as CurrencyManager
+    currencyManager = await deployContract('CurrencyManager', owner, []) as CurrencyManager
 
     // execution manager with strategy. protocal fee 200 = 2%
-    const strategy = await deployedContract('StrategyPrivateSale', owner, [STRATEGY_PROTOCAL_FEE])
-    executionManager = await deployedContract('ExecutionManager', owner, []) as ExecutionManager
+    const strategy = await deployContract('StrategyPrivateSale', owner, [STRATEGY_PROTOCAL_FEE])
+    executionManager = await deployContract('ExecutionManager', owner, []) as ExecutionManager
     await executionManager.addStrategy(strategy.address);
 
     // royalty fee manager
-    const royaltyFeeRegistry = await deployedContract('RoyaltyFeeRegistry', owner, [ROYALTY_FEE_LIMIT])
-    royaltyFeeManager = await deployedContract('RoyaltyFeeManager', owner, [royaltyFeeRegistry.address]) as RoyaltyFeeManager
+    const royaltyFeeRegistry = await deployContract('RoyaltyFeeRegistry', owner, [ROYALTY_FEE_LIMIT])
+    royaltyFeeManager = await deployContract('RoyaltyFeeManager', owner, [royaltyFeeRegistry.address]) as RoyaltyFeeManager
     
     // looks rare exchange
-    looksRareExchange = await deployedContract('LooksRareExchange', owner, [
+    looksRareExchange = await deployContract('LooksRareExchange', owner, [
       currencyManager.address,
       executionManager.address,
       royaltyFeeManager.address,
@@ -63,19 +57,24 @@ describe('LooksRareExchange', () => {
     ]) as LooksRareExchange
 
     // transfer selector
-    const transferManager721 = await deployedContract('TransferManagerERC721', owner, [looksRareExchange.address])
-    const transferManager1155 = await deployedContract('TransferManagerERC1155', owner, [looksRareExchange.address])
-    transferSelector = await deployedContract('TransferSelectorNFT', owner, [transferManager721.address, transferManager1155.address]) as TransferSelectorNFT
-    
+    const transferManager721 = await deployContract('TransferManagerERC721', owner, [looksRareExchange.address])
+    const transferManager1155 = await deployContract('TransferManagerERC1155', owner, [looksRareExchange.address])
+    transferSelector = await deployContract('TransferSelectorNFT', owner, [transferManager721.address, transferManager1155.address]) as TransferSelectorNFT
   })
 
   describe('Exchange Process', () => {
     it('MakerAsk /w TakerBid', async () => {
-      
+      const makerAsk : MakerOrder = new MakerOrder();
+      const takerBid : TakerOrder = new TakerOrder();
+
+      await looksRareExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
     })
 
     it('MakerBid /w TakerAsk', async () => {
-      
+      const makerBid : MakerOrder = new MakerOrder();
+      const takerAsk : TakerOrder = new TakerOrder();
+
+      await looksRareExchange.connect(taker).matchAskWithTakerBid(takerAsk, makerBid);
     })
   })
 })
