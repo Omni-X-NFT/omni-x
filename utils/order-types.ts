@@ -1,4 +1,4 @@
-import { BigNumber, Signer } from "ethers";
+import { BigNumber, BigNumberish, BytesLike, Signer } from "ethers";
 import { ethers } from "hardhat";
 import { TypedDataUtils } from "ethers-eip712"
 
@@ -22,7 +22,7 @@ const MAKE_ORDER_SIGN_TYPES = {
     { name: 'startTime', type: 'uint256' },
     { name: 'endTime', type: 'uint256' },
     { name: 'minPercentageToAsk', type: 'uint256' },
-    { name: 'params', type: 'bytes' }
+    { name: 'params', type: 'string' }
   ]
 };
 
@@ -30,19 +30,19 @@ export class MakerOrder {
   isOrderAsk  : boolean = false;
   signer      : string = ethers.constants.AddressZero;
   collection  : string = ethers.constants.AddressZero;
-  price       : BigNumber = BigNumber.from(0);
-  tokenId     : BigNumber = BigNumber.from(0);
-  amount      : BigNumber = BigNumber.from(0);
+  price       : BigNumberish = 0;
+  tokenId     : BigNumberish = 0;
+  amount      : BigNumberish = 0;
   strategy    : string = ethers.constants.AddressZero;
   currency    : string = ethers.constants.AddressZero;
-  nonce       : number = 0;
-  startTime   : number = 0;
-  endTime     : number = 0;
-  params      : string = "";
-  minPercentageToAsk     : number = 0;
-  v           : number = 0;
-  r           : string = "";
-  s           : string = "";
+  nonce       : BigNumberish = 0;
+  startTime   : BigNumberish = 0;
+  endTime     : BigNumberish = 0;
+  params      : BytesLike = [];
+  minPercentageToAsk     : BigNumberish = 0;
+  v           : BigNumberish = 0;
+  r           : BytesLike = [];
+  s           : BytesLike = [];
 
   sign = async (signer: Signer, contractAddr: string) => {
     const domain = {
@@ -73,8 +73,8 @@ export class MakerOrder {
 export class TakerOrder {
   isOrderAsk  : boolean = false;
   taker       : string = ethers.constants.AddressZero;
-  price       : BigNumber = BigNumber.from(0);
-  tokenId     : BigNumber = BigNumber.from(0);
-  params      : string = "";
-  minPercentageToAsk     : number = 0;
+  price       : BigNumberish = 0;
+  tokenId     : BigNumberish = 0;
+  params      : BytesLike = [];
+  minPercentageToAsk     : BigNumberish = 0;
 }
