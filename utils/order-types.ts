@@ -1,6 +1,7 @@
-import { BigNumber, BigNumberish, BytesLike, Signer } from "ethers";
+import { BigNumberish, BytesLike } from "ethers";
 import { ethers } from "hardhat";
 import { TypedDataUtils } from "ethers-eip712"
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const MAKE_ORDER_SIGN_TYPES = {
   EIP712Domain: [
@@ -22,9 +23,16 @@ const MAKE_ORDER_SIGN_TYPES = {
     { name: 'startTime', type: 'uint256' },
     { name: 'endTime', type: 'uint256' },
     { name: 'minPercentageToAsk', type: 'uint256' },
-    { name: 'params', type: 'string' }
+    { name: 'params', type: 'bytes' }
   ]
 };
+
+const getTypeString = (type : "EIP712Domain" | "MakerOrder") => {
+  const attrs = MAKE_ORDER_SIGN_TYPES[type].reduce( (acc, v) => `${acc},${v.type} ${v.name}`, ``);
+  return `${type}(${attrs.slice(1)})`;
+}
+const EIP712DomainType = getTypeString("EIP712Domain");
+const MakerOrderType = getTypeString("MakerOrder");
 
 export class MakerOrder {
   isOrderAsk  : boolean = false;
@@ -38,33 +46,63 @@ export class MakerOrder {
   nonce       : BigNumberish = 0;
   startTime   : BigNumberish = 0;
   endTime     : BigNumberish = 0;
-  params      : BytesLike = [];
   minPercentageToAsk     : BigNumberish = 0;
+  params      : BytesLike = [];
   v           : BigNumberish = 0;
   r           : BytesLike = [];
   s           : BytesLike = [];
 
-  sign = async (signer: Signer, contractAddr: string) => {
+  constructor (isOrderAsk: boolean) {
+    this.isOrderAsk = isOrderAsk;
+  }
+
+  async sign(signer: SignerWithAddress, contractAddr: string) {
+    // console.log(ethers.utils.id(EIP712DomainType));
+    const DOMAIN_SEPARATOR = ethers.utils.defaultAbiCoder.encode(
+      ["string", "string", "string", "uint256", "address"],
+      [
+        ethers.utils.id(EIP712DomainType),
+        ethers.utils.id("LooksRareExchange"),
+        ethers.utils.id("1"),
+        await signer.getChainId(),
+        contractAddr
+      ]
+    );
+
+    // console.log("---", DOMAIN_SEPARATOR);
+    // console.log("---", ethers.utils.id(DOMAIN_SEPARATOR));
+    
     const domain = {
       name: "LooksRareExchange",
       version: "1",
       chainId: await signer.getChainId(),
       verifyingContract: contractAddr
     };
-
-    const digest = TypedDataUtils.encodeDigest({
+    const typedData = {
       domain,
       types: MAKE_ORDER_SIGN_TYPES,
       primaryType: "MakerOrder",
       message: this
-    });
+    }
+    console.log("---", TypedDataUtils.hashStruct(typedData, "EIP712Domain", domain).toString());
+    console.log("---", TypedDataUtils.hashStruct(typedData, "MakerOrder", this));
+
+    // const digest = TypedDataUtils.encodeDigest({
+    //   domain,
+    //   types: MAKE_ORDER_SIGN_TYPES,
+    //   primaryType: "MakerOrder",
+    //   message: this
+    // });
     
-    const signature = await signer.signMessage(digest);
-    const splitted = ethers.utils.splitSignature(signature);
+    // const signature = await signer.signMessage(digest);
+    // const splitted = ethers.utils.splitSignature(signature);
     
-    this.r = splitted.r;
-    this.s = splitted.s;
-    this.v = splitted.v;
+    // this.r = splitted.r;
+    // this.s = splitted.s;
+    // this.v = splitted.v;
+
+    // console.log("----", digest.toString());
+    // console.log("----", signer.address);
 
     return this;
   }
@@ -77,4 +115,8 @@ export class TakerOrder {
   tokenId     : BigNumberish = 0;
   params      : BytesLike = [];
   minPercentageToAsk     : BigNumberish = 0;
+
+  constructor (isOrderAsk: boolean) {
+    this.isOrderAsk = isOrderAsk;
+  }
 }

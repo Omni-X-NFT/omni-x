@@ -19,6 +19,7 @@ import {IWETH} from "./interfaces/IWETH.sol";
 // LooksRare libraries
 import {OrderTypes} from "./libraries/OrderTypes.sol";
 import {SignatureChecker} from "./libraries/SignatureChecker.sol";
+import "hardhat/console.sol";
 
 /**
  * @title LooksRareExchange
@@ -101,6 +102,16 @@ contract LooksRareExchange is ILooksRareExchange, ReentrancyGuard, Ownable {
         address _protocolFeeRecipient
     ) {
         // Calculate the domain separator
+        bytes memory abc1 = 
+            abi.encode(
+                0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f, // keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)")
+                0xda9101ba92939daf4bb2e18cd5f942363b9297fbc3232c9dd964abb1fb70ed71, // keccak256("LooksRareExchange")
+                0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6, // keccak256(bytes("1")) for versionId = 1
+                block.chainid,
+                address(this)
+            );
+        bytes32 abc = keccak256(abc1);
+
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f, // keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)")
@@ -116,6 +127,10 @@ contract LooksRareExchange is ILooksRareExchange, ReentrancyGuard, Ownable {
         royaltyFeeManager = IRoyaltyFeeManager(_royaltyFeeManager);
         WETH = _WETH;
         protocolFeeRecipient = _protocolFeeRecipient;
+
+        console.logBytes(abc1);
+
+        console.logBytes32(abc);
     }
 
     /**

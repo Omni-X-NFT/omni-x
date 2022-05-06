@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
+import "hardhat/console.sol";
 
 /**
  * @title SignatureChecker
@@ -63,6 +64,8 @@ library SignatureChecker {
             // 0x1626ba7e is the interfaceId for signature contracts (see IERC1271)
             return IERC1271(signer).isValidSignature(digest, abi.encodePacked(r, s, v)) == 0x1626ba7e;
         } else {
+            console.log(signer);
+            console.logBytes32(digest);
             return recover(digest, v, r, s) == signer;
         }
     }
