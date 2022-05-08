@@ -106,7 +106,7 @@ describe('LooksRareExchange', () => {
       fillTakerOrder(takerBid)
 
       await makerAsk.sign(maker, looksRareExchange.address)
-      // await looksRareExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
+      await looksRareExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
     })
 
     it('MakerBid /w TakerAsk', async () => {

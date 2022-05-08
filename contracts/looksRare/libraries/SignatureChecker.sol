@@ -60,13 +60,15 @@ library SignatureChecker {
         // \x19\x01 is the standardized encoding prefix
         // https://eips.ethereum.org/EIPS/eip-712#specification
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, hash));
+        bytes32 ethSigned = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", digest));
+
         if (Address.isContract(signer)) {
             // 0x1626ba7e is the interfaceId for signature contracts (see IERC1271)
             return IERC1271(signer).isValidSignature(digest, abi.encodePacked(r, s, v)) == 0x1626ba7e;
         } else {
-            console.log(signer);
-            console.logBytes32(digest);
-            return recover(digest, v, r, s) == signer;
+            
+            address checker = recover(ethSigned, v, r, s);
+            return checker == signer;
         }
     }
 }

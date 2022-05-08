@@ -57,21 +57,6 @@ export class MakerOrder {
   }
 
   async sign(signer: SignerWithAddress, contractAddr: string) {
-    // console.log(ethers.utils.id(EIP712DomainType));
-    const DOMAIN_SEPARATOR = ethers.utils.defaultAbiCoder.encode(
-      ['string', 'string', 'string', 'uint256', 'address'],
-      [
-        ethers.utils.id(EIP712DomainType),
-        ethers.utils.id('LooksRareExchange'),
-        ethers.utils.id('1'),
-        await signer.getChainId(),
-        contractAddr
-      ]
-    )
-
-    // console.log('---', DOMAIN_SEPARATOR);
-    // console.log('---', ethers.utils.id(DOMAIN_SEPARATOR));
-    
     const domain = {
       name: 'LooksRareExchange',
       version: '1',
@@ -84,26 +69,14 @@ export class MakerOrder {
       primaryType: 'MakerOrder',
       message: this
     }
-    console.log('---', TypedDataUtils.hashStruct(typedData, 'EIP712Domain', domain).toString())
-    console.log('---', TypedDataUtils.hashStruct(typedData, 'MakerOrder', this))
 
-    // const digest = TypedDataUtils.encodeDigest({
-    //   domain,
-    //   types: MAKE_ORDER_SIGN_TYPES,
-    //   primaryType: 'MakerOrder',
-    //   message: this
-    // });
+    const digest = TypedDataUtils.encodeDigest(typedData);
+    const signature = await signer.signMessage(digest);
+    const splitted = ethers.utils.splitSignature(signature);
     
-    // const signature = await signer.signMessage(digest);
-    // const splitted = ethers.utils.splitSignature(signature);
-    
-    // this.r = splitted.r;
-    // this.s = splitted.s;
-    // this.v = splitted.v;
-
-    // console.log('----', digest.toString());
-    // console.log('----', signer.address);
-
+    this.r = splitted.r;
+    this.s = splitted.s;
+    this.v = splitted.v;
     return this;
   }
 }
