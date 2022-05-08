@@ -1,7 +1,7 @@
-import { ethers } from "hardhat"
-import chai from "chai"
-import { solidity } from "ethereum-waffle"
-import { 
+import { ethers } from 'hardhat'
+import chai from 'chai'
+import { solidity } from 'ethereum-waffle'
+import {
   LooksRareExchange,
   CurrencyManager,
   ExecutionManager,
@@ -10,21 +10,21 @@ import {
   StrategyPrivateSale,
   Nft721Mock,
   LRTokenMock
-} from "../typechain-types"
+} from '../typechain-types'
 import {
   deployContract, now, toWei
-} from "../utils/test-utils";
+} from '../utils/test-utils'
 import {
   TakerOrder,
   MakerOrder
-} from "../utils/order-types";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+} from '../utils/order-types';
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 chai.use(solidity)
 const { expect } = chai
 
-const STRATEGY_PROTOCAL_FEE = 200;  // 2%
-const ROYALTY_FEE_LIMIT = 500;      // 5%
+const STRATEGY_PROTOCAL_FEE = 200 // 2%
+const ROYALTY_FEE_LIMIT = 500 // 5%
 
 describe('LooksRareExchange', () => {
   let looksRareExchange: LooksRareExchange
@@ -36,26 +36,26 @@ describe('LooksRareExchange', () => {
   let nftMock: Nft721Mock
   let erc20Mock: LRTokenMock
   let owner: SignerWithAddress
-  let maker: SignerWithAddress;
-  let taker: SignerWithAddress;
+  let maker: SignerWithAddress
+  let taker: SignerWithAddress
 
   const fillMakerOrder = (makeOrder : MakerOrder, nonce: number) => {
-    makeOrder.tokenId = 1;
-    makeOrder.price = toWei(1);
-    makeOrder.amount = 1;
-    makeOrder.collection = nftMock.address;
-    makeOrder.strategy = strategy.address;
-    makeOrder.nonce = nonce;
-    makeOrder.startTime = now();
-    makeOrder.endTime = now() + 3600 * 30;
-    makeOrder.minPercentageToAsk = 900;
-    makeOrder.signer = maker.address;
+    makeOrder.tokenId = 1
+    makeOrder.price = toWei(1)
+    makeOrder.amount = 1
+    makeOrder.collection = nftMock.address
+    makeOrder.strategy = strategy.address
+    makeOrder.nonce = nonce
+    makeOrder.startTime = now()
+    makeOrder.endTime = now() + 3600 * 30
+    makeOrder.minPercentageToAsk = 900
+    makeOrder.signer = maker.address
   }
   const fillTakerOrder = (takerOrder : TakerOrder) => {
-    takerOrder.tokenId = 1;
-    takerOrder.price = toWei(1);
-    takerOrder.minPercentageToAsk = 900;
-    takerOrder.taker = taker.address;
+    takerOrder.tokenId = 1
+    takerOrder.price = toWei(1)
+    takerOrder.minPercentageToAsk = 900
+    takerOrder.taker = taker.address
   }
 
   before(async () => {
@@ -73,7 +73,7 @@ describe('LooksRareExchange', () => {
     // execution manager with strategy. protocal fee 200 = 2%
     strategy = await deployContract('StrategyPrivateSale', owner, [STRATEGY_PROTOCAL_FEE]) as StrategyPrivateSale
     executionManager = await deployContract('ExecutionManager', owner, []) as ExecutionManager
-    await executionManager.addStrategy(strategy.address);
+    await executionManager.addStrategy(strategy.address)
 
     // royalty fee manager
     const royaltyFeeRegistry = await deployContract('RoyaltyFeeRegistry', owner, [ROYALTY_FEE_LIMIT])
@@ -99,19 +99,19 @@ describe('LooksRareExchange', () => {
 
   describe('Exchange Process', () => {
     it('MakerAsk /w TakerBid', async () => {
-      const makerAsk : MakerOrder = new MakerOrder(true);
-      const takerBid : TakerOrder = new TakerOrder(false);
+      const makerAsk: MakerOrder = new MakerOrder(true)
+      const takerBid: TakerOrder = new TakerOrder(false)
 
-      fillMakerOrder(makerAsk, 1);
-      fillTakerOrder(takerBid);
+      fillMakerOrder(makerAsk, 1)
+      fillTakerOrder(takerBid)
 
-      await makerAsk.sign(maker, looksRareExchange.address);
+      await makerAsk.sign(maker, looksRareExchange.address)
       // await looksRareExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
     })
 
     it('MakerBid /w TakerAsk', async () => {
-      const makerBid : MakerOrder = new MakerOrder(false);
-      const takerAsk : TakerOrder = new TakerOrder(true);
+      const makerBid: MakerOrder = new MakerOrder(false)
+      const takerAsk: TakerOrder = new TakerOrder(true)
 
       // await makerBid.sign(maker, looksRareExchange.address);
       // await looksRareExchange.connect(taker).matchAskWithTakerBid(takerAsk, makerBid);
