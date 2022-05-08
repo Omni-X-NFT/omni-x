@@ -56,6 +56,12 @@ export class MakerOrder {
     this.isOrderAsk = isOrderAsk;
   }
 
+  setParam(buyer: string) {
+    this.params = ethers.utils.arrayify(
+      ethers.utils.defaultAbiCoder.encode(['address'], [buyer])
+    )
+  }
+
   async sign(signer: SignerWithAddress, contractAddr: string) {
     const domain = {
       name: 'LooksRareExchange',

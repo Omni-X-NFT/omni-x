@@ -1,4 +1,4 @@
-import { ethers } from 'hardhat'
+import { ethers, waffle } from 'hardhat'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from 'ethers'
 
@@ -12,6 +12,6 @@ export const deployContract = async (name: string, owner: any, initParams: Array
   return contract.deployed()
 }
 
-export const now = () => {
-  return new Date().valueOf()
+export const getBlockTime = async () => {
+  return (await waffle.provider.getBlock('latest')).timestamp
 }
