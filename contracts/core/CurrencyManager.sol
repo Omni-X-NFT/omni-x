@@ -5,6 +5,8 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {ICurrencyManager} from "../interfaces/ICurrencyManager.sol";
+import {InterfaceChecker} from "../libraries/InterfaceChecker.sol";
+import {IOFT} from "../token/oft/IOFT.sol";
 
 /**
  * @title CurrencyManager
@@ -14,6 +16,7 @@ contract CurrencyManager is ICurrencyManager, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     EnumerableSet.AddressSet private _whitelistedCurrencies;
+    mapping (address => bool) private _omniCurrencies;
 
     event CurrencyRemoved(address indexed currency);
     event CurrencyWhitelisted(address indexed currency);
@@ -25,7 +28,7 @@ contract CurrencyManager is ICurrencyManager, Ownable {
     function addCurrency(address currency) external override onlyOwner {
         require(!_whitelistedCurrencies.contains(currency), "Currency: Already whitelisted");
         _whitelistedCurrencies.add(currency);
-
+        _omniCurrencies[currency] = InterfaceChecker.check(currency, type(IOFT).interfaceId);
         emit CurrencyWhitelisted(currency);
     }
 
@@ -36,6 +39,7 @@ contract CurrencyManager is ICurrencyManager, Ownable {
     function removeCurrency(address currency) external override onlyOwner {
         require(_whitelistedCurrencies.contains(currency), "Currency: Not whitelisted");
         _whitelistedCurrencies.remove(currency);
+        delete _omniCurrencies[currency];
 
         emit CurrencyRemoved(currency);
     }
@@ -46,6 +50,10 @@ contract CurrencyManager is ICurrencyManager, Ownable {
      */
     function isCurrencyWhitelisted(address currency) external view override returns (bool) {
         return _whitelistedCurrencies.contains(currency);
+    }
+
+    function isOmniCurrency(address currency) external view override returns (bool) {
+        return _omniCurrencies[currency];
     }
 
     /**

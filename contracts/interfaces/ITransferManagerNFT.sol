@@ -7,6 +7,7 @@ interface ITransferManagerNFT {
         address from,
         address to,
         uint256 tokenId,
-        uint256 amount
+        uint256 amount,
+        uint16 toChainId
     ) external;
 }
