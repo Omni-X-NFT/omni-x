@@ -1,18 +1,18 @@
-import * as dotenv from 'dotenv'
+require('dotenv').config()
 
-import { HardhatUserConfig } from 'hardhat/config'
-import '@nomiclabs/hardhat-etherscan'
-import '@nomiclabs/hardhat-waffle'
-import '@typechain/hardhat'
-import 'hardhat-gas-reporter'
-import 'solidity-coverage'
-
-dotenv.config()
+require('hardhat-contract-sizer')
+require('@nomiclabs/hardhat-etherscan')
+require('@nomiclabs/hardhat-waffle')
+require('hardhat-gas-reporter')
+require('hardhat-deploy')
+require('hardhat-deploy-ethers')
+require('solidity-coverage')
+require('./tasks')
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
-const config: HardhatUserConfig = {
+module.exports = {
   solidity: {
     version: '0.8.4',
     settings: {
@@ -23,6 +23,11 @@ const config: HardhatUserConfig = {
     }
   },
   networks: {
+    hardhat: {
+      forking: {
+        url: 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'
+      }
+    },
     ropsten: {
       url: process.env.ROPSTEN_URL || '',
       accounts:
@@ -85,5 +90,3 @@ const config: HardhatUserConfig = {
     apiKey: process.env.ETHERSCAN_API_KEY
   }
 }
-
-export default config

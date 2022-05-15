@@ -1,18 +1,17 @@
 const LZ_ENDPOINTS = require('../constants/layerzeroEndpoints.json')
-// const OFT_CONFIG = require('../constants/oftConfig.json')
-const hre = require('hardhat')
-const { ethers } = require('hardhat')
+const fs = require('fs')
+const path = require('path')
 
 async function main () {
   const [deployer] = await ethers.getSigners()
 
-  console.log(`>>> your address: ${deployer}`)
+  console.log(`>>> your address: ${deployer.address}`)
 
   // get the Endpoint address
   const endpointAddr = LZ_ENDPOINTS[hre.network.name]
   console.log(`[${hre.network.name}] LayerZero Endpoint address: ${endpointAddr}`)
 
-  const omniNFT = await ethers.getContractFactory('OmniNFT')
+  const omniNFT = await hre.ethers.getContractFactory('OmniNFT')
   const omniNFTInstance = await omniNFT.deploy(
     'OmniNFT',
     'OFT',
@@ -22,6 +21,17 @@ async function main () {
   await omniNFTInstance.deployed()
 
   console.log(omniNFTInstance.address)
+
+  const folderName = hre.network.name === 'hardhat' ? 'localhost' : hre.network.name
+  if (!fs.existsSync(path.resolve(__dirname, `../deployments/${folderName}`))) {
+    fs.mkdirSync(path.resolve(__dirname, `../deployments/${folderName}`))
+  }
+  fs.writeFileSync(path.resolve(__dirname, `../deployments/${folderName}/OmniNFT.json`), JSON.stringify({
+    address: omniNFTInstance.address
+  }), {
+    encoding: 'utf8',
+    flag: 'w'
+  })
 }
 
 main()
