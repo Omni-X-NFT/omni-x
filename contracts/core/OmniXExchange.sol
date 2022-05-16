@@ -16,8 +16,11 @@ import {ITransferManagerNFT} from "../interfaces/ITransferManagerNFT.sol";
 import {ITransferSelectorNFT} from "../interfaces/ITransferSelectorNFT.sol";
 import {IOmniXExchange} from "../interfaces/IOmniXExchange.sol";
 import {IWETH} from "../interfaces/IWETH.sol";
+import {IOFT} from "../token/oft/IOFT.sol";
 
 import {OrderTypes} from "../libraries/OrderTypes.sol";
+import {BytesUtils} from "../libraries/BytesUtils.sol";
+
 import "hardhat/console.sol";
 
 /**
@@ -185,11 +188,12 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             tokenId,
             makerAsk.signer,
             takerBid.price,
-            makerAsk.minPercentageToAsk
+            makerAsk.minPercentageToAsk,
+            makerAsk.chainId
         );
 
         // Execution part 2/2
-        _transferNonFungibleToken(makerAsk.collection, makerAsk.signer, takerBid.taker, tokenId, amount);
+        _transferNonFungibleToken(makerAsk.collection, makerAsk.signer, takerBid.taker, tokenId, amount, takerBid.chainId);
 
         emit TakerBid(
             askHash,
@@ -243,11 +247,12 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             msg.sender,
             makerAsk.signer,
             takerBid.price,
-            makerAsk.minPercentageToAsk
+            makerAsk.minPercentageToAsk,
+            makerAsk.chainId
         );
 
         // Execution part 2/2
-        _transferNonFungibleToken(makerAsk.collection, makerAsk.signer, takerBid.taker, tokenId, amount);
+        _transferNonFungibleToken(makerAsk.collection, makerAsk.signer, takerBid.taker, tokenId, amount, takerBid.chainId);
 
         emit TakerBid(
             askHash,
@@ -292,7 +297,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         _isUserOrderNonceExecutedOrCancelled[makerBid.signer][makerBid.nonce] = true;
 
         // Execution part 1/2
-        _transferNonFungibleToken(makerBid.collection, msg.sender, makerBid.signer, tokenId, amount);
+        _transferNonFungibleToken(makerBid.collection, msg.sender, makerBid.signer, tokenId, amount, takerAsk.chainId);
 
         // Execution part 2/2
         _transferFeesAndFunds(
@@ -303,7 +308,8 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             makerBid.signer,
             takerAsk.taker,
             takerAsk.price,
-            takerAsk.minPercentageToAsk
+            takerAsk.minPercentageToAsk,
+            makerBid.chainId
         );
 
         emit TakerAsk(
@@ -402,6 +408,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         address to,
         uint256 amount,
         uint256 minPercentageToAsk
+        uint16 toChainId
     ) internal {
         // Initialize the final amount that is transferred to seller
         uint256 finalSellerAmount = amount;
@@ -435,7 +442,23 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
 
         // 3. Transfer final amount (post-fees) to seller
         {
-            IERC20(currency).safeTransferFrom(from, to, finalSellerAmount);
+            _transferCurrency(from, to, finalSellerAmount, toChainId);
+        }
+    }
+
+    function _transferCurrency(
+        address currency,
+        address from,
+        address to,
+        uint256 amount,
+        uint16 toChainId
+    ) internal {
+        if (currencyManager.isOmniCurrency(currency)) {
+            bytes memory toAddress = BytesUtils.fromAddress(to);
+            IOFT(currency).sendFrom(from, toChainId, toAddress, amount, payable(0), address(0), bytes(""));
+        }
+        else {
+            IERC20(currency).safeTransferFrom(from, to, amount);
         }
     }
 
@@ -506,7 +529,8 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         address from,
         address to,
         uint256 tokenId,
-        uint256 amount
+        uint256 amount,
+        uint16 toChainId
     ) internal {
         // Retrieve the transfer manager address
         address transferManager = transferSelectorNFT.checkTransferManagerForToken(collection);
@@ -515,7 +539,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         require(transferManager != address(0), "Transfer: No NFT transfer manager available");
 
         // If one is found, transfer the token
-        ITransferManagerNFT(transferManager).transferNonFungibleToken(collection, from, to, tokenId, amount);
+        ITransferManagerNFT(transferManager).transferNonFungibleToken(collection, from, to, tokenId, amount, toChainId);
     }
 
     /**
