@@ -181,6 +181,8 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         // Update maker ask order status to true (prevents replay)
         _isUserOrderNonceExecutedOrCancelled[makerAsk.signer][makerAsk.nonce] = true;
 
+        (uint16 fromChainId) = makerAsk.decodeParams();
+        (uint16 toChainId) = takerBid.decodeParams();
         // to avoid stack deep error
         OrderTypes.TakerOrder memory takerBid_ = takerBid;
         OrderTypes.MakerOrder memory makerAsk_ = makerAsk;
@@ -196,7 +198,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         );
 
         // Execution part 2/2
-        _transferNonFungibleToken(makerAsk_.collection, makerAsk_.signer, takerBid_.taker, tokenId, amount, takerBid_.chainId);
+        _transferNonFungibleToken(makerAsk_.collection, makerAsk_.signer, takerBid_.taker, tokenId, amount, toChainId);
 
         emit TakerBid(
             askHash,
@@ -209,8 +211,8 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             tokenId,
             amount,
             takerBid_.price,
-            makerAsk_.chainId,
-            takerBid_.chainId
+            fromChainId,
+            toChainId
         );
     }
 
@@ -236,6 +238,9 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
 
         require(isExecutionValid, "Strategy: Execution invalid");
 
+        (uint16 fromChainId) = makerAsk.decodeParams();
+        (uint16 toChainId) = takerBid.decodeParams();
+
         // Update maker ask order status to true (prevents replay)
         _isUserOrderNonceExecutedOrCancelled[makerAsk.signer][makerAsk.nonce] = true;
 
@@ -253,11 +258,11 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             makerAsk_.signer,
             takerBid_.price,
             makerAsk_.minPercentageToAsk,
-            makerAsk_.chainId
+            fromChainId
         );
 
         // Execution part 2/2
-        _transferNonFungibleToken(makerAsk_.collection, makerAsk_.signer, takerBid_.taker, tokenId, amount, takerBid_.chainId);
+        _transferNonFungibleToken(makerAsk_.collection, makerAsk_.signer, takerBid_.taker, tokenId, amount, toChainId);
 
         emit TakerBid(
             askHash,
@@ -270,8 +275,8 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             tokenId,
             amount,
             takerBid_.price,
-            makerAsk_.chainId,
-            takerBid_.chainId
+            fromChainId,
+            toChainId
         );
     }
 
@@ -297,6 +302,8 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
 
         require(isExecutionValid, "Strategy: Execution invalid");
 
+        (uint16 fromChainId) = makerBid.decodeParams();
+        (uint16 toChainId) = takerAsk.decodeParams();
         // to avoid stack deep error
         OrderTypes.TakerOrder memory takerAsk_ = takerAsk;
         OrderTypes.MakerOrder memory makerBid_ = makerBid;
@@ -305,7 +312,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         _isUserOrderNonceExecutedOrCancelled[makerBid_.signer][makerBid_.nonce] = true;
 
         // Execution part 1/2
-        _transferNonFungibleToken(makerBid_.collection, msg.sender, makerBid_.signer, tokenId, amount, takerAsk_.chainId);
+        _transferNonFungibleToken(makerBid_.collection, msg.sender, makerBid_.signer, tokenId, amount, toChainId);
 
         // Execution part 2/2
         _transferFeesAndFunds(
@@ -317,7 +324,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             takerAsk_.taker,
             takerAsk_.price,
             takerAsk_.minPercentageToAsk,
-            makerBid_.chainId
+            fromChainId
         );
 
         emit TakerAsk(
@@ -331,8 +338,8 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             tokenId,
             amount,
             takerAsk_.price,
-            makerBid_.chainId,
-            takerAsk_.chainId
+            fromChainId,
+            toChainId
         );
     }
 
