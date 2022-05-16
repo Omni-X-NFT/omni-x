@@ -24,8 +24,8 @@ import {BytesUtils} from "../libraries/BytesUtils.sol";
 import "hardhat/console.sol";
 
 /**
- * @title LooksRareExchange
- * @notice It is the core contract of the LooksRare exchange.
+ * @title OmniXExchange
+ * @notice It is the core contract of the OmniX exchange.
  */
 contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
     string private constant SIGNING_DOMAIN = "OmniXExchange";
@@ -76,8 +76,8 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         uint256 tokenId, // tokenId transferred
         uint256 amount, // amount of tokens transferred
         uint256 price, // final transacted price
-        uint8 makerChainId,  // chain id
-        uint8 takerChainId  // chain id
+        uint16 makerChainId,  // chain id
+        uint16 takerChainId  // chain id
     );
 
     event TakerBid(
@@ -91,8 +91,8 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         uint256 tokenId, // tokenId transferred
         uint256 amount, // amount of tokens transferred
         uint256 price, // final transacted price
-        uint8 makerChainId,  // chain id
-        uint8 takerChainId  // chain id
+        uint16 makerChainId,  // chain id
+        uint16 takerChainId  // chain id
     );
 
     /**
@@ -181,35 +181,36 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         // Update maker ask order status to true (prevents replay)
         _isUserOrderNonceExecutedOrCancelled[makerAsk.signer][makerAsk.nonce] = true;
 
+        // to avoid stack deep error
+        OrderTypes.TakerOrder memory takerBid_ = takerBid;
+        OrderTypes.MakerOrder memory makerAsk_ = makerAsk;
+
         // Execution part 1/2
         _transferFeesAndFundsWithWETH(
-            makerAsk.strategy,
-            makerAsk.collection,
+            makerAsk_.strategy,
+            makerAsk_.collection,
             tokenId,
-            makerAsk.signer,
-            takerBid.price,
-            makerAsk.minPercentageToAsk,
-            makerAsk.chainId
+            makerAsk_.signer,
+            takerBid_.price,
+            makerAsk_.minPercentageToAsk
         );
 
         // Execution part 2/2
-        _transferNonFungibleToken(makerAsk.collection, makerAsk.signer, takerBid.taker, tokenId, amount, takerBid.chainId);
+        _transferNonFungibleToken(makerAsk_.collection, makerAsk_.signer, takerBid_.taker, tokenId, amount, takerBid_.chainId);
 
         emit TakerBid(
             askHash,
-            makerAsk.nonce,
-            takerBid.taker,
-            makerAsk.signer,
-            makerAsk.strategy,
-            makerAsk.currency,
-            makerAsk.collection,
-
+            makerAsk_.nonce,
+            takerBid_.taker,
+            makerAsk_.signer,
+            makerAsk_.strategy,
+            makerAsk_.currency,
+            makerAsk_.collection,
             tokenId,
             amount,
-            takerBid.price,
-
-            makerAsk.chainId,
-            takerBid.chainId
+            takerBid_.price,
+            makerAsk_.chainId,
+            takerBid_.chainId
         );
     }
 
@@ -238,36 +239,39 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         // Update maker ask order status to true (prevents replay)
         _isUserOrderNonceExecutedOrCancelled[makerAsk.signer][makerAsk.nonce] = true;
 
+        // to avoid stack deep error
+        OrderTypes.TakerOrder memory takerBid_ = takerBid;
+        OrderTypes.MakerOrder memory makerAsk_ = makerAsk;
+
         // Execution part 1/2
         _transferFeesAndFunds(
-            makerAsk.strategy,
-            makerAsk.collection,
+            makerAsk_.strategy,
+            makerAsk_.collection,
             tokenId,
-            makerAsk.currency,
+            makerAsk_.currency,
             msg.sender,
-            makerAsk.signer,
-            takerBid.price,
-            makerAsk.minPercentageToAsk,
-            makerAsk.chainId
+            makerAsk_.signer,
+            takerBid_.price,
+            makerAsk_.minPercentageToAsk,
+            makerAsk_.chainId
         );
 
         // Execution part 2/2
-        _transferNonFungibleToken(makerAsk.collection, makerAsk.signer, takerBid.taker, tokenId, amount, takerBid.chainId);
+        _transferNonFungibleToken(makerAsk_.collection, makerAsk_.signer, takerBid_.taker, tokenId, amount, takerBid_.chainId);
 
         emit TakerBid(
             askHash,
-            makerAsk.nonce,
-            takerBid.taker,
-            makerAsk.signer,
-            makerAsk.strategy,
-            makerAsk.currency,
-            makerAsk.collection,
+            makerAsk_.nonce,
+            takerBid_.taker,
+            makerAsk_.signer,
+            makerAsk_.strategy,
+            makerAsk_.currency,
+            makerAsk_.collection,
             tokenId,
             amount,
-            takerBid.price,
-
-            makerAsk.chainId,
-            takerBid.chainId
+            takerBid_.price,
+            makerAsk_.chainId,
+            takerBid_.chainId
         );
     }
 
@@ -293,39 +297,42 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
 
         require(isExecutionValid, "Strategy: Execution invalid");
 
+        // to avoid stack deep error
+        OrderTypes.TakerOrder memory takerAsk_ = takerAsk;
+        OrderTypes.MakerOrder memory makerBid_ = makerBid;
+
         // Update maker bid order status to true (prevents replay)
-        _isUserOrderNonceExecutedOrCancelled[makerBid.signer][makerBid.nonce] = true;
+        _isUserOrderNonceExecutedOrCancelled[makerBid_.signer][makerBid_.nonce] = true;
 
         // Execution part 1/2
-        _transferNonFungibleToken(makerBid.collection, msg.sender, makerBid.signer, tokenId, amount, takerAsk.chainId);
+        _transferNonFungibleToken(makerBid_.collection, msg.sender, makerBid_.signer, tokenId, amount, takerAsk_.chainId);
 
         // Execution part 2/2
         _transferFeesAndFunds(
-            makerBid.strategy,
-            makerBid.collection,
+            makerBid_.strategy,
+            makerBid_.collection,
             tokenId,
-            makerBid.currency,
-            makerBid.signer,
-            takerAsk.taker,
-            takerAsk.price,
-            takerAsk.minPercentageToAsk,
-            makerBid.chainId
+            makerBid_.currency,
+            makerBid_.signer,
+            takerAsk_.taker,
+            takerAsk_.price,
+            takerAsk_.minPercentageToAsk,
+            makerBid_.chainId
         );
 
         emit TakerAsk(
             bidHash,
-            makerBid.nonce,
-            takerAsk.taker,
-            makerBid.signer,
-            makerBid.strategy,
-            makerBid.currency,
-            makerBid.collection,
+            makerBid_.nonce,
+            takerAsk_.taker,
+            makerBid_.signer,
+            makerBid_.strategy,
+            makerBid_.currency,
+            makerBid_.collection,
             tokenId,
             amount,
-            takerAsk.price,
-
-            makerBid.chainId,
-            takerAsk.chainId
+            takerAsk_.price,
+            makerBid_.chainId,
+            takerAsk_.chainId
         );
     }
 
@@ -407,7 +414,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         address from,
         address to,
         uint256 amount,
-        uint256 minPercentageToAsk
+        uint256 minPercentageToAsk,
         uint16 toChainId
     ) internal {
         // Initialize the final amount that is transferred to seller
@@ -442,7 +449,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
 
         // 3. Transfer final amount (post-fees) to seller
         {
-            _transferCurrency(from, to, finalSellerAmount, toChainId);
+            _transferCurrency(currency, from, to, finalSellerAmount, toChainId);
         }
     }
 
