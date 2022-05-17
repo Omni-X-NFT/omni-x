@@ -54,7 +54,7 @@ contract StrategyPrivateSale is IExecutionStrategy {
         )
     {
         // Retrieve target buyer
-        address targetBuyer = abi.decode(makerAsk.params, (address));
+        (, address targetBuyer) = abi.decode(makerAsk.params, (uint16, address));
 
         return (
             ((targetBuyer == takerBid.taker) &&

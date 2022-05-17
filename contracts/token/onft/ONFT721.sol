@@ -91,6 +91,10 @@ contract ONFT721 is IONFT721, NonblockingLzApp, ERC721 {
         baseTokenURI = _baseTokenURI;
     }
 
+    function safeMint(address to, uint256 tokenId) public onlyOwner {
+        _safeMint(to, tokenId, "");
+    }
+
     function _baseURI() internal view override returns (string memory) {
         return baseTokenURI;
     }

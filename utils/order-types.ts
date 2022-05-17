@@ -27,13 +27,6 @@ const MAKE_ORDER_SIGN_TYPES = {
   ]
 };
 
-const getTypeString = (type : 'EIP712Domain' | 'MakerOrder') => {
-  const attrs = MAKE_ORDER_SIGN_TYPES[type].reduce((acc, v) => `${acc},${v.type} ${v.name}`, ``)
-  return `${type}(${attrs.slice(1)})`
-}
-const EIP712DomainType = getTypeString('EIP712Domain')
-const MakerOrderType = getTypeString('MakerOrder')
-
 export class MakerOrder {
   isOrderAsk: boolean = false
   signer: string = ethers.constants.AddressZero
@@ -48,18 +41,26 @@ export class MakerOrder {
   endTime: BigNumberish = 0
   minPercentageToAsk: BigNumberish = 0
   params: BytesLike = []
-  v: BigNumberish = 0
-  r: BytesLike = []
-  s: BytesLike = []
+  signature: string = ""
 
   constructor (isOrderAsk: boolean) {
     this.isOrderAsk = isOrderAsk;
   }
-
-  setParam(buyer: string) {
+  
+  setParams(types: string[], values: any[]) {
     this.params = ethers.utils.arrayify(
-      ethers.utils.defaultAbiCoder.encode(['address'], [buyer])
+      ethers.utils.defaultAbiCoder.encode(types, values)
     )
+  }
+
+  encodeParams(chainId: number, buyer: string) {
+    if (this.isOrderAsk) {
+      this.setParams(['uint16', 'address'], [chainId, buyer]);
+    }
+    else {
+      // TODO!!! this should be checked again later
+      this.setParams(['uint16', 'address'], [chainId, buyer]);
+    }
   }
 
   async sign(signer: SignerWithAddress, contractAddr: string) {
@@ -77,12 +78,7 @@ export class MakerOrder {
     }
 
     const digest = TypedDataUtils.encodeDigest(typedData);
-    const signature = await signer.signMessage(digest);
-    const splitted = ethers.utils.splitSignature(signature);
-    
-    this.r = splitted.r;
-    this.s = splitted.s;
-    this.v = splitted.v;
+    this.signature = await signer.signMessage(digest);
     return this;
   }
 }
@@ -97,5 +93,22 @@ export class TakerOrder {
 
   constructor (isOrderAsk: boolean) {
     this.isOrderAsk = isOrderAsk
+  }
+
+  setParams(types: string[], values: any[]) {
+    this.params = ethers.utils.arrayify(
+      ethers.utils.defaultAbiCoder.encode(types, values)
+    )
+  }
+
+  encodeParams(chainId: number) {
+    if (this.isOrderAsk) {
+      // TODO!!! this should be checked again later
+      this.setParams(['uint16'], [chainId]);
+    }
+    else {
+      this.setParams(['uint16'], [chainId]);
+    }
+    
   }
 }
