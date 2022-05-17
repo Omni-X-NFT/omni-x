@@ -6,10 +6,10 @@ import {ITransferManagerNFT} from "../interfaces/ITransferManagerNFT.sol";
 import {BytesUtils} from "../libraries/BytesUtils.sol";
 
 /**
- * @title TransferManagerERC1155
+ * @title TransferManagerONFT1155
  * @notice It allows the transfer of ERC1155 tokens.
  */
-contract TransferManagerERC1155 is ITransferManagerNFT {
+contract TransferManagerONFT1155 is ITransferManagerNFT {
     address public immutable OMNIX_EXCHANGE;
 
     /**

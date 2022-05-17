@@ -5,10 +5,10 @@ import {IONFT721} from "../token/onft/IONFT721.sol";
 import {ITransferManagerNFT} from "../interfaces/ITransferManagerNFT.sol";
 import {BytesUtils} from "../libraries/BytesUtils.sol";
 /**
- * @title TransferManagerERC721
+ * @title TransferManagerONFT721
  * @notice It allows the transfer of ERC721 tokens.
  */
-contract TransferManagerERC721 is ITransferManagerNFT {
+contract TransferManagerONFT721 is ITransferManagerNFT {
     address public immutable OMNIX_EXCHANGE;
 
     /**
