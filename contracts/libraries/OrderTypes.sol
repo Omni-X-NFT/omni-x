@@ -3,12 +3,12 @@ pragma solidity ^0.8.0;
 
 /**
  * @title OrderTypes
- * @notice This library contains order types for the LooksRare exchange.
+ * @notice This library contains order types for the OmniX exchange.
  */
 library OrderTypes {
-    // keccak256("MakerOrder(bool isOrderAsk,address signer,address collection,uint256 price,uint256 tokenId,uint256 amount,address strategy,address currency,uint256 nonce,uint256 startTime,uint256 endTime,uint256 minPercentageToAsk,uint16 chainId,bytes params)")
+    // keccak256("MakerOrder(bool isOrderAsk,address signer,address collection,uint256 price,uint256 tokenId,uint256 amount,address strategy,address currency,uint256 nonce,uint256 startTime,uint256 endTime,uint256 minPercentageToAsk,bytes params)")
     // you can generate keccak256 on this link https://keccak-256.cloxy.net/
-    bytes32 internal constant MAKER_ORDER_HASH = 0x63c2919ac804f5cdaeffe0c09b26419f790bf430fb5fdfffb94530d32bf883c4;
+    bytes32 internal constant MAKER_ORDER_HASH = 0x40261ade532fa1d2c7293df30aaadb9b3c616fae525a0b56d3d411c841a85028;
     struct MakerOrder {
         bool isOrderAsk; // true --> ask / false --> bid
         address signer; // signer of the maker order

@@ -9,14 +9,14 @@ import {BytesUtils} from "../libraries/BytesUtils.sol";
  * @notice It allows the transfer of ERC721 tokens.
  */
 contract TransferManagerERC721 is ITransferManagerNFT {
-    address public immutable LOOKS_RARE_EXCHANGE;
+    address public immutable OMNIX_EXCHANGE;
 
     /**
      * @notice Constructor
-     * @param _looksRareExchange address of the LooksRare exchange
+     * @param _omniXExchange address of the OmniX exchange
      */
-    constructor(address _looksRareExchange) {
-        LOOKS_RARE_EXCHANGE = _looksRareExchange;
+    constructor(address _omniXExchange) {
+        OMNIX_EXCHANGE = _omniXExchange;
     }
 
     /**
@@ -35,7 +35,7 @@ contract TransferManagerERC721 is ITransferManagerNFT {
         uint256,
         uint16 toChainId
     ) external override {
-        require(msg.sender == LOOKS_RARE_EXCHANGE, "Transfer: Only LooksRare Exchange");
+        require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only LooksRare Exchange");
 
         bytes memory toAddress = BytesUtils.fromAddress(to);
 

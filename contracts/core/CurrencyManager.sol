@@ -10,7 +10,7 @@ import {IOFT} from "../token/oft/IOFT.sol";
 
 /**
  * @title CurrencyManager
- * @notice It allows adding/removing currencies for trading on the LooksRare exchange.
+ * @notice It allows adding/removing currencies for trading on the OmniX exchange.
  */
 contract CurrencyManager is ICurrencyManager, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;

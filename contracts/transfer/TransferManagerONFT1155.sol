@@ -10,14 +10,14 @@ import {BytesUtils} from "../libraries/BytesUtils.sol";
  * @notice It allows the transfer of ERC1155 tokens.
  */
 contract TransferManagerERC1155 is ITransferManagerNFT {
-    address public immutable LOOKS_RARE_EXCHANGE;
+    address public immutable OMNIX_EXCHANGE;
 
     /**
      * @notice Constructor
-     * @param _looksRareExchange address of the LooksRare exchange
+     * @param _omniXExchange address of the OmniX exchange
      */
-    constructor(address _looksRareExchange) {
-        LOOKS_RARE_EXCHANGE = _looksRareExchange;
+    constructor(address _omniXExchange) {
+        OMNIX_EXCHANGE = _omniXExchange;
     }
 
     /**
@@ -36,7 +36,7 @@ contract TransferManagerERC1155 is ITransferManagerNFT {
         uint256 amount,
         uint16 toChainId
     ) external override {
-        require(msg.sender == LOOKS_RARE_EXCHANGE, "Transfer: Only LooksRare Exchange");
+        require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only LooksRare Exchange");
         bytes memory toAddress = BytesUtils.fromAddress(to);
 
         IONFT1155(collection).sendFrom(from, toChainId, toAddress, tokenId, amount, payable(0), address(0), bytes(""));
