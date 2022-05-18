@@ -20,4 +20,13 @@ library InterfaceChecker {
         (bool result) = abi.decode(returnData, (bool));
         return result;
     }
+
+    function checkLzApp(
+        address tokenContract
+    ) internal returns (bool) {
+        bytes memory payload = abi.encodeWithSignature("getLzEndpoint()");
+        (bool success, ) = tokenContract.call(payload);
+
+        return success;
+    }
 }

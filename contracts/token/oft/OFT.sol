@@ -31,7 +31,7 @@ contract OFT is NonblockingLzApp, IOFT, ERC20 {
     }
 
     function getType() public view virtual override returns (uint) {
-        return 0;
+        return 1;
     }
 
     function getGlobalSupply() public view virtual override returns (uint) {

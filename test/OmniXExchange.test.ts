@@ -53,13 +53,20 @@ describe('OmniXExchange', () => {
   let owner: SignerWithAddress
   let maker: SignerWithAddress
   let taker: SignerWithAddress
+  let layerZeroEndpoint: LayerZeroEndpointMock
 
-  const fillMakerOrder = async (makeOrder : MakerOrder, nonce: number) => {
-    makeOrder.tokenId = 1
-    makeOrder.currency = erc20Mock.address
+  const fillMakerOrder = async (
+    makeOrder : MakerOrder,
+    tokenId: number,
+    currency: string,
+    nftAddress: string,
+    nonce: number
+  ) => {
+    makeOrder.tokenId = tokenId
+    makeOrder.currency = currency
     makeOrder.price = toWei(1)
     makeOrder.amount = 1
-    makeOrder.collection = nftMock.address
+    makeOrder.collection = nftAddress
     makeOrder.strategy = strategy.address
     makeOrder.nonce = nonce
     makeOrder.startTime = await getBlockTime()
@@ -67,39 +74,42 @@ describe('OmniXExchange', () => {
     makeOrder.minPercentageToAsk = 900
     makeOrder.signer = maker.address
   }
-  const fillTakerOrder = (takerOrder : TakerOrder) => {
-    takerOrder.tokenId = 1
+  const fillTakerOrder = (
+    takerOrder : TakerOrder,
+    tokenId: number
+  ) => {
+    takerOrder.tokenId = tokenId
     takerOrder.price = toWei(1)
     takerOrder.minPercentageToAsk = 900
     takerOrder.taker = taker.address
   }
 
   const prepare = async () => {
-    // normal currency and normal nft
+    // normal currency and normal nft, mint token#1, #2
+    await nftMock.mint(maker.address)
     await nftMock.mint(maker.address)
     await erc20Mock.mint(taker.address, toWei(100))
 
-    // $omni and onft
+    // $omni and onft, mint token#1, #2
+    await layerZeroEndpoint.setDestLzEndpoint(maker.address, layerZeroEndpoint.address)
+    await layerZeroEndpoint.setDestLzEndpoint(taker.address, layerZeroEndpoint.address)
+    await layerZeroEndpoint.setDestLzEndpoint(owner.address, layerZeroEndpoint.address)
+
     await onft721.safeMint(maker.address, 1)
     await onft721.safeMint(maker.address, 2)
-    await omni.send(
-      await taker.getChainId(),
-      taker.address,
-      toWei(200),
-      ethers.constants.AddressZero,
-      ethers.constants.AddressZero,
-      "");
+    await omni.setTrustedRemote(await owner.getChainId(), owner.address)
+    await omni.transfer(taker.address, toWei(200))
   }
   const approve = async () => {
     await nftMock.connect(maker).approve(transferManager721.address, 1)
     await erc20Mock.connect(taker).approve(omniXExchange.address, toWei(100))
   }
 
-  beforeEach(async () => {
+  before(async () => {
     [owner, maker, taker] = await ethers.getSigners()
     
     // layerzero endpoint
-    const layerZeroEndpoint = await deployContract('LayerZeroEndpointMock', owner, []) as LayerZeroEndpointMock
+    layerZeroEndpoint = await deployContract('LayerZeroEndpointMock', owner, [await owner.getChainId()]) as LayerZeroEndpointMock
 
     // normal currency
     erc20Mock = await deployContract('LRTokenMock', owner, []) as LRTokenMock
@@ -117,6 +127,7 @@ describe('OmniXExchange', () => {
     // currency manager
     currencyManager = await deployContract('CurrencyManager', owner, []) as CurrencyManager
     currencyManager.addCurrency(erc20Mock.address);
+    currencyManager.addCurrency(omni.address);
 
     // execution manager with strategy. protocal fee 200 = 2%
     strategy = await deployContract('StrategyPrivateSale', owner, [STRATEGY_PROTOCAL_FEE]) as StrategyPrivateSale
@@ -136,7 +147,7 @@ describe('OmniXExchange', () => {
       owner.address
     ]) as OmniXExchange
 
-    // transfer selector
+    // // transfer selector
     transferManager721 = await deployContract('TransferManagerERC721', owner, [omniXExchange.address]) as TransferManagerERC721
     transferManager1155 = await deployContract('TransferManagerERC1155', owner, [omniXExchange.address]) as TransferManagerERC1155
     transferManagerONFT721 = await deployContract('TransferManagerONFT721', owner, [omniXExchange.address]) as TransferManagerONFT721
@@ -157,8 +168,8 @@ describe('OmniXExchange', () => {
       const makerAsk: MakerOrder = new MakerOrder(true)
       const takerBid: TakerOrder = new TakerOrder(false)
 
-      await fillMakerOrder(makerAsk, 1)
-      fillTakerOrder(takerBid)
+      await fillMakerOrder(makerAsk, 1, erc20Mock.address, nftMock.address, 1)
+      fillTakerOrder(takerBid, 1)
 
       makerAsk.encodeParams(await maker.getChainId(), taker.address)
       takerBid.encodeParams(await taker.getChainId())
@@ -168,64 +179,64 @@ describe('OmniXExchange', () => {
       expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
     })
 
-    it('MakerAsk /w TakerBid - $OMNI /w Normal NFT', async () => {
-      const makerAsk: MakerOrder = new MakerOrder(true)
-      const takerBid: TakerOrder = new TakerOrder(false)
+  //   it('MakerAsk /w TakerBid - $OMNI /w Normal NFT', async () => {
+  //     const makerAsk: MakerOrder = new MakerOrder(true)
+  //     const takerBid: TakerOrder = new TakerOrder(false)
 
-      await fillMakerOrder(makerAsk, 1)
-      fillTakerOrder(takerBid)
+  //     await fillMakerOrder(makerAsk, 1, omni.address, nftMock.address, 2)
+  //     fillTakerOrder(takerBid, 2)
 
-      makerAsk.encodeParams(await maker.getChainId(), taker.address)
-      takerBid.encodeParams(await taker.getChainId())
-      await makerAsk.sign(maker, omniXExchange.address)
-      await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
+  //     makerAsk.encodeParams(await maker.getChainId(), taker.address)
+  //     takerBid.encodeParams(await taker.getChainId())
+  //     await makerAsk.sign(maker, omniXExchange.address)
+  //     await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
 
-      expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
-    })
+  //     expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+  //   })
 
-    it('MakerAsk /w TakerBid - Normal Currency /w ONFT', async () => {
-      const makerAsk: MakerOrder = new MakerOrder(true)
-      const takerBid: TakerOrder = new TakerOrder(false)
+  //   it('MakerAsk /w TakerBid - Normal Currency /w ONFT', async () => {
+  //     const makerAsk: MakerOrder = new MakerOrder(true)
+  //     const takerBid: TakerOrder = new TakerOrder(false)
 
-      await fillMakerOrder(makerAsk, 1)
-      fillTakerOrder(takerBid)
+  //     await fillMakerOrder(makerAsk, 1, erc20Mock.address, onft721.address, 1)
+  //     fillTakerOrder(takerBid, 1)
 
-      makerAsk.encodeParams(await maker.getChainId(), taker.address)
-      takerBid.encodeParams(await taker.getChainId())
-      await makerAsk.sign(maker, omniXExchange.address)
-      await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
+  //     makerAsk.encodeParams(await maker.getChainId(), taker.address)
+  //     takerBid.encodeParams(await taker.getChainId())
+  //     await makerAsk.sign(maker, omniXExchange.address)
+  //     await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
 
-      expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
-    })
+  //     expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+  //   })
 
-    it('MakerAsk /w TakerBid - $OMNI /w ONFT', async () => {
-      const makerAsk: MakerOrder = new MakerOrder(true)
-      const takerBid: TakerOrder = new TakerOrder(false)
+  //   it('MakerAsk /w TakerBid - $OMNI /w ONFT', async () => {
+  //     const makerAsk: MakerOrder = new MakerOrder(true)
+  //     const takerBid: TakerOrder = new TakerOrder(false)
 
-      await fillMakerOrder(makerAsk, 1)
-      fillTakerOrder(takerBid)
+  //     await fillMakerOrder(makerAsk, 2, omni.address, onft721.address, 1)
+  //     fillTakerOrder(takerBid, 2)
 
-      makerAsk.encodeParams(await maker.getChainId(), taker.address)
-      takerBid.encodeParams(await taker.getChainId())
-      await makerAsk.sign(maker, omniXExchange.address)
-      await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
+  //     makerAsk.encodeParams(await maker.getChainId(), taker.address)
+  //     takerBid.encodeParams(await taker.getChainId())
+  //     await makerAsk.sign(maker, omniXExchange.address)
+  //     await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
 
-      expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
-    })
+  //     expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+  //   })
 
-    it('MakerBid /w TakerAsk', async () => {
-      // StrategyPrivateSale does not provide Bid /w Ask option.
-      // So we can ignore this case easily.
+  //   it('MakerBid /w TakerAsk', async () => {
+  //     // StrategyPrivateSale does not provide Bid /w Ask option.
+  //     // So we can ignore this case easily.
 
-      // const makerBid: MakerOrder = new MakerOrder(false)
-      // const takerAsk: TakerOrder = new TakerOrder(true)
+  //     // const makerBid: MakerOrder = new MakerOrder(false)
+  //     // const takerAsk: TakerOrder = new TakerOrder(true)
 
-      // await fillMakerOrder(makerBid, 2)
-      // fillTakerOrder(takerAsk)
+  //     // await fillMakerOrder(makerBid, 2)
+  //     // fillTakerOrder(takerAsk)
 
-      // makerBid.setParam(taker.address)
-      // await makerBid.sign(maker, looksRareExchange.address);
-      // await looksRareExchange.connect(taker).matchBidWithTakerAsk(takerAsk, makerBid);
-    })
+  //     // makerBid.setParam(taker.address)
+  //     // await makerBid.sign(maker, looksRareExchange.address);
+  //     // await looksRareExchange.connect(taker).matchBidWithTakerAsk(takerAsk, makerBid);
+  //   })
   })
 })
