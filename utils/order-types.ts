@@ -65,7 +65,7 @@ export class MakerOrder {
 
   async sign(signer: SignerWithAddress, contractAddr: string) {
     const domain = {
-      name: 'LooksRareExchange',
+      name: 'OmniXExchange',
       version: '1',
       chainId: await signer.getChainId(),
       verifyingContract: contractAddr
