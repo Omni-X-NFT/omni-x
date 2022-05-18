@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 
 import {IONFT1155} from "../token/onft/IONFT1155.sol";
 import {ITransferManagerNFT} from "../interfaces/ITransferManagerNFT.sol";
-import {BytesUtils} from "../libraries/BytesUtils.sol";
 
 /**
  * @title TransferManagerONFT1155
@@ -37,7 +36,7 @@ contract TransferManagerONFT1155 is ITransferManagerNFT {
         uint16 toChainId
     ) external override {
         require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only LooksRare Exchange");
-        bytes memory toAddress = BytesUtils.fromAddress(to);
+        bytes memory toAddress = abi.encodePacked(to);
 
         IONFT1155(collection).sendFrom(from, toChainId, toAddress, tokenId, amount, payable(0), address(0), bytes(""));
     }

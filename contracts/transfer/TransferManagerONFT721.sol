@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 
 import {IONFT721} from "../token/onft/IONFT721.sol";
 import {ITransferManagerNFT} from "../interfaces/ITransferManagerNFT.sol";
-import {BytesUtils} from "../libraries/BytesUtils.sol";
 /**
  * @title TransferManagerONFT721
  * @notice It allows the transfer of ERC721 tokens.
@@ -37,7 +36,7 @@ contract TransferManagerONFT721 is ITransferManagerNFT {
     ) external override {
         require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only LooksRare Exchange");
 
-        bytes memory toAddress = BytesUtils.fromAddress(to);
+        bytes memory toAddress = abi.encodePacked(to);
 
         IONFT721(collection).sendFrom(from, toChainId, toAddress, tokenId, payable(0), address(0), bytes(""));
     }

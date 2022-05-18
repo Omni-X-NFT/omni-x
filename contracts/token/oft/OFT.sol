@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../../lzApp/NonblockingLzApp.sol";
 import "./IOFT.sol";
 
+import "hardhat/console.sol";
+
 // override decimal() function is needed
 contract OFT is NonblockingLzApp, IOFT, ERC20 {
     uint public immutable globalSupply;
@@ -60,6 +62,7 @@ contract OFT is NonblockingLzApp, IOFT, ERC20 {
         _debitFrom(_from, _dstChainId, _toAddress, _amount);
 
         bytes memory payload = abi.encode(_toAddress, _amount);
+
         _lzSend(_dstChainId, payload, _refundAddress, _zroPaymentAddress, _adapterParam);
 
         uint64 nonce = lzEndpoint.getOutboundNonce(_dstChainId, address(this));

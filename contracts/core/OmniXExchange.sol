@@ -19,7 +19,6 @@ import {IWETH} from "../interfaces/IWETH.sol";
 import {IOFT} from "../token/oft/IOFT.sol";
 
 import {OrderTypes} from "../libraries/OrderTypes.sol";
-import {BytesUtils} from "../libraries/BytesUtils.sol";
 
 import "hardhat/console.sol";
 
@@ -468,8 +467,9 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         uint16 toChainId
     ) internal {
         if (currencyManager.isOmniCurrency(currency)) {
-            bytes memory toAddress = BytesUtils.fromAddress(to);
-            IOFT(currency).sendFrom(from, toChainId, toAddress, amount, payable(0), address(0), bytes(""));
+            bytes memory toAddress = abi.encodePacked(to);
+        
+            IOFT(currency).sendFrom{value: 0}(from, toChainId, toAddress, amount, payable(0), address(0), bytes(""));
         }
         else {
             IERC20(currency).safeTransferFrom(from, to, amount);
