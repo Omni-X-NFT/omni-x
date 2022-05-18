@@ -16,7 +16,8 @@ import {
   LRTokenMock,
   OFT,
   ONFT721,
-  ONFT1155
+  ONFT1155,
+  LayerZeroEndpointMock
 } from '../typechain-types'
 import {
   deployContract, getBlockTime, toWei
@@ -98,7 +99,7 @@ describe('OmniXExchange', () => {
     [owner, maker, taker] = await ethers.getSigners()
     
     // layerzero endpoint
-    
+    const layerZeroEndpoint = await deployContract('LayerZeroEndpointMock', owner, []) as LayerZeroEndpointMock
 
     // normal currency
     erc20Mock = await deployContract('LRTokenMock', owner, []) as LRTokenMock
@@ -107,11 +108,11 @@ describe('OmniXExchange', () => {
     nftMock = await deployContract('Nft721Mock', owner, []) as Nft721Mock
 
     // omni currency
-    omni = await deployContract('OFT', owner, ['OMNI', 'OMNI', '', toWei(1000)]) as OFT
+    omni = await deployContract('OFT', owner, ['OMNI', 'OMNI', layerZeroEndpoint.address, toWei(1000)]) as OFT
 
     // omnichain nft
-    onft721 = await deployContract('ONFT721', owner, []) as ONFT721
-    onft1155 = await deployContract('ONFT1155', owner, []) as ONFT1155
+    onft721 = await deployContract('ONFT721', owner, ['ONFT', 'ONFT', layerZeroEndpoint.address]) as ONFT721
+    onft1155 = await deployContract('ONFT1155', owner, ['https://localhost/', layerZeroEndpoint.address]) as ONFT1155
 
     // currency manager
     currencyManager = await deployContract('CurrencyManager', owner, []) as CurrencyManager
