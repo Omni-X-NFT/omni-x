@@ -25,26 +25,7 @@ contract OmniNFT is ONFT721, IOmniNFT {
         // lzEndpoint
     }
 
-    function mint() external onlyBridge {
-        uint256 tokenId = counter;
-        counter += 1;
-        _safeMint(msg.sender, tokenId);
-    }
-
-    function _creditTo(
-        uint16 _srcChainId,
-        address _toAddress,
-        uint256 _tokenId
-    ) internal override {
-        // mint the tokens back into existence on destination chain
-        _safeMint(_toAddress, _tokenId);
-    }
-
-    function collectionId() external override returns (bytes32) {
-
-    }
-
-    function moveTo(uint16 _dstChainId, bytes calldata _destinationBridge, uint _tokenId) external override payable {
-        sendFrom(msg.sender, _dstChainId, _destinationBridge, _tokenId, payable(msg.sender), address(0x0), bytes(""));
+    function mint(address toAddress, uint tokenId) external override onlyBridge {
+        _mint(toAddress, tokenId);
     }
 }

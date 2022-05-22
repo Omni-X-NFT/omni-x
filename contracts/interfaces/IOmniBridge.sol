@@ -7,19 +7,9 @@ pragma solidity ^0.8.0;
  */
 interface IOmniBridge {
     /**
-     * @dev estimate send token `_tokenId` to (`_dstChainId`, `_toAddress`)
-     * _dstChainId - L0 defined chain id to send tokens too
-     * _toAddress - dynamic bytes array which contains the address to whom you are sending tokens to on the dstChain
-     * _tokenId - token Id to transfer
-     * _useZro - indicates to use zro to pay L0 fees
-     * _adapterParams - flexible bytes array to indicate messaging adapter services in L0
-     */
-    function estimateSendFee(uint16 _dstChainId, bytes calldata _toAddress, uint _tokenId, bool _useZro, bytes calldata _adapterParams) external view returns (uint nativeFee, uint zroFee);
-
-    /**
      * @dev 
      */
-    function wrap(uint16 _dstChainId, bytes memory _toAddress, address _erc721Address, uint256 _tokenId) external;
+    function wrap(uint16 _dstChainId, address _toAddress, address _erc721Address, uint256 _tokenId) external payable;
 
     /**
      * @dev 

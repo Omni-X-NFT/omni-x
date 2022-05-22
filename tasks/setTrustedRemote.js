@@ -7,26 +7,29 @@ const OFT_CONFIG = require('../constants/oftConfig.json')
 module.exports = async function (taskArgs, hre) {
   const [deployer] = await ethers.getSigners()
 
+  console.log(taskArgs)
   let srcContractName = 'OmniNFT'
   let dstContractName = srcContractName
-  if (taskArgs.targetNetwork == OFT_CONFIG.baseChain) {
+  if (taskArgs.contractname) {
+    srcContractName = taskArgs.contractname
+    dstContractName = srcContractName
+  }
+  if (taskArgs.target === OFT_CONFIG.baseChain) {
     // if its the base chain, we need to grab a different contract
     // Note: its reversed though!
     dstContractName = 'ExampleBasedOFT'
   }
-  if (hre.network.name == OFT_CONFIG.baseChain) {
-    srcContractName = 'ExampleBasedOFT'
-  }
+  // if (hre.network.name == OFT_CONFIG.baseChain) {
+  //   srcContractName = 'ExampleBasedOFT'
+  // }
 
-  const dstChainId = CHAIN_ID[taskArgs.targetNetwork]
-  // console.log(getDeploymentAddresses(taskArgs.targetNetwork))
-  const dstAddr = getDeploymentAddresses(taskArgs.targetNetwork)[dstContractName]
+  const dstChainId = CHAIN_ID[taskArgs.target]
+  // console.log(getDeploymentAddresses(taskArgs.target))
+  const dstAddr = getDeploymentAddresses(taskArgs.target)[dstContractName]
+  console.log(dstAddr)
   // get local contract instance
-  const address = JSON.parse(fs.readFileSync(path.resolve(__dirname, `../deployments/${taskArgs.targetNetwork}/${srcContractName}.json`), {
-    encoding: 'utf8',
-    flag: 'r'
-  }))
-  const contractInstance = await hre.ethers.getContractAt(srcContractName, address.address, deployer)
+  const addresses = getDeploymentAddresses(OFT_CONFIG.baseChain)[srcContractName]
+  const contractInstance = await hre.ethers.getContractAt(srcContractName, addresses, deployer)
   console.log(`[source] contract address: ${contractInstance.address}`)
 
   // setTrustedRemote() on the local contract, so it can receive message from the source contract
