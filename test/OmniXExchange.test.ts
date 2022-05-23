@@ -11,7 +11,7 @@ import {
   TransferManagerERC1155,
   TransferManagerONFT721,
   TransferManagerONFT1155,
-  StrategyPrivateSale,
+  StrategyStandardSale,
   Nft721Mock,
   LRTokenMock,
   OFT,
@@ -44,7 +44,7 @@ describe('OmniXExchange', () => {
   let transferManager721: TransferManagerERC721
   let transferManager1155: TransferManagerERC1155
   let royaltyFeeManager: RoyaltyFeeManager
-  let strategy: StrategyPrivateSale
+  let strategy: StrategyStandardSale
   let nftMock: Nft721Mock
   let erc20Mock: LRTokenMock
   let omni: OFT
@@ -105,7 +105,7 @@ describe('OmniXExchange', () => {
     currencyManager = await deployContract('CurrencyManager', owner, []) as CurrencyManager
 
     // execution manager with strategy. protocal fee 200 = 2%
-    strategy = await deployContract('StrategyPrivateSale', owner, [STRATEGY_PROTOCAL_FEE]) as StrategyPrivateSale
+    strategy = await deployContract('StrategyStandardSale', owner, [STRATEGY_PROTOCAL_FEE]) as StrategyStandardSale
     executionManager = await deployContract('ExecutionManager', owner, []) as ExecutionManager
 
     // royalty fee manager
@@ -139,10 +139,12 @@ describe('OmniXExchange', () => {
     await transferSelector.addCollectionTransferManager(onft1155.address, transferManagerONFT1155.address)
     await omniXExchange.updateTransferSelectorNFT(transferSelector.address)
 
-    // normal currency and normal nft, mint token#1, #2
+    // normal currency and normal nft, mint token#1, #2, #3
     await nftMock.mint(maker.address)
     await nftMock.mint(maker.address)
+    await nftMock.mint(taker.address)
     await erc20Mock.mint(taker.address, toWei(100))
+    await erc20Mock.mint(maker.address, toWei(100))
 
     // $omni and onft, mint token#1, #2
     await layerZeroEndpoint.setDestLzEndpoint(omni.address, layerZeroEndpoint.address)
@@ -158,7 +160,9 @@ describe('OmniXExchange', () => {
   const approve = async () => {
     await nftMock.connect(maker).approve(transferManager721.address, 1)
     await nftMock.connect(maker).approve(transferManager721.address, 2)
+    await nftMock.connect(taker).approve(transferManager721.address, 3)
     await erc20Mock.connect(taker).approve(omniXExchange.address, toWei(100))
+    await erc20Mock.connect(maker).approve(omniXExchange.address, toWei(100))
 
     await omni.connect(taker).approve(omniXExchange.address, toWei(100))
     await onft721.connect(maker).approve(transferManagerONFT721.address, 1)
@@ -234,19 +238,19 @@ describe('OmniXExchange', () => {
       expect(await onft721.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
     })
 
-  //   it('MakerBid /w TakerAsk', async () => {
-  //     // StrategyPrivateSale does not provide Bid /w Ask option.
-  //     // So we can ignore this case easily.
+    it('MakerBid /w TakerAsk', async () => {
+      const makerBid: MakerOrder = new MakerOrder(false)
+      const takerAsk: TakerOrder = new TakerOrder(true)
 
-  //     // const makerBid: MakerOrder = new MakerOrder(false)
-  //     // const takerAsk: TakerOrder = new TakerOrder(true)
+      await fillMakerOrder(makerBid, 3, erc20Mock.address, nftMock.address, 5)
+      fillTakerOrder(takerAsk, 3)
 
-  //     // await fillMakerOrder(makerBid, 2)
-  //     // fillTakerOrder(takerAsk)
+      makerBid.encodeParams(await maker.getChainId(), taker.address)
+      takerAsk.encodeParams(await taker.getChainId())
+      await makerBid.sign(maker, omniXExchange.address)
+      await omniXExchange.connect(taker).matchBidWithTakerAsk(takerAsk, makerBid);
 
-  //     // makerBid.setParam(taker.address)
-  //     // await makerBid.sign(maker, looksRareExchange.address);
-  //     // await looksRareExchange.connect(taker).matchBidWithTakerAsk(takerAsk, makerBid);
-  //   })
+      expect(await nftMock.ownerOf(takerAsk.tokenId)).to.be.eq(maker.address)
+    })
   })
 })
