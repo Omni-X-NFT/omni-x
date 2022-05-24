@@ -45,23 +45,18 @@ contract OmniBridge is
         // encode the payload with the number of tokenAddress, toAddress, tokenId
         bytes memory payload = abi.encode(_erc721Address, msg.sender, _tokenId);
 
-        // use adapterParams v1 to specify more gas for the destination
-        uint16 version = 1;
-        uint gasForDestinationLzReceive = 350000;
-        bytes memory adapterParams = abi.encodePacked(version, gasForDestinationLzReceive);
-
         // get the fees we need to pay to LayerZero for message delivery
-        (uint messageFee, ) = lzEndpoint.estimateFees(_dstChainId, address(this), payload, false, adapterParams);
+        (uint messageFee, ) = lzEndpoint.estimateFees(_dstChainId, address(this), payload, false, "");
         require(msg.value >= messageFee, "Required at least message fee amount");
 
         // send LayerZero message
-        lzEndpoint.send{value: msg.value}( // {value: messageFee} will be paid out of this contract!
+        lzEndpoint.send{value: msg.value}(
             _dstChainId, // destination chainId
             abi.encodePacked(_toAddress), // destination address of PingPong contract
             payload, // abi.encode()'ed bytes
-            payable(msg.sender), // (msg.sender will be this contract) refund address (LayerZero will refund any extra gas back to caller of send()
+            payable(msg.sender), // refund address (LayerZero will refund any extra gas back to caller of send()
             address(0x0), // future param, unused for this example
-            adapterParams // v1 adapterParams, specify custom destination gas qty
+            ""
         );
     }
 
