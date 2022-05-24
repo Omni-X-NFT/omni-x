@@ -25,7 +25,6 @@ contract OmniBridge is
 
     function wrap(
         uint16 _dstChainId,
-        address _toAddress,
         address _erc721Address,
         uint256 _tokenId
     ) external payable override {
@@ -49,15 +48,7 @@ contract OmniBridge is
         (uint messageFee, ) = lzEndpoint.estimateFees(_dstChainId, address(this), payload, false, "");
         require(msg.value >= messageFee, "Required at least message fee amount");
 
-        // send LayerZero message
-        lzEndpoint.send{value: msg.value}(
-            _dstChainId, // destination chainId
-            abi.encodePacked(_toAddress), // destination address of PingPong contract
-            payload, // abi.encode()'ed bytes
-            payable(msg.sender), // refund address (LayerZero will refund any extra gas back to caller of send()
-            address(0x0), // future param, unused for this example
-            ""
-        );
+        _lzSend(_dstChainId, payload, payable(msg.sender), address(0x0), bytes(""));
     }
 
     function withdraw(uint256 collectionId, uint256 tokenId)
