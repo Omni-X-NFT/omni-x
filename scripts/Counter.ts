@@ -1,14 +1,21 @@
-const LZ_ENDPOINTS = require('../constants/layerzeroEndpoints.json')
-const fs = require('fs')
-const path = require('path')
+import hre from 'hardhat'
+import fs from 'fs'
+import path from 'path'
+import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
+
+type CHAINTYPE = {
+  [key: string]: string
+}
+
+const ENDPOINTS: CHAINTYPE = LZ_ENDPOINTS
 
 async function main () {
-  const [deployer] = await ethers.getSigners()
+  const [deployer] = await hre.ethers.getSigners()
 
   console.log(`>>> your address: ${deployer.address}`)
 
   // get the Endpoint address
-  const endpointAddr = LZ_ENDPOINTS[hre.network.name]
+  const endpointAddr = ENDPOINTS[hre.network.name]
   console.log(`[${hre.network.name}] LayerZero Endpoint address: ${endpointAddr}`)
 
   const omniCounter = await hre.ethers.getContractFactory('OmniCounter')

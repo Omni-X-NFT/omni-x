@@ -1,28 +1,25 @@
-const fs = require('fs')
-const path = require('path')
-const CHAIN_ID = require('../constants/chainIds.json')
-const { getDeploymentAddresses } = require('../utils/readStatic')
-const OFT_CONFIG = require('../constants/oftConfig.json')
+import * as CHAIN_ID from '../constants/chainIds.json'
+import { getDeploymentAddresses } from '../utils/readStatic'
+// import OFT_CONFIG from '../constants/oftConfig.json'
 
-module.exports = async function (taskArgs, hre) {
-  const [deployer] = await ethers.getSigners()
+type CHAINIDTYPE = {
+  [key: string]: number
+}
 
-  console.log(taskArgs)
-  console.log(hre.network.name)
+const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
+
+export const setTrustedRemote = async function (taskArgs: any, hre: any) {
+  const [deployer] = await hre.ethers.getSigners()
+
   let srcContractName = 'OmniNFT'
   let dstContractName = srcContractName
   if (taskArgs.contractname) {
     srcContractName = taskArgs.contractname
     dstContractName = srcContractName
   }
-  // if (hre.network.name == OFT_CONFIG.baseChain) {
-  //   srcContractName = 'ExampleBasedOFT'
-  // }
 
-  const dstChainId = CHAIN_ID[taskArgs.target]
-  // console.log(getDeploymentAddresses(taskArgs.target))
+  const dstChainId = CHAIN_IDS[taskArgs.target]
   const dstAddr = getDeploymentAddresses(taskArgs.target)[dstContractName]
-  console.log(dstAddr)
   // get local contract instance
   const addresses = getDeploymentAddresses(hre.network.name)[srcContractName]
   const contractInstance = await hre.ethers.getContractAt(srcContractName, addresses, deployer)
@@ -33,7 +30,7 @@ module.exports = async function (taskArgs, hre) {
     const tx = await (await contractInstance.setTrustedRemote(dstChainId, dstAddr)).wait()
     console.log(`✅ [${hre.network.name}] setTrustedRemote(${dstChainId}, ${dstAddr})`)
     console.log(` tx: ${tx.transactionHash}`)
-  } catch (e) {
+  } catch (e: any) {
     if (e.error.message.includes('The chainId + address is already trusted')) {
       console.log('*source already set*')
     } else {

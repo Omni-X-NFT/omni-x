@@ -1,18 +1,20 @@
-require('dotenv').config()
+import { HardhatUserConfig } from 'hardhat/config'
+import 'hardhat-contract-sizer'
+import '@nomiclabs/hardhat-etherscan'
+import '@nomiclabs/hardhat-waffle'
+import 'hardhat-gas-reporter'
+import 'hardhat-deploy'
+import 'hardhat-deploy-ethers'
+import 'solidity-coverage'
+import './tasks'
 
-require('hardhat-contract-sizer')
-require('@nomiclabs/hardhat-etherscan')
-require('@nomiclabs/hardhat-waffle')
-require('hardhat-gas-reporter')
-require('hardhat-deploy')
-require('hardhat-deploy-ethers')
-require('solidity-coverage')
-require('./tasks')
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
-module.exports = {
+const config: HardhatUserConfig = {
   solidity: {
     version: '0.8.4',
     settings: {
@@ -97,3 +99,5 @@ module.exports = {
     strict: true
   }
 }
+
+export default config

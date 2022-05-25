@@ -1,37 +1,39 @@
-const { expect } = require('chai')
-const { BigNumber } = require('ethers')
-const { ethers } = require('hardhat')
+import hre from 'hardhat'
+import { Signer, BigNumber } from 'ethers'
 
 describe('OmniBridge', function () {
-  let omniBridgeA
-  let omniBridgeB
-  let onftMockA
+  let omniBridgeA: any
+  let omniBridgeB: any
+  let onftMockA: any
   let lzEndpointMock
   let chainId = 123
+  let owner: Signer
 
   beforeEach(async function () {
-    const [owner, signer1, signer2] = await ethers.getSigners()
+    const signers = await hre.ethers.getSigners()
+    owner = signers[0]
+    const ownerAddress = await owner.getAddress()
     // use this chainId
     chainId = 123
 
     // create a LayerZero Endpoint mock for testing
-    const LayerZeroEndpointMock = await ethers.getContractFactory('LZEndpointMock')
+    const LayerZeroEndpointMock = await hre.ethers.getContractFactory('LZEndpointMock')
     lzEndpointMock = await LayerZeroEndpointMock.deploy(chainId)
     lzEndpointMock.deployed()
 
     // create two OmniBridge instances
-    const OmniBridge = await ethers.getContractFactory('OmniBridge')
+    const OmniBridge = await hre.ethers.getContractFactory('OmniBridge')
     omniBridgeA = await OmniBridge.deploy(lzEndpointMock.address)
     omniBridgeB = await OmniBridge.deploy(lzEndpointMock.address)
     await omniBridgeA.deployed()
     await omniBridgeB.deployed()
 
-    const ONFTMockA = await ethers.getContractFactory('ONFT721Mock')
+    const ONFTMockA = await hre.ethers.getContractFactory('ONFT721Mock')
     onftMockA = await ONFTMockA.deploy('Name', 'Symbol', lzEndpointMock.address)
     await onftMockA.deployed()
 
     // Mint ONFTMock
-    await (await onftMockA.mint(owner.address, 1)).wait()
+    await (await onftMockA.mint(ownerAddress, 1)).wait()
     await (await onftMockA.approve(omniBridgeA.address, 1)).wait()
 
     lzEndpointMock.setDestLzEndpoint(omniBridgeA.address, lzEndpointMock.address)

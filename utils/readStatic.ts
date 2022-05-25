@@ -1,7 +1,11 @@
-const path = require('path')
-const fs = require('fs')
+import fs from 'fs'
+import path from 'path'
 
-function getDeploymentAddresses (networkName) {
+type rtnType = {
+  [key: string]: string
+}
+
+export const getDeploymentAddresses = (networkName: string): rtnType => {
   const PROJECT_ROOT = path.resolve(__dirname, '..')
   const DEPLOYMENT_PATH = path.resolve(PROJECT_ROOT, 'deployments')
 
@@ -15,19 +19,15 @@ function getDeploymentAddresses (networkName) {
     throw new Error('missing deployment files for endpoint ' + folderName)
   }
 
-  const rtnAddresses = {}
+  const rtnAddresses: rtnType = {}
   const networkFolderPath = path.resolve(DEPLOYMENT_PATH, folderName)
   const files = fs.readdirSync(networkFolderPath).filter((f) => f.includes('.json'))
   files.forEach((file) => {
-    const filepath = path.resolve(networkFolderPath, file)
-    const data = JSON.parse(fs.readFileSync(filepath))
+    const content = fs.readFileSync(path.resolve(networkFolderPath, file))
+    const data = JSON.parse(content.toString())
     const contractName = file.split('.')[0]
     rtnAddresses[contractName] = data.address
   })
 
   return rtnAddresses
-}
-
-module.exports = {
-  getDeploymentAddresses
 }
