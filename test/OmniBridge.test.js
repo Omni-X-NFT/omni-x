@@ -43,9 +43,7 @@ describe('OmniBridge', function () {
   })
 
   it('Wrapping', async () => {
-    await (await omniBridgeA.wrap(BigNumber.from(chainId.toString()), omniBridgeB.address, onftMockA.address, BigNumber.from('1'))).wait()
-    console.log(await omniBridgeA.onftAddresses(onftMockA.address))
-    console.log(await omniBridgeB.onftAddresses(onftMockA.address))
+    await (await omniBridgeA.wrap(BigNumber.from(chainId.toString()), onftMockA.address, BigNumber.from('1'))).wait()
   })
 
   //   it('increment the counter of the destination OmniBridge', async function () {

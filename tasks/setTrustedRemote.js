@@ -8,16 +8,12 @@ module.exports = async function (taskArgs, hre) {
   const [deployer] = await ethers.getSigners()
 
   console.log(taskArgs)
+  console.log(hre.network.name)
   let srcContractName = 'OmniNFT'
   let dstContractName = srcContractName
   if (taskArgs.contractname) {
     srcContractName = taskArgs.contractname
     dstContractName = srcContractName
-  }
-  if (taskArgs.target === OFT_CONFIG.baseChain) {
-    // if its the base chain, we need to grab a different contract
-    // Note: its reversed though!
-    dstContractName = 'ExampleBasedOFT'
   }
   // if (hre.network.name == OFT_CONFIG.baseChain) {
   //   srcContractName = 'ExampleBasedOFT'
@@ -28,7 +24,7 @@ module.exports = async function (taskArgs, hre) {
   const dstAddr = getDeploymentAddresses(taskArgs.target)[dstContractName]
   console.log(dstAddr)
   // get local contract instance
-  const addresses = getDeploymentAddresses(OFT_CONFIG.baseChain)[srcContractName]
+  const addresses = getDeploymentAddresses(hre.network.name)[srcContractName]
   const contractInstance = await hre.ethers.getContractAt(srcContractName, addresses, deployer)
   console.log(`[source] contract address: ${contractInstance.address}`)
 

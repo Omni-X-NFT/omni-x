@@ -7,4 +7,6 @@ pragma solidity ^0.8.0;
  */
 interface IOmniNFT {
     function mint(address toAddress, uint tokenId) external;
+
+    function mintWithURI(address toAddress, uint tokenId, string memory tokenURI) external;
 }
