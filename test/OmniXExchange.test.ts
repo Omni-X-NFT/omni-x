@@ -132,8 +132,8 @@ describe('OmniXExchange', () => {
   const prepare = async () => {
     await executionManager.addStrategy(strategy.address)
 
-    await currencyManager.addCurrency(erc20Mock.address);
-    await currencyManager.addCurrency(omni.address);
+    await currencyManager.addCurrency(erc20Mock.address)
+    await currencyManager.addCurrency(omni.address)
 
     await transferSelector.addCollectionTransferManager(onft721.address, transferManagerONFT721.address)
     await transferSelector.addCollectionTransferManager(onft1155.address, transferManagerONFT1155.address)
