@@ -1,16 +1,13 @@
 import { task } from 'hardhat/config'
 import { Contract } from 'ethers'
 import { BigNumber } from '@ethersproject/bignumber'
-import {
-    TakerOrder,
-    MakerOrder
-  } from '../utils/order-types';
 
 const STRATEGY_PROTOCAL_FEE = 200 // 2%
 const ROYALTY_FEE_LIMIT = 500 // 5%
 const LZ_ENDPOINT = {
     rinkeby: '0x79a63d6d8BBD5c6dfc774dA79bCcD948EAcb53FA',
-    mumbai: '0xf69186dfBa60DdB133E91E9A4B5673624293d8F8'
+    mumbai: '0xf69186dfBa60DdB133E91E9A4B5673624293d8F8',
+    bsctest: '0x6Fcb97553D41516Cb228ac03FdC8B9a0a9df04A1'
 }
 
 export const deployContract = async (ethers: any, name: string, owner: any, initParams: Array<any>): Promise<Contract> => {

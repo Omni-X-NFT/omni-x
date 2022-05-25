@@ -35,4 +35,22 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - deployed ONFT721 to  0x2F7257e95B2f3A2969C85880Ce3AE0870fDa306F
 - deployed ONFT1155 to  0x3Cff1472a9C33C23447997414c61b8E715e5564C
 
+## BSC testnet
+- deployed CurrencyManager to  0x7dEdC2f494F2e224b0EA355D2961564B955819dF
+- deployed StrategyStandardSale to  0xF702373cf4a3f911965cF42b1019FAA831724261
+- deployed ExecutionManager to  0x5599a1D261CA90b9969E443346EF2B9a664b770f
+- deployed RoyaltyFeeRegistry to  0x79ef90F603eC3b59eC65a73d04C41AA3aec70B88
+- deployed RoyaltyFeeManager to  0x621aA79DE6B4611Dc21e5364452B23C2AdDf85ab
+- deployed OmniXExchange to  0x884D90721f80F57de5FeAd59c9f50E8749ff478C
+- deployed TransferManagerERC721 to  0xDD64E82F747D90C5d5A924C4BD1afac74AB81372
+- deployed TransferManagerERC1155 to  0x3F540A7540196eDb097a0B4c90593EBe5Cf3EC7f
+- deployed TransferManagerONFT721 to  0x63A4DA71FCEFc71f9dF29b9459deB185Bc2fdC85
+- deployed TransferManagerONFT1155 to  0x1321deCadE9fE6b325136f2b94Bdb9f959702414
+- deployed TransferSelectorNFT to  0x3C533373b3Ae78e3B0b500819f43851aBDa98949
+- deployed LRTokenMock to  0x1e05a5980508A244B582dE5991565a84a4Fa406b
+- deployed Nft721Mock to  0x346CEcc6764F79E986Cd8B5b3e3D552113fa9670
+- deployed OFT to  0xAF3B1D8594666469288991016Ba7B5c4e44E2e99
+- deployed ONFT721 to  0x577267C3Ff0c303151122e6a31b7d8089E7222f8
+- deployed ONFT1155 to  0x3C4CF086436C68d3c3863fa3751aa38d54241406
+
 ## Mumbai
