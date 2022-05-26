@@ -14,7 +14,7 @@ interface IOmniBridge {
     /**
      * @dev 
      */
-    function withdraw(uint collectionId, uint tokenId) external;
+    function withdraw(address _onftAddress, uint _tokenId) external;
 
     /**
      * @dev Emitted when `_tokenId` are moved from the `_sender` to (`_dstChainId`, `_toAddress`)

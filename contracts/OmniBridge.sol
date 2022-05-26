@@ -21,10 +21,11 @@ contract OmniBridge is
     event LzReceive(address ercAddress, address toAddress, uint tokenId, bytes payload, address onftaddress);
     // regular address => ONFT address
     mapping(address => address) public onftAddresses;
+    // ONFT address => regular address
+    mapping(address => address) public regnftAddresses;
     mapping(address => uint256) public collectionLockedCounter;
 
-    constructor(address _lzEndpoint) NonblockingLzApp(_lzEndpoint) {
-    }
+    constructor(address _lzEndpoint) NonblockingLzApp(_lzEndpoint) {}
 
     function wrap(
         uint16 _dstChainId,
@@ -33,25 +34,31 @@ contract OmniBridge is
     ) external payable override {
         if (_erc721Address == address(0)) revert NoZeroAddress();
 
-        IERC721(_erc721Address).transferFrom(
-            _msgSender(),
-            address(this),
-            _tokenId
-        );
-
         string memory name;
         string memory symbol;
         string memory tokenURI;
-        if (onftAddresses[_erc721Address] == address(0)) {
+        address erc721Address;
+        if (regnftAddresses[_erc721Address] != address(0)) {
+            // In case re-send ONFT to sender chain
+            IOmniNFT(_erc721Address).burn(_tokenId);
+            erc721Address = regnftAddresses[_erc721Address];
             name = IERC721Metadata(_erc721Address).name();
             symbol = IERC721Metadata(_erc721Address).symbol();
             tokenURI = IERC721Metadata(_erc721Address).tokenURI(_tokenId);
-            OmniNFT onft = new OmniNFT("name", "symbol", address(lzEndpoint), address(this));
-            onftAddresses[_erc721Address] = address(onft);
+        } else {
+            erc721Address = _erc721Address;
+            IERC721(_erc721Address).transferFrom(
+                _msgSender(),
+                address(this),
+                _tokenId
+            );
+            name = IERC721Metadata(_erc721Address).name();
+            symbol = IERC721Metadata(_erc721Address).symbol();
+            tokenURI = IERC721Metadata(_erc721Address).tokenURI(_tokenId);
         }
 
         // encode the payload with the number of tokenAddress, toAddress, tokenId
-        bytes memory payload = abi.encode(_erc721Address, msg.sender, name, symbol, tokenURI, _tokenId);
+        bytes memory payload = abi.encode(erc721Address, msg.sender, name, symbol, tokenURI, _tokenId);
 
         // use adapterParams v1 to specify more gas for the destination
         uint16 version = 1;
@@ -65,10 +72,16 @@ contract OmniBridge is
         _lzSend(_dstChainId, payload, payable(msg.sender), address(0x0), adapterParams);
     }
 
-    function withdraw(uint256 collectionId, uint256 tokenId)
+    function withdraw(address _onftAddress, uint256 _tokenId)
         external
         override
-    {}
+    {
+        if (regnftAddresses[_onftAddress] == address(0)) revert NoZeroAddress();
+
+        IOmniNFT(_onftAddress).burn(_tokenId);
+
+        IERC721(regnftAddresses[_onftAddress]).transferFrom(address(this), msg.sender, _tokenId);
+    }
 
     function setOnftAddress(address _erc721Address, address _onftAddress) public {
         if (_erc721Address == address(0)) revert NoZeroAddress();
@@ -88,16 +101,16 @@ contract OmniBridge is
         (address _erc721Address, address _toAddress, string memory _name, string memory _symbol, string memory _tokenURI, uint _tokenId) = abi.decode(_payload, (address, address, string, string, string, uint));
 
         address onftAddress;
-        if (onftAddresses[_erc721Address] != address(0)) {
-            IOmniNFT(onftAddresses[_erc721Address]).mint(_toAddress, _tokenId);
-            collectionLockedCounter[onftAddresses[_erc721Address]] += 1;
-        } else {
+        if (onftAddresses[_erc721Address] == address(0)) {
             OmniNFT onft = new OmniNFT(_name, _symbol, address(lzEndpoint), address(this));
             onft.mintWithURI(_toAddress, _tokenId, _tokenURI);
-            // IOmniNFT(address(onft)).mint(_toAddress, _tokenId);
             onftAddresses[_erc721Address] = address(onft);
+            regnftAddresses[address(onft)] = _erc721Address;
             collectionLockedCounter[address(onft)] += 1;
             onftAddress = address(onft);
+        } else {
+            IOmniNFT(onftAddresses[_erc721Address]).mintWithURI(_toAddress, _tokenId, _tokenURI);
+            collectionLockedCounter[onftAddresses[_erc721Address]] += 1;
         }
         emit LzReceive(_erc721Address, _toAddress, _tokenId, _payload, onftAddress);
     }
