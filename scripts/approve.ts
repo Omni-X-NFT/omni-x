@@ -10,7 +10,7 @@ async function main () {
     signer
   )
 
-    // console.log(await omniNFT.getApproved(3))
+  // console.log(await omniNFT.getApproved(3))
   const tx = await (await omniNFT.approve('0xBa8b379aB127Fe03142198b0AdEBDc60535F24a8', 4)).wait()
   console.log(tx)
 }

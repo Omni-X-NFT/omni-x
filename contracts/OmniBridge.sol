@@ -62,7 +62,7 @@ contract OmniBridge is
 
         // use adapterParams v1 to specify more gas for the destination
         uint16 version = 1;
-        uint gasForDestinationLzReceive = 6000000;
+        uint gasForDestinationLzReceive = 3500000;
         bytes memory adapterParams = abi.encodePacked(version, gasForDestinationLzReceive);
 
         // get the fees we need to pay to LayerZero for message delivery

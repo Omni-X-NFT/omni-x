@@ -23,6 +23,11 @@ contract OmniNFT is ONFT721, IOmniNFT {
         _setTokenURI(tokenId, _tokenURI);
     }
 
+    /// For testing purpose
+    // function mint(uint tokenId) public onlyOwner {
+    //     _mint(_msgSender(), tokenId);
+    // }
+
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         return _tokenURIs[tokenId];
     }
