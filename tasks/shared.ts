@@ -1,0 +1,41 @@
+import { Contract } from 'ethers'
+import { BigNumber } from '@ethersproject/bignumber'
+
+export const STRATEGY_PROTOCAL_FEE = 200 // 2%
+export const ROYALTY_FEE_LIMIT = 500 // 5%
+export const LZ_ENDPOINT = {
+  rinkeby: '0x79a63d6d8BBD5c6dfc774dA79bCcD948EAcb53FA',
+  mumbai: '0xf69186dfBa60DdB133E91E9A4B5673624293d8F8',
+  bsctest: '0x6Fcb97553D41516Cb228ac03FdC8B9a0a9df04A1'
+}
+export const CONTRACTS = {
+  omnixExchange: {
+    rinkeby: '0x4880Bdb2D46a9159b0860d97848ed1B0cDfAf5E6',
+    bsctest: '0x884D90721f80F57de5FeAd59c9f50E8749ff478C'
+  },
+  transferSelector: {
+    rinkeby: '0x578cF9AA6AEe142BABE78e8c1f2024411Ce5d325',
+    bsctest: '0x3C533373b3Ae78e3B0b500819f43851aBDa98949'
+  },
+  gregs: {
+    rinkeby: '0xC8759D18D5c96cce77074249330b9b41A618e51A',
+    bsctest: '0xCB3041291724B893E8BB3E876aC8f250D475685D'
+  }
+}
+
+export const deployContract = async (ethers: any, name: string, owner: any, initParams: Array<any>): Promise<Contract> => {
+  const factory = await ethers.getContractFactory(name, owner)
+  const contract = await factory.deploy(...initParams)
+  const deployed = await contract.deployed()
+  console.log(`deployed ${name} to `, deployed.address)
+  return deployed
+}
+
+export const createContract = (ethers: any, addr: string, abi: any, owner: any): Contract => {
+  const contract = new ethers.Contract(addr, abi, owner)
+  return contract
+}
+
+export const toWei = (ethers: any, amount: number | string): BigNumber => {
+  return ethers.utils.parseEther(amount.toString())
+}

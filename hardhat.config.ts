@@ -7,6 +7,7 @@ import '@typechain/hardhat'
 import 'hardhat-gas-reporter'
 import 'solidity-coverage'
 import './tasks/deploy'
+import './tasks/deployGreg'
 import './tasks/verify'
 
 dotenv.config()
