@@ -1,7 +1,7 @@
 import hre, { ethers } from 'hardhat'
 import { Signer } from 'ethers'
 import { expect } from 'chai'
-import OmniNFTArtifacts from '../artifacts/contracts/OmniNFT.sol/OmniNFT.json'
+import OmniNFTArtifacts from '../artifacts/contracts/token/onft/extension/PersistentURIONFT.sol/PersistentURIONFT.json'
 
 describe('OmniBridge', function () {
   const chainIdSrc = 1

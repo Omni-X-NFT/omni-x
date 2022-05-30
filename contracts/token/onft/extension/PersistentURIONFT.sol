@@ -2,13 +2,18 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/IOmniNFT.sol";
-import "./token/onft/ONFT721.sol";
+import "../IPersistentURIONFT.sol";
+import "../ONFT721.sol";
 
-contract OmniNFT is ONFT721, IOmniNFT {
+contract PersistentURIONFT is ONFT721, IPersistentURIONFT {
     mapping(uint256 => string) private _tokenURIs;
     address private bridgeAddress;
 
+    /// @notice Constructor for the PersistentURIONFT
+    /// @param _name the name of the token
+    /// @param _symbol the token symbol
+    /// @param _lzEndpoint handles message transmission across chains
+    /// @param _bridge bridge contract address
     constructor(
         string memory _name,
         string memory _symbol,
@@ -22,11 +27,6 @@ contract OmniNFT is ONFT721, IOmniNFT {
         _mint(toAddress, tokenId);
         _setTokenURI(tokenId, _tokenURI);
     }
-
-    /// For testing purpose
-    // function mint(uint tokenId) public onlyOwner {
-    //     _mint(_msgSender(), tokenId);
-    // }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         return _tokenURIs[tokenId];

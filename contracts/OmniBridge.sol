@@ -6,9 +6,9 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "./interfaces/IOmniBridge.sol";
-import "./interfaces/IOmniNFT.sol";
+import "./token/onft/IPersistentURIONFT.sol";
 import "./lzApp/NonblockingLzApp.sol";
-import "./OmniNFT.sol";
+import "./token/onft/extension/PersistentURIONFT.sol";
 
 error NoZeroAddress();
 
@@ -40,7 +40,7 @@ contract OmniBridge is
         address erc721Address;
         if (regnftAddresses[_erc721Address] != address(0)) {
             // In case re-send ONFT to sender chain
-            IOmniNFT(_erc721Address).burn(_tokenId);
+            IPersistentURIONFT(_erc721Address).burn(_tokenId);
             erc721Address = regnftAddresses[_erc721Address];
             name = IERC721Metadata(_erc721Address).name();
             symbol = IERC721Metadata(_erc721Address).symbol();
@@ -78,7 +78,7 @@ contract OmniBridge is
     {
         if (regnftAddresses[_onftAddress] == address(0)) revert NoZeroAddress();
 
-        IOmniNFT(_onftAddress).burn(_tokenId);
+        IPersistentURIONFT(_onftAddress).burn(_tokenId);
 
         IERC721(regnftAddresses[_onftAddress]).transferFrom(address(this), msg.sender, _tokenId);
     }
@@ -102,14 +102,14 @@ contract OmniBridge is
 
         address onftAddress;
         if (onftAddresses[_erc721Address] == address(0)) {
-            OmniNFT onft = new OmniNFT(_name, _symbol, address(lzEndpoint), address(this));
+            PersistentURIONFT onft = new PersistentURIONFT(_name, _symbol, address(lzEndpoint), address(this));
             onft.mintWithURI(_toAddress, _tokenId, _tokenURI);
             onftAddresses[_erc721Address] = address(onft);
             regnftAddresses[address(onft)] = _erc721Address;
             collectionLockedCounter[address(onft)] += 1;
             onftAddress = address(onft);
         } else {
-            IOmniNFT(onftAddresses[_erc721Address]).mintWithURI(_toAddress, _tokenId, _tokenURI);
+            IPersistentURIONFT(onftAddresses[_erc721Address]).mintWithURI(_toAddress, _tokenId, _tokenURI);
             collectionLockedCounter[onftAddresses[_erc721Address]] += 1;
         }
         emit LzReceive(_erc721Address, _toAddress, _tokenId, _payload, onftAddress);

@@ -24,6 +24,7 @@ const config: HardhatUserConfig = {
       }
     }
   },
+
   networks: {
     hardhat: {
       forking: {
@@ -40,13 +41,11 @@ const config: HardhatUserConfig = {
       chainId: 1,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
-
     avalanche: {
       url: 'https://api.avax.network/ext/bc/C/rpc',
       chainId: 43114,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
-
     rinkeby: {
       url: 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
       chainId: 4,
@@ -88,8 +87,18 @@ const config: HardhatUserConfig = {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: 'USD'
   },
+
+  // https://hardhat.org/plugins/nomiclabs-hardhat-etherscan#multiple-api-keys-and-alternative-block-explorers
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY
+    apiKey: {
+      rinkeby: process.env.ETHERSCAN_API_KEY,
+      bscTestnet: process.env.BSCSCAN_API_KEY,
+      polygonMumbai: process.env.POLYGON_API_KEY,
+      avalancheFujiTestnet: process.env.AVALANCHE_API_KEY,
+      arbitrumTestnet: process.env.ARBITRUM_API_KEY,
+      optimisticKovan: process.env.OPTIMISTIC_API_KEY,
+      ftmTestnet: process.env.FANTOM_API_KEY
+    }
   },
 
   contractSizer: {

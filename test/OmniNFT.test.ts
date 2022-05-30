@@ -15,7 +15,7 @@ describe('OmniNFT: ', function () {
     ownerAddress = await owner.getAddress()
 
     LZEndpointMock = await hre.ethers.getContractFactory('LZEndpointMock')
-    OmniNFT = await hre.ethers.getContractFactory('OmniNFT')
+    OmniNFT = await hre.ethers.getContractFactory('PersistentURIONFT')
   })
 
   beforeEach(async function () {
@@ -37,7 +37,7 @@ describe('OmniNFT: ', function () {
   it('sendFrom() - mint on the source chain and send ONFT to the destination chain', async function () {
     // mint ONFT
     const newId = 1
-    await (await ONFTSrc.connect(owner).mint(newId)).wait()
+    await (await ONFTSrc.connect(owner).mintWithURI(ownerAddress, newId, 'https://tokenuri.com')).wait()
 
     // verify the owner of the token is on the source chain
     expect(await ONFTSrc.ownerOf(newId)).to.be.equal(ownerAddress)
