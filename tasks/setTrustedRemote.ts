@@ -13,8 +13,8 @@ export const setTrustedRemote = async function (taskArgs: any, hre: any) {
 
   let srcContractName = 'OmniNFT'
   let dstContractName = srcContractName
-  if (taskArgs.contractname) {
-    srcContractName = taskArgs.contractname
+  if (taskArgs.contract) {
+    srcContractName = taskArgs.contract
     dstContractName = srcContractName
   }
 
