@@ -40,35 +40,35 @@ describe('OmniBridge', function () {
     await OmniBridgeDst.setTrustedRemote(chainIdSrc, OmniBridgeSrc.address) // for B, set A
 
     // Mock ERC721 contract deployment on Source chain
-    const ONFT721Mock = await hre.ethers.getContractFactory('ONFT721Mock')
-    mockInstance = await ONFT721Mock.deploy('Test', 'TMK', lzEndpointSrcMock.address)
+    const ONFT721Mock = await hre.ethers.getContractFactory('ERC721Mock')
+    mockInstance = await ONFT721Mock.deploy()
     await mockInstance.deployed()
   })
 
-  it('Miniting Regualare NFT item and approve to spend from Bridge contract', async () => {
-    await (await mockInstance.mint(ownerAddress, 1)).wait()
-    expect(await mockInstance.ownerOf(1)).to.eq(ownerAddress)
+  it('Miniting Regular NFT item and approve to spend from Bridge contract', async () => {
+    await (await mockInstance.connect(owner).safeMint(ownerAddress)).wait()
+    expect(await mockInstance.ownerOf(0)).to.eq(ownerAddress)
     // Approving Token
-    await (await mockInstance.approve(OmniBridgeSrc.address, 1)).wait()
+    await (await mockInstance.approve(OmniBridgeSrc.address, 0)).wait()
 
     // Calling wrap function in bridge contract
-    await (await OmniBridgeSrc.connect(owner).wrap(chainIdDst, mockInstance.address, 1)).wait()
-    expect(await mockInstance.ownerOf(1)).to.eq(OmniBridgeSrc.address)
+    await (await OmniBridgeSrc.connect(owner).wrap(chainIdDst, mockInstance.address, 0)).wait()
+    expect(await mockInstance.ownerOf(0)).to.eq(OmniBridgeSrc.address)
 
     expect(await OmniBridgeDst.onftAddresses(mockInstance.address)).to.not.equal(ethers.constants.AddressZero)
 
     // Sending again from Dstchain to SrcChain
     const onftAddressDst = await OmniBridgeDst.onftAddresses(mockInstance.address)
     const OmniNFTInstanceDst = await hre.ethers.getContractAt(OmniNFTArtifacts.abi, onftAddressDst, owner)
-    await OmniNFTInstanceDst.approve(OmniBridgeDst.address, 1)
-    await (await OmniBridgeDst.connect(owner).wrap(chainIdSrc, onftAddressDst, 1)).wait()
+    await OmniNFTInstanceDst.approve(OmniBridgeDst.address, 0)
+    await (await OmniBridgeDst.connect(owner).wrap(chainIdSrc, onftAddressDst, 0)).wait()
 
     // Withdrawing regular NFT item from BridgeSRC contract
     const onftAddressSrc = await OmniBridgeSrc.onftAddresses(mockInstance.address)
     const OmniNFTInstanceSrc = await hre.ethers.getContractAt(OmniNFTArtifacts.abi, onftAddressSrc, owner)
-    await OmniNFTInstanceSrc.approve(OmniBridgeSrc.address, 1)
-    await (await OmniBridgeSrc.connect(owner).withdraw(onftAddressSrc, 1)).wait()
+    await OmniNFTInstanceSrc.approve(OmniBridgeSrc.address, 0)
+    await (await OmniBridgeSrc.connect(owner).withdraw(onftAddressSrc, 0)).wait()
 
-    expect(await mockInstance.ownerOf(1)).to.eq(ownerAddress)
+    expect(await mockInstance.ownerOf(0)).to.eq(ownerAddress)
   })
 })
