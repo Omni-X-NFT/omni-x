@@ -9,11 +9,18 @@ import 'solidity-coverage'
 import './tasks/deploy'
 import './tasks/deployGreg'
 import './tasks/verify'
+import './tasks/test'
 
 dotenv.config()
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
+
+const accounts = [
+  process.env.PRIVATE_KEY || '',
+  process.env.PRIVATE_KEY2 || '',
+  process.env.PRIVATE_KEY3 || ''
+]
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -28,23 +35,19 @@ const config: HardhatUserConfig = {
   networks: {
     ropsten: {
       url: process.env.ROPSTEN_URL || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+      accounts
     },
     rinkeby: {
       url: process.env.RINKEBY_URL || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+      accounts
     },
     mumbai: {
       url: process.env.MUMBAI_URL || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+      accounts
     },
     bsctest: {
       url: process.env.BSCTEST_URL || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+      accounts
     }
   },
   gasReporter: {

@@ -17,10 +17,22 @@ export const CONTRACTS = {
     rinkeby: '0x578cF9AA6AEe142BABE78e8c1f2024411Ce5d325',
     bsctest: '0x3C533373b3Ae78e3B0b500819f43851aBDa98949'
   },
+  gregTransfer: {
+    rinkeby: '0x578cF9AA6AEe142BABE78e8c1f2024411Ce5d325',
+    bsctest: '0x3C533373b3Ae78e3B0b500819f43851aBDa98949'
+  },
   gregs: {
     rinkeby: '0xC8759D18D5c96cce77074249330b9b41A618e51A',
     bsctest: '0xCB3041291724B893E8BB3E876aC8f250D475685D'
-  }
+  },
+  erc20: {
+    rinkeby: '0x4987c682F0b9aD7C15207193eBf0802E88B781D9',
+    bsctest: '0x1e05a5980508A244B582dE5991565a84a4Fa406b'
+  },
+  strategy: {
+    rinkeby: '0x6ee39B7ef7F4a9A923dAA3010FC9A0B961229243',
+    bsctest: '0xF702373cf4a3f911965cF42b1019FAA831724261'
+  },
 }
 
 export const deployContract = async (ethers: any, name: string, owner: any, initParams: Array<any>): Promise<Contract> => {
@@ -38,4 +50,11 @@ export const createContract = (ethers: any, addr: string, abi: any, owner: any):
 
 export const toWei = (ethers: any, amount: number | string): BigNumber => {
   return ethers.utils.parseEther(amount.toString())
+}
+
+export const getBlockTime = async (ethers: any) : Promise<number> => {
+  const blockNumBefore = await ethers.provider.getBlockNumber();
+  const blockBefore = await ethers.provider.getBlock(blockNumBefore);
+  const timestampBefore = blockBefore.timestamp;
+  return timestampBefore as number
 }

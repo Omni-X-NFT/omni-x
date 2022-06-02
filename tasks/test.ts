@@ -1,109 +1,108 @@
 import { task } from 'hardhat/config'
-
+import chai from 'chai'
+import { solidity } from 'ethereum-waffle'
 import {
   TakerOrder,
   MakerOrder
-} from '../utils/order-types';
+} from '../utils/order-types'
+import {
+  CONTRACTS,
+  createContract,
+  toWei,
+  getBlockTime
+} from './shared'
+import * as OmniXEchange from '../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json'
+import * as GregNft from '../artifacts/contracts/token/onft/AdvancedONT.sol/AdvancedONT.json'
 
-// export const getBlockTime = async (ethers: any) : Promise<number> => {
-//     const blockNumBefore = await ethers.provider.getBlockNumber();
-//     const blockBefore = await ethers.provider.getBlock(blockNumBefore);
-//     const timestampBefore = blockBefore.timestamp;
-//     return timestampBefore as number
-// }
+chai.use(solidity)
+const { expect } = chai
 
-// export const startTest = (ethers: any, {
-//     omniXExchange,
-//     currencyManager,
-//     executionManager,
-//     transferSelector,
-//     strategy,
-//     nftMock,
-//     erc20Mock,
-//     omni,
-//     onft721,
-//     onft1155,
-// }) => {
-//     const fillMakerOrder = async (
-//         makeOrder : MakerOrder,
-//         tokenId: number,
-//         currency: string,
-//         nftAddress: string,
-//         nonce: number
-//       ) => {
-//         makeOrder.tokenId = tokenId
-//         makeOrder.currency = currency
-//         makeOrder.price = toWei(ethers, 1)
-//         makeOrder.amount = 1
-//         makeOrder.collection = nftAddress
-//         makeOrder.strategy = strategy.address
-//         makeOrder.nonce = nonce
-//         makeOrder.startTime = await getBlockTime(ethers)
-//         makeOrder.endTime = makeOrder.startTime + 3600 * 30
-//         makeOrder.minPercentageToAsk = 900
-//         makeOrder.signer = maker.address
-//       }
-//       const fillTakerOrder = (
-//         takerOrder : TakerOrder,
-//         tokenId: number
-//       ) => {
-//         takerOrder.tokenId = tokenId
-//         takerOrder.price = toWei(1)
-//         takerOrder.minPercentageToAsk = 900
-//         takerOrder.taker = taker.address
-//       }
+export const doStep = async (ethers: any, network: string, args: any) => {
+  const [ owner, maker, taker ] = await ethers.getSigners()
+  const omnixExchangeAddr = (CONTRACTS.omnixExchange as any)[network]
+  const strategyAddr = (CONTRACTS.strategy as any)[network]
+  const nftAddr = (CONTRACTS.gregs as any)[network]
+  const gregTransferAddr = (CONTRACTS.gregTransfer as any)[network]
+  const currencyAddr = (CONTRACTS.erc20 as any)[network]
 
-//     const prepareTest = () => {
+  const omnixAbi = OmniXEchange.abi
+  const nftAbi = GregNft.abi
 
-//     }
+  const fillMakerOrder = async (
+    makeOrder : MakerOrder,
+    tokenId: number,
+    currency: string,
+    nftAddress: string,
+    nonce: number
+  ) => {
+    makeOrder.tokenId = tokenId
+    makeOrder.currency = currency
+    makeOrder.price = toWei(ethers, 1)
+    makeOrder.amount = 1
+    makeOrder.collection = nftAddress
+    makeOrder.strategy = strategyAddr
+    makeOrder.nonce = nonce
+    makeOrder.startTime = await getBlockTime(ethers)
+    makeOrder.endTime = makeOrder.startTime + 3600 * 30
+    makeOrder.minPercentageToAsk = 900
+    makeOrder.signer = maker.address
+  }
+
+  const fillTakerOrder = (
+    takerOrder : TakerOrder,
+    tokenId: number
+  ) => {
+    takerOrder.tokenId = tokenId
+    takerOrder.price = toWei(ethers, 1)
+    takerOrder.minPercentageToAsk = 900
+    takerOrder.taker = taker.address
+  }
+
+  const prepareTest = async (tokenId: number, nonce: number) => {
+    // make order
+    const makerAsk: MakerOrder = new MakerOrder(true)
+    await fillMakerOrder(makerAsk, tokenId, currencyAddr, nftAddr, nonce)
+    await makerAsk.serialize('./artifacts/makerAsk.json')
+
+    makerAsk.encodeParams(await maker.getChainId(), taker.address)
+    await makerAsk.sign(maker, omnixExchangeAddr)
+
+    // approve
+    const nftContract = createContract(ethers, nftAddr, nftAbi, maker)
+    await nftContract.approve(gregTransferAddr, tokenId)
+  }
+  
+  const testMakerAskTakerBid = async (tokenId: number) => {
+    const makerAsk: MakerOrder = MakerOrder.deserialize('./artifacts/makerAsk.json')
+    const takerBid: TakerOrder = new TakerOrder(false)
+
+    const omnixContract = createContract(ethers, omnixExchangeAddr, omnixAbi, taker)
     
-//     const approveTest = () => {
+    fillTakerOrder(takerBid, tokenId)
+    takerBid.encodeParams(await taker.getChainId())
 
-//     }
+    await omnixContract.matchAskWithTakerBid(takerBid, makerAsk);
 
-//     const testMakerAskTakerBid = () => {
-//         const makerAsk: MakerOrder = new MakerOrder(true)
-//         const takerBid: TakerOrder = new TakerOrder(false)
-  
-//         await fillMakerOrder(makerAsk, 1, erc20Mock.address, nftMock.address, 1)
-//         fillTakerOrder(takerBid, 1)
-  
-//         makerAsk.encodeParams(await maker.getChainId(), taker.address)
-//         takerBid.encodeParams(await taker.getChainId())
-//         await makerAsk.sign(maker, omniXExchange.address)
-//         await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
-  
-//         expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
-//     }
+    // expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+  }
 
-//     const testMakerAskTakerBidOmni = () => {
+  switch (args.step) {
+    case 'make':
+      prepareTest(args.tokenId, args.nonce)
+      break
+    case 'take':
+      testMakerAskTakerBid(args.tokenId)
+      break
+  }
+}
 
-//     }
+task('testGreg', 'test OmniXEchange with Greg NFT between rinkeby vs bsctest')
+  .addParam('step', 'make | approve | take')
+  .addParam('tokenId', 'number')
+  .addParam('nonce', 'number')
+  .setAction(async (taskArgs) => {
+    // @ts-ignore
+    const { ethers, network } = hre;
 
-//     const testMakerBidTakerAsk = () => {
-
-//     }
-
-//     const testMakerBidTakerAskOmni = () => {
-
-//     }
-
-//     prepareTest()
-//     approveTest()
-
-//     testMakerAskTakerBid()
-//     testMakerBidTakerAsk()
-//     testMakerAskTakerBidOmni()
-//     testMakerBidTakerAskOmni()
-// }
-
-task('deployContract', 'deploys an OmniX exchange && simple test')
-    .setAction(async () => {
-        // @ts-ignore
-        const { ethers, network } = hre;
-        const [ owner ] = await ethers.getSigners()
-        
-        // await startTest(ethers, {
-
-        // })
-    })
+    doStep(ethers, network, taskArgs.step)
+  })

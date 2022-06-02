@@ -55,3 +55,8 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - deployed ONFT1155 to  0x3C4CF086436C68d3c3863fa3751aa38d54241406
 - deployed TransferManagerGregs to  0x49fB1b5550AFFdFF32CffF03c1A8168f992296eF
 ## Mumbai
+
+# How to test on testnet
+- First of all testing, you need to mint on rinkeby through https://omniversedao.io/greg#
+- npx hardhat testGreg --step make --tokenId [your_token] --nonce 1 --network rinkeby
+- npx hardhat testGreg --step take --tokenId [your_token] --network bsctest

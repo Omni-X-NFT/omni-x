@@ -2,6 +2,7 @@ import { BigNumberish, BytesLike } from 'ethers'
 import { ethers } from 'hardhat'
 import { TypedDataUtils } from 'ethers-eip712'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import * as fs from 'fs'
 
 const MAKE_ORDER_SIGN_TYPES = {
   EIP712Domain: [
@@ -45,6 +46,18 @@ export class MakerOrder {
 
   constructor (isOrderAsk: boolean) {
     this.isOrderAsk = isOrderAsk;
+  }
+
+  static deserialize(file: string): MakerOrder {
+    const data = fs.readFileSync(file).toString()
+    const obj = JSON.parse(data)
+
+    return obj
+  }
+
+  serialize(file: string) {
+    const data = JSON.stringify(this)
+    fs.writeFileSync(file, data)
   }
   
   setParams(types: string[], values: any[]) {
