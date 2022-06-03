@@ -23,6 +23,7 @@ import {
   deployContract, getBlockTime, toWei
 } from '../utils/test-utils'
 import {
+  setEthers,
   TakerOrder,
   MakerOrder
 } from '../utils/order-types';
@@ -30,6 +31,8 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 chai.use(solidity)
 const { expect } = chai
+
+setEthers(ethers)
 
 const STRATEGY_PROTOCAL_FEE = 200 // 2%
 const ROYALTY_FEE_LIMIT = 500 // 5%
@@ -151,8 +154,8 @@ describe('OmniXExchange', () => {
     await layerZeroEndpoint.setDestLzEndpoint(onft721.address, layerZeroEndpoint.address)
     await layerZeroEndpoint.setDestLzEndpoint(onft1155.address, layerZeroEndpoint.address)
 
-    await onft721.safeMint(maker.address, 1)
-    await onft721.safeMint(maker.address, 2)
+    // await onft721.safeMint(maker.address, 1)
+    // await onft721.safeMint(maker.address, 2)
     await onft721.setTrustedRemote(await owner.getChainId(), onft721.address);
     await omni.setTrustedRemote(await owner.getChainId(), omni.address)
     await omni.transfer(taker.address, toWei(200))

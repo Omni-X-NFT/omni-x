@@ -1,4 +1,5 @@
 import { HardhatUserConfig } from 'hardhat/config'
+import '@typechain/hardhat'
 import 'hardhat-contract-sizer'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
@@ -55,7 +56,7 @@ const config: HardhatUserConfig = {
       chainId: 4,
       accounts
     },
-    'bsc-testnet': {
+    bsct: {
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
       chainId: 97,
       accounts
@@ -96,12 +97,12 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       rinkeby: process.env.ETHERSCAN_API_KEY,
-      bscTestnet: process.env.BSCSCAN_API_KEY,
-      polygonMumbai: process.env.POLYGON_API_KEY,
-      avalancheFujiTestnet: process.env.AVALANCHE_API_KEY,
-      arbitrumTestnet: process.env.ARBITRUM_API_KEY,
-      optimisticKovan: process.env.OPTIMISTIC_API_KEY,
-      ftmTestnet: process.env.FANTOM_API_KEY
+      // bscTestnet: process.env.BSCSCAN_API_KEY,
+      // polygonMumbai: process.env.POLYGON_API_KEY,
+      // avalancheFujiTestnet: process.env.AVALANCHE_API_KEY,
+      // arbitrumTestnet: process.env.ARBITRUM_API_KEY,
+      // optimisticKovan: process.env.OPTIMISTIC_API_KEY,
+      // ftmTestnet: process.env.FANTOM_API_KEY
     }
   },
 

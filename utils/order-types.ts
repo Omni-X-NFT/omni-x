@@ -1,5 +1,4 @@
 import { BigNumberish, BytesLike } from 'ethers'
-import { ethers } from 'hardhat'
 import { TypedDataUtils } from 'ethers-eip712'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import * as fs from 'fs'
@@ -27,6 +26,11 @@ const MAKE_ORDER_SIGN_TYPES = {
     { name: 'params', type: 'bytes' }
   ]
 };
+
+let ethers: any
+export const setEthers = (ethers_: any) => {
+  ethers = ethers_
+}
 
 export class MakerOrder {
   isOrderAsk: boolean = false

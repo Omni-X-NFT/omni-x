@@ -30,6 +30,6 @@ task('setTrustedRemote2', 'set trusted remote')
 
 task('testOmniX', 'test OmniXEchange with Gh0stlyGh0sts NFT between rinkeby vs bsctest')
   .addParam('step', 'make | approve | take')
-  .addParam('tokenId', 'number')
+  .addParam('tokenid', 'number')
   .addParam('nonce', 'number')
   .setAction(testGhosts)

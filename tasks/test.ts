@@ -1,6 +1,7 @@
 import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
 import {
+  setEthers,
   TakerOrder,
   MakerOrder
 } from '../utils/order-types'
@@ -11,7 +12,7 @@ import {
   getBlockTime
 } from './shared'
 import * as OmniXEchange from '../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json'
-import * as GregNft from '../artifacts/contracts/token/onft/AdvancedONT.sol/AdvancedONT.json'
+import * as GhostNft from './fixtures/Gh0stlyGh0sts.json'
 
 chai.use(solidity)
 const { expect } = chai
@@ -20,15 +21,17 @@ export const testGhosts = async (args: any) => {
   // @ts-ignore
   const { ethers, network } = hre;
 
+  setEthers(ethers)
+
   const [ owner, maker, taker ] = await ethers.getSigners()
   const omnixExchangeAddr = (CONTRACTS.omnixExchange as any)[network]
   const strategyAddr = (CONTRACTS.strategy as any)[network]
   const nftAddr = (CONTRACTS.gregs as any)[network]
-  const gregTransferAddr = (CONTRACTS.gregTransfer as any)[network]
+  const ghostTransferAddr = (CONTRACTS.ghostTransfer as any)[network]
   const currencyAddr = (CONTRACTS.erc20 as any)[network]
 
   const omnixAbi = OmniXEchange.abi
-  const nftAbi = GregNft.abi
+  const nftAbi = GhostNft.abi
 
   const fillMakerOrder = async (
     makeOrder : MakerOrder,
@@ -71,7 +74,7 @@ export const testGhosts = async (args: any) => {
 
     // approve
     const nftContract = createContract(ethers, nftAddr, nftAbi, maker)
-    await nftContract.approve(gregTransferAddr, tokenId)
+    await nftContract.approve(ghostTransferAddr, tokenId)
   }
   
   const testMakerAskTakerBid = async (tokenId: number) => {
@@ -88,12 +91,15 @@ export const testGhosts = async (args: any) => {
     // expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
   }
 
-  switch (args.step) {
-    case 'make':
-      prepareTest(args.tokenId, args.nonce)
-      break
-    case 'take':
-      testMakerAskTakerBid(args.tokenId)
-      break
-  }
+  const {step, tokenid: tokenId, nonce} = args
+
+  console.log('-----', step, tokenId, nonce)
+  // switch (step) {
+  //   case 'make':
+  //     prepareTest(tokenId, nonce)
+  //     break
+  //   case 'take':
+  //     testMakerAskTakerBid(tokenId)
+  //     break
+  // }
 }

@@ -58,8 +58,14 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - deployed GhostlyGhosts to 0x4642808070a46fBA0096c37dc52a2D44BfAC4841
 ## Mumbai
 
-# How to test on testnet
+# How to test OmniXExchange with Gh0stlyGh0sts NFT on testnet
 
-- First of all testing, you need to mint on rinkeby through https://omniversedao.io/greg#
-- npx hardhat testGreg --step make --tokenId [your_token] --nonce 1 --network rinkeby
-- npx hardhat testGreg --step take --tokenId [your_token] --network bsctest
+## deploy TransferManagerGhosts
+- npx hardhat deployGhostTransfer --network rinkeby
+- npx hardhat deployGhostTransfer --network bsct
+
+## setTrustedRemote for each other.
+- npx hardhat setTrustedRemote2 --network rinkeby --contract TransferManagerGhosts --src 0xED970A27b0220458C68434F0E91894103FF00B63 --dst 0x4FEE2C943Cd8747aba49C35A5320a19613817E1e --dstchain 97
+- npx hardhat setTrustedRemote2 --network bsct --contract TransferManagerGhosts --src 0x4FEE2C943Cd8747aba49C35A5320a19613817E1e --dst 0xED970A27b0220458C68434F0E91894103FF00B63 --dstchain 4
+- npx hardhat testOmniX --step make --tokenid 1 --nonce 1 --network rinkeby
+- npx hardhat testOmniX --step take --tokenid 1 --network bsctest
