@@ -1,4 +1,3 @@
-import { task } from 'hardhat/config'
 import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
 import {
@@ -17,7 +16,10 @@ import * as GregNft from '../artifacts/contracts/token/onft/AdvancedONT.sol/Adva
 chai.use(solidity)
 const { expect } = chai
 
-export const doStep = async (ethers: any, network: string, args: any) => {
+export const testGhosts = async (args: any) => {
+  // @ts-ignore
+  const { ethers, network } = hre;
+
   const [ owner, maker, taker ] = await ethers.getSigners()
   const omnixExchangeAddr = (CONTRACTS.omnixExchange as any)[network]
   const strategyAddr = (CONTRACTS.strategy as any)[network]
@@ -95,14 +97,3 @@ export const doStep = async (ethers: any, network: string, args: any) => {
       break
   }
 }
-
-task('testGreg', 'test OmniXEchange with Greg NFT between rinkeby vs bsctest')
-  .addParam('step', 'make | approve | take')
-  .addParam('tokenId', 'number')
-  .addParam('nonce', 'number')
-  .setAction(async (taskArgs) => {
-    // @ts-ignore
-    const { ethers, network } = hre;
-
-    doStep(ethers, network, taskArgs.step)
-  })

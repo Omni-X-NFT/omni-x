@@ -35,6 +35,7 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - deployed ONFT721 to  0x2F7257e95B2f3A2969C85880Ce3AE0870fDa306F
 - deployed ONFT1155 to  0x3Cff1472a9C33C23447997414c61b8E715e5564C
 - deployed TransferManagerGregs to  0x5fdCe0DA877C80c6adeE6210a03973152840120A
+- deployed GhostlyGhosts to 0x71d5F3d2C3D0139312AB0eF4a462140204D05A64
 
 ## BSC testnet
 - deployed CurrencyManager to  0x7dEdC2f494F2e224b0EA355D2961564B955819dF
@@ -54,9 +55,11 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - deployed ONFT721 to  0x577267C3Ff0c303151122e6a31b7d8089E7222f8
 - deployed ONFT1155 to  0x3C4CF086436C68d3c3863fa3751aa38d54241406
 - deployed TransferManagerGregs to  0x49fB1b5550AFFdFF32CffF03c1A8168f992296eF
+- deployed GhostlyGhosts to 0x4642808070a46fBA0096c37dc52a2D44BfAC4841
 ## Mumbai
 
 # How to test on testnet
+
 - First of all testing, you need to mint on rinkeby through https://omniversedao.io/greg#
 - npx hardhat testGreg --step make --tokenId [your_token] --nonce 1 --network rinkeby
 - npx hardhat testGreg --step take --tokenId [your_token] --network bsctest
