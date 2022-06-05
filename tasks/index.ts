@@ -1,6 +1,6 @@
 import { task } from 'hardhat/config'
 import { setTrustedRemote } from './setTrustedRemote'
-import { deployOmniX } from './deployOmniX'
+import { deployOmniX, deployOmniX2 } from './deployOmniX'
 import { deployGhostTransfer, deployGregTransfer } from './deployGGTransfer'
 import { setTrustedRemote2 } from './setTrustedRemote2'
 import { testGhosts } from './test'
@@ -33,3 +33,6 @@ task('testOmniX', 'test OmniXEchange with Gh0stlyGh0sts NFT between rinkeby vs b
   .addParam('tokenid', 'number')
   .addOptionalParam('nonce', 'number required when make step')
   .setAction(testGhosts)
+
+task('deployOmniX2', 'deploys an OmniX exchange')
+  .setAction(deployOmniX2)
