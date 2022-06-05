@@ -32,10 +32,34 @@ export const CONTRACTS = {
     rinkeby: '0x4987c682F0b9aD7C15207193eBf0802E88B781D9',
     bsct: '0x1e05a5980508A244B582dE5991565a84a4Fa406b'
   },
+  oft: {
+    rinkeby: '0xEaDe6619E16db9ab0a10B505Dc15606fA28A7A94',
+    bsct: '0xAF3B1D8594666469288991016Ba7B5c4e44E2e99'
+  },
+  onft721: {
+    rinkeby: '0x2F7257e95B2f3A2969C85880Ce3AE0870fDa306F',
+    bsct: '0x577267C3Ff0c303151122e6a31b7d8089E7222f8'
+  },
+  onft1155: {
+    rinkeby: '0x3Cff1472a9C33C23447997414c61b8E715e5564C',
+    bsct: '0x3C4CF086436C68d3c3863fa3751aa38d54241406'
+  },
   strategy: {
     rinkeby: '0x6ee39B7ef7F4a9A923dAA3010FC9A0B961229243',
     bsct: '0xF702373cf4a3f911965cF42b1019FAA831724261'
   },
+  currencyManager: {
+    rinkeby: '0xec73CFFbD83c878fc4f50c0Cd74A5c119289ae07',
+    bsct: '0x7dEdC2f494F2e224b0EA355D2961564B955819dF'
+  },
+  executionManager: {
+    rinkeby: '0xaDf603eABbfEF66Efb6cb8D00fc72679B21c66f5',
+    bsct: '0x5599a1D261CA90b9969E443346EF2B9a664b770f'
+  },
+  royaltyFeeManager: {
+    rinkeby: '0xED810C259D12ebE54EBAde1EbDa93850489EfcC7',
+    bsct: '0x621aA79DE6B4611Dc21e5364452B23C2AdDf85ab'
+  }
 }
 
 export const deployContract = async (ethers: any, name: string, owner: any, initParams: Array<any>): Promise<Contract> => {

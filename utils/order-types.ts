@@ -33,7 +33,7 @@ export const setEthers = (ethers_: any) => {
 }
 
 const zeroPad = (value: any, length: number) => {
-  return ethers.utils.arrayify(ethers.utils.hexZeroPad(ethers.ethers.utils.hexlify(value), length));
+  return ethers.utils.arrayify(ethers.utils.hexZeroPad(ethers.utils.hexlify(value), length));
 }
 
 export class MakerOrder {

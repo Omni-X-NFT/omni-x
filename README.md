@@ -16,6 +16,21 @@ npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
 
 For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment. For more details see [the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).
 
+# How to deploy
+
+## deploy to rinkeby and bsct
+- npx hardhat deployOmniX --network rinkeby
+- npx hardhat deployOmniX --network bsct
+## set trusted remote for ONFT, OFT
+- npx hardhat setTrustedRemote2 --network rinkeby --contract ONFT721 --src [ONFT721_ADDR_RINKEBY] --dst [ONFT721_ADDR_BSCT] --dstchain 97
+- npx hardhat setTrustedRemote2 --network bsct --contract ONFT721 --src [ONFT721_ADDR_BSCT] --dst [ONFT721_ADDR_RINKEBY] --dstchain 4
+
+- npx hardhat setTrustedRemote2 --network rinkeby --contract ONFT721 --src [ONFT1155_ADDR_RINKEBY] --dst [ONFT1155_ADDR_BSCT] --dstchain 97
+- npx hardhat setTrustedRemote2 --network bsct --contract ONFT721 --src [ONFT1155_ADDR_BSCT] --dst [ONFT1155_ADDR_RINKEBY] --dstchain 4
+
+- npx hardhat setTrustedRemote2 --network rinkeby --contract ONFT721 --src [OFT_ADDR_RINKEBY] --dst [OFT_ADDR_BSCT] --dstchain 97
+- npx hardhat setTrustedRemote2 --network bsct --contract ONFT721 --src [OFT_ADDR_BSCT] --dst [OFT_ADDR_RINKEBY] --dstchain 4
+
 # Deployed Contracts
 ## Rinkeby
 - deployed CurrencyManager to  0xec73CFFbD83c878fc4f50c0Cd74A5c119289ae07
