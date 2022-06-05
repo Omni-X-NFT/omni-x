@@ -1,10 +1,10 @@
 import {
     STRATEGY_PROTOCAL_FEE,
     ROYALTY_FEE_LIMIT,
-    LZ_ENDPOINT,
     deployContract,
     toWei
 } from './shared'
+import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 
 export const deployOmniX = async() => {
     // @ts-ignore

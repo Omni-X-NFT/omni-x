@@ -68,4 +68,4 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - npx hardhat setTrustedRemote2 --network rinkeby --contract TransferManagerGhosts --src 0xED970A27b0220458C68434F0E91894103FF00B63 --dst 0x4FEE2C943Cd8747aba49C35A5320a19613817E1e --dstchain 97
 - npx hardhat setTrustedRemote2 --network bsct --contract TransferManagerGhosts --src 0x4FEE2C943Cd8747aba49C35A5320a19613817E1e --dst 0xED970A27b0220458C68434F0E91894103FF00B63 --dstchain 4
 - npx hardhat testOmniX --step make --tokenid 1 --nonce 1 --network rinkeby
-- npx hardhat testOmniX --step take --tokenid 1 --network bsctest
+- npx hardhat testOmniX --step take --tokenid 1 --network bsct

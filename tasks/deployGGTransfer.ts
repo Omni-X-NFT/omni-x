@@ -1,10 +1,10 @@
 import * as TransferSelector from '../artifacts/contracts/core/TransferSelectorNFT.sol/TransferSelectorNFT.json'
 import {
-    LZ_ENDPOINT,
     CONTRACTS,
     deployContract,
     createContract
 } from './shared'
+import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 
 export const deployGhostTransfer = async() => {
     // @ts-ignore

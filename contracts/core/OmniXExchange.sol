@@ -586,7 +586,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         require(makerOrder.amount > 0, "Order: Amount cannot be 0");
 
         // Verify the validity of the signature
-        bytes32 digest = _hashTypedDataV4(orderHash);
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", orderHash));
         require(
             digest.toEthSignedMessageHash().recover(makerOrder.signature) == makerOrder.signer,
             "Signature: Invalid"

@@ -3,11 +3,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 
 export const STRATEGY_PROTOCAL_FEE = 200 // 2%
 export const ROYALTY_FEE_LIMIT = 500 // 5%
-export const LZ_ENDPOINT = {
-  rinkeby: '0x79a63d6d8BBD5c6dfc774dA79bCcD948EAcb53FA',
-  mumbai: '0xf69186dfBa60DdB133E91E9A4B5673624293d8F8',
-  bsct: '0x6Fcb97553D41516Cb228ac03FdC8B9a0a9df04A1'
-}
 export const CONTRACTS = {
   omnixExchange: {
     rinkeby: '0x4880Bdb2D46a9159b0860d97848ed1B0cDfAf5E6',

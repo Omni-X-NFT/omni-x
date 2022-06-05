@@ -19,14 +19,14 @@ const { expect } = chai
 
 export const testGhosts = async (args: any) => {
   // @ts-ignore
-  const { ethers, network } = hre;
+  const { ethers, network: {name: network} } = hre;
 
   setEthers(ethers)
 
-  const [ owner, maker, taker ] = await ethers.getSigners()
+  const [ maker, taker ] = await ethers.getSigners()
   const omnixExchangeAddr = (CONTRACTS.omnixExchange as any)[network]
   const strategyAddr = (CONTRACTS.strategy as any)[network]
-  const nftAddr = (CONTRACTS.gregs as any)[network]
+  const nftAddr = (CONTRACTS.ghosts as any)[network]
   const ghostTransferAddr = (CONTRACTS.ghostTransfer as any)[network]
   const currencyAddr = (CONTRACTS.erc20 as any)[network]
 
@@ -67,14 +67,15 @@ export const testGhosts = async (args: any) => {
     // make order
     const makerAsk: MakerOrder = new MakerOrder(true)
     await fillMakerOrder(makerAsk, tokenId, currencyAddr, nftAddr, nonce)
-    await makerAsk.serialize('./artifacts/makerAsk.json')
 
     makerAsk.encodeParams(await maker.getChainId(), taker.address)
     await makerAsk.sign(maker, omnixExchangeAddr)
 
+    makerAsk.serialize('./artifacts/makerAsk.json')
+
     // approve
-    const nftContract = createContract(ethers, nftAddr, nftAbi, maker)
-    await nftContract.approve(ghostTransferAddr, tokenId)
+    // const nftContract = createContract(ethers, nftAddr, nftAbi, maker)
+    // await nftContract.approve(ghostTransferAddr, tokenId)
   }
   
   const testMakerAskTakerBid = async (tokenId: number) => {
@@ -86,20 +87,22 @@ export const testGhosts = async (args: any) => {
     fillTakerOrder(takerBid, tokenId)
     takerBid.encodeParams(await taker.getChainId())
 
+    // listing
     await omnixContract.matchAskWithTakerBid(takerBid, makerAsk);
 
-    // expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+    // // checking
+    // const nftContract = createContract(ethers, nftAddr, nftAbi, taker)
+    // expect(await nftContract.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
   }
 
   const {step, tokenid: tokenId, nonce} = args
 
-  console.log('-----', step, tokenId, nonce)
-  // switch (step) {
-  //   case 'make':
-  //     prepareTest(tokenId, nonce)
-  //     break
-  //   case 'take':
-  //     testMakerAskTakerBid(tokenId)
-  //     break
-  // }
+  switch (step) {
+    case 'make':
+      await prepareTest(tokenId, nonce)
+      break
+    case 'take':
+      await testMakerAskTakerBid(tokenId)
+      break
+  }
 }

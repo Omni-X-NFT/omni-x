@@ -32,6 +32,10 @@ export const setEthers = (ethers_: any) => {
   ethers = ethers_
 }
 
+const zeroPad = (value: any, length: number) => {
+  return ethers.utils.arrayify(ethers.utils.hexZeroPad(ethers.ethers.utils.hexlify(value), length));
+}
+
 export class MakerOrder {
   isOrderAsk: boolean = false
   signer: string = ethers.constants.AddressZero
@@ -55,13 +59,16 @@ export class MakerOrder {
   static deserialize(file: string): MakerOrder {
     const data = fs.readFileSync(file).toString()
     const obj = JSON.parse(data)
-
+    
+    obj.params = ethers.utils.arrayify({length: 64, ...obj.params})
     return obj
   }
 
   serialize(file: string) {
     const data = JSON.stringify(this)
     fs.writeFileSync(file, data)
+
+    console.log(`write to ${file}`)
   }
   
   setParams(types: string[], values: any[]) {
@@ -94,8 +101,14 @@ export class MakerOrder {
       message: this
     }
 
-    const digest = TypedDataUtils.encodeDigest(typedData);
-    this.signature = await signer.signMessage(digest);
+    const eip191Header = ethers.utils.arrayify('0x1901');
+    const messageHash = TypedDataUtils.hashStruct(typedData, typedData.primaryType, typedData.message);
+    const pack = ethers.utils.solidityPack(['bytes', 'bytes32'], [
+      eip191Header, 
+      zeroPad(messageHash, 32)
+    ])
+    const digest = ethers.utils.keccak256(pack)
+    this.signature = await signer.signMessage(ethers.utils.arrayify(digest))
     return this;
   }
 }
