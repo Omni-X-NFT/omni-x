@@ -2,42 +2,55 @@
 pragma solidity ^0.8.0;
 
 import {IONFT1155} from "../token/onft/IONFT1155.sol";
-import {ITransferManagerNFT} from "../interfaces/ITransferManagerNFT.sol";
+import {TransferManagerLzBase} from "./TransferManagerLzBase.sol";
 
 /**
  * @title TransferManagerONFT1155
  * @notice It allows the transfer of ERC1155 tokens.
  */
-contract TransferManagerONFT1155 is ITransferManagerNFT {
-    address public immutable OMNIX_EXCHANGE;
-
-    /**
-     * @notice Constructor
-     * @param _omniXExchange address of the OmniX exchange
-     */
-    constructor(address _omniXExchange) {
-        OMNIX_EXCHANGE = _omniXExchange;
+contract TransferManagerONFT1155 is TransferManagerLzBase {
+    constructor(address _omniXExchange, address _lzEndpoint) 
+        TransferManagerLzBase(_omniXExchange, _lzEndpoint) {
     }
 
     /**
-     * @notice Transfer ERC1155 token(s)
-     * @param collection address of the collection
-     * @param from address of the sender
-     * @param to address of the recipient
-     * @param tokenId tokenId
-     * @param amount amount of tokens (1 and more for ERC1155)
-     */
-    function transferNonFungibleToken(
+    @dev just transfer the token from maker to taker on maker chain
+    */
+    function _onReceiveOnSrcChain(
         address collection,
         address from,
         address to,
         uint256 tokenId,
         uint256 amount,
-        uint16 fromChainId
-    ) external override {
-        require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only LooksRare Exchange");
+        uint16 dstChainId
+    ) virtual internal override returns(bool) {
         bytes memory toAddress = abi.encodePacked(to);
+        IONFT1155(collection).sendFrom(from, dstChainId, toAddress, tokenId, amount, payable(0), address(0), bytes(""));
+        return false;
+    }
 
-        IONFT1155(collection).sendFrom(from, fromChainId, toAddress, tokenId, amount, payable(0), address(0), bytes(""));
+    /**
+    @dev no need this function in this manager
+    */
+    function _onReceiveOnDstChain(
+        address,
+        address,
+        address,
+        uint256,
+        uint256,
+        uint16
+    ) virtual internal override returns(bool) {
+        // do nothing
+        return false;
+    }
+
+    function _normalTransfer(
+        address collection,
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 amount
+    ) virtual internal override {
+        IONFT1155(collection).safeTransferFrom(from, to, tokenId, amount, "");
     }
 }

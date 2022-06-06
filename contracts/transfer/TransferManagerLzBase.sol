@@ -51,6 +51,13 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         }
     }
 
+    /**
+     * @notice message listener from LayerZero endpoint
+     * @param _srcChainId chain id where the message was sent from
+     * @param _nonce nonce
+     * @param _payload message data
+     * @dev no need to change this function
+     */
     function _nonblockingLzReceive(uint16 _srcChainId, bytes memory, uint64 _nonce, bytes memory _payload) internal virtual override {
         // decode and load the toAddress
         (uint16 messageType, address fromAddress, address toAddress, address collection, uint tokenId, uint amount) = 
@@ -74,6 +81,10 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         }
     }
 
+    /**
+     * @notice cross send from taker chain to maker chain. 1st step
+     * @dev no need to change this function
+     */
     function _crossSendToSrc(
         address collection,
         address from,
@@ -81,11 +92,15 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         uint256 tokenId,
         uint256 amount,
         uint16 fromChainId
-    ) virtual internal {
+    ) internal {
         bytes memory payload = abi.encode(MT_ON_SRC_CHAIN, from, to, collection, tokenId, amount);
         _lzSend(fromChainId, payload, payable(0), address(0), bytes(""));
     }
 
+    /**
+     * @notice cross send from maker chain to taker chain.
+     * @dev this function is called after _onReceiveOnSrcChain
+     */
     function _crossSendToDst(
         address collection,
         address from,
@@ -93,11 +108,16 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         uint256 tokenId,
         uint256 amount,
         uint16 dstChainId
-    ) virtual internal {
+    ) internal {
         bytes memory payload = abi.encode(MT_ON_DST_CHAIN, from, to, collection, tokenId, amount);
         _lzSend(dstChainId, payload, payable(0), address(0), bytes(""));
     }
 
+    /**
+     * @notice cross send from maker chain to taker chain.
+     * @return bool true if need to call _crossSendToDst, otherwise false
+     * @dev this function is called when receive MT_ON_SRC_CHAIN and running on maker chain
+     */
     function _onReceiveOnSrcChain(
         address collection,
         address from,
@@ -107,6 +127,11 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         uint16 dstChainId
     ) virtual internal returns(bool);
 
+    /**
+     * @notice cross send from taker chain to maker chain.
+     * @return bool no meaning right now
+     * @dev this function is called when receive MT_ON_DST_CHAIN and running taker chain
+     */
     function _onReceiveOnDstChain(
         address collection,
         address from,
@@ -116,5 +141,15 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         uint16 dstChainId
     ) virtual internal returns(bool);
 
-    function _normalTransfer(address collection, address from, address to, uint256 tokenId, uint256 amount) virtual internal;
+    /**
+     * @notice normal send from maker to taker.
+     * @dev this function is called when maker and taker is on same chain
+     */
+    function _normalTransfer(
+        address collection,
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 amount
+    ) virtual internal;
 }

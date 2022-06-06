@@ -2,42 +2,56 @@
 pragma solidity ^0.8.0;
 
 import {IONFT721} from "../token/onft/IONFT721.sol";
-import {ITransferManagerNFT} from "../interfaces/ITransferManagerNFT.sol";
+import {TransferManagerLzBase} from "./TransferManagerLzBase.sol";
+
 /**
  * @title TransferManagerONFT721
  * @notice It allows the transfer of ERC721 tokens.
  */
-contract TransferManagerONFT721 is ITransferManagerNFT {
-    address public immutable OMNIX_EXCHANGE;
-
-    /**
-     * @notice Constructor
-     * @param _omniXExchange address of the OmniX exchange
-     */
-    constructor(address _omniXExchange) {
-        OMNIX_EXCHANGE = _omniXExchange;
+contract TransferManagerONFT721 is TransferManagerLzBase {
+    constructor(address _omniXExchange, address _lzEndpoint) 
+        TransferManagerLzBase(_omniXExchange, _lzEndpoint) {
     }
 
     /**
-     * @notice Transfer ERC721 token
-     * @param collection address of the collection
-     * @param from address of the sender
-     * @param to address of the recipient
-     * @param tokenId tokenId
-     * @dev For ERC721, amount is not used
-     */
-    function transferNonFungibleToken(
+    @dev just transfer the token from maker to taker on maker chain
+    */
+    function _onReceiveOnSrcChain(
         address collection,
         address from,
         address to,
         uint256 tokenId,
         uint256,
-        uint16 fromChainId
-    ) external override {
-        require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only LooksRare Exchange");
-
+        uint16 dstChainId
+    ) virtual internal override returns(bool) {
         bytes memory toAddress = abi.encodePacked(to);
 
-        IONFT721(collection).sendFrom(from, fromChainId, toAddress, tokenId, payable(0), address(0), bytes(""));
+        IONFT721(collection).sendFrom(from, dstChainId, toAddress, tokenId, payable(0), address(0), bytes(""));
+        return false;
+    }
+
+    /**
+    @dev no need this function in this manager
+    */
+    function _onReceiveOnDstChain(
+        address,
+        address,
+        address,
+        uint256,
+        uint256,
+        uint16
+    ) virtual internal override returns(bool) {
+        // do nothing
+        return false;
+    }
+
+    function _normalTransfer(
+        address collection,
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256
+    ) virtual internal override {
+        IONFT721(collection).safeTransferFrom(from, to, tokenId);
     }
 }
