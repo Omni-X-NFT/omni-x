@@ -14,6 +14,7 @@ import {IExecutionStrategy} from "../interfaces/IExecutionStrategy.sol";
 import {IRoyaltyFeeManager} from "../interfaces/IRoyaltyFeeManager.sol";
 import {ITransferManagerNFT} from "../interfaces/ITransferManagerNFT.sol";
 import {ITransferSelectorNFT} from "../interfaces/ITransferSelectorNFT.sol";
+import {IRemoteAddrManager} from "../interfaces/IRemoteAddrManager.sol";
 import {IOmniXExchange} from "../interfaces/IOmniXExchange.sol";
 import {IWETH} from "../interfaces/IWETH.sol";
 import {IOFT} from "../token/oft/IOFT.sol";
@@ -44,6 +45,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
     IExecutionManager public executionManager;
     IRoyaltyFeeManager public royaltyFeeManager;
     ITransferSelectorNFT public transferSelectorNFT;
+    IRemoteAddrManager public remoteAddrManager;
 
     mapping(address => uint256) public userMinOrderNonce;
     mapping(address => mapping(uint256 => bool)) private _isUserOrderNonceExecutedOrCancelled;
@@ -171,8 +173,14 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         bytes32 askHash = makerAsk.hash();
         _validateOrder(makerAsk, askHash);
 
+        (uint16 fromChainId) = makerAsk.decodeParams();
+        uint16 toChainId = uint16(block.chainid);
+
+        _checkRemoteAddrWhitelisted(makerAsk, fromChainId);
+
         // Retrieve execution parameters
-        (bool isExecutionValid, uint256 tokenId, uint256 amount) = IExecutionStrategy(makerAsk.strategy)
+        address strategy = remoteAddrManager.checkRemoteAddress(makerAsk.strategy, fromChainId);
+        (bool isExecutionValid, uint256 tokenId, uint256 amount) = IExecutionStrategy(strategy)
             .canExecuteTakerBid(takerBid, makerAsk);
 
         require(isExecutionValid, "Strategy: Execution invalid");
@@ -180,16 +188,15 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         // Update maker ask order status to true (prevents replay)
         _isUserOrderNonceExecutedOrCancelled[makerAsk.signer][makerAsk.nonce] = true;
 
-        (uint16 fromChainId) = makerAsk.decodeParams();
-        (uint16 toChainId) = takerBid.decodeParams();
         // to avoid stack deep error
         OrderTypes.TakerOrder memory takerBid_ = takerBid;
         OrderTypes.MakerOrder memory makerAsk_ = makerAsk;
+        address collection = remoteAddrManager.checkRemoteAddress(makerAsk_.collection, fromChainId);
 
         // Execution part 1/2
         _transferFeesAndFundsWithWETH(
-            makerAsk_.strategy,
-            makerAsk_.collection,
+            strategy,
+            collection,
             tokenId,
             makerAsk_.signer,
             takerBid_.price,
@@ -197,7 +204,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         );
 
         // Execution part 2/2
-        _transferNonFungibleToken(makerAsk_.collection, makerAsk_.signer, takerBid_.taker, tokenId, amount, toChainId);
+        _transferNonFungibleToken(collection, makerAsk_.signer, takerBid_.taker, tokenId, amount, fromChainId);
 
         emit TakerBid(
             askHash,
@@ -238,7 +245,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         require(isExecutionValid, "Strategy: Execution invalid");
 
         (uint16 fromChainId) = makerAsk.decodeParams();
-        (uint16 toChainId) = takerBid.decodeParams();
+        uint16 toChainId = uint16(block.chainid);
 
         // Update maker ask order status to true (prevents replay)
         _isUserOrderNonceExecutedOrCancelled[makerAsk.signer][makerAsk.nonce] = true;
@@ -261,7 +268,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         );
 
         // Execution part 2/2
-        _transferNonFungibleToken(makerAsk_.collection, makerAsk_.signer, takerBid_.taker, tokenId, amount, toChainId);
+        _transferNonFungibleToken(makerAsk_.collection, makerAsk_.signer, takerBid_.taker, tokenId, amount, fromChainId);
 
         emit TakerBid(
             askHash,
@@ -302,7 +309,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         require(isExecutionValid, "Strategy: Execution invalid");
 
         (uint16 fromChainId) = makerBid.decodeParams();
-        (uint16 toChainId) = takerAsk.decodeParams();
+        uint16 toChainId = uint16(block.chainid);
         // to avoid stack deep error
         OrderTypes.TakerOrder memory takerAsk_ = takerAsk;
         OrderTypes.MakerOrder memory makerBid_ = makerBid;
@@ -311,7 +318,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         _isUserOrderNonceExecutedOrCancelled[makerBid_.signer][makerBid_.nonce] = true;
 
         // Execution part 1/2
-        _transferNonFungibleToken(makerBid_.collection, msg.sender, makerBid_.signer, tokenId, amount, toChainId);
+        _transferNonFungibleToken(makerBid_.collection, msg.sender, makerBid_.signer, tokenId, amount, fromChainId);
 
         // Execution part 2/2
         _transferFeesAndFunds(
@@ -469,7 +476,9 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         if (currencyManager.isOmniCurrency(currency)) {
             bytes memory toAddress = abi.encodePacked(to);
         
-            IOFT(currency).sendFrom{value: 0}(from, toChainId, toAddress, amount, payable(0), address(0), bytes(""));
+            IOFT(currency).sendFrom{value: 0}(
+                from, toChainId, toAddress, amount, payable(0), address(0), bytes("")
+            );
         }
         else {
             IERC20(currency).safeTransferFrom(from, to, amount);
@@ -544,7 +553,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         address to,
         uint256 tokenId,
         uint256 amount,
-        uint16 toChainId
+        uint16 fromChainId
     ) internal {
         // Retrieve the transfer manager address
         address transferManager = transferSelectorNFT.checkTransferManagerForToken(collection);
@@ -553,7 +562,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         require(transferManager != address(0), "Transfer: No NFT transfer manager available");
 
         // If one is found, transfer the token
-        ITransferManagerNFT(transferManager).transferNonFungibleToken(collection, from, to, tokenId, amount, toChainId);
+        ITransferManagerNFT(transferManager).transferNonFungibleToken(collection, from, to, tokenId, amount, fromChainId);
     }
 
     /**
@@ -591,11 +600,15 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             digest.toEthSignedMessageHash().recover(makerOrder.signature) == makerOrder.signer,
             "Signature: Invalid"
         );
+    }
 
+    function _checkRemoteAddrWhitelisted(OrderTypes.MakerOrder calldata makerOrder, uint16 chainId) internal view {
         // Verify whether the currency is whitelisted
-        require(currencyManager.isCurrencyWhitelisted(makerOrder.currency), "Currency: Not whitelisted");
+        address currency = remoteAddrManager.checkRemoteAddress(makerOrder.currency, chainId);
+        require(currencyManager.isCurrencyWhitelisted(currency), "Currency: Not whitelisted");
 
         // Verify whether strategy can be executed
-        require(executionManager.isStrategyWhitelisted(makerOrder.strategy), "Strategy: Not whitelisted");
+        address strategy = remoteAddrManager.checkRemoteAddress(makerOrder.strategy, chainId);
+        require(executionManager.isStrategyWhitelisted(strategy), "Strategy: Not whitelisted");
     }
 }

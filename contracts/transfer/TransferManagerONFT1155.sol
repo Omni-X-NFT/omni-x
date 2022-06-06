@@ -33,11 +33,11 @@ contract TransferManagerONFT1155 is ITransferManagerNFT {
         address to,
         uint256 tokenId,
         uint256 amount,
-        uint16 toChainId
+        uint16 fromChainId
     ) external override {
         require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only LooksRare Exchange");
         bytes memory toAddress = abi.encodePacked(to);
 
-        IONFT1155(collection).sendFrom(from, toChainId, toAddress, tokenId, amount, payable(0), address(0), bytes(""));
+        IONFT1155(collection).sendFrom(from, fromChainId, toAddress, tokenId, amount, payable(0), address(0), bytes(""));
     }
 }

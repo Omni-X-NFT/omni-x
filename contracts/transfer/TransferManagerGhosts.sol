@@ -10,6 +10,8 @@ import {NonblockingLzApp} from "../lzApp/NonblockingLzApp.sol";
  * @notice It allows the transfer of GhostlyGhosts tokens.
  */
 contract TransferManagerGhosts is ITransferManagerNFT, NonblockingLzApp {
+    uint16 constant MT_ON_SRC_CHAIN = 1;
+    uint16 constant MT_ON_DST_CHAIN = 2;
     address public immutable OMNIX_EXCHANGE;
 
     event ReceiveFromChain(uint16 _srcChainId, address _toAddress, uint _amount, uint64 _nonce);
@@ -36,26 +38,37 @@ contract TransferManagerGhosts is ITransferManagerNFT, NonblockingLzApp {
         address to,
         uint256 tokenId,
         uint256,
-        uint16 toChainId
+        uint16 fromChainId
     ) external override {
         require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only LooksRare Exchange");
 
-        IGhosts(collection).safeTransferFrom(from, address(this), tokenId);
-        IGhosts(collection).traverseChains(toChainId, tokenId);
-
-        bytes memory payload = abi.encode(to, collection, tokenId);
-        _lzSend(toChainId, payload, payable(0), address(0), bytes(""));
+        bytes memory payload = abi.encode(MT_ON_SRC_CHAIN, from, to, collection, tokenId);
+        _lzSend(fromChainId, payload, payable(0), address(0), bytes(""));
     }
 
     function _nonblockingLzReceive(uint16 _srcChainId, bytes memory _srcAddress, uint64 _nonce, bytes memory _payload) internal virtual override {
         // decode and load the toAddress
-        (address toAddress, address collection, uint tokenId) = abi.decode(_payload, (address, address, uint));
+        (uint16 messageType, address fromAddress, address toAddress, address collection, uint tokenId) = 
+            abi.decode(_payload, (uint16, address, address, address, uint));
 
         // if the toAddress is 0x0, convert to dead address, or it will get cached
         if (toAddress == address(0x0)) toAddress == address(0xdEaD);
 
-        IGhosts(collection).safeTransferFrom(address(this), toAddress, tokenId);
+        if (messageType == MT_ON_SRC_CHAIN) {
+            // transfer nft from fromAddr to this
+            IGhosts(collection).safeTransferFrom(fromAddress, address(this), tokenId);
+            // transfer nft from current chain to srcchain
+            IGhosts(collection).traverseChains(_srcChainId, tokenId);
 
-        emit ReceiveFromChain(_srcChainId, toAddress, tokenId, _nonce);
+            // lz message back to dst chain
+            bytes memory payload = abi.encode(MT_ON_DST_CHAIN, fromAddress, toAddress, collection, tokenId);
+            _lzSend(_srcChainId, payload, payable(0), address(0), bytes(""));
+
+            emit ReceiveFromChain(_srcChainId, toAddress, tokenId, _nonce);
+        }
+        else if (messageType == MT_ON_DST_CHAIN) {
+            // transfer nft from this to toAddr on dst chain
+            IGhosts(collection).safeTransferFrom(address(this), toAddress, tokenId);
+        }
     }
 }

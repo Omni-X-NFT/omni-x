@@ -74,8 +74,8 @@ export const testGhosts = async (args: any) => {
     makerAsk.serialize('./artifacts/makerAsk.json')
 
     // approve
-    // const nftContract = createContract(ethers, nftAddr, nftAbi, maker)
-    // await nftContract.approve(ghostTransferAddr, tokenId)
+    const nftContract = createContract(ethers, nftAddr, nftAbi, maker)
+    await nftContract.approve(ghostTransferAddr, tokenId)
   }
   
   const testMakerAskTakerBid = async (tokenId: number) => {
@@ -90,9 +90,9 @@ export const testGhosts = async (args: any) => {
     // listing
     await omnixContract.matchAskWithTakerBid(takerBid, makerAsk);
 
-    // // checking
-    // const nftContract = createContract(ethers, nftAddr, nftAbi, taker)
-    // expect(await nftContract.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+    // checking
+    const nftContract = createContract(ethers, nftAddr, nftAbi, taker)
+    expect(await nftContract.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
   }
 
   const {step, tokenid: tokenId, nonce} = args

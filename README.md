@@ -50,6 +50,7 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - deployed ONFT721 to  0x2F7257e95B2f3A2969C85880Ce3AE0870fDa306F
 - deployed ONFT1155 to  0x3Cff1472a9C33C23447997414c61b8E715e5564C
 - deployed TransferManagerGregs to  0x5fdCe0DA877C80c6adeE6210a03973152840120A
+- deployed TransferManagerGhosts to  0x211DBFd713886d2BdBEF0E100795B1A004f4aD53
 - deployed GhostlyGhosts to 0x71d5F3d2C3D0139312AB0eF4a462140204D05A64
 
 ## BSC testnet
@@ -70,6 +71,7 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - deployed ONFT721 to  0x577267C3Ff0c303151122e6a31b7d8089E7222f8
 - deployed ONFT1155 to  0x3C4CF086436C68d3c3863fa3751aa38d54241406
 - deployed TransferManagerGregs to  0x49fB1b5550AFFdFF32CffF03c1A8168f992296eF
+- deployed TransferManagerGhosts to  0x9D1f92d66C515112818053f16Ce4C81Ecd724F3F
 - deployed GhostlyGhosts to 0x4642808070a46fBA0096c37dc52a2D44BfAC4841
 ## Mumbai
 
@@ -80,7 +82,7 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - npx hardhat deployGhostTransfer --network bsct
 
 ## setTrustedRemote for each other.
-- npx hardhat setTrustedRemote2 --network rinkeby --contract TransferManagerGhosts --src 0xED970A27b0220458C68434F0E91894103FF00B63 --dst 0x4FEE2C943Cd8747aba49C35A5320a19613817E1e --dstchain 97
-- npx hardhat setTrustedRemote2 --network bsct --contract TransferManagerGhosts --src 0x4FEE2C943Cd8747aba49C35A5320a19613817E1e --dst 0xED970A27b0220458C68434F0E91894103FF00B63 --dstchain 4
+- npx hardhat setTrustedRemote2 --network rinkeby --contract TransferManagerGhosts --src 0x211DBFd713886d2BdBEF0E100795B1A004f4aD53 --dst 0x9D1f92d66C515112818053f16Ce4C81Ecd724F3F --dstchain 97
+- npx hardhat setTrustedRemote2 --network bsct --contract TransferManagerGhosts --src 0x9D1f92d66C515112818053f16Ce4C81Ecd724F3F --dst 0x211DBFd713886d2BdBEF0E100795B1A004f4aD53 --dstchain 4
 - npx hardhat testOmniX --step make --tokenid 1 --nonce 1 --network rinkeby
 - npx hardhat testOmniX --step take --tokenid 1 --network bsct

@@ -36,26 +36,26 @@ contract TransferManagerGregs is ITransferManagerNFT, NonblockingLzApp {
         address to,
         uint256 tokenId,
         uint256,
-        uint16 toChainId
+        uint16 fromChainId
     ) external override {
-        require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only LooksRare Exchange");
+        // require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only LooksRare Exchange");
 
-        IGregs(collection).safeTransferFrom(from, address(this), tokenId);
-        IGregs(collection).sendNFT(toChainId, tokenId);
+        // IGregs(collection).safeTransferFrom(from, address(this), tokenId);
+        // IGregs(collection).sendNFT(toChainId, tokenId);
 
-        bytes memory payload = abi.encode(to, collection, tokenId);
-        _lzSend(toChainId, payload, payable(0), address(0), bytes(""));
+        // bytes memory payload = abi.encode(to, collection, tokenId);
+        // _lzSend(toChainId, payload, payable(0), address(0), bytes(""));
     }
 
     function _nonblockingLzReceive(uint16 _srcChainId, bytes memory _srcAddress, uint64 _nonce, bytes memory _payload) internal virtual override {
         // decode and load the toAddress
-        (address toAddress, address collection, uint tokenId) = abi.decode(_payload, (address, address, uint));
+        // (address toAddress, address collection, uint tokenId) = abi.decode(_payload, (address, address, uint));
 
-        // if the toAddress is 0x0, convert to dead address, or it will get cached
-        if (toAddress == address(0x0)) toAddress == address(0xdEaD);
+        // // if the toAddress is 0x0, convert to dead address, or it will get cached
+        // if (toAddress == address(0x0)) toAddress == address(0xdEaD);
 
-        IGregs(collection).safeTransferFrom(address(this), toAddress, tokenId);
+        // IGregs(collection).safeTransferFrom(address(this), toAddress, tokenId);
 
-        emit ReceiveFromChain(_srcChainId, toAddress, tokenId, _nonce);
+        // emit ReceiveFromChain(_srcChainId, toAddress, tokenId, _nonce);
     }
 }
