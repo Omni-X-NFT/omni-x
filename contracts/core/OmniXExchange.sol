@@ -120,6 +120,12 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
     }
 
     /**
+    * @notice set remote address manager
+    */
+    function setRemoteAddrManager(address manager) external {
+        remoteAddrManager = IRemoteAddrManager(manager);
+    }
+    /**
      * @notice Cancel all pending orders for a sender
      * @param minNonce minimum user nonce
      */
@@ -173,52 +179,37 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         bytes32 askHash = makerAsk.hash();
         _validateOrder(makerAsk, askHash);
 
+        // maker chain id
         (uint16 fromChainId) = makerAsk.decodeParams();
-        uint16 toChainId = uint16(block.chainid);
 
+        // check strategy and currency remote address
         _checkRemoteAddrWhitelisted(makerAsk, fromChainId);
 
         // Retrieve execution parameters
-        address strategy = remoteAddrManager.checkRemoteAddress(makerAsk.strategy, fromChainId);
-        (bool isExecutionValid, uint256 tokenId, uint256 amount) = IExecutionStrategy(strategy)
-            .canExecuteTakerBid(takerBid, makerAsk);
-
-        require(isExecutionValid, "Strategy: Execution invalid");
+        _canExecuteTakerBid(takerBid, makerAsk, fromChainId);
 
         // Update maker ask order status to true (prevents replay)
         _isUserOrderNonceExecutedOrCancelled[makerAsk.signer][makerAsk.nonce] = true;
 
-        // to avoid stack deep error
-        OrderTypes.TakerOrder memory takerBid_ = takerBid;
-        OrderTypes.MakerOrder memory makerAsk_ = makerAsk;
-        address collection = remoteAddrManager.checkRemoteAddress(makerAsk_.collection, fromChainId);
-
         // Execution part 1/2
-        _transferFeesAndFundsWithWETH(
-            strategy,
-            collection,
-            tokenId,
-            makerAsk_.signer,
-            takerBid_.price,
-            makerAsk_.minPercentageToAsk
-        );
+        _transferFeesAndFundsLzWithWETH(takerBid, makerAsk, fromChainId);
 
         // Execution part 2/2
-        _transferNonFungibleToken(collection, makerAsk_.signer, takerBid_.taker, tokenId, amount, fromChainId);
+        _transferNonFungibleTokenLz(takerBid, makerAsk, fromChainId);
 
         emit TakerBid(
             askHash,
-            makerAsk_.nonce,
-            takerBid_.taker,
-            makerAsk_.signer,
-            makerAsk_.strategy,
-            makerAsk_.currency,
-            makerAsk_.collection,
-            tokenId,
-            amount,
-            takerBid_.price,
+            makerAsk.nonce,
+            takerBid.taker,
+            makerAsk.signer,
+            makerAsk.strategy,
+            makerAsk.currency,
+            makerAsk.collection,
+            makerAsk.tokenId,
+            makerAsk.amount,
+            takerBid.price,
             fromChainId,
-            toChainId
+            uint16(block.chainid)
         );
     }
 
@@ -239,50 +230,36 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         bytes32 askHash = makerAsk.hash();
         _validateOrder(makerAsk, askHash);
 
-        (bool isExecutionValid, uint256 tokenId, uint256 amount) = IExecutionStrategy(makerAsk.strategy)
-            .canExecuteTakerBid(takerBid, makerAsk);
-
-        require(isExecutionValid, "Strategy: Execution invalid");
-
         (uint16 fromChainId) = makerAsk.decodeParams();
-        uint16 toChainId = uint16(block.chainid);
+
+        // check strategy and currency remote address
+        _checkRemoteAddrWhitelisted(makerAsk, fromChainId);
+
+        // Retrieve execution parameters
+        _canExecuteTakerBid(takerBid, makerAsk, fromChainId);
 
         // Update maker ask order status to true (prevents replay)
         _isUserOrderNonceExecutedOrCancelled[makerAsk.signer][makerAsk.nonce] = true;
 
-        // to avoid stack deep error
-        OrderTypes.TakerOrder memory takerBid_ = takerBid;
-        OrderTypes.MakerOrder memory makerAsk_ = makerAsk;
-
         // Execution part 1/2
-        _transferFeesAndFunds(
-            makerAsk_.strategy,
-            makerAsk_.collection,
-            tokenId,
-            makerAsk_.currency,
-            msg.sender,
-            makerAsk_.signer,
-            takerBid_.price,
-            makerAsk_.minPercentageToAsk,
-            fromChainId
-        );
+        _transferFeesAndFundsLz(takerBid, makerAsk, fromChainId);
 
         // Execution part 2/2
-        _transferNonFungibleToken(makerAsk_.collection, makerAsk_.signer, takerBid_.taker, tokenId, amount, fromChainId);
+        _transferNonFungibleTokenLz(takerBid, makerAsk, fromChainId);
 
         emit TakerBid(
             askHash,
-            makerAsk_.nonce,
-            takerBid_.taker,
-            makerAsk_.signer,
-            makerAsk_.strategy,
-            makerAsk_.currency,
-            makerAsk_.collection,
-            tokenId,
-            amount,
-            takerBid_.price,
+            makerAsk.nonce,
+            takerBid.taker,
+            makerAsk.signer,
+            makerAsk.strategy,
+            makerAsk.currency,
+            makerAsk.collection,
+            makerAsk.tokenId,
+            makerAsk.amount,
+            takerBid.price,
             fromChainId,
-            toChainId
+            uint16(block.chainid)
         );
     }
 
@@ -291,63 +268,50 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
      * @param takerAsk taker ask order
      * @param makerBid maker bid order
      */
-    function matchBidWithTakerAsk(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid)
-        external
-        override
-        nonReentrant
-    {
-        require((!makerBid.isOrderAsk) && (takerAsk.isOrderAsk), "Order: Wrong sides");
-        require(msg.sender == takerAsk.taker, "Order: Taker must be the sender");
+    // function matchBidWithTakerAsk(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid)
+    //     external
+    //     override
+    //     nonReentrant
+    // {
+    //     require((!makerBid.isOrderAsk) && (takerAsk.isOrderAsk), "Order: Wrong sides");
+    //     require(msg.sender == takerAsk.taker, "Order: Taker must be the sender");
 
-        // Check the maker bid order
-        bytes32 bidHash = makerBid.hash();
-        _validateOrder(makerBid, bidHash);
+    //     // Check the maker bid order
+    //     bytes32 bidHash = makerBid.hash();
+    //     _validateOrder(makerBid, bidHash);
 
-        (bool isExecutionValid, uint256 tokenId, uint256 amount) = IExecutionStrategy(makerBid.strategy)
-            .canExecuteTakerAsk(takerAsk, makerBid);
+    //     (uint16 fromChainId) = makerBid.decodeParams();
+        
+    //     // check strategy and currency remote address
+    //     _checkRemoteAddrWhitelisted(makerBid, fromChainId);
 
-        require(isExecutionValid, "Strategy: Execution invalid");
+    //     // Retrieve execution parameters
+    //     _canExecuteTakerAsk(takerAsk, makerBid, fromChainId);
 
-        (uint16 fromChainId) = makerBid.decodeParams();
-        uint16 toChainId = uint16(block.chainid);
-        // to avoid stack deep error
-        OrderTypes.TakerOrder memory takerAsk_ = takerAsk;
-        OrderTypes.MakerOrder memory makerBid_ = makerBid;
+    //     // Update maker bid order status to true (prevents replay)
+    //     _isUserOrderNonceExecutedOrCancelled[makerBid.signer][makerBid.nonce] = true;
 
-        // Update maker bid order status to true (prevents replay)
-        _isUserOrderNonceExecutedOrCancelled[makerBid_.signer][makerBid_.nonce] = true;
+    //     // Execution part 1/2
+    //     _transferNonFungibleTokenBidLz(takerAsk, makerBid, fromChainId);
 
-        // Execution part 1/2
-        _transferNonFungibleToken(makerBid_.collection, msg.sender, makerBid_.signer, tokenId, amount, fromChainId);
+    //     // Execution part 2/2
+    //     _transferFeesAndFundsBidLz(takerAsk, makerBid, fromChainId);
 
-        // Execution part 2/2
-        _transferFeesAndFunds(
-            makerBid_.strategy,
-            makerBid_.collection,
-            tokenId,
-            makerBid_.currency,
-            makerBid_.signer,
-            takerAsk_.taker,
-            takerAsk_.price,
-            takerAsk_.minPercentageToAsk,
-            fromChainId
-        );
-
-        emit TakerAsk(
-            bidHash,
-            makerBid_.nonce,
-            takerAsk_.taker,
-            makerBid_.signer,
-            makerBid_.strategy,
-            makerBid_.currency,
-            makerBid_.collection,
-            tokenId,
-            amount,
-            takerAsk_.price,
-            fromChainId,
-            toChainId
-        );
-    }
+    //     emit TakerAsk(
+    //         bidHash,
+    //         makerBid.nonce,
+    //         takerAsk.taker,
+    //         makerBid.signer,
+    //         makerBid.strategy,
+    //         makerBid.currency,
+    //         makerBid.collection,
+    //         makerBid.tokenId,
+    //         makerBid.amount,
+    //         takerAsk.price,
+    //         fromChainId,
+    //         uint16(block.chainid)
+    //     );
+    // }
 
     /**
      * @notice Update currency manager
@@ -611,4 +575,102 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         address strategy = remoteAddrManager.checkRemoteAddress(makerOrder.strategy, chainId);
         require(executionManager.isStrategyWhitelisted(strategy), "Strategy: Not whitelisted");
     }
+
+    function _canExecuteTakerBid(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint16 chainId) 
+        internal view returns (uint256, uint256) {
+        address strategy = remoteAddrManager.checkRemoteAddress(makerAsk.strategy, chainId);
+        (bool isExecutionValid, uint256 tokenId, uint256 amount) = IExecutionStrategy(strategy)
+            .canExecuteTakerBid(takerBid, makerAsk);
+
+        require(isExecutionValid, "Strategy: Execution invalid");
+
+        return (tokenId, amount);
+    }
+
+    function _transferFeesAndFundsLzWithWETH(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint16 chainId) internal {
+        address strategy = remoteAddrManager.checkRemoteAddress(makerAsk.strategy, chainId);
+        address collection = remoteAddrManager.checkRemoteAddress(makerAsk.collection, chainId);
+
+        _transferFeesAndFundsWithWETH(
+            strategy,
+            collection,
+            makerAsk.tokenId,
+            makerAsk.signer,
+            takerBid.price,
+            makerAsk.minPercentageToAsk
+        );
+    }
+
+    function _transferFeesAndFundsLz(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint16 chainId) internal {
+        address strategy = remoteAddrManager.checkRemoteAddress(makerAsk.strategy, chainId);
+        address collection = remoteAddrManager.checkRemoteAddress(makerAsk.collection, chainId);
+        address currency = remoteAddrManager.checkRemoteAddress(makerAsk.currency, chainId);
+
+        _transferFeesAndFunds(
+            strategy,
+            collection,
+            makerAsk.tokenId,
+            currency,
+            msg.sender,
+            makerAsk.signer,
+            takerBid.price,
+            makerAsk.minPercentageToAsk,
+            chainId
+        );
+    }
+
+    function _transferNonFungibleTokenLz(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint16 chainId) internal {
+        address collection = remoteAddrManager.checkRemoteAddress(makerAsk.collection, chainId);
+
+        _transferNonFungibleToken(
+            collection,
+            makerAsk.signer,
+            takerBid.taker,
+            makerAsk.tokenId,
+            makerAsk.amount,
+            chainId
+        );
+    }
+
+    // function _canExecuteTakerAsk(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid, uint16 chainId) 
+    //     internal view returns (uint256, uint256) {
+    //     address strategy = remoteAddrManager.checkRemoteAddress(makerBid.strategy, chainId);
+    //     (bool isExecutionValid, uint256 tokenId, uint256 amount) = IExecutionStrategy(strategy)
+    //         .canExecuteTakerAsk(takerAsk, makerBid);
+
+    //     require(isExecutionValid, "Strategy: Execution invalid");
+
+    //     return (tokenId, amount);
+    // }
+
+    // function _transferNonFungibleTokenBidLz(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid, uint16 chainId) internal {
+    //     address collection = remoteAddrManager.checkRemoteAddress(makerBid.collection, chainId);
+
+    //     _transferNonFungibleToken(
+    //         collection,
+    //         takerAsk.taker,
+    //         makerBid.signer,
+    //         makerBid.tokenId,
+    //         makerBid.amount,
+    //         chainId
+    //     );
+    // }
+
+    // function _transferFeesAndFundsBidLz(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid, uint16 chainId) internal {
+    //     address strategy = remoteAddrManager.checkRemoteAddress(makerBid.strategy, chainId);
+    //     address collection = remoteAddrManager.checkRemoteAddress(makerBid.collection, chainId);
+    //     address currency = remoteAddrManager.checkRemoteAddress(makerBid.currency, chainId);
+
+    //     _transferFeesAndFunds(
+    //         strategy,
+    //         collection,
+    //         makerBid.tokenId,
+    //         currency,
+    //         makerBid.signer,
+    //         takerAsk.taker,
+    //         takerAsk.price,
+    //         makerBid.minPercentageToAsk,
+    //         chainId
+    //     );
+    // }
 }

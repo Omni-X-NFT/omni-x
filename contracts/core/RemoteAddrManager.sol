@@ -40,8 +40,11 @@ contract RemoteAddrManager is IRemoteAddrManager, Ownable {
      * @param remoteAddress remote chain id
      */
     function checkRemoteAddress(address remoteAddress, uint16 remoteChainId) external view override returns (address) {
-        address srcAddr = remoteAddresses[remoteAddress][remoteChainId];
+        if (remoteChainId == uint16(block.chainid)) {
+            return remoteAddress;
+        }
 
+        address srcAddr = remoteAddresses[remoteAddress][remoteChainId];
         return srcAddr;
     }
 }
