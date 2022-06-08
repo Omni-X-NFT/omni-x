@@ -69,7 +69,7 @@ export const testGhosts = async (args: any) => {
     await fillMakerOrder(makerAsk, tokenId, currencyAddr, nftAddr, nonce)
 
     makerAsk.encodeParams(await maker.getChainId(), taker.address)
-    await makerAsk.sign(maker, omnixExchangeAddr)
+    await makerAsk.sign(maker)
 
     makerAsk.serialize('./artifacts/makerAsk.json')
 

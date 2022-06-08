@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {ITransferManagerNFT} from "../interfaces/ITransferManagerNFT.sol";
 import {NonblockingLzApp} from "../lzApp/NonblockingLzApp.sol";
-
+import "hardhat/console.sol";
 /**
  * @title TransferManagerGhosts
  * @notice It allows the transfer of GhostlyGhosts tokens.
@@ -26,14 +26,16 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
 
     /**
      * @notice Transfer ERC721 token
-     * @param collection address of the collection
+     * @param collectionFrom address of the collection on from chain
+     * @param collectionTo address of the collection on current chain
      * @param from address of the sender
      * @param to address of the recipient
      * @param tokenId tokenId
      * @dev For ERC721, amount is not used
      */
     function transferNonFungibleToken(
-        address collection,
+        address collectionFrom,
+        address collectionTo,
         address from,
         address to,
         uint256 tokenId,
@@ -42,12 +44,12 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
     ) external override {
         require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only OmniX Exchange");
 
-        uint16 toChainId = uint16(block.chainid);
+        uint16 toChainId = lzEndpoint.getChainId();
         if (fromChainId == toChainId) {
-            _normalTransfer(collection, from, to, tokenId, amount);
+            _normalTransfer(collectionFrom, from, to, tokenId, amount);
         }
         else {
-            _crossSendToSrc(collection, from, to, tokenId, amount, fromChainId);
+            _crossSendToSrc(collectionFrom, collectionTo, from, to, tokenId, amount, fromChainId);
         }
     }
 
@@ -60,24 +62,26 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
      */
     function _nonblockingLzReceive(uint16 _srcChainId, bytes memory, uint64 _nonce, bytes memory _payload) internal virtual override {
         // decode and load the toAddress
-        (uint16 messageType, address fromAddress, address toAddress, address collection, uint tokenId, uint amount) = 
-            abi.decode(_payload, (uint16, address, address, address, uint, uint));
+        uint16 chainId = _srcChainId;
+        uint64 nonce = _nonce;
+        (uint16 messageType, address fromAddress, address toAddress, address collectionFrom, address collectionTo, uint tokenId, uint amount) = 
+            abi.decode(_payload, (uint16, address, address, address, address, uint, uint));
 
         // if the toAddress is 0x0, convert to dead address, or it will get cached
         if (toAddress == address(0x0)) toAddress == address(0xdEaD);
 
         if (messageType == MT_ON_SRC_CHAIN) {
-            if (_onReceiveOnSrcChain(collection, fromAddress, toAddress, tokenId, amount, _srcChainId)) {
-                _crossSendToDst(collection, fromAddress, toAddress, tokenId, amount, _srcChainId);
+            if (_onReceiveOnSrcChain(collectionFrom, fromAddress, toAddress, tokenId, amount, chainId)) {
+                _crossSendToDst(collectionFrom, collectionTo, fromAddress, toAddress, tokenId, amount, chainId);
             }
 
-            emit ReceiveFromDstChain(_srcChainId, collection, fromAddress, toAddress, tokenId, amount, _nonce);
+            emit ReceiveFromDstChain(chainId, collectionFrom, fromAddress, toAddress, tokenId, amount, nonce);
         }
         else if (messageType == MT_ON_DST_CHAIN) {
             // transfer nft from this to toAddr on dst chain
-            _onReceiveOnDstChain(collection, fromAddress, toAddress, tokenId, amount, _srcChainId);
+            _onReceiveOnDstChain(collectionTo, fromAddress, toAddress, tokenId, amount, chainId);
 
-            emit ReceiveFromSrcChain(_srcChainId, collection, fromAddress, toAddress, tokenId, amount, _nonce);
+            emit ReceiveFromSrcChain(chainId, collectionTo, fromAddress, toAddress, tokenId, amount, nonce);
         }
     }
 
@@ -86,14 +90,15 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
      * @dev no need to change this function
      */
     function _crossSendToSrc(
-        address collection,
+        address collectionFrom,
+        address collectionTo,
         address from,
         address to,
         uint256 tokenId,
         uint256 amount,
         uint16 fromChainId
     ) internal {
-        bytes memory payload = abi.encode(MT_ON_SRC_CHAIN, from, to, collection, tokenId, amount);
+        bytes memory payload = abi.encode(MT_ON_SRC_CHAIN, from, to, collectionFrom, collectionTo, tokenId, amount);
         _lzSend(fromChainId, payload, payable(0), address(0), bytes(""));
     }
 
@@ -102,14 +107,15 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
      * @dev this function is called after _onReceiveOnSrcChain
      */
     function _crossSendToDst(
-        address collection,
+        address collectionFrom,
+        address collectionTo,
         address from,
         address to,
         uint256 tokenId,
         uint256 amount,
         uint16 dstChainId
     ) internal {
-        bytes memory payload = abi.encode(MT_ON_DST_CHAIN, from, to, collection, tokenId, amount);
+        bytes memory payload = abi.encode(MT_ON_DST_CHAIN, from, to, collectionFrom, collectionTo, tokenId, amount);
         _lzSend(dstChainId, payload, payable(0), address(0), bytes(""));
     }
 

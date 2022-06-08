@@ -181,6 +181,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
 
         // maker chain id
         (uint16 fromChainId) = makerAsk.decodeParams();
+        (uint16 toChainId) = takerBid.decodeParams();
 
         // check strategy and currency remote address
         _checkRemoteAddrWhitelisted(makerAsk, fromChainId);
@@ -209,7 +210,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             makerAsk.amount,
             takerBid.price,
             fromChainId,
-            uint16(block.chainid)
+            toChainId
         );
     }
 
@@ -231,6 +232,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         _validateOrder(makerAsk, askHash);
 
         (uint16 fromChainId) = makerAsk.decodeParams();
+        (uint16 toChainId) = takerBid.decodeParams();
 
         // check strategy and currency remote address
         _checkRemoteAddrWhitelisted(makerAsk, fromChainId);
@@ -259,7 +261,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             makerAsk.amount,
             takerBid.price,
             fromChainId,
-            uint16(block.chainid)
+            toChainId
         );
     }
 
@@ -504,7 +506,8 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
 
     /**
      * @notice Transfer NFT
-     * @param collection address of the token collection
+     * @param collectionFrom address of the token collection on from chain
+     * @param collectionTo address of the token collection on current chain
      * @param from address of the sender
      * @param to address of the recipient
      * @param tokenId tokenId
@@ -512,7 +515,8 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
      * @dev For ERC721, amount is not used
      */
     function _transferNonFungibleToken(
-        address collection,
+        address collectionFrom,
+        address collectionTo,
         address from,
         address to,
         uint256 tokenId,
@@ -520,13 +524,13 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         uint16 fromChainId
     ) internal {
         // Retrieve the transfer manager address
-        address transferManager = transferSelectorNFT.checkTransferManagerForToken(collection);
+        address transferManager = transferSelectorNFT.checkTransferManagerForToken(collectionTo);
 
         // If no transfer manager found, it returns address(0)
         require(transferManager != address(0), "Transfer: No NFT transfer manager available");
 
         // If one is found, transfer the token
-        ITransferManagerNFT(transferManager).transferNonFungibleToken(collection, from, to, tokenId, amount, fromChainId);
+        ITransferManagerNFT(transferManager).transferNonFungibleToken(collectionFrom, collectionTo, from, to, tokenId, amount, fromChainId);
     }
 
     /**
@@ -623,6 +627,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         address collection = remoteAddrManager.checkRemoteAddress(makerAsk.collection, chainId);
 
         _transferNonFungibleToken(
+            makerAsk.collection,
             collection,
             makerAsk.signer,
             takerBid.taker,

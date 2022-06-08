@@ -125,8 +125,7 @@ describe('OmniXExchange', () => {
     ]) as OmniXExchange
 
     const remoteAddrManager = await deployContract('RemoteAddrManager', owner, [])
-    omniXExchange.setRemoteAddrManager(remoteAddrManager.address)
-
+    await omniXExchange.setRemoteAddrManager(remoteAddrManager.address)
 
     // transfer selector
     transferManager721 = await deployContract('TransferManagerERC721', owner, [omniXExchange.address, layerZeroEndpoint.address]) as TransferManagerERC721
@@ -195,7 +194,7 @@ describe('OmniXExchange', () => {
 
       makerAsk.encodeParams(await maker.getChainId(), taker.address)
       takerBid.encodeParams(await taker.getChainId())
-      await makerAsk.sign(maker, omniXExchange.address)
+      await makerAsk.sign(maker)
 
       await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
       expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
@@ -210,7 +209,7 @@ describe('OmniXExchange', () => {
  
       makerAsk.encodeParams(await maker.getChainId(), taker.address)
       takerBid.encodeParams(await taker.getChainId())
-      await makerAsk.sign(maker, omniXExchange.address)
+      await makerAsk.sign(maker)
       await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
 
       expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
@@ -225,7 +224,7 @@ describe('OmniXExchange', () => {
 
       makerAsk.encodeParams(await maker.getChainId(), taker.address)
       takerBid.encodeParams(await taker.getChainId())
-      await makerAsk.sign(maker, omniXExchange.address)
+      await makerAsk.sign(maker)
       await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
 
       expect(await onft721.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
@@ -240,7 +239,7 @@ describe('OmniXExchange', () => {
 
       makerAsk.encodeParams(await maker.getChainId(), taker.address)
       takerBid.encodeParams(await taker.getChainId())
-      await makerAsk.sign(maker, omniXExchange.address)
+      await makerAsk.sign(maker)
       await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
 
       expect(await onft721.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)

@@ -87,15 +87,9 @@ export class MakerOrder {
     }
   }
 
-  async sign(signer: SignerWithAddress, contractAddr: string) {
-    const domain = {
-      name: 'OmniXExchange',
-      version: '1',
-      chainId: await signer.getChainId(),
-      verifyingContract: contractAddr
-    }
+  async sign(signer: SignerWithAddress) {
     const typedData = {
-      domain,
+      domain: {},
       types: MAKE_ORDER_SIGN_TYPES,
       primaryType: 'MakerOrder',
       message: this

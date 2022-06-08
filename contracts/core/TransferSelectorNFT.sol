@@ -5,6 +5,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 import {ITransferSelectorNFT} from "../interfaces/ITransferSelectorNFT.sol";
+import "hardhat/console.sol";
 
 /**
  * @title TransferSelectorNFT
