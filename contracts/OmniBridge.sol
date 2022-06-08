@@ -90,6 +90,16 @@ contract OmniBridge is
         onftAddresses[_erc721Address] = _onftAddress;
     }
 
+    function compareOwName(string memory _name) internal pure returns (bool) {
+        if (bytes(_name).length <= 2) {
+            return false;
+        }
+        bytes memory a = new bytes(2);
+        a[0] = bytes(_name)[0];
+        a[1] = bytes(_name)[1];
+        return (keccak256(abi.encodePacked((string(a)))) == keccak256(abi.encodePacked(("Ow"))));
+    }
+
     //@notice override this function
     function _nonblockingLzReceive(
         uint16,
@@ -102,7 +112,10 @@ contract OmniBridge is
 
         address onftAddress;
         if (onftAddresses[_erc721Address] == address(0)) {
-            string memory _newName = string(abi.encodePacked("Ow", _name));
+            string memory _newName = _name;
+            if (!compareOwName(_name)) {
+                _newName = string(abi.encodePacked("Ow", _name));
+            }
             ERC721Persistent onft = new ERC721Persistent(_newName, _symbol, address(this));
             onft.safeMint(_toAddress, _tokenId, _tokenURI);
             onftAddresses[_erc721Address] = address(onft);
