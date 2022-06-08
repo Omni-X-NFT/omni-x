@@ -1,4 +1,4 @@
-import { ethers, waffle } from 'hardhat'
+import { ethers } from 'hardhat'
 import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
 import {
@@ -26,7 +26,7 @@ import {
   setEthers,
   TakerOrder,
   MakerOrder
-} from '../utils/order-types';
+} from '../utils/order-types'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 chai.use(solidity)
@@ -159,7 +159,7 @@ describe('OmniXExchange', () => {
 
     await onft721.mint(maker.address, 1)
     await onft721.mint(maker.address, 2)
-    await onft721.setTrustedRemote(await owner.getChainId(), onft721.address);
+    await onft721.setTrustedRemote(await owner.getChainId(), onft721.address)
     await omni.setTrustedRemote(await owner.getChainId(), omni.address)
     await omni.transfer(taker.address, toWei(200))
   }
@@ -196,7 +196,7 @@ describe('OmniXExchange', () => {
       takerBid.encodeParams(await taker.getChainId())
       await makerAsk.sign(maker)
 
-      await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
+      await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
       expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
     })
 
@@ -210,7 +210,7 @@ describe('OmniXExchange', () => {
       makerAsk.encodeParams(await maker.getChainId(), taker.address)
       takerBid.encodeParams(await taker.getChainId())
       await makerAsk.sign(maker)
-      await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
+      await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
 
       expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
     })
@@ -225,7 +225,7 @@ describe('OmniXExchange', () => {
       makerAsk.encodeParams(await maker.getChainId(), taker.address)
       takerBid.encodeParams(await taker.getChainId())
       await makerAsk.sign(maker)
-      await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
+      await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
 
       expect(await onft721.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
     })
@@ -240,7 +240,7 @@ describe('OmniXExchange', () => {
       makerAsk.encodeParams(await maker.getChainId(), taker.address)
       takerBid.encodeParams(await taker.getChainId())
       await makerAsk.sign(maker)
-      await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk);
+      await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
 
       expect(await onft721.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
     })
@@ -255,7 +255,7 @@ describe('OmniXExchange', () => {
     //   makerBid.encodeParams(await maker.getChainId(), taker.address)
     //   takerAsk.encodeParams(await taker.getChainId())
     //   await makerBid.sign(maker, omniXExchange.address)
-    //   await omniXExchange.connect(taker).matchBidWithTakerAsk(takerAsk, makerBid);
+    //   await omniXExchange.connect(taker).matchBidWithTakerAsk(takerAsk, makerBid)
 
     //   expect(await nftMock.ownerOf(takerAsk.tokenId)).to.be.eq(maker.address)
     // })

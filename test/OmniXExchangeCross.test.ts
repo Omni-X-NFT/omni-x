@@ -1,4 +1,4 @@
-import { ethers, waffle } from 'hardhat'
+import { ethers } from 'hardhat'
 import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
 import {
@@ -134,6 +134,8 @@ const linkChains = async (src: Chain, dst: Chain) => {
   await src.remoteAddrManager.addRemoteAddress(dst.erc20Mock.address, dst.chainId, src.erc20Mock.address)
   await src.remoteAddrManager.addRemoteAddress(dst.strategy.address, dst.chainId, src.strategy.address)
   await src.remoteAddrManager.addRemoteAddress(dst.nftMock.address, dst.chainId, src.nftMock.address)
+  await src.remoteAddrManager.addRemoteAddress(dst.omni.address, dst.chainId, src.omni.address)
+  await src.remoteAddrManager.addRemoteAddress(dst.onft721.address, dst.chainId, src.onft721.address)
 }
 
 const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
@@ -263,20 +265,39 @@ describe('OmniXExchange', () => {
       takerBid.encodeParams(await takerChain.chainId)
       await makerAsk.sign(maker)
 
-      console.log(
+      await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
+      
+      expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
+    })
+
+    it('MakerAsk /w TakerBid - $OMNI /w ONFT', async () => {
+
+      const makerAsk: MakerOrder = new MakerOrder(true)
+      const takerBid: TakerOrder = new TakerOrder(false)
+      const tokenId = 1
+      const nonce = 2
+      const blockTime = await getBlockTime()
+
+      fillMakerOrder(
+        makerAsk,
+        tokenId,
+        makerChain.omni.address,
+        makerChain.onft721.address,
+        makerChain.strategy.address,
         maker.address,
-        taker.address,
-        makerChain.nftMock.address
+        blockTime,
+        nonce
       )
+      fillTakerOrder(takerBid, taker.address, tokenId)
+
+      makerAsk.encodeParams(await makerChain.chainId, taker.address)
+      takerBid.encodeParams(await takerChain.chainId)
+      await makerAsk.sign(maker)
 
       await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
       
-      console.log(
-        await makerChain.nftMock.balanceOf(maker.address),
-        await makerChain.nftMock.balanceOf(taker.address)
-      )
-      
-      expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
+      expect(await takerChain.onft721.ownerOf(takerBid.tokenId)).to.eq(taker.address)
+      expect(await makerChain.omni.balanceOf(maker.address)).to.eq(toWei(0.98))
     })
   })
 })
