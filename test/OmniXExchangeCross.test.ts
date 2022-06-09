@@ -27,8 +27,9 @@ import {
   setEthers,
   TakerOrder,
   MakerOrder
-} from '../utils/order-types';
+} from '../utils/order-types'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { fillMakerOrder, fillTakerOrder } from '../tasks/shared'
 
 chai.use(solidity)
 const { expect } = chai
@@ -184,39 +185,6 @@ const approveTaker = async (chain: Chain, taker: SignerWithAddress) => {
   await chain.omni.connect(taker).approve(chain.omniXExchange.address, toWei(100))
 }
 
-const fillMakerOrder = async (
-  makeOrder : MakerOrder,
-  tokenId: number,
-  currency: string,
-  collection: string,
-  strategy: string,
-  maker: string,
-  startTime: number,
-  nonce: number,
-) => {
-  makeOrder.tokenId = tokenId
-  makeOrder.currency = currency
-  makeOrder.price = toWei(1)
-  makeOrder.amount = 1
-  makeOrder.collection = collection
-  makeOrder.strategy = strategy
-  makeOrder.nonce = nonce
-  makeOrder.startTime = startTime
-  makeOrder.endTime = makeOrder.startTime + 3600 * 30
-  makeOrder.minPercentageToAsk = 900
-  makeOrder.signer = maker
-}
-const fillTakerOrder = (
-  takerOrder : TakerOrder,
-  taker: string,
-  tokenId: number
-) => {
-  takerOrder.tokenId = tokenId
-  takerOrder.price = toWei(1)
-  takerOrder.minPercentageToAsk = 900
-  takerOrder.taker = taker
-}
-
 describe('OmniXExchange', () => {
   let makerChain: Chain
   let takerChain: Chain
@@ -257,9 +225,10 @@ describe('OmniXExchange', () => {
         makerChain.strategy.address,
         maker.address,
         blockTime,
+        toWei(1),
         nonce
       )
-      fillTakerOrder(takerBid, taker.address, tokenId)
+      fillTakerOrder(takerBid, taker.address, tokenId, toWei(1))
 
       makerAsk.encodeParams(await makerChain.chainId, taker.address)
       takerBid.encodeParams(await takerChain.chainId)
@@ -286,9 +255,10 @@ describe('OmniXExchange', () => {
         makerChain.strategy.address,
         maker.address,
         blockTime,
+        toWei(1),
         nonce
       )
-      fillTakerOrder(takerBid, taker.address, tokenId)
+      fillTakerOrder(takerBid, taker.address, tokenId, toWei(1))
 
       makerAsk.encodeParams(await makerChain.chainId, taker.address)
       takerBid.encodeParams(await takerChain.chainId)
