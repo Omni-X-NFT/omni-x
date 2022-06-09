@@ -1,8 +1,7 @@
 import { task } from 'hardhat/config'
 import { setTrustedRemote } from './setTrustedRemote'
-import { deployOmniX, deployOmniX2 } from './deployOmniX'
-import { deployGhostTransfer, deployGregTransfer } from './deployGGTransfer'
-import { setTrustedRemote2 } from './setTrustedRemote2'
+import { deployOmniX } from './deployOmniX'
+import { linkOmniX, prepareOmniX } from './prepareOmniX'
 import { testGhosts } from './test'
 
 task(
@@ -14,25 +13,14 @@ task(
 
 task('deployOmniX', 'deploys an OmniX exchange')
   .setAction(deployOmniX)
-
-task('deployGhostTransfer', 'deploys an Transfer manager for Gh0stlyGh0sts')
-  .setAction(deployGhostTransfer)
-
-task('deployGregTransfer', 'deploys an Transfer manager for Gh0stlyGh0sts')
-  .setAction(deployGregTransfer)
-
-task('setTrustedRemote2', 'set trusted remote')
-  .addParam('contract', 'contract name')
-  .addParam('src', 'contract address on source chain')
-  .addParam('dst', 'contract address on dest chain')
-  .addParam('dstchain', 'dest chain id')
-  .setAction(setTrustedRemote2)
-
+task('prepareOmniX', 'deploys an OmniX exchange')
+  .setAction(prepareOmniX)
+task('linkOmniX', 'deploys an OmniX exchange')
+  .addParam('dstchainid', 'destination chain id. ex: 4')
+  .addParam('dstchainname', 'destination chain name. ex: rinkeby')
+  .setAction(linkOmniX)
 task('testOmniX', 'test OmniXEchange with Gh0stlyGh0sts NFT between rinkeby vs bsctest')
   .addParam('step', 'make | approve | take')
   .addParam('tokenid', 'number')
   .addOptionalParam('nonce', 'number required when make step')
   .setAction(testGhosts)
-
-task('deployOmniX2', 'deploys an OmniX exchange')
-  .setAction(deployOmniX2)

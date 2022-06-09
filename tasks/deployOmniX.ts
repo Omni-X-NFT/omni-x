@@ -2,73 +2,42 @@ import {
     STRATEGY_PROTOCAL_FEE,
     ROYALTY_FEE_LIMIT,
     deployContract,
-    toWei,
-    CONTRACTS
+    toWei
 } from './shared'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
+import { OmniXExchange } from '../typechain-types'
 
 export const deployOmniX = async() => {
     // @ts-ignore
-    const { ethers, network } = hre;
+    const _hre = hre
+    const { ethers, network } = _hre
     const [ owner ] = await ethers.getSigners()
     const lzEndpoint = (LZ_ENDPOINT as any)[network.name];
 
-    const currencyManager = await deployContract(ethers, 'CurrencyManager', owner, [])
-    const strategy = await deployContract(ethers, 'StrategyStandardSale', owner, [STRATEGY_PROTOCAL_FEE])
-    const executionManager = await deployContract(ethers, 'ExecutionManager', owner, [])
-    const royaltyFeeRegistry = await deployContract(ethers, 'RoyaltyFeeRegistry', owner, [ROYALTY_FEE_LIMIT])
-    const royaltyFeeManager = await deployContract(ethers, 'RoyaltyFeeManager', owner, [royaltyFeeRegistry.address])
-    const omniXExchange = await deployContract(ethers, 'OmniXExchange', owner, [
+    await deployContract(_hre, 'StrategyStandardSale', owner, [STRATEGY_PROTOCAL_FEE])
+
+    const currencyManager = await deployContract(_hre, 'CurrencyManager', owner, [])
+    const executionManager = await deployContract(_hre, 'ExecutionManager', owner, [])
+    const royaltyFeeRegistry = await deployContract(_hre, 'RoyaltyFeeRegistry', owner, [ROYALTY_FEE_LIMIT])
+    const royaltyFeeManager = await deployContract(_hre, 'RoyaltyFeeManager', owner, [royaltyFeeRegistry.address])
+    const omniXExchange = await deployContract(_hre, 'OmniXExchange', owner, [
         currencyManager.address,
         executionManager.address,
         royaltyFeeManager.address,
         ethers.constants.AddressZero,
         owner.address
-      ])
-    const transferManager721 = await deployContract(ethers, 'TransferManagerERC721', owner, [omniXExchange.address])
-    const transferManager1155 = await deployContract(ethers, 'TransferManagerERC1155', owner, [omniXExchange.address])
-    const transferManagerONFT721 = await deployContract(ethers, 'TransferManagerONFT721', owner, [omniXExchange.address])
-    const transferManagerONFT1155 = await deployContract(ethers, 'TransferManagerONFT1155', owner, [omniXExchange.address])
-    const transferSelector = await deployContract(ethers, 'TransferSelectorNFT', owner, [transferManager721.address, transferManager1155.address])
+      ]) as OmniXExchange
 
-    // normal currency && nft
-    const erc20Mock = await deployContract(ethers, 'LRTokenMock', owner, [])
-    const nftMock = await deployContract(ethers, 'Nft721Mock', owner, [])
-    
-    // omni currency && onft
-    const omni = await deployContract(ethers, 'OFT', owner, ['OMNI', 'OMNI', lzEndpoint, toWei(ethers, 1000)])
-    const onft721 = await deployContract(ethers, 'ONFT721', owner, ['ONFT', 'ONFT', lzEndpoint])
-    const onft1155 = await deployContract(ethers, 'ONFT1155', owner, ['https://localhost/', lzEndpoint])
-    
-    await executionManager.addStrategy(strategy.address)
-    await currencyManager.addCurrency(erc20Mock.address)
-    await currencyManager.addCurrency(omni.address)
+    const transferManager721 = await deployContract(_hre, 'TransferManagerERC721', owner, [omniXExchange.address, lzEndpoint])
+    const transferManager1155 = await deployContract(_hre, 'TransferManagerERC1155', owner, [omniXExchange.address, lzEndpoint])
+    const transferSelector = await deployContract(_hre, 'TransferSelectorNFT', owner, [transferManager721.address, transferManager1155.address])
+    const remoteAddrManager = await deployContract(_hre, 'RemoteAddrManager', owner, [])
+    await deployContract(_hre, 'TransferManagerONFT721', owner, [omniXExchange.address, lzEndpoint])
+    await deployContract(_hre, 'TransferManagerONFT1155', owner, [omniXExchange.address, lzEndpoint])
+    await deployContract(_hre, 'TransferManagerGhosts', owner, [omniXExchange.address, lzEndpoint])
 
-    await transferSelector.addCollectionTransferManager(onft721.address, transferManagerONFT721.address)
-    await transferSelector.addCollectionTransferManager(onft1155.address, transferManagerONFT1155.address)
-    await omniXExchange.updateTransferSelectorNFT(transferSelector.address)
-}
+    await deployContract(_hre, 'OFTMock', owner, ['OMNI', 'OMNI', toWei(ethers, 1000), lzEndpoint])
 
-export const deployOmniX2 = async() => {
-    // @ts-ignore
-    const { ethers, network } = hre;
-    const [ owner ] = await ethers.getSigners()
-    const contracts = CONTRACTS as any
-
-    const omniXExchange = await deployContract(ethers, 'OmniXExchange', owner, [
-        contracts.currencyManager[network.name],
-        contracts.executionManager[network.name],
-        contracts.royaltyFeeManager[network.name],
-        ethers.constants.AddressZero,
-        owner.address
-      ])
-    const transferManager721 = await deployContract(ethers, 'TransferManagerERC721', owner, [omniXExchange.address])
-    const transferManager1155 = await deployContract(ethers, 'TransferManagerERC1155', owner, [omniXExchange.address])
-    const transferManagerONFT721 = await deployContract(ethers, 'TransferManagerONFT721', owner, [omniXExchange.address])
-    const transferManagerONFT1155 = await deployContract(ethers, 'TransferManagerONFT1155', owner, [omniXExchange.address])
-    const transferSelector = await deployContract(ethers, 'TransferSelectorNFT', owner, [transferManager721.address, transferManager1155.address])
-
-    await transferSelector.addCollectionTransferManager(contracts.onft721[network.name], transferManagerONFT721.address)
-    await transferSelector.addCollectionTransferManager(contracts.onft1155[network.name], transferManagerONFT1155.address)
-    await omniXExchange.updateTransferSelectorNFT(transferSelector.address)
+    omniXExchange.updateTransferSelectorNFT(transferSelector.address)
+    omniXExchange.setRemoteAddrManager(remoteAddrManager.address)
 }
