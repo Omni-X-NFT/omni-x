@@ -27,7 +27,7 @@ export const prepareOmniX = async() => {
 
     await currencyManager.addCurrency(getContractAddrByName(network.name, 'OFTMock'))
     await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSale'))
-    await transferSelector.addCollectionTransferManager(getContractAddrByName(network.name, 'ghosts'), getContractAddrByName(_hre, 'TransferManagerGhosts'))
+    await transferSelector.addCollectionTransferManager(getContractAddrByName(network.name, 'ghosts'), getContractAddrByName(network.name, 'TransferManagerGhosts'))
 }
 
 export const linkOmniX = async(taskArgs: any) => {
