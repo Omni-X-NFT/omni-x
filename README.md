@@ -31,6 +31,7 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - maker is on rinkeby
 - taker is on bsct
 - GhostlyGhosts NFT #1, #2 should be minted to maker before start to test on rinkeby
+- TransferManagerGhosts contract should have some balances to pay the gas fees for cross transferring.
 
 ### Test
 - npx hardhat testOmniX --step make --tokenid 1 --nonce 1 --network rinkeby
