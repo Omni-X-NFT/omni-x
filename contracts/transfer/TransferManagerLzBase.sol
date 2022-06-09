@@ -11,6 +11,8 @@ import "hardhat/console.sol";
 abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp {
     uint16 public constant MT_ON_SRC_CHAIN = 1;
     uint16 public constant MT_ON_DST_CHAIN = 2;
+    uint16 private constant LZ_ADAPTER_VERSION = 1;
+    uint256 private constant LZ_ADAPTER_GAS = 3500000;
     address public immutable OMNIX_EXCHANGE;
 
     event ReceiveFromDstChain(uint16 chainId, address collection, address from, address to, uint tokenId, uint amount, uint64 _nonce);
@@ -41,7 +43,7 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         uint256 tokenId,
         uint256 amount,
         uint16 fromChainId
-    ) external override {
+    ) external payable override {
         require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only OmniX Exchange");
 
         uint16 toChainId = lzEndpoint.getChainId();
@@ -50,6 +52,41 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         }
         else {
             _crossSendToSrc(collectionFrom, collectionTo, from, to, tokenId, amount, fromChainId);
+        }
+    }
+
+    /**
+     * @notice Estimate gas fees for cross transfering nft.
+     * @param collectionFrom address of the collection on from chain
+     * @param collectionTo address of the collection on current chain
+     * @param from address of the sender
+     * @param to address of the recipient
+     * @param tokenId tokenId
+     * @dev For ERC721, amount is not used
+     */
+    function estimateSendFee(
+        address collectionFrom,
+        address collectionTo,
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 amount,
+        uint16 fromChainId
+    )
+        virtual public view override
+        returns (uint, uint)
+    {
+        require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only OmniX Exchange");
+
+        uint16 toChainId = lzEndpoint.getChainId();
+        if (fromChainId == toChainId) {
+            return (0, 0);
+        }
+        else {
+            bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, LZ_ADAPTER_GAS);
+            bytes memory payload = abi.encode(MT_ON_SRC_CHAIN, from, to, collectionFrom, collectionTo, tokenId, amount);
+
+            return lzEndpoint.estimateFees(fromChainId, OMNIX_EXCHANGE, payload, false, adapterParams);
         }
     }
 
@@ -98,8 +135,9 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         uint256 amount,
         uint16 fromChainId
     ) internal {
+        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, LZ_ADAPTER_GAS);
         bytes memory payload = abi.encode(MT_ON_SRC_CHAIN, from, to, collectionFrom, collectionTo, tokenId, amount);
-        _lzSend(fromChainId, payload, payable(0), address(0), bytes(""));
+        _crossSend(fromChainId, payload, payable(OMNIX_EXCHANGE), address(0), adapterParams);
     }
 
     /**
@@ -115,8 +153,16 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         uint256 amount,
         uint16 dstChainId
     ) internal {
+        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, LZ_ADAPTER_GAS);
         bytes memory payload = abi.encode(MT_ON_DST_CHAIN, from, to, collectionFrom, collectionTo, tokenId, amount);
-        _lzSend(dstChainId, payload, payable(0), address(0), bytes(""));
+        _crossSend(dstChainId, payload, payable(OMNIX_EXCHANGE), address(0), adapterParams);
+    }
+
+    function _crossSend(uint16 _dstChainId, bytes memory _payload, address payable _refundAddress, address _zroPaymentAddress, bytes memory _adapterParam) internal {
+        require(trustedRemoteLookup[_dstChainId].length != 0, "LzSend: destination chain is not a trusted source.");
+
+        (uint256 messageFee,) = lzEndpoint.estimateFees(_dstChainId, address(this), _payload, false, _adapterParam);
+        lzEndpoint.send{value: messageFee}(_dstChainId, trustedRemoteLookup[_dstChainId], _payload, _refundAddress, _zroPaymentAddress, _adapterParam);
     }
 
     /**

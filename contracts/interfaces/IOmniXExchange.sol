@@ -10,8 +10,8 @@ interface IOmniXExchange {
     ) external payable;
 
     function matchAskWithTakerBid(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk)
-        external;
+        external payable;
 
     // function matchBidWithTakerAsk(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid)
-    //     external;
+    //     external payable;
 }

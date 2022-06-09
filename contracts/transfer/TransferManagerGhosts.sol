@@ -15,6 +15,40 @@ contract TransferManagerGhosts is TransferManagerLzBase {
     }
 
     /**
+     * @notice Estimate gas fees for cross transfering nft.
+     * @param collectionFrom address of the collection on from chain
+     * @param collectionTo address of the collection on current chain
+     * @param from address of the sender
+     * @param to address of the recipient
+     * @param tokenId tokenId
+     * @dev For ERC721, amount is not used
+     */
+    function estimateSendFee(
+        address collectionFrom,
+        address collectionTo,
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 amount,
+        uint16 fromChainId
+    )
+        public view override
+        returns (uint, uint)
+    {
+        (uint256 messageFee, uint256 lzFee) = super.estimateSendFee(
+            collectionFrom,
+            collectionTo,
+            from,
+            to,
+            tokenId,
+            amount,
+            fromChainId
+        );
+
+        return (messageFee * 2, lzFee * 2);
+    }
+
+    /**
     @dev just transfer the token from maker on maker chain to this on taker chain
     */
     function _onReceiveOnSrcChain(

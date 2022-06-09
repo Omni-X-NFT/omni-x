@@ -16,20 +16,25 @@ npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
 
 For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment. For more details see [the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).
 
-# How to deploy
+# How to deploy and test
 
-## deploy to rinkeby and bsct
+## Deploy to rinkeby and bsct
 - npx hardhat deployOmniX --network rinkeby
 - npx hardhat deployOmniX --network bsct
-## set trusted remote for ONFT, OFT
-- npx hardhat setTrustedRemote2 --network rinkeby --contract ONFT721 --src [ONFT721_ADDR_RINKEBY] --dst [ONFT721_ADDR_BSCT] --dstchain 97
-- npx hardhat setTrustedRemote2 --network bsct --contract ONFT721 --src [ONFT721_ADDR_BSCT] --dst [ONFT721_ADDR_RINKEBY] --dstchain 4
+- npx hardhat prepareOmniX --network rinkeby
+- npx hardhat prepareOmniX --network bsct
+- npx hardhat linkOmniX --network rinkeby --dstchainid 97 --dstchainname bsct
+- npx hardhat linkOmniX --network bsct --dstchainid 4 --dstchainname rinkeby
 
-- npx hardhat setTrustedRemote2 --network rinkeby --contract ONFT721 --src [ONFT1155_ADDR_RINKEBY] --dst [ONFT1155_ADDR_BSCT] --dstchain 97
-- npx hardhat setTrustedRemote2 --network bsct --contract ONFT721 --src [ONFT1155_ADDR_BSCT] --dst [ONFT1155_ADDR_RINKEBY] --dstchain 4
+## Test GhostlyGhosts with ONFT
+### Assumption
+- maker is on rinkeby
+- taker is on bsct
+- GhostlyGhosts NFT #1, #2 should be minted to maker before start to test on rinkeby
 
-- npx hardhat setTrustedRemote2 --network rinkeby --contract ONFT721 --src [OFT_ADDR_RINKEBY] --dst [OFT_ADDR_BSCT] --dstchain 97
-- npx hardhat setTrustedRemote2 --network bsct --contract ONFT721 --src [OFT_ADDR_BSCT] --dst [OFT_ADDR_RINKEBY] --dstchain 4
+### Test
+- npx hardhat testOmniX --step make --tokenid 1 --nonce 1 --network rinkeby
+- npx hardhat testOmniX --step take --tokenid 1 --network bsct
 
 # Deployed Contracts
 ## Rinkeby
@@ -75,14 +80,3 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - deployed GhostlyGhosts to 0x4642808070a46fBA0096c37dc52a2D44BfAC4841
 ## Mumbai
 
-# How to test OmniXExchange with Gh0stlyGh0sts NFT on testnet
-
-## deploy TransferManagerGhosts
-- npx hardhat deployGhostTransfer --network rinkeby
-- npx hardhat deployGhostTransfer --network bsct
-
-## setTrustedRemote for each other.
-- npx hardhat setTrustedRemote2 --network rinkeby --contract TransferManagerGhosts --src 0x211DBFd713886d2BdBEF0E100795B1A004f4aD53 --dst 0x9D1f92d66C515112818053f16Ce4C81Ecd724F3F --dstchain 97
-- npx hardhat setTrustedRemote2 --network bsct --contract TransferManagerGhosts --src 0x9D1f92d66C515112818053f16Ce4C81Ecd724F3F --dst 0x211DBFd713886d2BdBEF0E100795B1A004f4aD53 --dstchain 4
-- npx hardhat testOmniX --step make --tokenid 1 --nonce 1 --network rinkeby
-- npx hardhat testOmniX --step take --tokenid 1 --network bsct
