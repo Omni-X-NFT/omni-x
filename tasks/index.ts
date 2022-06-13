@@ -1,8 +1,9 @@
 import { task } from 'hardhat/config'
 import { setTrustedRemote } from './setTrustedRemote'
-import { deployOmniX } from './deployOmniX'
+import { deploy2, deployOmniX } from './deployOmniX'
 import { linkOmniX, prepareOmniX } from './prepareOmniX'
 import { testGhosts } from './test'
+import { verifyOmni } from './verify'
 
 task(
   'setTrustedRemote',
@@ -16,7 +17,6 @@ task('deployOmniX', 'deploys an OmniX exchange')
 task('prepareOmniX', 'deploys an OmniX exchange')
   .setAction(prepareOmniX)
 task('linkOmniX', 'deploys an OmniX exchange')
-  .addParam('dstchainid', 'destination chain id. ex: 4')
   .addParam('dstchainname', 'destination chain name. ex: rinkeby')
   .setAction(linkOmniX)
 task('testOmniX', 'test OmniXEchange with Gh0stlyGh0sts NFT between rinkeby vs bsctest')
@@ -24,3 +24,9 @@ task('testOmniX', 'test OmniXEchange with Gh0stlyGh0sts NFT between rinkeby vs b
   .addParam('tokenid', 'number')
   .addOptionalParam('nonce', 'number required when make step')
   .setAction(testGhosts)
+
+task('deploy2', 'deploys an OmniX exchange')
+  .setAction(deploy2)
+
+task('verifyOmni', 'verify an omni')
+  .setAction(verifyOmni)

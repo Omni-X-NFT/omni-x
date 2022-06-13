@@ -14,6 +14,7 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
     uint16 private constant LZ_ADAPTER_VERSION = 1;
     uint256 private constant LZ_ADAPTER_GAS = 3500000;
     address public immutable OMNIX_EXCHANGE;
+    address public admin;
 
     event ReceiveFromDstChain(uint16 chainId, address collection, address from, address to, uint tokenId, uint amount, uint64 _nonce);
     event ReceiveFromSrcChain(uint16 chainId, address collection, address from, address to, uint tokenId, uint amount, uint64 _nonce);
@@ -24,6 +25,7 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
      */
     constructor(address _omniXExchange, address _lzEndpoint) NonblockingLzApp(_lzEndpoint) {
         OMNIX_EXCHANGE = _omniXExchange;
+        admin = msg.sender;
     }
 
     /**
@@ -76,8 +78,6 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         virtual public view override
         returns (uint, uint)
     {
-        require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only OmniX Exchange");
-
         uint16 toChainId = lzEndpoint.getChainId();
         if (fromChainId == toChainId) {
             return (0, 0);
@@ -137,7 +137,7 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
     ) internal {
         bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, LZ_ADAPTER_GAS);
         bytes memory payload = abi.encode(MT_ON_SRC_CHAIN, from, to, collectionFrom, collectionTo, tokenId, amount);
-        _crossSend(fromChainId, payload, payable(OMNIX_EXCHANGE), address(0), adapterParams);
+        _crossSend(fromChainId, payload, payable(this), address(0x0), adapterParams);
     }
 
     /**
@@ -155,7 +155,7 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
     ) internal {
         bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, LZ_ADAPTER_GAS);
         bytes memory payload = abi.encode(MT_ON_DST_CHAIN, from, to, collectionFrom, collectionTo, tokenId, amount);
-        _crossSend(dstChainId, payload, payable(OMNIX_EXCHANGE), address(0), adapterParams);
+        _crossSend(dstChainId, payload, payable(this), address(0x0), adapterParams);
     }
 
     function _crossSend(uint16 _dstChainId, bytes memory _payload, address payable _refundAddress, address _zroPaymentAddress, bytes memory _adapterParam) internal {
@@ -165,6 +165,13 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         lzEndpoint.send{value: messageFee}(_dstChainId, trustedRemoteLookup[_dstChainId], _payload, _refundAddress, _zroPaymentAddress, _adapterParam);
     }
 
+    receive() external payable {
+        // nothing to do
+    }
+    function withdraw() external {
+        require (msg.sender == admin, "not an admin");
+        payable(admin).transfer(address(this).balance);
+    }
     /**
      * @notice cross send from maker chain to taker chain.
      * @return bool true if need to call _crossSendToDst, otherwise false

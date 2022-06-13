@@ -1,5 +1,6 @@
 import {
     createContractByName,
+    getChainId,
     getContractAddrByName
 } from './shared'
 import {
@@ -7,13 +8,15 @@ import {
     ExecutionManager,
     TransferSelectorNFT,
     TransferManagerGhosts,
-    RemoteAddrManager
+    RemoteAddrManager,
+    OFTMock
   } from '../typechain-types'
 import CurrencyManagerAbi from '../artifacts/contracts/core/CurrencyManager.sol/CurrencyManager.json'
 import ExecutionManagerAbi from '../artifacts/contracts/core/ExecutionManager.sol/ExecutionManager.json'
 import TransferSelectorNFTAbi from '../artifacts/contracts/core/TransferSelectorNFT.sol/TransferSelectorNFT.json'
 import TransferManagerGhostsAbi from '../artifacts/contracts/transfer/TransferManagerGhosts.sol/TransferManagerGhosts.json'
 import RemoteAddrManagerAbi from '../artifacts/contracts/core/RemoteAddrManager.sol/RemoteAddrManager.json'
+import OFTMockAbi from '../artifacts/contracts/mocks/OFTMock.sol/OFTMock.json'
 
 export const prepareOmniX = async() => {
     // @ts-ignore
@@ -36,13 +39,18 @@ export const linkOmniX = async(taskArgs: any) => {
     const { ethers, network } = _hre
     const [ owner ] = await ethers.getSigners()
 
-    const {dstchainid: dstChainId, dstchainname: dstNetwork } = taskArgs
+    const {dstchainname: dstNetwork } = taskArgs
+    const dstChainId = getChainId(dstNetwork)
 
-    const transferManagerGhosts = createContractByName(_hre, 'TransferManagerGhosts', TransferManagerGhostsAbi.abi, owner) as TransferManagerGhosts    
-    await transferManagerGhosts.setTrustedRemote(dstChainId, getContractAddrByName(network.name, 'TransferManagerGhosts'))
+    const transferManagerGhosts = createContractByName(_hre, 'TransferManagerGhosts', TransferManagerGhostsAbi.abi, owner) as TransferManagerGhosts
+    await transferManagerGhosts.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerGhosts'))
+
+    const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi.abi, owner) as OFTMock    
+    await omni.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'OFTMock'))
 
     const remoteAddrManager = createContractByName(_hre, 'RemoteAddrManager', RemoteAddrManagerAbi.abi, owner) as RemoteAddrManager
     await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'OFTMock'), dstChainId, getContractAddrByName(network.name, 'OFTMock'))
     await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'ghosts'), dstChainId, getContractAddrByName(network.name, 'ghosts'))
+    await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'StrategyStandardSale'), dstChainId, getContractAddrByName(network.name, 'StrategyStandardSale'))
 
 }

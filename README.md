@@ -23,8 +23,8 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - npx hardhat deployOmniX --network bsct
 - npx hardhat prepareOmniX --network rinkeby
 - npx hardhat prepareOmniX --network bsct
-- npx hardhat linkOmniX --network rinkeby --dstchainid 97 --dstchainname bsct
-- npx hardhat linkOmniX --network bsct --dstchainid 4 --dstchainname rinkeby
+- npx hardhat linkOmniX --network rinkeby --dstchainname bsct
+- npx hardhat linkOmniX --network bsct --dstchainname rinkeby
 
 ## Test GhostlyGhosts with ONFT
 ### Assumption

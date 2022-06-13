@@ -38,6 +38,15 @@ export const deployOmniX = async() => {
 
     await deployContract(_hre, 'OFTMock', owner, ['OMNI', 'OMNI', toWei(ethers, 1000), lzEndpoint])
 
-    omniXExchange.updateTransferSelectorNFT(transferSelector.address)
-    omniXExchange.setRemoteAddrManager(remoteAddrManager.address)
+    await omniXExchange.updateTransferSelectorNFT(transferSelector.address)
+    await omniXExchange.setRemoteAddrManager(remoteAddrManager.address)
+}
+
+export const deploy2 = async() => {
+    // @ts-ignore
+    const _hre = hre
+    const { ethers, network } = _hre
+    const [ owner ] = await ethers.getSigners()
+
+    await deployContract(_hre, 'OmniXExchange2', owner, [])
 }

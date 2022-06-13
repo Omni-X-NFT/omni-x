@@ -124,7 +124,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
     /**
     * @notice set remote address manager
     */
-    function setRemoteAddrManager(address manager) external {
+    function setRemoteAddrManager(address manager) external onlyOwner {
         remoteAddrManager = IRemoteAddrManager(manager);
     }
     /**
@@ -219,6 +219,28 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
     }
 
     /**
+     * @notice get layerzero fees for matching a takerBid with a matchAsk using ETH and WETH
+     * @param takerBid taker bid order
+     * @param makerAsk maker ask order
+     */
+    function getLzFeesForAskWithTakerBidWETH(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk)
+        external
+        view
+        returns (uint256)
+    {
+        require((makerAsk.isOrderAsk) && (!takerBid.isOrderAsk), "Order: Wrong sides");
+        require(msg.sender == takerBid.taker, "Order: Taker must be the sender");
+        
+        (uint16 fromChainId) = makerAsk.decodeParams();
+        address collection = remoteAddrManager.checkRemoteAddress(makerAsk.collection, fromChainId);
+
+        uint256 nftFee = _lzFeeTransferNFT(
+            makerAsk.collection, collection, makerAsk.signer, takerBid.taker, makerAsk.tokenId, makerAsk.amount, fromChainId);
+
+        return nftFee;
+    }
+
+    /**
      * @notice Match a takerBid with a matchAsk
      * @param takerBid taker bid order
      * @param makerAsk maker ask order
@@ -271,6 +293,31 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             fromChainId,
             toChainId
         );
+    }
+
+    /**
+     * @notice get layerzero fees for matching a takerBid with a matchAsk
+     * @param takerBid taker bid order
+     * @param makerAsk maker ask order
+     */
+    function getLzFeesForAskWithTakerBid(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk)
+        external
+        view
+        returns (uint256)
+    {
+        require((makerAsk.isOrderAsk) && (!takerBid.isOrderAsk), "Order: Wrong sides");
+        require(msg.sender == takerBid.taker, "Order: Taker must be the sender");
+
+        (uint16 fromChainId) = makerAsk.decodeParams();
+        address collection = remoteAddrManager.checkRemoteAddress(makerAsk.collection, fromChainId);
+        address currency = remoteAddrManager.checkRemoteAddress(makerAsk.currency, fromChainId);
+
+        uint256 currencyFee = _lzFeeTransferCurrency(currency, makerAsk.signer, takerBid.price, fromChainId);
+
+        uint256 nftFee = _lzFeeTransferNFT(
+            makerAsk.collection, collection, makerAsk.signer, takerBid.taker, makerAsk.tokenId, makerAsk.amount, fromChainId);
+
+        return (currencyFee + nftFee);
     }
 
     /**
@@ -487,7 +534,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             uint256 lzFee = _lzFeeTransferCurrency(currency, to, amount, fromChainId);
             bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, LZ_ADAPTER_GAS);
             IOFT(currency).sendFrom{value: lzFee}(
-                from, fromChainId, toAddress, amount, payable(address(this)), address(0),adapterParams
+                from, fromChainId, toAddress, amount, payable(msg.sender), address(0x0), adapterParams
             );
         }
         else {

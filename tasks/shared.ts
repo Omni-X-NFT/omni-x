@@ -5,6 +5,7 @@ import {
   TakerOrder,
   MakerOrder
 } from '../utils/order-types'
+import CHAIN_IDS from '../constants/chainIds.json'
 import path from 'path'
 
 export const STRATEGY_PROTOCAL_FEE = 200 // 2%
@@ -64,6 +65,11 @@ export const getContractAddrByName = (network: string, name: string): string => 
   }
   
   return (CONTRACTS as any)[folderName][name]
+}
+
+export const getChainId = (network: string): number => {
+  const chainIds = CHAIN_IDS as any
+  return chainIds[network]
 }
 
 export const toWei = (ethers: any, amount: number | string): BigNumber => {
