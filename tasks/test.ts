@@ -11,12 +11,14 @@ import {
   createContractByName,
   getContractAddrByName,
   fillMakerOrder,
-  fillTakerOrder
+  fillTakerOrder,
+  getChainId
 } from './shared'
 import OmniXEchangeAbi from '../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json'
+import OmniXEchange2Abi from '../artifacts/contracts/core/OmniXExchange2.sol/OmniXExchange2.json'
 import OFTMockAbi from '../artifacts/contracts/mocks/OFTMock.sol/OFTMock.json'
 import GhostsNftAbi from './fixtures/Gh0stlyGh0sts.json'
-import { OmniXExchange } from '../typechain-types'
+import { OFTMock, OmniXExchange, OmniXExchange2 } from '../typechain-types'
 
 chai.use(solidity)
 const { expect } = chai
@@ -41,15 +43,16 @@ export const testGhosts = async (args: any) => {
       getContractAddrByName(network, 'StrategyStandardSale'),
       maker.address,
       await getBlockTime(ethers),
-      toWei(ethers, 1),
+      toWei(ethers, 0.01),
       nonce
     )
 
-    makerAsk.encodeParams(await maker.getChainId(), taker.address)
+    makerAsk.encodeParams(getChainId(network), taker.address)
     await makerAsk.sign(maker)
 
+    console.log(makerAsk)
     // save
-    makerAsk.serialize('./artifacts/makerAsk.json')
+    makerAsk.serialize('./makerAsk.json')
 
     // approve
     const nftContract = createContractByName(_hre, 'ghosts', GhostsNftAbi.abi, maker)
@@ -58,26 +61,95 @@ export const testGhosts = async (args: any) => {
   
   const testMakerAskTakerBid = async (tokenId: number) => {
     // load maker order
-    const makerAsk: MakerOrder = MakerOrder.deserialize('./artifacts/makerAsk.json')
+    const makerAsk: MakerOrder = MakerOrder.deserialize('./makerAsk.json')
     const takerBid: TakerOrder = new TakerOrder(false)
 
     // create contracts
     const omnixContract = createContractByName(_hre, 'OmniXExchange', OmniXEchangeAbi.abi, taker) as OmniXExchange
     const nftContract = createContractByName(_hre, 'ghosts', GhostsNftAbi.abi, taker)
-    const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi.abi, taker)
+    const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi.abi, taker) as OFTMock
+
+    // transfer omni to taker first
+    // await omni.connect(maker).transfer(taker.address, toWei(ethers, 100))
 
     // approve
-    // omni.connect(taker).approve(omnixContract.address, toWei(ethers, 100))
+    // const allowance = await omni.allowance(taker.address, omnixContract.address)
+    // if (allowance.lt(toWei(ethers, 100))) {
+    //   await omni.approve(omnixContract.address, toWei(ethers, 100))
+    // }
 
     // data
-    fillTakerOrder(takerBid, taker.address, tokenId, toWei(ethers, 1))
-    takerBid.encodeParams(await taker.getChainId())
+    fillTakerOrder(takerBid, taker.address, tokenId, toWei(ethers, 0.01))
+    takerBid.encodeParams(getChainId(network))
 
     // listing
-    await omnixContract.matchAskWithTakerBid(takerBid, makerAsk, {value: toWei(ethers, '0.06'), gasLimit: 30000 });
+    const lzFee = await omnixContract.connect(taker).getLzFeesForAskWithTakerBid(takerBid, makerAsk)
+
+    console.log('lzFee: ', lzFee.toString())
+    const tx = await omnixContract.connect(taker).matchAskWithTakerBid(takerBid, makerAsk, {value: lzFee });
+    await tx.wait()
 
     // checking
-    // expect(await nftContract.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+    expect(await nftContract.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+  }
+
+  // const testMakerAskTakerBid = async (tokenId: number) => {
+  //   // create contracts
+  //   const omnixContract = createContractByName(_hre, 'OmniXExchange2', OmniXEchange2Abi.abi, taker) as OmniXExchange2
+  //   const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi.abi, taker) as OFTMock
+
+  //   // load maker order
+  //   const makerAsk: MakerOrder = MakerOrder.deserialize('./makerAsk.json')
+  //   const takerBid: TakerOrder = new TakerOrder(false)
+
+  //   // data
+  //   fillTakerOrder(takerBid, taker.address, tokenId, toWei(ethers, 1))
+  //   takerBid.encodeParams(getChainId(network))
+
+  //   // listing
+  //   console.log((await omni.balanceOf(taker.address)).toString())
+
+  //   console.log('---getLzFeesForAskWithTakerBid----', omnixContract.address);
+  //   // const lzFee = await omnixContract.getLzFeesForAskWithTakerBid(takerBid, makerAsk)
+    
+  //   const currency = '0xFA2FD79235E62C6d23C04833Cf1100eCf7Afd5aD'
+  //   const lzFee = await omnixContract._lzFeeTransferCurrency(
+  //     currency,
+  //     makerAsk.signer,
+  //     takerBid.price,
+  //     getChainId('rinkeby')
+  //   )
+  //   console.log('---lzFee----', lzFee.toString());
+
+  //   const tx = await omnixContract.transferCurrency(
+  //     currency,
+  //     taker.address,
+  //     makerAsk.signer,
+  //     takerBid.price,
+  //     getChainId('rinkeby'),
+  //     {
+  //       value: lzFee,
+  //       gasLimit: 30000000
+  //     }
+  //   );
+  //   await tx.wait()
+
+  //   // // checking
+  //   // expect(await nftContract.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+  // }
+
+  const checkStatus = async (tokenId: number) => {
+    // create contracts
+    // const omnixContract = createContractByName(_hre, 'OmniXExchange', OmniXEchangeAbi.abi, taker) as OmniXExchange
+    const nftContract = createContractByName(_hre, 'ghosts', GhostsNftAbi.abi, taker)
+    const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi.abi, taker)
+
+    // checking
+    console.log(`Maker, Taker: `, maker.address, taker.address)
+    console.log(`Balance of maker && taker is `, (await omni.balanceOf(maker.address)).toString(), (await omni.balanceOf(taker.address)).toString())
+    console.log(`Token balance of maker is `, (await nftContract.balanceOf(maker.address)).toString())
+    console.log(`Token balance of taker is `, (await nftContract.balanceOf(taker.address)).toString())
+    console.log(`Owner of Token#${tokenId} is `, (await nftContract.ownerOf(tokenId)).toString())
   }
 
   const {step, tokenid: tokenId, nonce} = args
@@ -88,6 +160,9 @@ export const testGhosts = async (args: any) => {
       break
     case 'take':
       await testMakerAskTakerBid(tokenId)
+      break
+    case 'status':
+      await checkStatus(tokenId)
       break
   }
 }

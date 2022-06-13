@@ -19,12 +19,12 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 # How to deploy and test
 
 ## Deploy to rinkeby and bsct
-- npx hardhat deployOmniX --network rinkeby
+- npx hardhat deployOmniX --network fuji
 - npx hardhat deployOmniX --network bsct
-- npx hardhat prepareOmniX --network rinkeby
+- npx hardhat prepareOmniX --network fuji
 - npx hardhat prepareOmniX --network bsct
-- npx hardhat linkOmniX --network rinkeby --dstchainname bsct
-- npx hardhat linkOmniX --network bsct --dstchainname rinkeby
+- npx hardhat linkOmniX --network fuji --dstchainname bsct
+- npx hardhat linkOmniX --network bsct --dstchainname fuji
 
 ## Test GhostlyGhosts with ONFT
 ### Assumption
@@ -34,9 +34,9 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - TransferManagerGhosts contract should have some balances to pay the gas fees for cross transferring.
 
 ### Test
-- npx hardhat testOmniX --step make --tokenid 1 --nonce 1 --network rinkeby
+- npx hardhat testOmniX --step make --tokenid 1 --nonce 3 --network fuji
 - npx hardhat testOmniX --step take --tokenid 1 --network bsct
-- npx hardhat testOmniX --step status --tokenid 1 --network rinkeby
+- npx hardhat testOmniX --step status --tokenid 1 --network fuji
 - npx hardhat testOmniX --step status --tokenid 1 --network bsct
 
 # Deployed Contracts

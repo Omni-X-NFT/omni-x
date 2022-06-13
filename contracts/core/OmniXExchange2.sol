@@ -92,6 +92,22 @@ contract OmniXExchange2 {
         return currencyFee + nftFee;
     }
 
+    function transferCurrency(
+        address currency,
+        address from,
+        address to,
+        uint256 amount,
+        uint16 fromChainId
+    ) external payable {
+        bytes memory toAddress = abi.encodePacked(to);
+
+        uint256 lzFee = _lzFeeTransferCurrency(currency, to, amount, fromChainId);
+        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, LZ_ADAPTER_GAS);
+        IOFT(currency).sendFrom{value: lzFee}(
+            from, fromChainId, toAddress, amount, payable(msg.sender), address(0x0), adapterParams
+        );
+    }
+
     function getLzFeesForAskWithTakerBid2(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk)
         external
         view
@@ -128,9 +144,9 @@ contract OmniXExchange2 {
     ) public view returns(uint) {
         // use adapterParams v1 to specify more gas for the destination
         bytes memory toAddress = abi.encodePacked(to);
-        // bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, LZ_ADAPTER_GAS);
+        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, LZ_ADAPTER_GAS);
         // get the fees we need to pay to LayerZero for message delivery
-        (uint messageFee, ) = IOFT(currency).estimateSendFee(fromChainId, toAddress, amount, false, bytes(""));
+        (uint messageFee, ) = IOFT(currency).estimateSendFee(fromChainId, toAddress, amount, false, adapterParams);
         return messageFee;
     }
 
