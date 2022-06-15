@@ -17,8 +17,10 @@ import {
   OFTMock,
   ONFT721Mock,
   ONFT1155,
+  GhostsMock,
   LZEndpointMock,
-  RemoteAddrManager
+  RemoteAddrManager,
+  TransferManagerGhosts
 } from '../typechain-types'
 import {
   deployContract, getBlockTime, toWei
@@ -50,6 +52,7 @@ type Chain = {
   transferManagerONFT721: TransferManagerONFT721
   transferManagerONFT1155: TransferManagerONFT1155
   transferManager721: TransferManagerERC721
+  transferManagerGhosts: TransferManagerGhosts
   transferManager1155: TransferManagerERC1155
   royaltyFeeManager: RoyaltyFeeManager
   strategy: StrategyStandardSale
@@ -57,6 +60,7 @@ type Chain = {
   erc20Mock: LRTokenMock
   omni: OFTMock
   onft721: ONFT721Mock
+  ghosts: GhostsMock
   onft1155: ONFT1155
   layerZeroEndpoint: LZEndpointMock
   remoteAddrManager: RemoteAddrManager
@@ -78,6 +82,7 @@ const deploy = async (owner: SignerWithAddress, chainId: number) => {
 
   // omnichain nft
   chain.onft721 = await deployContract('ONFT721Mock', owner, ['ONFT', 'ONFT', chain.layerZeroEndpoint.address]) as ONFT721Mock
+  chain.ghosts = await deployContract('GhostsMock', owner, ['Ghosts', 'gg', chain.layerZeroEndpoint.address]) as GhostsMock
   chain.onft1155 = await deployContract('ONFT1155', owner, ['https://localhost/', chain.layerZeroEndpoint.address]) as ONFT1155
 
   // currency manager
@@ -108,6 +113,7 @@ const deploy = async (owner: SignerWithAddress, chainId: number) => {
   chain.transferManager1155 = await deployContract('TransferManagerERC1155', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerERC1155
   chain.transferManagerONFT721 = await deployContract('TransferManagerONFT721', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerONFT721
   chain.transferManagerONFT1155 = await deployContract('TransferManagerONFT1155', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerONFT1155
+  chain.transferManagerGhosts = await deployContract('TransferManagerGhosts', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerGhosts
   chain.transferSelector = await deployContract('TransferSelectorNFT', owner, [chain.transferManager721.address, chain.transferManager1155.address]) as TransferSelectorNFT
 
   chain.chainId = chainId
@@ -118,18 +124,22 @@ const deploy = async (owner: SignerWithAddress, chainId: number) => {
 const linkChains = async (src: Chain, dst: Chain) => {
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.omni.address, dst.layerZeroEndpoint.address)
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.onft721.address, dst.layerZeroEndpoint.address)
+  await src.layerZeroEndpoint.setDestLzEndpoint(dst.ghosts.address, dst.layerZeroEndpoint.address)
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.onft1155.address, dst.layerZeroEndpoint.address)
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.transferManager721.address, dst.layerZeroEndpoint.address)
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.transferManager1155.address, dst.layerZeroEndpoint.address)
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.transferManagerONFT721.address, dst.layerZeroEndpoint.address)
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.transferManagerONFT1155.address, dst.layerZeroEndpoint.address)
+  await src.layerZeroEndpoint.setDestLzEndpoint(dst.transferManagerGhosts.address, dst.layerZeroEndpoint.address)
 
   await src.omni.setTrustedRemote(await dst.chainId, dst.omni.address)
   await src.onft721.setTrustedRemote(await dst.chainId, dst.onft721.address)
+  await src.ghosts.setTrustedRemote(await dst.chainId, dst.ghosts.address)
   await src.onft1155.setTrustedRemote(await dst.chainId, dst.onft1155.address)
   await src.transferManager721.setTrustedRemote(await dst.chainId, dst.transferManager721.address)
   await src.transferManager1155.setTrustedRemote(await dst.chainId, dst.transferManager1155.address)
   await src.transferManagerONFT721.setTrustedRemote(await dst.chainId, dst.transferManagerONFT721.address)
+  await src.transferManagerGhosts.setTrustedRemote(await dst.chainId, dst.transferManagerGhosts.address)
   await src.transferManagerONFT1155.setTrustedRemote(await dst.chainId, dst.transferManagerONFT1155.address)
 
   await src.remoteAddrManager.addRemoteAddress(dst.erc20Mock.address, dst.chainId, src.erc20Mock.address)
@@ -137,6 +147,7 @@ const linkChains = async (src: Chain, dst: Chain) => {
   await src.remoteAddrManager.addRemoteAddress(dst.nftMock.address, dst.chainId, src.nftMock.address)
   await src.remoteAddrManager.addRemoteAddress(dst.omni.address, dst.chainId, src.omni.address)
   await src.remoteAddrManager.addRemoteAddress(dst.onft721.address, dst.chainId, src.onft721.address)
+  await src.remoteAddrManager.addRemoteAddress(dst.ghosts.address, dst.chainId, src.ghosts.address)
 }
 
 const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
@@ -145,6 +156,7 @@ const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
   await chain.currencyManager.addCurrency(chain.omni.address)
 
   await chain.transferSelector.addCollectionTransferManager(chain.onft721.address, chain.transferManagerONFT721.address)
+  await chain.transferSelector.addCollectionTransferManager(chain.ghosts.address, chain.transferManagerGhosts.address)
   await chain.transferSelector.addCollectionTransferManager(chain.onft1155.address, chain.transferManagerONFT1155.address)
   await chain.omniXExchange.updateTransferSelectorNFT(chain.transferSelector.address)
 
@@ -155,6 +167,7 @@ const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
 
   await chain.onft721.mint(maker.address, 1)
   await chain.onft721.mint(maker.address, 2)
+  await chain.ghosts.connect(maker).mint(1)
 }
 
 const prepareTaker = async (chain: Chain, taker: SignerWithAddress) => {
@@ -164,6 +177,7 @@ const prepareTaker = async (chain: Chain, taker: SignerWithAddress) => {
   await chain.currencyManager.addCurrency(chain.omni.address)
 
   await chain.transferSelector.addCollectionTransferManager(chain.onft721.address, chain.transferManagerONFT721.address)
+  await chain.transferSelector.addCollectionTransferManager(chain.ghosts.address, chain.transferManagerGhosts.address)
   await chain.transferSelector.addCollectionTransferManager(chain.onft1155.address, chain.transferManagerONFT1155.address)
   await chain.omniXExchange.updateTransferSelectorNFT(chain.transferSelector.address)
 
@@ -178,6 +192,7 @@ const approveMaker = async (chain: Chain, maker: SignerWithAddress) => {
 
   await chain.onft721.connect(maker).approve(chain.transferManagerONFT721.address, 1)
   await chain.onft721.connect(maker).approve(chain.transferManagerONFT721.address, 2)
+  await chain.ghosts.connect(maker).approve(chain.transferManagerGhosts.address, 1)
 }
 
 const approveTaker = async (chain: Chain, taker: SignerWithAddress) => {
@@ -185,7 +200,7 @@ const approveTaker = async (chain: Chain, taker: SignerWithAddress) => {
   await chain.omni.connect(taker).approve(chain.omniXExchange.address, toWei(100))
 }
 
-describe('OmniXExchange', () => {
+describe('OmniXExchangeCross', () => {
   let makerChain: Chain
   let takerChain: Chain
   let owner: SignerWithAddress
@@ -239,7 +254,7 @@ describe('OmniXExchange', () => {
       expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
     })
 
-    it('MakerAsk /w TakerBid - $OMNI /w ONFT', async () => {
+    it('MakerAsk /w TakerBid - $OMNI /w Ghosts', async () => {
 
       const makerAsk: MakerOrder = new MakerOrder(true)
       const takerBid: TakerOrder = new TakerOrder(false)
@@ -265,7 +280,7 @@ describe('OmniXExchange', () => {
       await makerAsk.sign(maker)
 
       await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
-      
+
       expect(await takerChain.onft721.ownerOf(takerBid.tokenId)).to.eq(taker.address)
       expect(await makerChain.omni.balanceOf(maker.address)).to.eq(toWei(0.98))
     })

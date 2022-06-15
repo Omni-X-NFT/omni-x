@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "./IONFT721.sol";
 import "./ONFT721Core.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "hardhat/console.sol";
 
 // NOTE: this ONFT contract has no public minting logic.
 // must implement your own minting logic in child classes

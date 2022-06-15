@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "./IONFT721Core.sol";
 import "../../lzApp/NonblockingLzApp.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "hardhat/console.sol";
 
 abstract contract ONFT721Core is NonblockingLzApp, ERC165, IONFT721Core {
     constructor(address _lzEndpoint) NonblockingLzApp(_lzEndpoint) {}
@@ -36,6 +37,7 @@ abstract contract ONFT721Core is NonblockingLzApp, ERC165, IONFT721Core {
     function _nonblockingLzReceive(uint16 _srcChainId, bytes memory _srcAddress, uint64 _nonce, bytes memory _payload) internal virtual override {
         // decode and load the toAddress
         (bytes memory toAddressBytes, uint tokenId) = abi.decode(_payload, (bytes, uint));
+
         address toAddress;
         assembly {
             toAddress := mload(add(toAddressBytes, 20))

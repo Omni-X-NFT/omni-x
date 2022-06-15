@@ -31,7 +31,6 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
     string private constant SIGNING_DOMAIN = "OmniXExchange";
     string private constant SIGNATURE_VERSION = "1";
     uint16 private constant LZ_ADAPTER_VERSION = 1;
-    uint256 private constant LZ_ADAPTER_GAS = 3500000;
 
     using SafeERC20 for IERC20;
     using ECDSA for bytes32;
@@ -42,6 +41,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
     address public immutable WETH;
 
     address public protocolFeeRecipient;
+    uint256 public gasForOmniLzReceive = 350000;
 
     ICurrencyManager public currencyManager;
     IExecutionManager public executionManager;
@@ -127,6 +127,14 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
     function setRemoteAddrManager(address manager) external onlyOwner {
         remoteAddrManager = IRemoteAddrManager(manager);
     }
+
+    /**
+    * @notice set gas for omni destination layerzero receive
+    */
+    function setGasForOmniLZReceive(uint256 gas) external onlyOwner {
+        gasForOmniLzReceive = gas;
+    }
+
     /**
      * @notice Cancel all pending orders for a sender
      * @param minNonce minimum user nonce
@@ -532,7 +540,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             bytes memory toAddress = abi.encodePacked(to);
 
             uint256 lzFee = _lzFeeTransferCurrency(currency, to, amount, fromChainId);
-            bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, LZ_ADAPTER_GAS);
+            bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
             IOFT(currency).sendFrom{value: lzFee}(
                 from, fromChainId, toAddress, amount, payable(msg.sender), address(0x0), adapterParams
             );
@@ -756,7 +764,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
     ) internal view returns(uint256) {
         if (currencyManager.isOmniCurrency(currency)) {
             // use adapterParams v1 to specify more gas for the destination
-            bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, LZ_ADAPTER_GAS);
+            bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
             bytes memory toAddress = abi.encodePacked(to);
             // get the fees we need to pay to LayerZero for message delivery
             (uint256 messageFee, ) = IOFT(currency).estimateSendFee(fromChainId, toAddress, amount, false, adapterParams);

@@ -25,8 +25,8 @@ contract TransferManagerONFT721 is TransferManagerLzBase {
         uint16 dstChainId
     ) virtual internal override returns(bool) {
         bytes memory toAddress = abi.encodePacked(to);
-
-        IONFT721(collection).sendFrom(from, dstChainId, toAddress, tokenId, payable(0), address(0), bytes(""));
+        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOnftLzReceive);
+        IONFT721(collection).sendFrom(from, dstChainId, toAddress, tokenId, payable(this), address(0), adapterParams);
         return false;
     }
 

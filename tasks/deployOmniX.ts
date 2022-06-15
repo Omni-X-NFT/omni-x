@@ -2,16 +2,20 @@ import {
     STRATEGY_PROTOCAL_FEE,
     ROYALTY_FEE_LIMIT,
     deployContract,
-    toWei
+    toWei,
+    getContractAddrByName,
+    createContractByName
 } from './shared'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
-import { OmniXExchange } from '../typechain-types'
+import { OmniXExchange, TransferSelectorNFT } from '../typechain-types'
+
+import TransferSelectorNFTAbi from '../artifacts/contracts/core/TransferSelectorNFT.sol/TransferSelectorNFT.json'
 
 export const deployOmniX = async() => {
     // @ts-ignore
     const _hre = hre
     const { ethers, network } = _hre
-    const [ owner ] = await ethers.getSigners()
+    const [ owner, , , deployer ] = await ethers.getSigners()
     const lzEndpoint = (LZ_ENDPOINT as any)[network.name];
 
     await deployContract(_hre, 'StrategyStandardSale', owner, [STRATEGY_PROTOCAL_FEE])
@@ -34,7 +38,7 @@ export const deployOmniX = async() => {
     const remoteAddrManager = await deployContract(_hre, 'RemoteAddrManager', owner, [])
     await deployContract(_hre, 'TransferManagerONFT721', owner, [omniXExchange.address, lzEndpoint])
     await deployContract(_hre, 'TransferManagerONFT1155', owner, [omniXExchange.address, lzEndpoint])
-    await deployContract(_hre, 'TransferManagerGhosts', owner, [omniXExchange.address, lzEndpoint])
+    await deployContract(_hre, 'TransferManagerGhosts', deployer, [omniXExchange.address, lzEndpoint])
 
     await deployContract(_hre, 'OFTMock', owner, ['OMNI', 'OMNI', toWei(ethers, 1000), lzEndpoint])
 
@@ -46,7 +50,23 @@ export const deploy2 = async() => {
     // @ts-ignore
     const _hre = hre
     const { ethers, network } = _hre
-    const [ owner ] = await ethers.getSigners()
+    const [ owner, , , deployer] = await ethers.getSigners()
 
-    await deployContract(_hre, 'OmniXExchange2', owner, [])
+    const lzEndpoint = (LZ_ENDPOINT as any)[network.name];
+    await deployContract(_hre, 'TransferManagerGhosts', deployer, [
+        getContractAddrByName(network.name, 'OmniXExchange'),
+        lzEndpoint
+    ])
+
+    const transferSelector = createContractByName(
+        _hre,
+        'TransferSelectorNFT',
+        TransferSelectorNFTAbi.abi,
+        owner
+    ) as TransferSelectorNFT
+
+    await transferSelector.addCollectionTransferManager(
+        getContractAddrByName(network.name, 'ghosts'),
+        getContractAddrByName(network.name, 'TransferManagerGhosts')
+    )
 }

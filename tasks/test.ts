@@ -30,7 +30,7 @@ export const testGhosts = async (args: any) => {
 
   setEthers(ethers)
 
-  const [ maker, taker ] = await ethers.getSigners()
+  const [owner, maker, taker ] = await ethers.getSigners()
 
   const prepareTest = async (tokenId: number, nonce: number) => {
     // make order
@@ -70,14 +70,19 @@ export const testGhosts = async (args: any) => {
     const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi.abi, taker) as OFTMock
 
     // transfer omni to taker first
-    // await omni.connect(maker).transfer(taker.address, toWei(ethers, 100))
+    const balance = await omni.balanceOf(taker.address)
+    if (balance.lt(toWei(ethers, 1))) {
+      await omni.connect(owner).transfer(taker.address, toWei(ethers, 100))
+    }
 
     // approve
-    // const allowance = await omni.allowance(taker.address, omnixContract.address)
-    // if (allowance.lt(toWei(ethers, 100))) {
-    //   await omni.approve(omnixContract.address, toWei(ethers, 100))
-    // }
+    const allowance = await omni.allowance(taker.address, omnixContract.address)
+    if (allowance.lt(toWei(ethers, 1))) {
+      await omni.approve(omnixContract.address, toWei(ethers, 100))
+    }
 
+    console.log('----balance----', balance.toString(), balance.lt(toWei(ethers, 1)))
+    console.log('-----allowance---', allowance.toString(), allowance.lt(toWei(ethers, 1)))
     // data
     fillTakerOrder(takerBid, taker.address, tokenId, toWei(ethers, 0.01))
     takerBid.encodeParams(getChainId(network))
@@ -89,8 +94,8 @@ export const testGhosts = async (args: any) => {
     const tx = await omnixContract.connect(taker).matchAskWithTakerBid(takerBid, makerAsk, {value: lzFee });
     await tx.wait()
 
-    // checking
-    expect(await nftContract.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+    // // checking
+    // expect(await nftContract.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
   }
 
   // const testMakerAskTakerBid = async (tokenId: number) => {
@@ -117,22 +122,22 @@ export const testGhosts = async (args: any) => {
   //     currency,
   //     makerAsk.signer,
   //     takerBid.price,
-  //     getChainId('rinkeby')
+  //     getChainId('fuji')
   //   )
   //   console.log('---lzFee----', lzFee.toString());
 
-  //   const tx = await omnixContract.transferCurrency(
-  //     currency,
-  //     taker.address,
-  //     makerAsk.signer,
-  //     takerBid.price,
-  //     getChainId('rinkeby'),
-  //     {
-  //       value: lzFee,
-  //       gasLimit: 30000000
-  //     }
-  //   );
-  //   await tx.wait()
+  //   // const tx = await omnixContract.transferCurrency(
+  //   //   currency,
+  //   //   taker.address,
+  //   //   makerAsk.signer,
+  //   //   takerBid.price,
+  //   //   getChainId('rinkeby'),
+  //   //   {
+  //   //     value: lzFee,
+  //   //     gasLimit: 30000000
+  //   //   }
+  //   // );
+  //   // await tx.wait()
 
   //   // // checking
   //   // expect(await nftContract.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)

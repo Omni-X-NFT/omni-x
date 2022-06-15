@@ -25,7 +25,8 @@ contract TransferManagerONFT1155 is TransferManagerLzBase {
         uint16 dstChainId
     ) virtual internal override returns(bool) {
         bytes memory toAddress = abi.encodePacked(to);
-        IONFT1155(collection).sendFrom(from, dstChainId, toAddress, tokenId, amount, payable(0), address(0), bytes(""));
+        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOnftLzReceive);
+        IONFT1155(collection).sendFrom(from, dstChainId, toAddress, tokenId, amount, payable(this), address(0), adapterParams);
         return false;
     }
 

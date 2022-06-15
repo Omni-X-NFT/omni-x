@@ -17,11 +17,11 @@ export const CONTRACTS = {
   },
   bsct: {
     gregs: '0xCB3041291724B893E8BB3E876aC8f250D475685D',
-    ghosts: '0x4642808070a46fBA0096c37dc52a2D44BfAC4841'
+    ghosts: '0x92a6d889d9E481d149e4C96074db05Fa025e7efe'
   },
   fuji: {
     gregs: '',
-    ghosts: '0x90192b833E07F278C80eaDf62Ff7fe42178Ee4e3'
+    ghosts: '0x6828C4F8564Bf71d82e901E346450eECc997D397'
   }
 }
 

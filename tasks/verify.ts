@@ -15,12 +15,13 @@ export const verifyOmni = async () => {
     //     contract: "contracts/mocks/OFTMock.sol:OFTMock"
     // })
 
+    console.log(getContractAddrByName(network.name, 'TransferManagerGhosts'))
     await run('verify:verify', {
         address: getContractAddrByName(network.name, 'TransferManagerGhosts'),
         constructorArguments: [
             getContractAddrByName(network.name, 'OmniXExchange'), lzEndpoint
         ],
-        contract: "contracts/transfer/TransferManagerGhosts.sol:TransferManagerGhosts"
+        // contract: "contracts/transfer/TransferManagerGhosts.sol:TransferManagerGhosts"
     })
 
     // await run('verify:verify', {

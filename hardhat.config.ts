@@ -17,6 +17,7 @@ dotenv.config()
 
 const accounts = [
   process.env.PRIVATE_KEY || '',
+  process.env.PRIVATE_KEY1 || '',
   process.env.PRIVATE_KEY2 || '',
   process.env.PRIVATE_KEY3 || ''
 ]
@@ -57,7 +58,7 @@ const config: HardhatUserConfig = {
       accounts
     },
     bsct: {
-      url: 'https://data-seed-prebsc-2-s1.binance.org:8545/',
+      url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
       chainId: 97,
       accounts
     },
@@ -97,9 +98,9 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       rinkeby: process.env.ETHERSCAN_API_KEY,
-      bscTestnet: process.env.BSCSCAN_API_KEY
+      bscTestnet: process.env.BSCSCAN_API_KEY,
       // polygonMumbai: process.env.POLYGON_API_KEY,
-      // avalancheFujiTestnet: process.env.AVALANCHE_API_KEY,
+      avalancheFujiTestnet: process.env.AVALANCHE_API_KEY,
       // arbitrumTestnet: process.env.ARBITRUM_API_KEY,
       // optimisticKovan: process.env.OPTIMISTIC_API_KEY,
       // ftmTestnet: process.env.FANTOM_API_KEY

@@ -2,16 +2,22 @@
 pragma solidity ^0.8.0;
 
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import {IGhosts} from "../token/onft/IGhosts.sol";
 import {TransferManagerLzBase} from "./TransferManagerLzBase.sol";
+import "hardhat/console.sol";
 
 /**
  * @title TransferManagerGhosts
  * @notice It allows the transfer of GhostlyGhosts tokens.
  */
-contract TransferManagerGhosts is TransferManagerLzBase {
+contract TransferManagerGhosts is TransferManagerLzBase, IERC721Receiver {
     constructor(address _omniXExchange, address _lzEndpoint) 
         TransferManagerLzBase(_omniXExchange, _lzEndpoint) {
+    }
+
+    function onERC721Received(address, address, uint256, bytes calldata) public virtual override returns (bytes4) {
+        return this.onERC721Received.selector;
     }
 
     /**
@@ -54,15 +60,17 @@ contract TransferManagerGhosts is TransferManagerLzBase {
     function _onReceiveOnSrcChain(
         address collection,
         address from,
-        address,
+        address to,
         uint256 tokenId,
-        uint256,
+        uint256 amount,
         uint16 dstChainId
     ) virtual internal override returns(bool) {
         // transfer nft from fromAddr to this
         IGhosts(collection).safeTransferFrom(from, address(this), tokenId);
+
+        (uint256 fee, ) = estimateSendFee(collection, collection, from, to, tokenId, amount, dstChainId);
         // transfer nft from current chain to srcchain
-        IGhosts(collection).traverseChains(dstChainId, tokenId);
+        IGhosts(collection).traverseChains{value: fee / 2}(dstChainId, tokenId);
 
         return true;
     }

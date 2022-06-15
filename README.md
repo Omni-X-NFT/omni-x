@@ -28,13 +28,13 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 
 ## Test GhostlyGhosts with ONFT
 ### Assumption
-- maker is on rinkeby
+- maker is on fuji
 - taker is on bsct
 - GhostlyGhosts NFT #1, #2 should be minted to maker before start to test on rinkeby
-- TransferManagerGhosts contract should have some balances to pay the gas fees for cross transferring.
+- on fuji TransferManagerGhosts contract should have some balances to pay the gas fees for cross transferring.
 
 ### Test
-- npx hardhat testOmniX --step make --tokenid 1 --nonce 3 --network fuji
+- npx hardhat testOmniX --step make --tokenid 1 --nonce 7 --network fuji
 - npx hardhat testOmniX --step take --tokenid 1 --network bsct
 - npx hardhat testOmniX --step status --tokenid 1 --network fuji
 - npx hardhat testOmniX --step status --tokenid 1 --network bsct
@@ -73,3 +73,7 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - deployed OFTMock to  0x5dDebB0C8878d425fc4b942b97D5F1A2e0C4Fa1c
 ## Mumbai
 
+collFrom: 0x6828C4F8564Bf71d82e901E346450eECc997D397
+collTo: 0x92a6d889d9E481d149e4C96074db05Fa025e7efe
+maker: 0x6EF408ED5660d13303f06f33627e798305638909
+taker: 0x3380dD11aA71529bE7a7bbC6d45D441524718Ed8
