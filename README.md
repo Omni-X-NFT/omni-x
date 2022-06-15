@@ -17,7 +17,8 @@ npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
 For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment. For more details see [the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).
 
 # How to deploy and test
-
+ *Caution* 
+ TransferManagerGhosts should be deployed as same address to all networks.
 ## Deploy to rinkeby and bsct
 - npx hardhat deployOmniX --network fuji
 - npx hardhat deployOmniX --network bsct
@@ -25,6 +26,10 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - npx hardhat prepareOmniX --network bsct
 - npx hardhat linkOmniX --network fuji --dstchainname bsct
 - npx hardhat linkOmniX --network bsct --dstchainname fuji
+
+# How to verify
+- npx hardhat verifyOmni --network fuji
+- npx hardhat verifyOmni --network bsct
 
 ## Test GhostlyGhosts with ONFT
 ### Assumption
@@ -34,7 +39,7 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - on fuji TransferManagerGhosts contract should have some balances to pay the gas fees for cross transferring.
 
 ### Test
-- npx hardhat testOmniX --step make --tokenid 1 --nonce 7 --network fuji
+- npx hardhat testOmniX --step make --tokenid 1 --nonce 1 --network fuji
 - npx hardhat testOmniX --step take --tokenid 1 --network bsct
 - npx hardhat testOmniX --step status --tokenid 1 --network fuji
 - npx hardhat testOmniX --step status --tokenid 1 --network bsct
