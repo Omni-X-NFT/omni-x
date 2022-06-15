@@ -95,7 +95,7 @@ const deploy = async (owner: SignerWithAddress, chainId: number) => {
   // royalty fee manager
   const royaltyFeeRegistry = await deployContract('RoyaltyFeeRegistry', owner, [ROYALTY_FEE_LIMIT])
   chain.royaltyFeeManager = await deployContract('RoyaltyFeeManager', owner, [royaltyFeeRegistry.address]) as RoyaltyFeeManager
-    
+
   // looks rare exchange
   chain.omniXExchange = await deployContract('OmniXExchange', owner, [
     chain.currencyManager.address,
@@ -209,10 +209,10 @@ describe('OmniXExchangeCross', () => {
 
   before(async () => {
     [owner, maker, taker] = await ethers.getSigners()
-    
+
     makerChain = await deploy(owner, SRC_CHAIN_ID)
     takerChain = await deploy(owner, DST_CHAIN_ID)
-    
+
     await linkChains(makerChain, takerChain)
     await linkChains(takerChain, makerChain)
 
@@ -225,7 +225,6 @@ describe('OmniXExchangeCross', () => {
 
   describe('Exchange Process Cross chain', () => {
     it('MakerAsk /w TakerBid - Normal Currency /w Normal NFT', async () => {
-
       const makerAsk: MakerOrder = new MakerOrder(true)
       const takerBid: TakerOrder = new TakerOrder(false)
       const tokenId = 1
@@ -250,12 +249,11 @@ describe('OmniXExchangeCross', () => {
       await makerAsk.sign(maker)
 
       await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
-      
+
       expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
     })
 
     it('MakerAsk /w TakerBid - $OMNI /w Ghosts', async () => {
-
       const makerAsk: MakerOrder = new MakerOrder(true)
       const takerBid: TakerOrder = new TakerOrder(false)
       const tokenId = 1

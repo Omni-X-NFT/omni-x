@@ -25,7 +25,7 @@ const MAKE_ORDER_SIGN_TYPES = {
     { name: 'minPercentageToAsk', type: 'uint256' },
     { name: 'params', type: 'bytes' }
   ]
-};
+}
 
 let ethers: any
 export const setEthers = (ethers_: any) => {
@@ -33,7 +33,7 @@ export const setEthers = (ethers_: any) => {
 }
 
 const zeroPad = (value: any, length: number) => {
-  return ethers.utils.arrayify(ethers.utils.hexZeroPad(ethers.utils.hexlify(value), length));
+  return ethers.utils.arrayify(ethers.utils.hexZeroPad(ethers.utils.hexlify(value), length))
 }
 
 export class MakerOrder {
@@ -50,44 +50,43 @@ export class MakerOrder {
   endTime: BigNumberish = 0
   minPercentageToAsk: BigNumberish = 0
   params: BytesLike = []
-  signature: string = ""
+  signature: string = ''
 
   constructor (isOrderAsk: boolean) {
-    this.isOrderAsk = isOrderAsk;
+    this.isOrderAsk = isOrderAsk
   }
 
-  static deserialize(file: string): MakerOrder {
+  static deserialize (file: string): MakerOrder {
     const data = fs.readFileSync(file).toString()
     const obj = JSON.parse(data)
-    
-    obj.params = ethers.utils.arrayify({length: 64, ...obj.params})
+
+    obj.params = ethers.utils.arrayify({ length: 64, ...obj.params })
     return obj
   }
 
-  serialize(file: string) {
+  serialize (file: string) {
     const data = JSON.stringify(this)
     fs.writeFileSync(file, data)
 
     console.log(`write to ${file}`)
   }
-  
-  setParams(types: string[], values: any[]) {
+
+  setParams (types: string[], values: any[]) {
     this.params = ethers.utils.arrayify(
       ethers.utils.defaultAbiCoder.encode(types, values)
     )
   }
 
-  encodeParams(chainId: number, buyer: string) {
+  encodeParams (chainId: number, buyer: string) {
     if (this.isOrderAsk) {
-      this.setParams(['uint16', 'address'], [chainId, buyer]);
-    }
-    else {
+      this.setParams(['uint16', 'address'], [chainId, buyer])
+    } else {
       // TODO!!! this should be checked again later
-      this.setParams(['uint16', 'address'], [chainId, buyer]);
+      this.setParams(['uint16', 'address'], [chainId, buyer])
     }
   }
 
-  async sign(signer: SignerWithAddress) {
+  async sign (signer: SignerWithAddress) {
     const typedData = {
       domain: {},
       types: MAKE_ORDER_SIGN_TYPES,
@@ -95,15 +94,15 @@ export class MakerOrder {
       message: this
     }
 
-    const eip191Header = ethers.utils.arrayify('0x1901');
-    const messageHash = TypedDataUtils.hashStruct(typedData, typedData.primaryType, typedData.message);
+    const eip191Header = ethers.utils.arrayify('0x1901')
+    const messageHash = TypedDataUtils.hashStruct(typedData, typedData.primaryType, typedData.message)
     const pack = ethers.utils.solidityPack(['bytes', 'bytes32'], [
-      eip191Header, 
+      eip191Header,
       zeroPad(messageHash, 32)
     ])
     const digest = ethers.utils.keccak256(pack)
     this.signature = await signer.signMessage(ethers.utils.arrayify(digest))
-    return this;
+    return this
   }
 }
 
@@ -119,20 +118,18 @@ export class TakerOrder {
     this.isOrderAsk = isOrderAsk
   }
 
-  setParams(types: string[], values: any[]) {
+  setParams (types: string[], values: any[]) {
     this.params = ethers.utils.arrayify(
       ethers.utils.defaultAbiCoder.encode(types, values)
     )
   }
 
-  encodeParams(chainId: number) {
+  encodeParams (chainId: number) {
     if (this.isOrderAsk) {
       // TODO!!! this should be checked again later
-      this.setParams(['uint16'], [chainId]);
+      this.setParams(['uint16'], [chainId])
+    } else {
+      this.setParams(['uint16'], [chainId])
     }
-    else {
-      this.setParams(['uint16'], [chainId]);
-    }
-    
   }
 }

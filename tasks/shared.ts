@@ -67,7 +67,7 @@ export const getContractAddrByName = (network: string, name: string): string => 
     const contractInfo = JSON.parse(readFileSync(filePath).toString())
     return contractInfo.address
   }
-  
+
   return (CONTRACTS as any)[folderName][name]
 }
 
@@ -81,9 +81,9 @@ export const toWei = (ethers: any, amount: number | string): BigNumber => {
 }
 
 export const getBlockTime = async (ethers: any) : Promise<number> => {
-  const blockNumBefore = await ethers.provider.getBlockNumber();
-  const blockBefore = await ethers.provider.getBlock(blockNumBefore);
-  const timestampBefore = blockBefore.timestamp;
+  const blockNumBefore = await ethers.provider.getBlockNumber()
+  const blockBefore = await ethers.provider.getBlock(blockNumBefore)
+  const timestampBefore = blockBefore.timestamp
   return timestampBefore as number
 }
 
@@ -96,7 +96,7 @@ export const fillMakerOrder = async (
   maker: string,
   startTime: number,
   price: BigNumber,
-  nonce: number,
+  nonce: number
 ) => {
   makeOrder.tokenId = tokenId
   makeOrder.currency = currency

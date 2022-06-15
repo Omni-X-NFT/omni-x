@@ -114,7 +114,7 @@ describe('OmniXExchange', () => {
     // royalty fee manager
     const royaltyFeeRegistry = await deployContract('RoyaltyFeeRegistry', owner, [ROYALTY_FEE_LIMIT])
     royaltyFeeManager = await deployContract('RoyaltyFeeManager', owner, [royaltyFeeRegistry.address]) as RoyaltyFeeManager
-      
+
     // looks rare exchange
     omniXExchange = await deployContract('OmniXExchange', owner, [
       currencyManager.address,
@@ -177,7 +177,7 @@ describe('OmniXExchange', () => {
 
   before(async () => {
     [owner, maker, taker] = await ethers.getSigners()
-    
+
     await deploy()
     await prepare()
     await approve()
@@ -185,7 +185,6 @@ describe('OmniXExchange', () => {
 
   describe('Exchange Process', () => {
     it('MakerAsk /w TakerBid - Normal Currency /w Normal NFT', async () => {
-
       const makerAsk: MakerOrder = new MakerOrder(true)
       const takerBid: TakerOrder = new TakerOrder(false)
 
@@ -206,7 +205,7 @@ describe('OmniXExchange', () => {
 
       await fillMakerOrder(makerAsk, 2, omni.address, nftMock.address, 2)
       fillTakerOrder(takerBid, 2)
- 
+
       makerAsk.encodeParams(await maker.getChainId(), taker.address)
       takerBid.encodeParams(await taker.getChainId())
       await makerAsk.sign(maker)
