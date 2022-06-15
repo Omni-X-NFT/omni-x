@@ -23,9 +23,9 @@ task('linkOmniX', 'deploys an OmniX exchange')
   .setAction(linkOmniX)
 
 task('testOmniX', 'test OmniXEchange with Gh0stlyGh0sts NFT between rinkeby vs bsctest')
-  .addParam('step', 'make | approve | take')
-  .addParam('tokenid', 'number')
-  .addOptionalParam('nonce', 'number required when make step')
+  .addParam('step', 'listing prepare buy')
+  .addOptionalParam('tokenid', 'number. not required in prepare step')
+  .addOptionalParam('nonce', 'number. required only in listing step')
   .setAction(testGhosts)
 
 task('verifyOmni', 'verify an omni')

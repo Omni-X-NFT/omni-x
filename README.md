@@ -39,8 +39,10 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - on fuji TransferManagerGhosts contract should have some balances to pay the gas fees for cross transferring.
 
 ### Test
-- npx hardhat testOmniX --step make --tokenid 1 --nonce 1 --network fuji
-- npx hardhat testOmniX --step take --tokenid 1 --network bsct
+- npx hardhat testOmniX --step listing --tokenid 1 --nonce 1 --network fuji
+- npx hardhat testOmniX --step prepare --network bsct
+- npx hardhat testOmniX --step buy --tokenid 1 --network bsct
+
 - npx hardhat testOmniX --step status --tokenid 1 --network fuji
 - npx hardhat testOmniX --step status --tokenid 1 --network bsct
 

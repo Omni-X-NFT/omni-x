@@ -31,7 +31,7 @@ export const testGhosts = async (args: any) => {
 
   const [owner, maker, taker] = await ethers.getSigners()
 
-  const prepareTest = async (tokenId: number, nonce: number) => {
+  const listing = async (tokenId: number, nonce: number) => {
     // make order
     const makerAsk: MakerOrder = new MakerOrder(true)
     await fillMakerOrder(
@@ -58,11 +58,7 @@ export const testGhosts = async (args: any) => {
     await nftContract.approve(getContractAddrByName(network, 'TransferManagerGhosts'), tokenId)
   }
 
-  const testMakerAskTakerBid = async (tokenId: number) => {
-    // load maker order
-    const makerAsk: MakerOrder = MakerOrder.deserialize('./makerAsk.json')
-    const takerBid: TakerOrder = new TakerOrder(false)
-
+  const prepare = async () => {
     // create contracts
     const omnixContract = createContractByName(_hre, 'OmniXExchange', OmniXEchangeAbi.abi, taker) as OmniXExchange
     const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi.abi, taker) as OFTMock
@@ -70,14 +66,27 @@ export const testGhosts = async (args: any) => {
     // transfer omni to taker first
     const balance = await omni.balanceOf(taker.address)
     if (balance.lt(toWei(ethers, 1))) {
-      await omni.connect(owner).transfer(taker.address, toWei(ethers, 100))
+      await (await omni.connect(owner).transfer(taker.address, toWei(ethers, 100))).wait()
+
+      console.log(`deposited 100 to ${taker.address}`)
     }
 
     // approve
     const allowance = await omni.allowance(taker.address, omnixContract.address)
     if (allowance.lt(toWei(ethers, 1))) {
-      await omni.approve(omnixContract.address, toWei(ethers, 100))
+      await (await omni.approve(omnixContract.address, toWei(ethers, 100))).wait()
+
+      console.log(`omni.approve(${omnixContract.address}, 100)`)
     }
+  }
+
+  const buyListing = async (tokenId: number) => {
+    // load maker order
+    const makerAsk: MakerOrder = MakerOrder.deserialize('./makerAsk.json')
+    const takerBid: TakerOrder = new TakerOrder(false)
+
+    // create contracts
+    const omnixContract = createContractByName(_hre, 'OmniXExchange', OmniXEchangeAbi.abi, taker) as OmniXExchange
 
     // data
     fillTakerOrder(takerBid, taker.address, tokenId, toWei(ethers, 0.01))
@@ -110,11 +119,14 @@ export const testGhosts = async (args: any) => {
   const { step, tokenid: tokenId, nonce } = args
 
   switch (step) {
-  case 'make':
-    await prepareTest(tokenId, nonce)
+  case 'listing':
+    await listing(tokenId, nonce)
     break
-  case 'take':
-    await testMakerAskTakerBid(tokenId)
+  case 'prepare':
+    await prepare()
+    break
+  case 'buy':
+    await buyListing(tokenId)
     break
   case 'status':
     await checkStatus(tokenId)
