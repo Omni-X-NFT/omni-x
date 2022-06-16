@@ -4,6 +4,7 @@ import { deployOmniX } from './deployOmniX'
 import { linkOmniX, prepareOmniX } from './prepareOmniX'
 import { testGhosts } from './test'
 import { verifyOmni } from './verify'
+import { deployNormal, linkNormal, testNormal } from './testNormal'
 
 task(
   'setTrustedRemote',
@@ -30,3 +31,16 @@ task('testOmniX', 'test OmniXEchange with Gh0stlyGh0sts NFT between rinkeby vs b
 
 task('verifyOmni', 'verify an omni')
   .setAction(verifyOmni)
+
+task('deployNormal', 'deploys an normal nft')
+  .setAction(deployNormal)
+
+task('linkNormal', 'link an normal nft')
+  .addParam('dstchainname', 'destination chain name. ex: rinkeby')
+  .setAction(linkNormal)
+
+task('testNormal', 'test OmniXEchange with Normal NFT between fuji vs bsctest')
+  .addParam('step', 'listing prepare buy')
+  .addOptionalParam('tokenid', 'number. not required in prepare step')
+  .addOptionalParam('nonce', 'number. required only in listing step')
+  .setAction(testNormal)
