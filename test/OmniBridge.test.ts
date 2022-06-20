@@ -1,7 +1,7 @@
 import hre, { ethers } from 'hardhat'
 import { Signer } from 'ethers'
 import { expect } from 'chai'
-import OmniNFTArtifacts from '../artifacts/contracts/token/onft/extension/PersistentURIONFT.sol/PersistentURIONFT.json'
+import ERC721PersistentArtifacts from '../artifacts/contracts/token/ERC721Persistent.sol/ERC721Persistent.json'
 
 describe('OmniBridge', function () {
   const chainIdSrc = 1
@@ -15,6 +15,8 @@ describe('OmniBridge', function () {
   let mockInstance: any
   let owner: Signer
   let ownerAddress: string
+
+  const TOKEN_URI = 'https://tokenuri.com'
 
   before(async function () {
     owner = (await hre.ethers.getSigners())[0]
@@ -45,27 +47,31 @@ describe('OmniBridge', function () {
     await mockInstance.deployed()
   })
 
-  it('Miniting Regular NFT item and approve to spend from Bridge contract', async () => {
-    await (await mockInstance.connect(owner).safeMint(ownerAddress)).wait()
+  it('Minting Regular NFT item and approve to spend from Bridge contract', async () => {
+    await (await mockInstance.connect(owner).safeMint(ownerAddress, TOKEN_URI)).wait()
     expect(await mockInstance.ownerOf(0)).to.eq(ownerAddress)
+    expect(await mockInstance.tokenURI(0)).to.eq(TOKEN_URI)
     // Approving Token
     await (await mockInstance.approve(OmniBridgeSrc.address, 0)).wait()
 
     // Calling wrap function in bridge contract
-    await (await OmniBridgeSrc.connect(owner).wrap(chainIdDst, mockInstance.address, 0)).wait()
+    const adapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 3500000])
+    console.log(adapterParams)
+    await (await OmniBridgeSrc.connect(owner).wrap(chainIdDst, mockInstance.address, 0, adapterParams)).wait()
     expect(await mockInstance.ownerOf(0)).to.eq(OmniBridgeSrc.address)
 
     expect(await OmniBridgeDst.onftAddresses(mockInstance.address)).to.not.equal(ethers.constants.AddressZero)
 
     // Sending again from Dstchain to SrcChain
     const onftAddressDst = await OmniBridgeDst.onftAddresses(mockInstance.address)
-    const OmniNFTInstanceDst = await hre.ethers.getContractAt(OmniNFTArtifacts.abi, onftAddressDst, owner)
+    const OmniNFTInstanceDst = await hre.ethers.getContractAt(ERC721PersistentArtifacts.abi, onftAddressDst, owner)
+    expect(await OmniNFTInstanceDst.tokenURI(0)).to.eq(TOKEN_URI)
     await OmniNFTInstanceDst.approve(OmniBridgeDst.address, 0)
-    await (await OmniBridgeDst.connect(owner).wrap(chainIdSrc, onftAddressDst, 0)).wait()
+    await (await OmniBridgeDst.connect(owner).wrap(chainIdSrc, onftAddressDst, 0, adapterParams)).wait()
 
     // Withdrawing regular NFT item from BridgeSRC contract
     const onftAddressSrc = await OmniBridgeSrc.onftAddresses(mockInstance.address)
-    const OmniNFTInstanceSrc = await hre.ethers.getContractAt(OmniNFTArtifacts.abi, onftAddressSrc, owner)
+    const OmniNFTInstanceSrc = await hre.ethers.getContractAt(ERC721PersistentArtifacts.abi, onftAddressSrc, owner)
     await OmniNFTInstanceSrc.approve(OmniBridgeSrc.address, 0)
     await (await OmniBridgeSrc.connect(owner).withdraw(onftAddressSrc, 0)).wait()
 

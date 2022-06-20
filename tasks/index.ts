@@ -5,6 +5,7 @@ import { linkOmniX, prepareOmniX } from './prepareOmniX'
 import { testGhosts } from './test'
 import { verifyOmni } from './verify'
 import { deployNormal, linkNormal, testNormal } from './testNormal'
+import { setAllTrustedRemote } from './setAllTrustedRemote'
 
 task(
   'setTrustedRemote',
@@ -44,3 +45,9 @@ task('testNormal', 'test OmniXEchange with Normal NFT between fuji vs bsctest')
   .addOptionalParam('tokenid', 'number. not required in prepare step')
   .addOptionalParam('nonce', 'number. required only in listing step')
   .setAction(testNormal)
+task(
+  'setAllTrustedRemote',
+  'setAllTrustedRemote',
+  setAllTrustedRemote
+).addParam('e', 'testnet or mainnet')
+  .addParam('contract', 'Contract Name')

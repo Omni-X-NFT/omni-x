@@ -68,7 +68,7 @@ const config: HardhatUserConfig = {
       accounts
     },
     mumbai: {
-      url: 'https://rpc-mumbai.maticvigil.com/',
+      url: 'https://speedy-nodes-nyc.moralis.io/99e98b2333a911011f42606d/polygon/mumbai',
       chainId: 80001,
       accounts
     },
@@ -116,3 +116,5 @@ const config: HardhatUserConfig = {
 }
 
 export default config
+/// yarn deploy --network rinkeby && yarn deploy --network bsc-testnet && yarn deploy --network fuji && yarn deploy --network mumbai && yarn deploy --network arbitrum-rinkeby && yarn deploy --network fantom-testnet && yarn deploy --network optimism-kovan
+/// yarn verify --network rinkeby && yarn verify --network bsc-testnet && yarn verify --network fuji && yarn verify --network mumbai && yarn verify --network arbitrum-rinkeby && yarn verify --network fantom-testnet && yarn verify --network optimism-kovan
