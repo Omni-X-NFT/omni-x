@@ -254,33 +254,39 @@ describe('OmniXExchangeCross', () => {
     })
 
     it('MakerAsk /w TakerBid - $OMNI /w Ghosts', async () => {
-      const makerAsk: MakerOrder = new MakerOrder(true)
-      const takerBid: TakerOrder = new TakerOrder(false)
-      const tokenId = 1
-      const nonce = 2
-      const blockTime = await getBlockTime()
-
-      fillMakerOrder(
-        makerAsk,
-        tokenId,
-        makerChain.omni.address,
-        makerChain.onft721.address,
-        makerChain.strategy.address,
-        maker.address,
-        blockTime,
-        toWei(1),
-        nonce
-      )
-      fillTakerOrder(takerBid, taker.address, tokenId, toWei(1))
-
-      makerAsk.encodeParams(await makerChain.chainId, taker.address)
-      takerBid.encodeParams(await takerChain.chainId)
-      await makerAsk.sign(maker)
-
-      await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
-
-      expect(await takerChain.onft721.ownerOf(takerBid.tokenId)).to.eq(taker.address)
-      expect(await makerChain.omni.balanceOf(maker.address)).to.eq(toWei(0.98))
+      // we can't test Ghosts transfer
+      // because TransferManagerGhosts should be deployed as same address to different chains.
+      // but in test environment, we can't do this.
     })
+  })
+
+  it('MakerAsk /w TakerBid - $OMNI /w ONFT', async () => {
+    const makerAsk: MakerOrder = new MakerOrder(true)
+    const takerBid: TakerOrder = new TakerOrder(false)
+    const tokenId = 1
+    const nonce = 3
+    const blockTime = await getBlockTime()
+
+    fillMakerOrder(
+      makerAsk,
+      tokenId,
+      makerChain.omni.address,
+      makerChain.onft721.address,
+      makerChain.strategy.address,
+      maker.address,
+      blockTime,
+      toWei(1),
+      nonce
+    )
+    fillTakerOrder(takerBid, taker.address, tokenId, toWei(1))
+
+    makerAsk.encodeParams(await makerChain.chainId, taker.address)
+    takerBid.encodeParams(await takerChain.chainId)
+    await makerAsk.sign(maker)
+
+    await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
+
+    expect(await takerChain.onft721.ownerOf(takerBid.tokenId)).to.eq(taker.address)
+    expect(await makerChain.omni.balanceOf(maker.address)).to.eq(toWei(0.98))
   })
 })

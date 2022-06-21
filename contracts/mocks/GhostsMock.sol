@@ -16,11 +16,9 @@ contract GhostsMock is ONFT721, IGhosts {
     }
 
     function traverseChains(uint16 _chainId, uint tokenId) public override payable {
-        console.log("---------traverseChains----------");
         require(msg.sender == ownerOf(tokenId), "You must own the token to traverse");
         require(trustedRemoteLookup[_chainId].length > 0, "This chain is currently unavailable for travel");
 
-        console.log("---------_burn----------");
         // burn NFT, eliminating it from circulation on src chain
         _burn(tokenId);
 
@@ -31,16 +29,11 @@ contract GhostsMock is ONFT721, IGhosts {
         uint16 version = 1;
         bytes memory adapterParams = abi.encodePacked(version, gasForDestinationLzReceive);
 
-        console.log("---------estimateFees----------");
-
         // get the fees we need to pay to LayerZero + Relayer to cover message delivery
         // you will be refunded for extra gas paid
         (uint messageFee, ) = lzEndpoint.estimateFees(_chainId, address(this), payload, false, adapterParams);
         
         require(msg.value >= messageFee, "GG: msg.value not enough to cover messageFee. Send gas for message fees");
-
-        console.log("---------send----------", _chainId);
-        console.logBytes(trustedRemoteLookup[_chainId]);
 
         lzEndpoint.send{value: msg.value}(
             _chainId,                           // destination chainId
