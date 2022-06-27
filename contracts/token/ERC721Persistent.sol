@@ -14,11 +14,12 @@ contract ERC721Persistent is IERC721Persistent, ERC721, ERC721URIStorage, Ownabl
         string memory _symbol,
         address _bridgeAddress
     ) ERC721(_name, _symbol) {
+        require(_bridgeAddress != address(0), "Can't be zero address");
         bridgeAddress = _bridgeAddress;
     }
 
     function safeMint(address to, uint256 tokenId, string memory uri)
-        public
+        external
         override
         onlyOwner
     {
