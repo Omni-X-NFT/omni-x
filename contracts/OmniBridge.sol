@@ -21,14 +21,11 @@ contract OmniBridge is
     Pausable
 {
 
-    event LzReceive(uint8 method, address ercAddress, address toAddress, uint tokenId, bytes payload, address onftaddress);
-
-    uint8 public constant ERC721TYPE = 1;
-    uint8 public constant ERC1155TYPE = 2;
+    event LzReceive(address ercAddress, address toAddress, uint tokenId, bytes payload, address persistentAddress);
     // regular address => PersistentNFT address
-    mapping(address => address) public onftAddresses;
+    mapping(address => address) public persistentAddresses;
     // PersistentNFT address => regular address
-    mapping(address => address) public regnftAddresses;
+    mapping(address => address) public originAddresses;
     mapping(address => uint256) public collectionLockedCounter;
 
     constructor(address _lzEndpoint) NonblockingLzApp(_lzEndpoint) {}
@@ -45,9 +42,9 @@ contract OmniBridge is
         string memory symbol;
         string memory tokenURI;
         address erc721Address;
-        if (regnftAddresses[_erc721Address] != address(0)) {
-            // In case re-send ONFT to sender chain
-            erc721Address = regnftAddresses[_erc721Address];
+        if (originAddresses[_erc721Address] != address(0)) {
+            // In case re-send PersistentNFT to sender chain
+            erc721Address = originAddresses[_erc721Address];
             name = IERC721Metadata(_erc721Address).name();
             symbol = IERC721Metadata(_erc721Address).symbol();
             tokenURI = IERC721Metadata(_erc721Address).tokenURI(_tokenId);
@@ -65,12 +62,7 @@ contract OmniBridge is
         }
 
         // encode the payload with the number of tokenAddress, toAddress, tokenId
-        bytes memory payload = abi.encode(ERC721TYPE, erc721Address, msg.sender, name, symbol, tokenURI, _tokenId);
-
-        // // use adapterParams v1 to specify more gas for the destination
-        // uint16 version = 1;
-        // uint gasForDestinationLzReceive = 3500000;
-        // bytes memory adapterParams = abi.encodePacked(version, gasForDestinationLzReceive);
+        bytes memory payload = abi.encode(erc721Address, msg.sender, name, symbol, tokenURI, _tokenId);
 
         // get the fees we need to pay to LayerZero for message delivery
         (uint messageFee, ) = lzEndpoint.estimateFees(_dstChainId, address(this), payload, false, _adapterParams);
@@ -79,58 +71,15 @@ contract OmniBridge is
         _lzSend(_dstChainId, payload, payable(msg.sender), address(0x0), _adapterParams);
     }
 
-    function wrap1155(
-        uint16 _dstChainId,
-        address _erc1155Address,
-        uint256 _tokenId,
-        uint256 _amount,
-        bytes memory _adapterParams
-    ) external payable {
-        if (_erc1155Address == address(0)) revert NoZeroAddress();
-
-        string memory tokenURI;
-        address erc1155Address;
-        if (regnftAddresses[_erc1155Address] != address(0)) {
-            // In case re-send ONFT to sender chain
-            erc1155Address = regnftAddresses[_erc1155Address];
-            tokenURI = IERC1155MetadataURI(_erc1155Address).uri(_tokenId);
-            IERC1155Persistent(_erc1155Address).burn(_tokenId, _amount);
-        } else {
-            erc1155Address = _erc1155Address;
-            IERC1155(_erc1155Address).safeTransferFrom(
-                _msgSender(),
-                address(this),
-                _tokenId,
-                _amount,
-                ""
-            );
-            tokenURI = IERC1155MetadataURI(_erc1155Address).uri(_tokenId);
-        }
-
-        // encode the payload with the number of tokenAddress, toAddress, tokenId
-        bytes memory payload = abi.encode(ERC1155TYPE, erc1155Address, msg.sender, "", "", tokenURI, _tokenId);
-
-        // // use adapterParams v1 to specify more gas for the destination
-        // uint16 version = 1;
-        // uint gasForDestinationLzReceive = 3500000;
-        // bytes memory adapterParams = abi.encodePacked(version, gasForDestinationLzReceive);
-
-        // get the fees we need to pay to LayerZero for message delivery
-        (uint messageFee, ) = lzEndpoint.estimateFees(_dstChainId, address(this), payload, false, _adapterParams);
-        require(msg.value >= messageFee, "Insufficient fee amount");
-
-        _lzSend(_dstChainId, payload, payable(msg.sender), address(0x0), _adapterParams);
-    }
-
-    function withdraw(address _onftAddress, uint256 _tokenId)
+    function withdraw(address _persistentAddress, uint256 _tokenId)
         external
         override
     {
-        if (regnftAddresses[_onftAddress] == address(0)) revert NoZeroAddress();
+        if (originAddresses[_persistentAddress] == address(0)) revert NoZeroAddress();
 
-        IERC721Persistent(_onftAddress).burn(_tokenId);
+        IERC721Persistent(_persistentAddress).burn(_tokenId);
 
-        IERC721(regnftAddresses[_onftAddress]).transferFrom(address(this), msg.sender, _tokenId);
+        IERC721(originAddresses[_persistentAddress]).transferFrom(address(this), msg.sender, _tokenId);
     }
 
     function compareOwName(string memory _name) internal pure returns (bool) {
@@ -151,43 +100,25 @@ contract OmniBridge is
         bytes memory _payload
     ) internal override {
         // decode the parameter
-        (uint8 _type, address _tokenAddress, address _toAddress, string memory _name, string memory _symbol, string memory _tokenURI, uint _tokenId) = abi.decode(_payload, (uint8, address, address, string, string, string, uint));
+        (address _tokenAddress, address _toAddress, string memory _name, string memory _symbol, string memory _tokenURI, uint _tokenId) = abi.decode(_payload, (address, address, string, string, string, uint));
 
-        if (_type == ERC721TYPE) {
-            address onftAddress;
-            if (onftAddresses[_tokenAddress] == address(0)) {
-                string memory _newName = _name;
-                if (!compareOwName(_name)) {
-                    _newName = string(abi.encodePacked("Ow", _name));
-                }
-                ERC721Persistent onft = new ERC721Persistent(_newName, _symbol, address(this));
-                onft.safeMint(_toAddress, _tokenId, _tokenURI);
-                onftAddresses[_tokenAddress] = address(onft);
-                regnftAddresses[address(onft)] = _tokenAddress;
-                collectionLockedCounter[address(onft)] += 1;
-                onftAddress = address(onft);
-            } else {
-                IERC721Persistent(onftAddresses[_tokenAddress]).safeMint(_toAddress, _tokenId, _tokenURI);
-                collectionLockedCounter[onftAddresses[_tokenAddress]] += 1;
-                onftAddress = onftAddresses[_tokenAddress];
+        address persistentAddress;
+        if (persistentAddresses[_tokenAddress] == address(0)) {
+            string memory _newName = _name;
+            if (!compareOwName(_name)) {
+                _newName = string(abi.encodePacked("Ow", _name));
             }
-            emit LzReceive(_type, _tokenAddress, _toAddress, _tokenId, _payload, onftAddress);
-        } else if (_type == ERC1155TYPE) {
-            address onftAddress;
-            if (onftAddresses[_tokenAddress] == address(0)) {
-                ERC1155Persistent onft = new ERC1155Persistent("");
-                onft.mint(_toAddress, _tokenId, _tokenId);
-                onftAddresses[_tokenAddress] = address(onft);
-                regnftAddresses[address(onft)] = _tokenAddress;
-                collectionLockedCounter[address(onft)] += 1;
-                onftAddress = address(onft);
-            } else {
-                IERC1155Persistent(onftAddresses[_tokenAddress]).mint(_toAddress, _tokenId, _tokenId);
-                collectionLockedCounter[onftAddresses[_tokenAddress]] += 1;
-                onftAddress = onftAddresses[_tokenAddress];
-            }
-            emit LzReceive(_type, _tokenAddress, _toAddress, _tokenId, _payload, onftAddress);
+            ERC721Persistent persistentNFT = new ERC721Persistent(_newName, _symbol, address(this));
+            persistentNFT.safeMint(_toAddress, _tokenId, _tokenURI);
+            persistentAddresses[_tokenAddress] = address(persistentNFT);
+            originAddresses[address(persistentNFT)] = _tokenAddress;
+            collectionLockedCounter[address(persistentNFT)] += 1;
+            persistentAddress = address(persistentNFT);
+        } else {
+            IERC721Persistent(persistentAddresses[_tokenAddress]).safeMint(_toAddress, _tokenId, _tokenURI);
+            collectionLockedCounter[persistentAddresses[_tokenAddress]] += 1;
         }
+        emit LzReceive(_tokenAddress, _toAddress, _tokenId, _payload, persistentAddress);
     }
 
     function supportsInterface(bytes4 interfaceId)
