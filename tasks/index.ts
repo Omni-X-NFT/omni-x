@@ -1,6 +1,7 @@
 import { task } from 'hardhat/config'
 import { setTrustedRemote } from './setTrustedRemote'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
+import { deployAll } from './deploy'
 
 task(
   'setTrustedRemote',
@@ -15,3 +16,11 @@ task(
   setAllTrustedRemote
 ).addParam('e', 'testnet or mainnet')
   .addParam('contract', 'Contract Name')
+
+task(
+  'deployAll',
+  'deploy all contracts',
+  deployAll
+).addParam('e', 'testnet or mainnet')
+  .addParam('tags', 'Contract file name')
+  .addOptionalParam('reset', 'Deploy from scratch')
