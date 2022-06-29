@@ -4,15 +4,18 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "./interfaces/IOmniBridge1155.sol";
 import "./interfaces/IERC1155Persistent.sol";
 import "./lzApp/NonblockingLzApp.sol";
 import "./token/ERC1155Persistent.sol";
+import "hardhat/console.sol";
 
 error NoZeroAddress();
 
 contract OmniBridge1155 is
     NonblockingLzApp,
+    ERC1155Holder,
     IOmniBridge1155,
     Pausable
 {
@@ -38,11 +41,11 @@ contract OmniBridge1155 is
 
         string memory tokenURI;
         address erc1155Address;
-        if (persistentAddresses[_erc1155Address] != address(0)) {
+        if (originAddresses[_erc1155Address] != address(0)) {
             // In case re-send ONFT to sender chain
-            erc1155Address = persistentAddresses[_erc1155Address];
+            erc1155Address = originAddresses[_erc1155Address];
             tokenURI = IERC1155MetadataURI(_erc1155Address).uri(_tokenId);
-            IERC1155Persistent(_erc1155Address).burn(_tokenId, _amount);
+            IERC1155Persistent(_erc1155Address).burn(_msgSender(), _tokenId, _amount);
         } else {
             erc1155Address = _erc1155Address;
             IERC1155(_erc1155Address).safeTransferFrom(
@@ -69,11 +72,11 @@ contract OmniBridge1155 is
         external
         override
     {
-        if (persistentAddresses[_persistentAddress] == address(0)) revert NoZeroAddress();
+        if (originAddresses[_persistentAddress] == address(0)) revert NoZeroAddress();
 
-        IERC1155Persistent(_persistentAddress).burn(_tokenId, _amount);
+        IERC1155Persistent(_persistentAddress).burn(_msgSender(), _tokenId, _amount);
 
-        IERC1155(persistentAddresses[_persistentAddress]).safeTransferFrom(address(this), msg.sender, _tokenId, _amount, "");
+        IERC1155(originAddresses[_persistentAddress]).safeTransferFrom(address(this), msg.sender, _tokenId, _amount, "");
     }
 
     //@notice override this function
@@ -104,12 +107,7 @@ contract OmniBridge1155 is
         emit LzReceive(_tokenAddress, _toAddress, _tokenId, _payload, persistentAddress);
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        returns (bool)
-    {
-        return interfaceId == type(IOmniBridge1155).interfaceId;
+    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
+        return interfaceId == type(IOmniBridge1155).interfaceId || super.supportsInterface(interfaceId);
     }
 }

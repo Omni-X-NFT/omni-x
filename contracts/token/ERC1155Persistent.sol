@@ -23,8 +23,8 @@ contract ERC1155Persistent is IERC1155Persistent, ERC1155, Ownable {
         _mint(account, id, amount, "");
     }
 
-    function burn(uint256 id, uint256 value) external override onlyOwner {
-        _burn(_msgSender(), id, value);
+    function burn(address account, uint256 id, uint256 value) external override onlyOwner {
+        _burn(account, id, value);
     }
 
     function uri(uint _tokenId) public override view returns (string memory) {

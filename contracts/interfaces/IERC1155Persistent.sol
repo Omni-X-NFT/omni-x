@@ -10,5 +10,5 @@ interface IERC1155Persistent {
 
     function mint(address account, uint256 id, uint256 amount) external;
 
-    function burn(uint256 id, uint256 value) external;
+    function burn(address account, uint256 id, uint256 value) external;
 }
