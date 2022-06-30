@@ -17,7 +17,7 @@ async function main () {
     constructorArguments: [
       endpointAddr
     ],
-    contract: 'contracts/OmniBridge.sol:OmniBridge'
+    contract: 'contracts/OmniBridge1155.sol:OmniBridge1155'
   })
 }
 
