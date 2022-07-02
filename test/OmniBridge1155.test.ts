@@ -16,7 +16,7 @@ describe('OmniBridge1155', function () {
   let owner: Signer
   let ownerAddress: string
 
-  const TOKEN_URI = 'https://tokenuri.com'
+  // const TOKEN_URI = 'https://tokenuri.com'
 
   before(async function () {
     owner = (await hre.ethers.getSigners())[0]
@@ -48,8 +48,8 @@ describe('OmniBridge1155', function () {
   })
 
   it('Minting Regular NFT item and approve to spend from Bridge contract', async () => {
-    const tokenId = 1;
-    const tokenAmount = 10;
+    const tokenId = 1
+    const tokenAmount = 10
 
     await (await mockInstance.connect(owner).mint(tokenId, tokenAmount)).wait()
     expect(await mockInstance.balanceOf(ownerAddress, tokenId)).to.eq(tokenAmount)
