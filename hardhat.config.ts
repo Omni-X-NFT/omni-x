@@ -15,6 +15,8 @@ dotenv.config()
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
+  defaultNetwork: 'hardhat',
+
   solidity: {
     version: '0.8.4',
     settings: {
@@ -25,16 +27,17 @@ const config: HardhatUserConfig = {
     }
   },
 
+  namedAccounts: {
+    deployer: {
+      default: 0 // wallet address 0, of the mnemonic in .env
+    }
+  },
+
   networks: {
     hardhat: {
       forking: {
         url: 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'
       }
-    },
-    ropsten: {
-      url: process.env.ROPSTEN_URL || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     ethereum: {
       url: 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
