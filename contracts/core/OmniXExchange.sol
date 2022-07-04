@@ -15,6 +15,7 @@ import {IRoyaltyFeeManager} from "../interfaces/IRoyaltyFeeManager.sol";
 import {ITransferManagerNFT} from "../interfaces/ITransferManagerNFT.sol";
 import {ITransferSelectorNFT} from "../interfaces/ITransferSelectorNFT.sol";
 import {IRemoteAddrManager} from "../interfaces/IRemoteAddrManager.sol";
+import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
 import {IOmniXExchange} from "../interfaces/IOmniXExchange.sol";
 import {IWETH} from "../interfaces/IWETH.sol";
 import {IOFT} from "../token/oft/IOFT.sol";
@@ -48,6 +49,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
     IRoyaltyFeeManager public royaltyFeeManager;
     ITransferSelectorNFT public transferSelectorNFT;
     IRemoteAddrManager public remoteAddrManager;
+    IStargatePoolManager public stargatePoolManager;
 
     mapping(address => uint256) public userMinOrderNonce;
     mapping(address => mapping(uint256 => bool)) private _isUserOrderNonceExecutedOrCancelled;
@@ -546,7 +548,12 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             );
         }
         else {
-            IERC20(currency).safeTransferFrom(from, to, amount);
+            if (stargatePoolManager.isSwappable(currency, fromChainId)) {
+                stargatePoolManager.swap(currency, fromChainId, payable(msg.sender), amount, to);
+            }
+            else {
+                IERC20(currency).safeTransferFrom(from, to, amount);
+            }
         }
     }
 
