@@ -1,6 +1,7 @@
 import { ethers } from 'hardhat'
 import chai from 'chai'
 import { solidity } from 'ethereum-waffle'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import {
   OmniXExchange,
   CurrencyManager,
@@ -21,13 +22,12 @@ import {
 } from '../typechain-types'
 import {
   deployContract, getBlockTime, toWei
-} from '../utils/test-utils'
+} from './shared'
 import {
   setEthers,
   TakerOrder,
   MakerOrder
 } from '../utils/order-types'
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 chai.use(solidity)
 const { expect } = chai

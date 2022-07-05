@@ -2,8 +2,10 @@
 pragma solidity ^0.8.0;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IStargateRouter} from "../interfaces/IStargateRouter.sol";
 import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
+import "hardhat/console.sol";
 
 contract StargatePoolManager is IStargatePoolManager, Ownable {
   uint8 internal constant TYPE_SWAP_REMOTE = 1;   // from Bridge.sol
@@ -24,7 +26,7 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     * @param srcPoolId src pool id for ERC20 token
     * @param dstPoolId dst pool id for ERC20 token
    */
-  function setPoolId(address token, uint16 dstChainId, uint256 srcPoolId, uint256 dstPoolId) public onlyOwner {
+  function setPoolId(address token, uint16 dstChainId, uint256 srcPoolId, uint256 dstPoolId) public override onlyOwner {
     poolIds[token][dstChainId].srcPoolId = srcPoolId;
     poolIds[token][dstChainId].dstPoolId = dstPoolId;
   }
@@ -35,7 +37,7 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     * @param dstChainId destination chain id in layerZero
     * @return pool structure contains srcPoolId, dstPoolId
    */
-  function getPoolId(address token, uint16 dstChainId) public view returns (PoolID memory) {
+  function getPoolId(address token, uint16 dstChainId) public view override returns (PoolID memory) {
     return poolIds[token][dstChainId];
   }
 
@@ -44,7 +46,7 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     * @param token ERC20 token address
     * @param dstChainId destination chain id in layerZero
    */
-  function isSwappable(address token, uint16 dstChainId) public view returns (bool) {
+  function isSwappable(address token, uint16 dstChainId) public view override returns (bool) {
     PoolID storage poolId = poolIds[token][dstChainId];
 
     if (poolId.srcPoolId == 0 || poolId.dstPoolId == 0) {
@@ -54,6 +56,29 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     return true;
   }
 
+  /**
+    * @notice get swap fee of stargate
+    * @param dstChainId address of the execution strategy
+    * @param to seller's recipient
+    */
+  function getSwapFee(
+    uint16 dstChainId,
+    address to
+  ) public view override returns (uint256, uint256) {
+    IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(0, 0, "0x");
+    bytes memory payload = bytes("");
+    bytes memory toAddress = abi.encodePacked(to);
+
+    (uint256 fee, uint256 lzFee) = stargateRouter.quoteLayerZeroFee(
+      dstChainId,
+      TYPE_SWAP_REMOTE,
+      toAddress,
+      payload,
+      lzTxParams
+    );
+
+    return (fee, lzFee);
+  }
 
   /**
     * @notice swap ERC20 token to 
@@ -67,22 +92,18 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     uint16 dstChainId,
     address payable refundAddress,
     uint256 amount,
+    address from,
     address to
-  ) external payable {
-    PoolID memory poolId = getPoolId(token, dstChainId);
+  ) external payable override {
     IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(0, 0, "0x");
     bytes memory payload = bytes("");
     bytes memory toAddress = abi.encodePacked(to);
+    PoolID memory poolId = getPoolId(token, dstChainId);
 
-    (uint256 fee, ) = stargateRouter.quoteLayerZeroFee(
-      dstChainId,
-      TYPE_SWAP_REMOTE,
-      toAddress,
-      payload,
-      lzTxParams
-    );
+    IERC20(token).transferFrom(from, address(this), amount);
+    IERC20(token).approve(address(stargateRouter), amount);
 
-    stargateRouter.swap{value: fee}(
+    stargateRouter.swap{value: msg.value}(
       dstChainId,
       poolId.srcPoolId,
       poolId.dstPoolId,

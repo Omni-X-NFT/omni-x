@@ -131,6 +131,13 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
     }
 
     /**
+    * @notice set stargate pool manager
+    */
+    function setStargatePoolManager(address manager) external onlyOwner {
+        stargatePoolManager = IStargatePoolManager(manager);
+    }
+
+    /**
     * @notice set gas for omni destination layerzero receive
     */
     function setGasForOmniLZReceive(uint256 gas) external onlyOwner {
@@ -548,8 +555,9 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             );
         }
         else {
-            if (stargatePoolManager.isSwappable(currency, fromChainId)) {
-                stargatePoolManager.swap(currency, fromChainId, payable(msg.sender), amount, to);
+            if (address(stargatePoolManager) != address(0) && stargatePoolManager.isSwappable(currency, fromChainId)) {
+                (uint256 fee, ) = stargatePoolManager.getSwapFee(fromChainId, to);
+                stargatePoolManager.swap{value: fee}(currency, fromChainId, payable(msg.sender), amount, from, to);
             }
             else {
                 IERC20(currency).safeTransferFrom(from, to, amount);
@@ -776,6 +784,12 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             // get the fees we need to pay to LayerZero for message delivery
             (uint256 messageFee, ) = IOFT(currency).estimateSendFee(fromChainId, toAddress, amount, false, adapterParams);
             return messageFee;
+        }
+        else {
+            if (address(stargatePoolManager) != address(0) && stargatePoolManager.isSwappable(currency, fromChainId)) {
+                (uint256 fee, ) = stargatePoolManager.getSwapFee(fromChainId, to);
+                return fee;
+            }
         }
 
         return 0;
