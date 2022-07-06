@@ -1,11 +1,12 @@
 import { task } from 'hardhat/config'
 import { setTrustedRemote } from './setTrustedRemote'
 import { deployOmniX } from './deployOmniX'
-import { linkOmniX, prepareOmniX } from './prepareOmniX'
+import { linkOmniX, prepareOmniX, prepareStargate, setupBridge } from './prepareOmniX'
 import { testGhosts } from './test'
 import { verifyOmni } from './verify'
 import { deployNormal, linkNormal, testNormal } from './testNormal'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
+import { checkNonce } from './checkNonce'
 
 task(
   'setTrustedRemote',
@@ -51,3 +52,17 @@ task(
   setAllTrustedRemote
 ).addParam('e', 'testnet or mainnet')
   .addParam('contract', 'Contract Name')
+
+task(
+  'checkNonce',
+  'check the transaction count of the wallet'
+).setAction(checkNonce)
+
+task(
+  'prepareStargate',
+  'set bridge and factory and create a pool'
+).setAction(prepareStargate)
+
+task('setupBridge', 'setup chain and add liquidity to the pool')
+  .addParam('dstchainname', 'destination chain name. ex: rinkeby')
+  .setAction(setupBridge)

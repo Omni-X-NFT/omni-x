@@ -2,9 +2,10 @@ import {
   STRATEGY_PROTOCAL_FEE,
   ROYALTY_FEE_LIMIT,
   deployContract,
-  toWei
+  toWei,
 } from './shared'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
+import STARGATE from '../constants/stargate.json'
 import { OmniXExchange } from '../typechain-types'
 
 export const deployOmniX = async () => {
@@ -14,6 +15,7 @@ export const deployOmniX = async () => {
   const { ethers, network } = _hre
   const [owner, , , deployer] = await ethers.getSigners()
   const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
+  const stargateEndpoint = (STARGATE as any)[network.name]
 
   await deployContract(_hre, 'StrategyStandardSale', owner, [STRATEGY_PROTOCAL_FEE])
 
@@ -41,4 +43,21 @@ export const deployOmniX = async () => {
 
   await omniXExchange.updateTransferSelectorNFT(transferSelector.address)
   await omniXExchange.setRemoteAddrManager(remoteAddrManager.address)
+
+  // deploy stargate
+  let stargateRouter = stargateEndpoint.router
+  const isTest = stargateEndpoint.isTest
+  if (isTest){
+    const stargateRouterContract = await deployContract(_hre, 'Router', owner, [])
+    stargateRouter = stargateRouterContract.address
+
+    await deployContract(_hre, 'Bridge', owner, [lzEndpoint, stargateRouter])
+    await deployContract(_hre, 'StargateFeeLibraryMock', owner, [])
+    await deployContract(_hre, 'Factory', owner, [stargateRouter])
+
+    await deployContract(_hre, 'LRTokenMock', owner, [])
+  }
+  
+  const poolManager = await deployContract(_hre, 'StargatePoolManager', owner, [stargateRouter])
+  await omniXExchange.setStargatePoolManager(poolManager.address)
 }

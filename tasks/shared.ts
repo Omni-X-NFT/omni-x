@@ -1,12 +1,13 @@
 import { Contract } from 'ethers'
 import { BigNumber } from '@ethersproject/bignumber'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import path from 'path'
 import {
   TakerOrder,
   MakerOrder
 } from '../utils/order-types'
 import CHAIN_IDS from '../constants/chainIds.json'
-import path from 'path'
+import STARGATE from '../constants/stargate.json'
 
 export const STRATEGY_PROTOCAL_FEE = 200 // 2%
 export const ROYALTY_FEE_LIMIT = 500 // 5%
@@ -76,6 +77,11 @@ export const getChainId = (network: string): number => {
   return chainIds[network]
 }
 
+export const getPoolId = (network: string): number => {
+  const stargate = STARGATE as any
+  return stargate[network]?.poolId
+}
+
 export const toWei = (ethers: any, amount: number | string): BigNumber => {
   return ethers.utils.parseEther(amount.toString())
 }
@@ -120,4 +126,14 @@ export const fillTakerOrder = (
   takerOrder.price = price
   takerOrder.minPercentageToAsk = 900
   takerOrder.taker = taker
+}
+
+export const loadAbi = (file: string) => {
+  const filePath = path.resolve(__dirname, `${file}`)
+  if (existsSync(filePath)) {
+    const abi = JSON.parse(readFileSync(filePath).toString())
+    return abi
+  }
+
+  throw new Error(`file not exists ${file}`)
 }

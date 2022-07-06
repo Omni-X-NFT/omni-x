@@ -14,7 +14,6 @@ import {
   deployContract
 } from './shared'
 import {
-  RemoteAddrManager,
   OmniXExchange,
   OFTMock,
   Nft721Mock,
@@ -30,7 +29,6 @@ import TransferManager721Abi from '../artifacts/contracts/transfer/TransferManag
 import TransferManager1155Abi from '../artifacts/contracts/transfer/TransferManagerERC721.sol/TransferManagerERC721.json'
 import TransferManagerONFT721Abi from '../artifacts/contracts/transfer/TransferManagerONFT721.sol/TransferManagerONFT721.json'
 import TransferManagerONFT1155Abi from '../artifacts/contracts/transfer/TransferManagerONFT1155.sol/TransferManagerONFT1155.json'
-import RemoteAddrManagerAbi from '../artifacts/contracts/core/RemoteAddrManager.sol/RemoteAddrManager.json'
 
 export const deployNormal = async () => {
   // @ts-ignore
@@ -51,9 +49,6 @@ export const linkNormal = async (taskArgs: any) => {
 
   const { dstchainname: dstNetwork } = taskArgs
   const dstChainId = getChainId(dstNetwork)
-
-  // const remoteAddrManager = createContractByName(_hre, 'RemoteAddrManager', RemoteAddrManagerAbi.abi, owner) as RemoteAddrManager
-  // await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'Nft721Mock'), dstChainId, getContractAddrByName(network.name, 'Nft721Mock'))
 
   const transferManager721 = createContractByName(_hre, 'TransferManagerERC721', TransferManager721Abi.abi, owner) as TransferManagerERC721
   await transferManager721.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerERC721'))

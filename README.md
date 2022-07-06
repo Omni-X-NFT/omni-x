@@ -30,6 +30,10 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - npx hardhat prepareOmniX --network bsct
 - npx hardhat linkOmniX --network fuji --dstchainname bsct
 - npx hardhat linkOmniX --network bsct --dstchainname fuji
+- npx hardhat prepareStargate --network fuji
+- npx hardhat prepareStargate --network bsct
+- npx hardhat setupBridge --network fuji --dstchainname bsct
+- npx hardhat setupBridge --network bsct --dstchainname fuji
 
 ## Test GhostlyGhosts with ONFT
 ### Assumption

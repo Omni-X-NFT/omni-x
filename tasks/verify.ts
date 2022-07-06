@@ -8,12 +8,12 @@ export const verifyOmni = async () => {
   const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
   // const [owner] = await ethers.getSigners()
 
-  await run('verify:verify', {
-    address: getContractAddrByName(network.name, 'TransferManagerGhosts'),
-    constructorArguments: [
-      getContractAddrByName(network.name, 'OmniXExchange'), lzEndpoint
-    ]
-  })
+  // await run('verify:verify', {
+  //   address: getContractAddrByName(network.name, 'TransferManagerGhosts'),
+  //   constructorArguments: [
+  //     getContractAddrByName(network.name, 'OmniXExchange'), lzEndpoint
+  //   ]
+  // })
 
   // await run('verify:verify', {
   //     address: getContractAddrByName(network.name, 'OmniXExchange'),
@@ -26,4 +26,9 @@ export const verifyOmni = async () => {
   //     ],
   //     contract: "contracts/core/OmniXExchange.sol:OmniXExchange"
   // })
+
+  await run('verify:verify', {
+    address: getContractAddrByName(network.name, 'Router'),
+    constructorArguments: []
+  })
 }

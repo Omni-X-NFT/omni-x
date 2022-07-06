@@ -1,5 +1,3 @@
-import chai from 'chai'
-import { solidity } from 'ethereum-waffle'
 import {
   setEthers,
   TakerOrder,
@@ -14,12 +12,10 @@ import {
   fillTakerOrder,
   getChainId
 } from './shared'
+import { OFTMock, OmniXExchange } from '../typechain-types'
 import OmniXEchangeAbi from '../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json'
 import OFTMockAbi from '../artifacts/contracts/mocks/OFTMock.sol/OFTMock.json'
 import GhostsNftAbi from './fixtures/Gh0stlyGh0sts.json'
-import { OFTMock, OmniXExchange } from '../typechain-types'
-
-chai.use(solidity)
 
 export const testGhosts = async (args: any) => {
   // @ts-ignore
