@@ -7,6 +7,8 @@ import { verifyOmni } from './verify'
 import { deployNormal, linkNormal, testNormal } from './testNormal'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
 import { checkNonce } from './checkNonce'
+import { deployAll } from './deploy'
+import { verifyAll } from './verify'
 
 task(
   'setTrustedRemote',
@@ -54,6 +56,21 @@ task(
   .addParam('contract', 'Contract Name')
 
 task(
+  'deployAll',
+  'deploy all contracts',
+  deployAll
+).addParam('e', 'testnet or mainnet')
+  .addParam('tags', 'Contract file name')
+  .addOptionalParam('reset', 'Deploy from scratch')
+
+task(
+  'verifyAll',
+  'verify all contracts',
+  verifyAll
+).addParam('e', 'testnet or mainnet')
+  .addParam('tags', 'Contract file name')
+
+task(
   'checkNonce',
   'check the transaction count of the wallet'
 ).setAction(checkNonce)
@@ -62,7 +79,7 @@ task(
   'prepareStargate',
   'set bridge and factory and create a pool'
 ).setAction(prepareStargate)
-
+  
 task('setupBridge', 'setup chain and add liquidity to the pool')
-  .addParam('dstchainname', 'destination chain name. ex: rinkeby')
-  .setAction(setupBridge)
+.addParam('dstchainname', 'destination chain name. ex: rinkeby')
+.setAction(setupBridge)
