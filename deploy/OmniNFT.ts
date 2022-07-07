@@ -15,7 +15,7 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
   // get the Endpoint address
   const endpointAddr = ENDPOINTS[hre.network.name]
 
-  await deploy("OmniNFT", {
+  await deploy('OmniNFT', {
     from: deployer,
     args: [
       'OmniNFT',
@@ -24,10 +24,10 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
       'https://baseuri.com/'
     ],
     log: true,
-    waitConfirmations: 1,
+    waitConfirmations: 1
   })
 
   console.log(`✅ [${hre.network.name}]`)
 }
 
-module.exports.tags = ["OmniNFT"]
+module.exports.tags = ['OmniNFT']

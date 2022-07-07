@@ -36,7 +36,6 @@ export const verifyAll = async function (taskArgs: any, hre: any) {
   )
 }
 
-
 export const verifyOmni = async () => {
   // @ts-ignore
   // eslint-disable-next-line
