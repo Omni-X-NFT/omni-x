@@ -11,7 +11,8 @@ import {
   fillMakerOrder,
   fillTakerOrder,
   getChainId,
-  deployContract
+  deployContract,
+  loadAbi
 } from './shared'
 import {
   OmniXExchange,
@@ -22,13 +23,14 @@ import {
   TransferManagerONFT721,
   TransferManagerONFT1155
 } from '../typechain-types'
-import OmniXEchangeAbi from '../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json'
-import OFTMockAbi from '../artifacts/contracts/mocks/OFTMock.sol/OFTMock.json'
-import Nft721MockAbi from '../artifacts/contracts/mocks/Nft721Mock.sol/Nft721Mock.json'
-import TransferManager721Abi from '../artifacts/contracts/transfer/TransferManagerERC721.sol/TransferManagerERC721.json'
-import TransferManager1155Abi from '../artifacts/contracts/transfer/TransferManagerERC721.sol/TransferManagerERC721.json'
-import TransferManagerONFT721Abi from '../artifacts/contracts/transfer/TransferManagerONFT721.sol/TransferManagerONFT721.json'
-import TransferManagerONFT1155Abi from '../artifacts/contracts/transfer/TransferManagerONFT1155.sol/TransferManagerONFT1155.json'
+
+const OmniXEchangeAbi = loadAbi('../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json')
+const OFTMockAbi = loadAbi('../artifacts/contracts/mocks/OFTMock.sol/OFTMock.json')
+const Nft721MockAbi = loadAbi('../artifacts/contracts/mocks/Nft721Mock.sol/Nft721Mock.json')
+const TransferManager721Abi = loadAbi('../artifacts/contracts/transfer/TransferManagerERC721.sol/TransferManagerERC721.json')
+const TransferManager1155Abi = loadAbi('../artifacts/contracts/transfer/TransferManagerERC721.sol/TransferManagerERC721.json')
+const TransferManagerONFT721Abi = loadAbi('../artifacts/contracts/transfer/TransferManagerONFT721.sol/TransferManagerONFT721.json')
+const TransferManagerONFT1155Abi = loadAbi('../artifacts/contracts/transfer/TransferManagerONFT1155.sol/TransferManagerONFT1155.json')
 
 export const deployNormal = async () => {
   // @ts-ignore
@@ -44,7 +46,7 @@ export const linkNormal = async (taskArgs: any) => {
   // @ts-ignore
   // eslint-disable-next-line
   const _hre = hre
-  const { ethers, network } = _hre
+  const { ethers } = _hre
   const [owner] = await ethers.getSigners()
 
   const { dstchainname: dstNetwork } = taskArgs

@@ -46,8 +46,8 @@ export const prepareStargate = async (chain: Chain, poolId: number, owner: Signe
     poolId, chain.erc20Mock.address,
     18,
     18,
-    "pool",
-    "SSS")
+    'pool',
+    'SSS')
 
   // set stargate pool manager to omniXExchange
   chain.stargatePoolManager = await deployContract('StargatePoolManager', owner, [stargateRouter.address]) as StargatePoolManager
@@ -74,13 +74,12 @@ export const setupBridge = async (src: Chain, dst: Chain) => {
 }
 
 export const setupPool = async (chain: Chain, dstChainId: number, srcPoolId: number, dstPoolId: number, owner: SignerWithAddress) => {
-
   const stargateRouter = chain.stargateRouter as Router
 
   await chain.erc20Mock.connect(owner).approve(stargateRouter.address, toWei(100))
-  await stargateRouter.connect(owner).addLiquidity(srcPoolId, toWei(100), owner.address);
+  await stargateRouter.connect(owner).addLiquidity(srcPoolId, toWei(100), owner.address)
 
-  await stargateRouter.sendCredits(dstChainId, srcPoolId, dstPoolId, owner.address, {value: toWei(1)});
+  await stargateRouter.sendCredits(dstChainId, srcPoolId, dstPoolId, owner.address, { value: toWei(1) })
 }
 
 describe('Stargate', () => {
@@ -148,7 +147,7 @@ describe('Stargate', () => {
       await takerChain.erc20Mock.connect(taker).approve(takerChain.stargatePoolManager.address, toWei(1))
 
       const fee = await takerChain.omniXExchange.connect(taker).getLzFeesForAskWithTakerBid(takerBid, makerAsk)
-      await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk, {value: fee})
+      await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk, { value: fee })
 
       expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
       expect(await makerChain.erc20Mock.balanceOf(maker.address)).to.eq(makerBalance.add(toWei(0.98)))

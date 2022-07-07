@@ -203,4 +203,3 @@ export const approveTaker = async (chain: Chain, taker: SignerWithAddress) => {
   await chain.erc20Mock.connect(taker).approve(chain.omniXExchange.address, toWei(100))
   await chain.omni.connect(taker).approve(chain.omniXExchange.address, toWei(100))
 }
-

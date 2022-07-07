@@ -3,12 +3,11 @@ import { setTrustedRemote } from './setTrustedRemote'
 import { deployOmniX } from './deployOmniX'
 import { linkOmniX, prepareOmniX, prepareStargate, setupBridge } from './prepareOmniX'
 import { testGhosts } from './test'
-import { verifyOmni } from './verify'
+import { verifyOmni, verifyAll } from './verify'
 import { deployNormal, linkNormal, testNormal } from './testNormal'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
 import { checkNonce } from './checkNonce'
 import { deployAll } from './deploy'
-import { verifyAll } from './verify'
 
 task(
   'setTrustedRemote',
@@ -79,7 +78,7 @@ task(
   'prepareStargate',
   'set bridge and factory and create a pool'
 ).setAction(prepareStargate)
-  
+
 task('setupBridge', 'setup chain and add liquidity to the pool')
-.addParam('dstchainname', 'destination chain name. ex: rinkeby')
-.setAction(setupBridge)
+  .addParam('dstchainname', 'destination chain name. ex: rinkeby')
+  .setAction(setupBridge)

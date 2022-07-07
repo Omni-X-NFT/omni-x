@@ -2,7 +2,7 @@ import {
   STRATEGY_PROTOCAL_FEE,
   ROYALTY_FEE_LIMIT,
   deployContract,
-  toWei,
+  toWei
 } from './shared'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
@@ -47,7 +47,7 @@ export const deployOmniX = async () => {
   // deploy stargate
   let stargateRouter = stargateEndpoint.router
   const isTest = stargateEndpoint.isTest
-  if (isTest){
+  if (isTest) {
     const stargateRouterContract = await deployContract(_hre, 'Router', owner, [])
     stargateRouter = stargateRouterContract.address
 
@@ -57,7 +57,7 @@ export const deployOmniX = async () => {
 
     await deployContract(_hre, 'LRTokenMock', owner, [])
   }
-  
+
   const poolManager = await deployContract(_hre, 'StargatePoolManager', owner, [stargateRouter])
   await omniXExchange.setStargatePoolManager(poolManager.address)
 }

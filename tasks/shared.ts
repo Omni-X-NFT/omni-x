@@ -137,3 +137,9 @@ export const loadAbi = (file: string) => {
 
   throw new Error(`file not exists ${file}`)
 }
+
+export const waitFor = (ms: number) => {
+  return new Promise(resolve => {
+    setTimeout(() => resolve(0), ms)
+  })
+}

@@ -10,12 +10,14 @@ import {
   getContractAddrByName,
   fillMakerOrder,
   fillTakerOrder,
-  getChainId
+  getChainId,
+  loadAbi
 } from './shared'
 import { OFTMock, OmniXExchange } from '../typechain-types'
-import OmniXEchangeAbi from '../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json'
-import OFTMockAbi from '../artifacts/contracts/mocks/OFTMock.sol/OFTMock.json'
 import GhostsNftAbi from './fixtures/Gh0stlyGh0sts.json'
+
+const OmniXEchangeAbi = loadAbi('../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json')
+const OFTMockAbi = loadAbi('../artifacts/contracts/mocks/OFTMock.sol/OFTMock.json')
 
 export const testGhosts = async (args: any) => {
   // @ts-ignore
