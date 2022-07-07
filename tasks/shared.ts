@@ -16,7 +16,7 @@ export const CONTRACTS = {
     gregs: '0xC8759D18D5c96cce77074249330b9b41A618e51A',
     ghosts: '0x71d5F3d2C3D0139312AB0eF4a462140204D05A64'
   },
-  bsct: {
+  'bsc-testnet': {
     gregs: '0xCB3041291724B893E8BB3E876aC8f250D475685D',
     ghosts: '0x92a6d889d9E481d149e4C96074db05Fa025e7efe'
   },
