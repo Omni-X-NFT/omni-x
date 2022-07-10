@@ -1,7 +1,7 @@
 import { task } from 'hardhat/config'
 import { setTrustedRemote } from './setTrustedRemote'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
-import { deployAll } from './deploy'
+import { deployAll } from './deployAll'
 import { verifyAll } from './verifyAll'
 
 task(
