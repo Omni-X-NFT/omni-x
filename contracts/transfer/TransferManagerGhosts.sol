@@ -51,7 +51,11 @@ contract TransferManagerGhosts is TransferManagerLzBase, IERC721Receiver {
             fromChainId
         );
 
-        return (messageFee * 2, lzFee * 2);
+        // 3 times of layerzero fee
+        // - Fee1 :TransferManagerGhosts on Taker Chain to TransferManagerGhosts on Maker Chain. _crossSendToSrc
+        // - Fee2 :Transfer Ghosts NFT on maker chain to taker chain. _onReceiveOnSrcChain
+        // - Fee3 :TransferManagerGhosts on Maker Chain to TransferManagerGhosts on Taker Chain. _crossSendToDst
+        return (messageFee * 3, lzFee * 3);
     }
 
     /**
@@ -70,7 +74,7 @@ contract TransferManagerGhosts is TransferManagerLzBase, IERC721Receiver {
 
         (uint256 fee, ) = estimateSendFee(collection, collection, from, to, tokenId, amount, dstChainId);
         // transfer nft from current chain to srcchain
-        IGhosts(collection).traverseChains{value: fee / 2}(dstChainId, tokenId);
+        IGhosts(collection).traverseChains{value: fee / 3}(dstChainId, tokenId);
 
         return true;
     }

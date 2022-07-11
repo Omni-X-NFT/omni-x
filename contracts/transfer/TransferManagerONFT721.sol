@@ -14,6 +14,43 @@ contract TransferManagerONFT721 is TransferManagerLzBase {
     }
 
     /**
+     * @notice Estimate gas fees for cross transfering nft.
+     * @param collectionFrom address of the collection on from chain
+     * @param collectionTo address of the collection on current chain
+     * @param from address of the sender
+     * @param to address of the recipient
+     * @param tokenId tokenId
+     * @dev For ERC721, amount is not used
+     */
+    function estimateSendFee(
+        address collectionFrom,
+        address collectionTo,
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 amount,
+        uint16 fromChainId
+    )
+        public view override
+        returns (uint, uint)
+    {
+        (uint256 messageFee, uint256 lzFee) = super.estimateSendFee(
+            collectionFrom,
+            collectionTo,
+            from,
+            to,
+            tokenId,
+            amount,
+            fromChainId
+        );
+
+        // 2 times of layerzero fee
+        // - Fee1 :TransferManagerONFT721 on Taker Chain to TransferManagerONFT721 on Maker Chain. _crossSendToSrc
+        // - Fee2 :call ONFT.sendFrom on maker chain. _onReceiveOnSrcChain
+        return (messageFee * 2, lzFee * 2);
+    }
+
+    /**
     @dev just transfer the token from maker to taker on maker chain
     */
     function _onReceiveOnSrcChain(
@@ -26,7 +63,10 @@ contract TransferManagerONFT721 is TransferManagerLzBase {
     ) virtual internal override returns(bool) {
         bytes memory toAddress = abi.encodePacked(to);
         bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOnftLzReceive);
-        IONFT721(collection).sendFrom(from, dstChainId, toAddress, tokenId, payable(this), address(0), adapterParams);
+
+        // Assumes that fee is same with this.estimateSendFee().fee / 2
+        (uint256 fee, ) = IONFT721(collection).estimateSendFee(dstChainId, toAddress, tokenId, false, adapterParams);
+        IONFT721(collection).sendFrom{value: fee}(from, dstChainId, toAddress, tokenId, payable(this), address(0), adapterParams);
         return false;
     }
 
