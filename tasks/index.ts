@@ -3,6 +3,7 @@ import { setTrustedRemote } from './setTrustedRemote'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
 import { deployAll } from './deployAll'
 import { verifyAll } from './verifyAll'
+import { aonftSetWhitelist } from './aonftSetWhitelist'
 
 task(
   'setTrustedRemote',
@@ -32,3 +33,9 @@ task(
   verifyAll
 ).addParam('e', 'testnet or mainnet')
   .addParam('tags', 'Contract file name')
+
+task(
+  'aonftSetWhitelist',
+  'set the whitelist on a selected network via merkle tree',
+  aonftSetWhitelist
+)

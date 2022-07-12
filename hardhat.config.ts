@@ -49,6 +49,31 @@ const config: HardhatUserConfig = {
       chainId: 43114,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
+    polygon: {
+      url: 'https://polygon-rpc.com',
+      chainId: 137,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    arbitrum: {
+      url: 'https://arb1.arbitrum.io/rpc',
+      chainId: 42161,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    fantom: {
+      url: 'https://rpc.ftm.tools',
+      chainId: 250,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    optimism: {
+      url: 'https://mainnet.optimism.io',
+      chainId: 10,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    bsc: {
+      url: 'https://bsc-dataseed.binance.org/',
+      chainId: 56,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
     rinkeby: {
       url: 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
       chainId: 4,
@@ -94,6 +119,13 @@ const config: HardhatUserConfig = {
   // https://hardhat.org/plugins/nomiclabs-hardhat-etherscan#multiple-api-keys-and-alternative-block-explorers
   etherscan: {
     apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY,
+      bsc: process.env.BSCSCAN_API_KEY,
+      polygon: process.env.POLYGON_API_KEY,
+      avalanche: process.env.AVALANCHE_API_KEY,
+      arbitrumOne: process.env.ARBITRUM_API_KEY,
+      optimisticEthereum: process.env.OPTIMISTIC_API_KEY,
+      opera: process.env.FANTOM_API_KEY,
       rinkeby: process.env.ETHERSCAN_API_KEY,
       bscTestnet: process.env.BSCSCAN_API_KEY,
       polygonMumbai: process.env.POLYGON_API_KEY,

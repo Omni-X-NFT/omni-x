@@ -1,7 +1,7 @@
 import hre from 'hardhat'
 import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
 // const AONFT_ARGS = require("../constants/advancedOnftArgs.json")
-import GREG_ARGS from '../constants/testGregArgs.json'
+import GREG_ARGS from '../constants/gregArgs.json'
 
 type CHAINTYPE = {
   [key: string]: string
