@@ -343,53 +343,53 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
      * @param takerAsk taker ask order
      * @param makerBid maker bid order
      */
-    function matchBidWithTakerAsk(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid)
-        external
-        override
-        nonReentrant
-    {
-        require((!makerBid.isOrderAsk) && (takerAsk.isOrderAsk), "Order: Wrong sides");
+    // function matchBidWithTakerAsk(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid)
+    //     external
+    //     override
+    //     nonReentrant
+    // {
+    //     require((!makerBid.isOrderAsk) && (takerAsk.isOrderAsk), "Order: Wrong sides");
 
-        // Check the maker bid order
-        bytes32 bidHash = makerBid.hash();
-        _validateOrder(makerBid, bidHash);
+    //     // Check the maker bid order
+    //     bytes32 bidHash = makerBid.hash();
+    //     _validateOrder(makerBid, bidHash);
 
-        (uint16 fromChainId) = makerBid.decodeParams();
-        (uint16 toChainId) = takerAsk.decodeParams();
+    //     (uint16 fromChainId) = makerBid.decodeParams();
+    //     (uint16 toChainId) = takerAsk.decodeParams();
 
-        // check strategy and currency remote address
-        require(currencyManager.isCurrencyWhitelisted(makerBid.currency), "Currency: Not whitelisted");
+    //     // check strategy and currency remote address
+    //     require(currencyManager.isCurrencyWhitelisted(makerBid.currency), "Currency: Not whitelisted");
 
-        // Verify whether strategy can be executed
-        require(executionManager.isStrategyWhitelisted(makerBid.strategy), "Strategy: Not whitelisted");
+    //     // Verify whether strategy can be executed
+    //     require(executionManager.isStrategyWhitelisted(makerBid.strategy), "Strategy: Not whitelisted");
 
-        // Retrieve execution parameters
-        _canExecuteTakerAsk(takerAsk, makerBid);
+    //     // Retrieve execution parameters
+    //     _canExecuteTakerAsk(takerAsk, makerBid);
 
-        // Update maker bid order status to true (prevents replay)
-        _isUserOrderNonceExecutedOrCancelled[makerBid.signer][makerBid.nonce] = true;
+    //     // Update maker bid order status to true (prevents replay)
+    //     _isUserOrderNonceExecutedOrCancelled[makerBid.signer][makerBid.nonce] = true;
 
-        // Execution part 1/2
-        _transferNonFungibleTokenBidLz(takerAsk, makerBid, toChainId);
+    //     // Execution part 1/2
+    //     _transferNonFungibleTokenBidLz(takerAsk, makerBid, toChainId);
 
-        // Execution part 2/2
-        _transferFeesAndFundsBidLz(takerAsk, makerBid, toChainId);
+    //     // Execution part 2/2
+    //     _transferFeesAndFundsBidLz(takerAsk, makerBid, toChainId);
 
-        emit TakerAsk(
-            bidHash,
-            makerBid.nonce,
-            takerAsk.taker,
-            makerBid.signer,
-            makerBid.strategy,
-            makerBid.currency,
-            makerBid.collection,
-            makerBid.tokenId,
-            makerBid.amount,
-            takerAsk.price,
-            fromChainId,
-            toChainId
-        );
-    }
+    //     emit TakerAsk(
+    //         bidHash,
+    //         makerBid.nonce,
+    //         takerAsk.taker,
+    //         makerBid.signer,
+    //         makerBid.strategy,
+    //         makerBid.currency,
+    //         makerBid.collection,
+    //         makerBid.tokenId,
+    //         makerBid.amount,
+    //         takerAsk.price,
+    //         fromChainId,
+    //         toChainId
+    //     );
+    // }
 
     /**
      * @notice Update currency manager
@@ -818,41 +818,41 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         
         return nftFee;
     }
-    function _canExecuteTakerAsk(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid) 
-        internal view returns (uint256, uint256) {
-        (bool isExecutionValid, uint256 tokenId, uint256 amount) = IExecutionStrategy(makerBid.strategy)
-            .canExecuteTakerAsk(takerAsk, makerBid);
+    // function _canExecuteTakerAsk(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid) 
+    //     internal view returns (uint256, uint256) {
+    //     (bool isExecutionValid, uint256 tokenId, uint256 amount) = IExecutionStrategy(makerBid.strategy)
+    //         .canExecuteTakerAsk(takerAsk, makerBid);
 
-        require(isExecutionValid, "Strategy: Execution invalid");
+    //     require(isExecutionValid, "Strategy: Execution invalid");
 
-        return (tokenId, amount);
-    }
+    //     return (tokenId, amount);
+    // }
 
-    function _transferNonFungibleTokenBidLz(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid, uint16 chainId) internal {
-        address collection = remoteAddrManager.checkRemoteAddress(makerBid.collection, chainId);
+    // function _transferNonFungibleTokenBidLz(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid, uint16 chainId) internal {
+    //     address collection = remoteAddrManager.checkRemoteAddress(makerBid.collection, chainId);
 
-        _transferNonFungibleToken(
-            makerBid.collection,
-            collection,
-            takerAsk.taker,
-            makerBid.signer,
-            makerBid.tokenId,
-            makerBid.amount,
-            chainId
-        );
-    }
+    //     _transferNonFungibleToken(
+    //         makerBid.collection,
+    //         collection,
+    //         takerAsk.taker,
+    //         makerBid.signer,
+    //         makerBid.tokenId,
+    //         makerBid.amount,
+    //         chainId
+    //     );
+    // }
 
-    function _transferFeesAndFundsBidLz(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid, uint16 chainId) internal {
-        _transferFeesAndFunds(
-            makerBid.strategy,
-            makerBid.collection,
-            makerBid.tokenId,
-            makerBid.currency,
-            makerBid.signer,
-            takerAsk.taker,
-            takerAsk.price,
-            makerBid.minPercentageToAsk,
-            chainId
-        );
-    }
+    // function _transferFeesAndFundsBidLz(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid, uint16 chainId) internal {
+    //     _transferFeesAndFunds(
+    //         makerBid.strategy,
+    //         makerBid.collection,
+    //         makerBid.tokenId,
+    //         makerBid.currency,
+    //         makerBid.signer,
+    //         takerAsk.taker,
+    //         takerAsk.price,
+    //         makerBid.minPercentageToAsk,
+    //         chainId
+    //     );
+    // }
 }
