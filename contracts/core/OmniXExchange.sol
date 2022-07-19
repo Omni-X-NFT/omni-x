@@ -182,7 +182,6 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
     ) external payable override nonReentrant {
         require((makerAsk.isOrderAsk) && (!takerBid.isOrderAsk), "Order: Wrong sides");
         require(makerAsk.currency == WETH, "Order: Currency must be WETH");
-        require(msg.sender == takerBid.taker, "Order: Taker must be the sender");
 
         // Check the maker ask order
         bytes32 askHash = makerAsk.hash();
@@ -196,7 +195,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         uint256 totalValue = takerBid.price + _getLzFeesWETH(takerBid, makerAsk, fromChainId);
         // If not enough ETH to cover the price, use WETH
         if (totalValue > msg.value) {
-            IERC20(WETH).safeTransferFrom(msg.sender, address(this), (totalValue - msg.value));
+            IERC20(WETH).safeTransferFrom(takerBid.taker, address(this), (totalValue - msg.value));
         } else {
             require(totalValue == msg.value, "Order: Msg.value too high");
         }
@@ -246,7 +245,6 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         returns (uint256)
     {
         require((makerAsk.isOrderAsk) && (!takerBid.isOrderAsk), "Order: Wrong sides");
-        require(msg.sender == takerBid.taker, "Order: Taker must be the sender");
         
         (uint16 fromChainId) = makerAsk.decodeParams();
         address collection = remoteAddrManager.checkRemoteAddress(makerAsk.collection, fromChainId);
@@ -269,8 +267,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         nonReentrant
     {
         require((makerAsk.isOrderAsk) && (!takerBid.isOrderAsk), "Order: Wrong sides");
-        require(msg.sender == takerBid.taker, "Order: Taker must be the sender");
-        
+
         // Check the maker ask order
         bytes32 askHash = makerAsk.hash();
         _validateOrder(makerAsk, askHash);
@@ -323,7 +320,6 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
         returns (uint256)
     {
         require((makerAsk.isOrderAsk) && (!takerBid.isOrderAsk), "Order: Wrong sides");
-        require(msg.sender == takerBid.taker, "Order: Taker must be the sender");
 
         (uint16 fromChainId) = makerAsk.decodeParams();
         address collection = remoteAddrManager.checkRemoteAddress(makerAsk.collection, fromChainId);
@@ -733,7 +729,7 @@ contract OmniXExchange is EIP712, IOmniXExchange, ReentrancyGuard, Ownable {
             collection,
             makerAsk.tokenId,
             currency,
-            msg.sender,
+            takerBid.taker,
             makerAsk.signer,
             takerBid.price,
             makerAsk.minPercentageToAsk,
