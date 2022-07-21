@@ -4,6 +4,7 @@ import { setAllTrustedRemote } from './setAllTrustedRemote'
 import { deployAll } from './deployAll'
 import { verifyAll } from './verifyAll'
 import { aonftSetWhitelist } from './aonftSetWhitelist'
+import { aonftSetPrice } from './aonftSetPrice'
 
 task(
   'setTrustedRemote',
@@ -39,3 +40,9 @@ task(
   'set the whitelist on a selected network via merkle tree',
   aonftSetWhitelist
 )
+
+task(
+  'aonftSetPrice',
+  'setPrice(price) to set a new price for the mint',
+  aonftSetPrice
+).addParam('price', 'new price of the mint')

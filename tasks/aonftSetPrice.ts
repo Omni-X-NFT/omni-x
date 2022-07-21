@@ -1,5 +1,11 @@
-module.exports = async function (taskArgs, hre) {
-  const advancedONFT = await hre.ethers.getContract('AdvancedONFT721')
+import { getDeploymentAddresses } from '../utils/readStatic'
+
+export const aonftSetPrice = async function (taskArgs: any, hre: any) {
+  const [deployer] = await hre.ethers.getSigners()
+
+  const addresses = getDeploymentAddresses(hre.network.name).AdvancedONFT721
+
+  const advancedONFT = await hre.ethers.getContractAt('AdvancedONFT721', addresses, deployer)
   console.log(`[source] AdvancedONFT721.address: ${advancedONFT.address}`)
 
   // set new price for the mint
