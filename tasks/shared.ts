@@ -129,13 +129,15 @@ export const fillTakerOrder = (
 }
 
 export const loadAbi = (file: string) => {
-  const filePath = path.resolve(__dirname, `${file}`)
-  if (existsSync(filePath)) {
-    const abi = JSON.parse(readFileSync(filePath).toString())
-    return abi
+  return () => {
+    const filePath = path.resolve(__dirname, `${file}`)
+    if (existsSync(filePath)) {
+      const abi = JSON.parse(readFileSync(filePath).toString())
+      return abi
+    }
+  
+    throw new Error(`file not exists ${file}`)
   }
-
-  throw new Error(`file not exists ${file}`)
 }
 
 export const waitFor = (ms: number) => {

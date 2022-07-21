@@ -13,7 +13,6 @@ import {
   getChainId,
   loadAbi
 } from './shared'
-import { OFTMock, OmniXExchange } from '../typechain-types'
 import GhostsNftAbi from './fixtures/Gh0stlyGh0sts.json'
 
 const OmniXEchangeAbi = loadAbi('../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json')
@@ -58,8 +57,8 @@ export const testGhosts = async (args: any) => {
 
   const prepare = async () => {
     // create contracts
-    const omnixContract = createContractByName(_hre, 'OmniXExchange', OmniXEchangeAbi.abi, taker) as OmniXExchange
-    const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi.abi, taker) as OFTMock
+    const omnixContract = createContractByName(_hre, 'OmniXExchange', OmniXEchangeAbi().abi, taker)
+    const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi().abi, taker)
 
     // transfer omni to taker first
     const balance = await omni.balanceOf(taker.address)
@@ -84,7 +83,7 @@ export const testGhosts = async (args: any) => {
     const takerBid: TakerOrder = new TakerOrder(false)
 
     // create contracts
-    const omnixContract = createContractByName(_hre, 'OmniXExchange', OmniXEchangeAbi.abi, taker) as OmniXExchange
+    const omnixContract = createContractByName(_hre, 'OmniXExchange', OmniXEchangeAbi().abi, taker)
 
     // data
     fillTakerOrder(takerBid, taker.address, tokenId, toWei(ethers, 0.01))
@@ -104,7 +103,7 @@ export const testGhosts = async (args: any) => {
   const checkStatus = async (tokenId: number) => {
     // create contracts
     const nftContract = createContractByName(_hre, 'ghosts', GhostsNftAbi.abi, taker)
-    const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi.abi, taker)
+    const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi().abi, taker)
 
     // checking
     console.log('Maker, Taker: ', maker.address, taker.address)

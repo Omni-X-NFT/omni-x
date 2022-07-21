@@ -14,15 +14,6 @@ import {
   deployContract,
   loadAbi
 } from './shared'
-import {
-  OmniXExchange,
-  OFTMock,
-  Nft721Mock,
-  TransferManagerERC721,
-  TransferManagerERC1155,
-  TransferManagerONFT721,
-  TransferManagerONFT1155
-} from '../typechain-types'
 
 const OmniXEchangeAbi = loadAbi('../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json')
 const OFTMockAbi = loadAbi('../artifacts/contracts/mocks/OFTMock.sol/OFTMock.json')
@@ -52,13 +43,13 @@ export const linkNormal = async (taskArgs: any) => {
   const { dstchainname: dstNetwork } = taskArgs
   const dstChainId = getChainId(dstNetwork)
 
-  const transferManager721 = createContractByName(_hre, 'TransferManagerERC721', TransferManager721Abi.abi, owner) as TransferManagerERC721
+  const transferManager721 = createContractByName(_hre, 'TransferManagerERC721', TransferManager721Abi().abi, owner)
   await transferManager721.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerERC721'))
-  const transferManager1155 = createContractByName(_hre, 'TransferManagerERC1155', TransferManager1155Abi.abi, owner) as TransferManagerERC1155
+  const transferManager1155 = createContractByName(_hre, 'TransferManagerERC1155', TransferManager1155Abi().abi, owner)
   await transferManager1155.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerERC1155'))
-  const transferManagerONFT721 = createContractByName(_hre, 'TransferManagerONFT721', TransferManagerONFT721Abi.abi, owner) as TransferManagerONFT721
+  const transferManagerONFT721 = createContractByName(_hre, 'TransferManagerONFT721', TransferManagerONFT721Abi().abi, owner)
   await transferManagerONFT721.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerONFT721'))
-  const transferManagerONFT1155 = createContractByName(_hre, 'TransferManagerONFT1155', TransferManagerONFT1155Abi.abi, owner) as TransferManagerONFT1155
+  const transferManagerONFT1155 = createContractByName(_hre, 'TransferManagerONFT1155', TransferManagerONFT1155Abi().abi, owner)
   await transferManagerONFT1155.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerONFT1155'))
 }
 
@@ -96,15 +87,15 @@ export const testNormal = async (args: any) => {
 
   const prepareMaker = async () => {
     // approve
-    const nftContract = createContractByName(_hre, 'Nft721Mock', Nft721MockAbi.abi, maker) as Nft721Mock
+    const nftContract = createContractByName(_hre, 'Nft721Mock', Nft721MockAbi().abi, maker)
     await nftContract.mint(maker.address)
     await nftContract.approve(getContractAddrByName(network, 'TransferManagerERC721'), 1)
   }
 
   const prepareTaker = async () => {
     // create contracts
-    const omnixContract = createContractByName(_hre, 'OmniXExchange', OmniXEchangeAbi.abi, taker) as OmniXExchange
-    const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi.abi, taker) as OFTMock
+    const omnixContract = createContractByName(_hre, 'OmniXExchange', OmniXEchangeAbi().abi, taker)
+    const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi().abi, taker)
 
     // transfer omni to taker first
     const balance = await omni.balanceOf(taker.address)
@@ -129,7 +120,7 @@ export const testNormal = async (args: any) => {
     const takerBid: TakerOrder = new TakerOrder(false)
 
     // create contracts
-    const omnixContract = createContractByName(_hre, 'OmniXExchange', OmniXEchangeAbi.abi, taker) as OmniXExchange
+    const omnixContract = createContractByName(_hre, 'OmniXExchange', OmniXEchangeAbi().abi, taker)
 
     // data
     fillTakerOrder(takerBid, taker.address, tokenId, toWei(ethers, 0.01))

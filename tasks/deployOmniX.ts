@@ -6,7 +6,6 @@ import {
 } from './shared'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
-import { OmniXExchange } from '../typechain-types'
 
 export const deployOmniX = async () => {
   // @ts-ignore
@@ -29,7 +28,7 @@ export const deployOmniX = async () => {
     royaltyFeeManager.address,
     ethers.constants.AddressZero,
     owner.address
-  ]) as OmniXExchange
+  ])
 
   const transferManager721 = await deployContract(_hre, 'TransferManagerERC721', owner, [omniXExchange.address, lzEndpoint])
   const transferManager1155 = await deployContract(_hre, 'TransferManagerERC1155', owner, [omniXExchange.address, lzEndpoint])
