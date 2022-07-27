@@ -26,7 +26,8 @@ export const testGhosts = async (args: any) => {
 
   setEthers(ethers)
 
-  const [owner, maker, taker] = await ethers.getSigners()
+  const [owner, taker] = await ethers.getSigners()
+  const maker = owner;
 
   const listing = async (tokenId: number, nonce: number) => {
     // make order

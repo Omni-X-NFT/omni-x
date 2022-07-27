@@ -39,28 +39,28 @@ export const verifyAll = async function (taskArgs: any, hre: any) {
 export const verifyOmni = async () => {
   // @ts-ignore
   // eslint-disable-next-line
-  const { run, network } = hre
-  const lzEndpoint = ENDPOINTS[network.name]
-  // const [owner] = await ethers.getSigners()
+  const { ethers, run, network } = hre
+  const [owner] = await ethers.getSigners()
+  
+  // const lzEndpoint = ENDPOINTS[network.name]
+  // await run('verify:verify', {
+  //   address: getContractAddrByName(network.name, 'TransferManagerGhosts'),
+  //   constructorArguments: [
+  //     getContractAddrByName(network.name, 'OmniXExchange'), lzEndpoint
+  //   ]
+  // })
 
   await run('verify:verify', {
-    address: getContractAddrByName(network.name, 'TransferManagerGhosts'),
-    constructorArguments: [
-      getContractAddrByName(network.name, 'OmniXExchange'), lzEndpoint
-    ]
+      address: getContractAddrByName(network.name, 'OmniXExchange'),
+      constructorArguments: [
+          getContractAddrByName(network.name, 'CurrencyManager'),
+          getContractAddrByName(network.name, 'ExecutionManager'),
+          getContractAddrByName(network.name, 'RoyaltyFeeManager'),
+          ethers.constants.AddressZero,
+          owner.address
+      ],
+      contract: "contracts/core/OmniXExchange.sol:OmniXExchange"
   })
-
-  // await run('verify:verify', {
-  //     address: getContractAddrByName(network.name, 'OmniXExchange'),
-  //     constructorArguments: [
-  //         getContractAddrByName(network.name, 'CurrencyManager'),
-  //         getContractAddrByName(network.name, 'ExecutionManager'),
-  //         getContractAddrByName(network.name, 'RoyaltyFeeManager'),
-  //         ethers.constants.AddressZero,
-  //         owner.address
-  //     ],
-  //     contract: "contracts/core/OmniXExchange.sol:OmniXExchange"
-  // })
 
   // await run('verify:verify', {
   //   address: getContractAddrByName(network.name, 'Router'),

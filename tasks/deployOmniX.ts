@@ -12,7 +12,7 @@ export const deployOmniX = async () => {
   // eslint-disable-next-line
   const _hre = hre
   const { ethers, network } = _hre
-  const [owner, , , deployer] = await ethers.getSigners()
+  const [owner, , deployer] = await ethers.getSigners()
   const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
   const stargateEndpoint = (STARGATE as any)[network.name]
 

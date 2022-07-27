@@ -2,7 +2,7 @@ export const checkNonce = async () => {
   // @ts-ignore
   // eslint-disable-next-line
   const { ethers, network } = hre
-  const [, , , deployer] = await ethers.getSigners()
+  const [, , deployer] = await ethers.getSigners()
 
   const tx = await deployer.getTransactionCount()
 
