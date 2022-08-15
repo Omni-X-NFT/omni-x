@@ -29,7 +29,8 @@ contract TransferManagerONFT1155 is TransferManagerLzBase {
         address to,
         uint256 tokenId,
         uint256 amount,
-        uint16 fromChainId
+        uint16 remoteChainId,
+        bool remoteSend
     )
         public view override
         returns (uint, uint)
@@ -41,13 +42,19 @@ contract TransferManagerONFT1155 is TransferManagerLzBase {
             to,
             tokenId,
             amount,
-            fromChainId
+            remoteChainId,
+            remoteSend
         );
 
-        // 2 times of layerzero fee
-        // - Fee1 :TransferManagerONFT721 on Taker Chain to TransferManagerONFT721 on Maker Chain. _crossSendToSrc
-        // - Fee2 :call ONFT.sendFrom on maker chain. _onReceiveOnSrcChain
-        return (messageFee * 2, lzFee * 2);
+        if (remoteSend) {
+            // 2 times of layerzero fee
+            // - Fee1 :TransferManagerONFT721 on Taker Chain to TransferManagerONFT721 on Maker Chain. _crossSendToSrc
+            // - Fee2 :call ONFT.sendFrom on maker chain. _onReceiveOnSrcChain
+            return (messageFee * 2, lzFee * 2);
+        }
+        else {
+            return (messageFee, lzFee);
+        }
     }
 
     /**

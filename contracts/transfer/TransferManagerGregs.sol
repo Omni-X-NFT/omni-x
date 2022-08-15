@@ -30,7 +30,8 @@ contract TransferManagerGregs is TransferManagerLzBase {
         address to,
         uint256 tokenId,
         uint256 amount,
-        uint16 fromChainId
+        uint16 remoteChainId,
+        bool remoteSend
     )
         public view override
         returns (uint, uint)
@@ -42,7 +43,8 @@ contract TransferManagerGregs is TransferManagerLzBase {
             to,
             tokenId,
             amount,
-            fromChainId
+            remoteChainId,
+            remoteSend
         );
 
         return (messageFee * 2, lzFee * 2);

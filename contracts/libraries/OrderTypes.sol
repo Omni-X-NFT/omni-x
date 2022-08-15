@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
+
 /**
  * @title OrderTypes
  * @notice This library contains order types for the OmniX exchange.
  */
 library OrderTypes {
+    using ECDSA for bytes32;
+
     // keccak256("MakerOrder(bool isOrderAsk,address signer,address collection,uint256 price,uint256 tokenId,uint256 amount,address strategy,address currency,uint256 nonce,uint256 startTime,uint256 endTime,uint256 minPercentageToAsk,bytes params)")
     // you can generate keccak256 on this link https://keccak-256.cloxy.net/
     bytes32 internal constant MAKER_ORDER_HASH = 0x40261ade532fa1d2c7293df30aaadb9b3c616fae525a0b56d3d411c841a85028;
@@ -63,5 +67,20 @@ library OrderTypes {
     function decodeParams(TakerOrder memory takerOrder) internal pure returns (uint16) {
         (uint16 chainId) = abi.decode(takerOrder.params, (uint16));
         return chainId;
+    }
+
+    function checkValid(MakerOrder memory makerOrder, bytes32 orderHash) public pure {
+        // Verify the signer is not address(0)
+        require(makerOrder.signer != address(0), "Order: Invalid signer");
+
+        // Verify the amount is not 0
+        require(makerOrder.amount > 0, "Order: Amount cannot be 0");
+
+        // Verify the validity of the signature
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", orderHash));
+        require(
+            digest.toEthSignedMessageHash().recover(makerOrder.signature) == makerOrder.signer,
+            "Signature: Invalid"
+        );
     }
 }

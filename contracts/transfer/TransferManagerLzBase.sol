@@ -41,6 +41,8 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
      * @param from address of the sender
      * @param to address of the recipient
      * @param tokenId tokenId
+     * @param remoteChainId layerzero remote chain id
+     * @param remoteSend indicate NFT owner is on remoteChain or not
      * @dev For ERC721, amount is not used
      */
     function transferNonFungibleToken(
@@ -50,16 +52,24 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         address to,
         uint256 tokenId,
         uint256 amount,
-        uint16 fromChainId
+        uint16 remoteChainId,
+        bool remoteSend
     ) external payable override {
         // require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only OmniX Exchange");
 
         uint16 toChainId = lzEndpoint.getChainId();
-        if (fromChainId == toChainId) {
+        if (remoteChainId == toChainId) {
             _normalTransfer(collectionFrom, from, to, tokenId, amount);
         }
         else {
-            _crossSendToSrc(collectionFrom, collectionTo, from, to, tokenId, amount, fromChainId);
+            if (remoteSend) {
+                _crossSendToSrc(collectionFrom, collectionTo, from, to, tokenId, amount, remoteChainId);
+            }
+            else {
+                if (_onReceiveOnSrcChain(collectionFrom, from, to, tokenId, amount, remoteChainId)) {
+                    _crossSendToDst(collectionFrom, collectionTo, from, to, tokenId, amount, remoteChainId);
+                }
+            }
         }
     }
 
@@ -79,20 +89,21 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         address to,
         uint256 tokenId,
         uint256 amount,
-        uint16 fromChainId
+        uint16 remoteChainId,
+        bool
     )
         virtual public view override
         returns (uint, uint)
     {
         uint16 toChainId = lzEndpoint.getChainId();
-        if (fromChainId == toChainId) {
+        if (remoteChainId == toChainId) {
             return (0, 0);
         }
         else {
             bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOnftLzReceive);
             bytes memory payload = abi.encode(MT_ON_SRC_CHAIN, from, to, collectionFrom, collectionTo, tokenId, amount);
 
-            return lzEndpoint.estimateFees(fromChainId, address(this), payload, false, adapterParams);
+            return lzEndpoint.estimateFees(remoteChainId, address(this), payload, false, adapterParams);
         }
     }
 

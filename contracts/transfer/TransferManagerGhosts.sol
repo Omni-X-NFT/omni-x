@@ -36,7 +36,8 @@ contract TransferManagerGhosts is TransferManagerLzBase, IERC721Receiver {
         address to,
         uint256 tokenId,
         uint256 amount,
-        uint16 fromChainId
+        uint16 remoteChainId,
+        bool remoteSend
     )
         public view override
         returns (uint, uint)
@@ -48,14 +49,20 @@ contract TransferManagerGhosts is TransferManagerLzBase, IERC721Receiver {
             to,
             tokenId,
             amount,
-            fromChainId
+            remoteChainId,
+            remoteSend
         );
 
-        // 3 times of layerzero fee
-        // - Fee1 :TransferManagerGhosts on Taker Chain to TransferManagerGhosts on Maker Chain. _crossSendToSrc
-        // - Fee2 :Transfer Ghosts NFT on maker chain to taker chain. _onReceiveOnSrcChain
-        // - Fee3 :TransferManagerGhosts on Maker Chain to TransferManagerGhosts on Taker Chain. _crossSendToDst
-        return (messageFee * 3, lzFee * 3);
+        if (remoteSend) {
+            // 3 times of layerzero fee
+            // - Fee1 :TransferManagerGhosts on Taker Chain to TransferManagerGhosts on Maker Chain. _crossSendToSrc
+            // - Fee2 :Transfer Ghosts NFT on maker chain to taker chain. _onReceiveOnSrcChain
+            // - Fee3 :TransferManagerGhosts on Maker Chain to TransferManagerGhosts on Taker Chain. _crossSendToDst
+            return (messageFee * 3, lzFee * 3);
+        }
+        else {
+            return (messageFee * 2, lzFee * 2);
+        }
     }
 
     /**
@@ -72,9 +79,13 @@ contract TransferManagerGhosts is TransferManagerLzBase, IERC721Receiver {
         // transfer nft from fromAddr to this
         IGhosts(collection).safeTransferFrom(from, address(this), tokenId);
 
-        (uint256 fee, ) = estimateSendFee(collection, collection, from, to, tokenId, amount, dstChainId);
+        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOnftLzReceive);
+        bytes memory payload = abi.encode(MT_ON_SRC_CHAIN, from, to, collection, collection, tokenId, amount);
+
+        (uint256 fee, ) = lzEndpoint.estimateFees(dstChainId, address(this), payload, false, adapterParams);
+
         // transfer nft from current chain to srcchain
-        IGhosts(collection).traverseChains{value: fee / 3}(dstChainId, tokenId);
+        IGhosts(collection).traverseChains{value: fee}(dstChainId, tokenId);
 
         return true;
     }

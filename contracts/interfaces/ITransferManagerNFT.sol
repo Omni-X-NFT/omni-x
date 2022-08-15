@@ -9,7 +9,8 @@ interface ITransferManagerNFT {
         address to,
         uint256 tokenId,
         uint256 amount,
-        uint16 fromChainId
+        uint16 remoteChainId,
+        bool remoteSend
     ) external payable;
 
     function estimateSendFee(
@@ -19,6 +20,7 @@ interface ITransferManagerNFT {
         address to,
         uint256 tokenId,
         uint256 amount,
-        uint16 fromChainId
+        uint16 remoteChainId,
+        bool remoteSend
     ) external view returns (uint nativeFee, uint zroFee);
 }

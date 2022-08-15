@@ -133,6 +133,7 @@ describe('OmniXExchange', () => {
     transferManagerONFT721 = await deployContract('TransferManagerONFT721', owner, [omniXExchange.address, layerZeroEndpoint.address]) as TransferManagerONFT721
     transferManagerONFT1155 = await deployContract('TransferManagerONFT1155', owner, [omniXExchange.address, layerZeroEndpoint.address]) as TransferManagerONFT1155
     transferSelector = await deployContract('TransferSelectorNFT', owner, [transferManager721.address, transferManager1155.address]) as TransferSelectorNFT
+    // fundManager = await deployContract('FundManager', owner, [omniXExchange.address, layerZeroEndpoint.address]) as TransferManagerERC721
   }
 
   const prepare = async () => {
