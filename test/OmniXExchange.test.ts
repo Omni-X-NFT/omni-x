@@ -18,7 +18,8 @@ import {
   OFTMock,
   ONFT721Mock,
   ONFT1155,
-  LZEndpointMock
+  LZEndpointMock,
+  FundManager
 } from '../typechain-types'
 import {
   deployContract, getBlockTime, toWei
@@ -47,6 +48,7 @@ describe('OmniXExchange', () => {
   let transferManager721: TransferManagerERC721
   let transferManager1155: TransferManagerERC1155
   let royaltyFeeManager: RoyaltyFeeManager
+  let fundManager: FundManager
   let strategy: StrategyStandardSale
   let nftMock: Nft721Mock
   let erc20Mock: LRTokenMock
@@ -121,7 +123,8 @@ describe('OmniXExchange', () => {
       executionManager.address,
       royaltyFeeManager.address,
       ethers.constants.AddressZero,
-      owner.address
+      owner.address,
+      layerZeroEndpoint.address
     ]) as OmniXExchange
 
     const remoteAddrManager = await deployContract('RemoteAddrManager', owner, [])
@@ -133,7 +136,9 @@ describe('OmniXExchange', () => {
     transferManagerONFT721 = await deployContract('TransferManagerONFT721', owner, [omniXExchange.address, layerZeroEndpoint.address]) as TransferManagerONFT721
     transferManagerONFT1155 = await deployContract('TransferManagerONFT1155', owner, [omniXExchange.address, layerZeroEndpoint.address]) as TransferManagerONFT1155
     transferSelector = await deployContract('TransferSelectorNFT', owner, [transferManager721.address, transferManager1155.address]) as TransferSelectorNFT
-    // fundManager = await deployContract('FundManager', owner, [omniXExchange.address, layerZeroEndpoint.address]) as TransferManagerERC721
+    fundManager = await deployContract('FundManager', owner, [omniXExchange.address]) as FundManager
+
+    await omniXExchange.setFundManager(fundManager.address)
   }
 
   const prepare = async () => {
@@ -169,9 +174,11 @@ describe('OmniXExchange', () => {
     await nftMock.connect(maker).approve(transferManager721.address, 2)
     await nftMock.connect(taker).approve(transferManager721.address, 3)
     await erc20Mock.connect(taker).approve(omniXExchange.address, toWei(100))
+    await erc20Mock.connect(taker).approve(fundManager.address, toWei(100))
     await erc20Mock.connect(maker).approve(omniXExchange.address, toWei(100))
 
     await omni.connect(taker).approve(omniXExchange.address, toWei(100))
+    await omni.connect(taker).approve(fundManager.address, toWei(100))
     await onft721.connect(maker).approve(transferManagerONFT721.address, 1)
     await onft721.connect(maker).approve(transferManagerONFT721.address, 2)
   }

@@ -24,7 +24,8 @@ import {
   TransferManagerGhosts,
   StargatePoolManager,
   IStargateRouter,
-  Bridge
+  Bridge,
+  FundManager
 } from '../typechain-types'
 
 const STRATEGY_PROTOCAL_FEE = 200 // 2%
@@ -42,6 +43,7 @@ export type Chain = {
   transferManagerGhosts: TransferManagerGhosts
   transferManager1155: TransferManagerERC1155
   royaltyFeeManager: RoyaltyFeeManager
+  fundManager: FundManager
   strategy: StrategyStandardSale
   nftMock: Nft721Mock
   erc20Mock: LRTokenMock
@@ -105,7 +107,8 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
     chain.executionManager.address,
     chain.royaltyFeeManager.address,
     ethers.constants.AddressZero,
-    owner.address
+    owner.address,
+    chain.layerZeroEndpoint.address
   ]) as OmniXExchange
 
   chain.remoteAddrManager = await deployContract('RemoteAddrManager', owner, [])
@@ -118,8 +121,10 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   chain.transferManagerONFT1155 = await deployContract('TransferManagerONFT1155', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerONFT1155
   chain.transferManagerGhosts = await deployContract('TransferManagerGhosts', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerGhosts
   chain.transferSelector = await deployContract('TransferSelectorNFT', owner, [chain.transferManager721.address, chain.transferManager1155.address]) as TransferSelectorNFT
-
+  chain.fundManager = await deployContract('FundManager', owner, [chain.omniXExchange.address]) as FundManager
   chain.chainId = chainId
+
+  await chain.omniXExchange.setFundManager(chain.fundManager.address)
 
   return chain
 }

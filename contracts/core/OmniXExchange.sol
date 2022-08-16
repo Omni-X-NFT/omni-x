@@ -606,7 +606,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             uint256 royaltyFeeAmount,
             uint256 finalSellerAmount,
             address royaltyFeeRecipient
-        ) = fundManager.getFeesAndFunds(address(royaltyFeeManager), strategy, collection, protocolFeeRecipient, tokenId, amount);
+        ) = _getFeesAndFunds(strategy, collection, tokenId, amount);
 
         // 1. Protocol fee
         {
@@ -684,12 +684,12 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
 
     function _checkRemoteAddrWhitelisted(OrderTypes.MakerOrder calldata makerOrder, uint16 chainId) internal view {
         // Verify whether the currency is whitelisted
-        address currency = remoteAddrManager.checkRemoteAddress(makerOrder.currency, chainId);
-        require(currencyManager.isCurrencyWhitelisted(currency), "Currency: Not whitelisted");
+        // address currency = remoteAddrManager.checkRemoteAddress(makerOrder.currency, chainId);
+        // require(currencyManager.isCurrencyWhitelisted(currency), "Currency: Not whitelisted");
 
-        // Verify whether strategy can be executed
-        address strategy = remoteAddrManager.checkRemoteAddress(makerOrder.strategy, chainId);
-        require(executionManager.isStrategyWhitelisted(strategy), "Strategy: Not whitelisted");
+        // // Verify whether strategy can be executed
+        // address strategy = remoteAddrManager.checkRemoteAddress(makerOrder.strategy, chainId);
+        // require(executionManager.isStrategyWhitelisted(strategy), "Strategy: Not whitelisted");
     }
 
     function _canExecuteTakerBid(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint16 chainId) 

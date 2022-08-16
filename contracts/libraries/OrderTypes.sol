@@ -69,7 +69,7 @@ library OrderTypes {
         return chainId;
     }
 
-    function checkValid(MakerOrder memory makerOrder, bytes32 orderHash) public pure {
+    function checkValid(MakerOrder memory makerOrder, bytes32 orderHash) internal pure {
         // Verify the signer is not address(0)
         require(makerOrder.signer != address(0), "Order: Invalid signer");
 
