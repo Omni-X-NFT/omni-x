@@ -27,7 +27,8 @@ export const deployOmniX = async () => {
     executionManager.address,
     royaltyFeeManager.address,
     ethers.constants.AddressZero,
-    owner.address
+    owner.address,
+    lzEndpoint
   ])
 
   const transferManager721 = await deployContract(_hre, 'TransferManagerERC721', owner, [omniXExchange.address, lzEndpoint])
@@ -59,4 +60,7 @@ export const deployOmniX = async () => {
 
   const poolManager = await deployContract(_hre, 'StargatePoolManager', owner, [stargateRouter])
   await omniXExchange.setStargatePoolManager(poolManager.address)
+
+  const fundManager = await deployContract(_hre, 'FundManager', owner, [omniXExchange.address])
+  await omniXExchange.setStargatePoolManager(fundManager.address)
 }

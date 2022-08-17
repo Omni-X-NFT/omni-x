@@ -11,4 +11,8 @@ contract OFTMock is OFT {
     constructor(string memory _name, string memory _symbol, uint _cap, address _lzEndpoint) OFT(_name, _symbol, _lzEndpoint) {
         _mint(msg.sender, _cap);
     }
+
+    function mint() external {
+        _mint(msg.sender, 10 * 1e18);
+    }
 }

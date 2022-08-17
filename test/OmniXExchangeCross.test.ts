@@ -27,6 +27,7 @@ setEthers(ethers)
 
 const SRC_CHAIN_ID = 1
 const DST_CHAIN_ID = 2
+let nonce = 0
 
 describe('OmniXExchangeCross', () => {
   let makerChain: Chain
@@ -56,8 +57,8 @@ describe('OmniXExchangeCross', () => {
       const makerAsk: MakerOrder = new MakerOrder(true)
       const takerBid: TakerOrder = new TakerOrder(false)
       const tokenId = 1
-      const nonce = 1
       const blockTime = await getBlockTime()
+      nonce++
 
       fillMakerOrder(
         makerAsk,
@@ -86,35 +87,101 @@ describe('OmniXExchangeCross', () => {
       // because TransferManagerGhosts should be deployed as same address to different chains.
       // but in test environment, we can't do this.
     })
-  })
 
-  it('MakerAsk /w TakerBid - $OMNI /w ONFT', async () => {
-    const makerAsk: MakerOrder = new MakerOrder(true)
-    const takerBid: TakerOrder = new TakerOrder(false)
-    const tokenId = 1
-    const nonce = 3
-    const blockTime = await getBlockTime()
+    it('MakerAsk /w TakerBid - $OMNI /w ONFT', async () => {
+      const makerAsk: MakerOrder = new MakerOrder(true)
+      const takerBid: TakerOrder = new TakerOrder(false)
+      const tokenId = 1
+      const blockTime = await getBlockTime()
+  
+      nonce++
 
-    fillMakerOrder(
-      makerAsk,
-      tokenId,
-      makerChain.omni.address,
-      makerChain.onft721.address,
-      makerChain.strategy.address,
-      maker.address,
-      blockTime,
-      toWei(1),
-      nonce
-    )
-    fillTakerOrder(takerBid, taker.address, tokenId, toWei(1))
+      fillMakerOrder(
+        makerAsk,
+        tokenId,
+        makerChain.omni.address,
+        makerChain.onft721.address,
+        makerChain.strategy.address,
+        maker.address,
+        blockTime,
+        toWei(1),
+        nonce
+      )
+      fillTakerOrder(takerBid, taker.address, tokenId, toWei(1))
+  
+      makerAsk.encodeParams(await makerChain.chainId, taker.address)
+      takerBid.encodeParams(await takerChain.chainId)
+      await makerAsk.sign(maker)
+  
+      await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
+  
+      expect(await takerChain.onft721.ownerOf(takerBid.tokenId)).to.eq(taker.address)
+      expect(await makerChain.omni.balanceOf(maker.address)).to.eq(toWei(0.98))
+    })
 
-    makerAsk.encodeParams(await makerChain.chainId, taker.address)
-    takerBid.encodeParams(await takerChain.chainId)
-    await makerAsk.sign(maker)
+    it('MakerBid /w TakerAsk - Normal Currency /w Normal NFT', async () => {
+      const makerBid: MakerOrder = new MakerOrder(false)
+      const takerAsk: TakerOrder = new TakerOrder(true)
+      const tokenId = 3
+      const blockTime = await getBlockTime()
 
-    await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
+      nonce++
 
-    expect(await takerChain.onft721.ownerOf(takerBid.tokenId)).to.eq(taker.address)
-    expect(await makerChain.omni.balanceOf(maker.address)).to.eq(toWei(0.98))
+      fillMakerOrder(
+        makerBid,
+        tokenId,
+        makerChain.erc20Mock.address,
+        makerChain.nftMock.address,
+        makerChain.strategy.address,
+        taker.address,
+        blockTime,
+        toWei(1),
+        nonce
+      )
+      fillTakerOrder(takerAsk, maker.address, tokenId, toWei(1))
+
+      makerBid.encodeParams(await takerChain.chainId, maker.address)
+      takerAsk.encodeParams(await makerChain.chainId)
+      await makerBid.sign(taker)
+
+      const oldBalance = await takerChain.erc20Mock.balanceOf(maker.address)
+      await makerChain.omniXExchange.connect(maker).matchBidWithTakerAsk(takerAsk, makerBid)
+
+      expect(await makerChain.nftMock.ownerOf(takerAsk.tokenId)).to.eq(taker.address)
+      expect(await takerChain.erc20Mock.balanceOf(maker.address)).to.eq(oldBalance.add(toWei(0.98)))
+    })
+
+    it('MakerBid /w TakerAsk - $OMNI /w ONFT', async () => {
+      const makerBid: MakerOrder = new MakerOrder(false)
+      const takerAsk: TakerOrder = new TakerOrder(true)
+      const tokenId = 3
+      const blockTime = await getBlockTime()
+  
+      nonce++
+
+      fillMakerOrder(
+        makerBid,
+        tokenId,
+        makerChain.omni.address,
+        makerChain.onft721.address,
+        makerChain.strategy.address,
+        taker.address,
+        blockTime,
+        toWei(1),
+        nonce
+      )
+      fillTakerOrder(takerAsk, maker.address, tokenId, toWei(1))
+  
+      makerBid.encodeParams(await takerChain.chainId, maker.address)
+      takerAsk.encodeParams(await makerChain.chainId)
+      await makerBid.sign(taker)
+  
+      const oldBalance = await makerChain.omni.balanceOf(maker.address)
+      await makerChain.omniXExchange.connect(maker).matchBidWithTakerAsk(takerAsk, makerBid)
+  
+      expect(await takerChain.onft721.ownerOf(takerAsk.tokenId)).to.eq(taker.address)
+      expect(await makerChain.omni.balanceOf(maker.address)).to.eq(oldBalance.add(toWei(0.98)))
+    })
+
   })
 })

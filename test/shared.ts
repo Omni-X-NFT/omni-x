@@ -139,6 +139,7 @@ export const linkChains = async (src: Chain, dst: Chain) => {
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.transferManagerONFT721.address, dst.layerZeroEndpoint.address)
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.transferManagerONFT1155.address, dst.layerZeroEndpoint.address)
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.transferManagerGhosts.address, dst.layerZeroEndpoint.address)
+  await src.layerZeroEndpoint.setDestLzEndpoint(dst.omniXExchange.address, dst.layerZeroEndpoint.address)
 
   await src.omni.setTrustedRemote(await dst.chainId, dst.omni.address)
   await src.onft721.setTrustedRemote(await dst.chainId, dst.onft721.address)
@@ -149,12 +150,18 @@ export const linkChains = async (src: Chain, dst: Chain) => {
   await src.transferManagerONFT721.setTrustedRemote(await dst.chainId, dst.transferManagerONFT721.address)
   await src.transferManagerGhosts.setTrustedRemote(await dst.chainId, dst.transferManagerGhosts.address)
   await src.transferManagerONFT1155.setTrustedRemote(await dst.chainId, dst.transferManagerONFT1155.address)
+  await src.omniXExchange.setTrustedRemote(await dst.chainId, dst.omniXExchange.address)
 
   await src.remoteAddrManager.addRemoteAddress(dst.erc20Mock.address, dst.chainId, src.erc20Mock.address)
+  await src.remoteAddrManager.addRemoteAddress(src.erc20Mock.address, dst.chainId, dst.erc20Mock.address)
   await src.remoteAddrManager.addRemoteAddress(dst.strategy.address, dst.chainId, src.strategy.address)
+  await src.remoteAddrManager.addRemoteAddress(src.strategy.address, dst.chainId, dst.strategy.address)
   await src.remoteAddrManager.addRemoteAddress(dst.nftMock.address, dst.chainId, src.nftMock.address)
+  await src.remoteAddrManager.addRemoteAddress(src.nftMock.address, dst.chainId, dst.nftMock.address)
   await src.remoteAddrManager.addRemoteAddress(dst.omni.address, dst.chainId, src.omni.address)
+  await src.remoteAddrManager.addRemoteAddress(src.omni.address, dst.chainId, dst.omni.address)
   await src.remoteAddrManager.addRemoteAddress(dst.onft721.address, dst.chainId, src.onft721.address)
+  await src.remoteAddrManager.addRemoteAddress(src.onft721.address, dst.chainId, dst.onft721.address)
   await src.remoteAddrManager.addRemoteAddress(dst.ghosts.address, dst.chainId, src.ghosts.address)
 }
 
@@ -171,9 +178,13 @@ export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
   // normal currency and normal nft, mint token#1, #2, #3
   await chain.nftMock.mint(maker.address)
   await chain.nftMock.mint(maker.address)
+  await chain.nftMock.mint(maker.address)
+  await chain.nftMock.mint(maker.address)
 
   await chain.onft721.mint(maker.address, 1)
   await chain.onft721.mint(maker.address, 2)
+  await chain.onft721.mint(maker.address, 3)
+  await chain.onft721.mint(maker.address, 4)
   await chain.ghosts.connect(maker).mint(1)
 
   await chain.erc20Mock.mint(maker.address, toWei(200))
@@ -193,18 +204,27 @@ export const prepareTaker = async (chain: Chain, taker: SignerWithAddress) => {
   // normal currency and normal nft, mint token#1, #2, #3
   await chain.erc20Mock.mint(taker.address, toWei(200))
   await chain.omni.transfer(taker.address, toWei(200))
+
+  await chain.nftMock.mint(taker.address)
+  await chain.nftMock.mint(taker.address)
 }
 
 export const approveMaker = async (chain: Chain, maker: SignerWithAddress) => {
   await chain.nftMock.connect(maker).approve(chain.transferManager721.address, 1)
   await chain.nftMock.connect(maker).approve(chain.transferManager721.address, 2)
+  await chain.nftMock.connect(maker).approve(chain.transferManager721.address, 3)
+  await chain.nftMock.connect(maker).approve(chain.transferManager721.address, 4)
 
   await chain.onft721.connect(maker).approve(chain.transferManagerONFT721.address, 1)
   await chain.onft721.connect(maker).approve(chain.transferManagerONFT721.address, 2)
+  await chain.onft721.connect(maker).approve(chain.transferManagerONFT721.address, 3)
+  await chain.onft721.connect(maker).approve(chain.transferManagerONFT721.address, 4)
   await chain.ghosts.connect(maker).approve(chain.transferManagerGhosts.address, 1)
 }
 
 export const approveTaker = async (chain: Chain, taker: SignerWithAddress) => {
   await chain.erc20Mock.connect(taker).approve(chain.omniXExchange.address, toWei(100))
+  await chain.erc20Mock.connect(taker).approve(chain.fundManager.address, toWei(100))
   await chain.omni.connect(taker).approve(chain.omniXExchange.address, toWei(100))
+  await chain.omni.connect(taker).approve(chain.fundManager.address, toWei(100))
 }

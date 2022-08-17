@@ -22,6 +22,7 @@ import {IWETH} from "../interfaces/IWETH.sol";
 import {IOFT} from "../token/oft/IOFT.sol";
 
 import {OrderTypes} from "../libraries/OrderTypes.sol";
+import "hardhat/console.sol";
 
 /**
  * @title OmniXExchange
@@ -215,7 +216,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         _checkRemoteAddrWhitelisted(makerAsk, fromChainId);
 
         // Retrieve execution parameters
-        _canExecuteTakerBid(takerBid, makerAsk, fromChainId);
+        // _canExecuteTakerBid(takerBid, makerAsk, fromChainId);
 
         // Update maker ask order status to true (prevents replay)
         _isUserOrderNonceExecutedOrCancelled[makerAsk.signer][makerAsk.nonce] = true;
@@ -224,7 +225,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         _transferFeesAndFundsLzWithWETH(takerBid, makerAsk, fromChainId);
 
         // Execution part 2/2
-        _transferNonFungibleTokenLz(takerBid, makerAsk, fromChainId, toChainId);
+        _transferNonFungibleTokenLz(takerBid, makerAsk, fromChainId, toChainId, true);
 
         emit TakerBid(
             askHash,
@@ -285,13 +286,13 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         (uint16 toChainId) = takerBid.decodeParams();
 
         // check fees
-        _validateLzFees(takerBid, makerAsk, fromChainId, toChainId);
+        _validateLzFees(takerBid, makerAsk, fromChainId, toChainId, true);
 
         // check strategy and currency remote address
         _checkRemoteAddrWhitelisted(makerAsk, fromChainId);
 
         // Retrieve execution parameters
-        _canExecuteTakerBid(takerBid, makerAsk, fromChainId);
+        // _canExecuteTakerBid(takerBid, makerAsk, fromChainId);
 
         // Update maker ask order status to true (prevents replay)
         _isUserOrderNonceExecutedOrCancelled[makerAsk.signer][makerAsk.nonce] = true;
@@ -300,7 +301,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         _transferFeesAndFundsLz(takerBid, makerAsk, fromChainId, toChainId);
 
         // Execution part 2/2
-        _transferNonFungibleTokenLz(takerBid, makerAsk, fromChainId, toChainId);
+        _transferNonFungibleTokenLz(takerBid, makerAsk, fromChainId, toChainId, true);
 
         emit TakerBid(
             askHash,
@@ -373,25 +374,19 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         (uint16 toChainId) = makerBid.decodeParams();
         (uint16 fromChainId) = takerAsk.decodeParams();
 
-        _validateLzFeesBid(takerAsk, makerBid, toChainId, fromChainId);
-
-        // check strategy and currency remote address
-        require(currencyManager.isCurrencyWhitelisted(makerBid.currency), "Currency: Not whitelisted");
-
-        // Verify whether strategy can be executed
-        require(executionManager.isStrategyWhitelisted(makerBid.strategy), "Strategy: Not whitelisted");
+        _validateLzFees(takerAsk, makerBid, toChainId, fromChainId, false);
 
         // Retrieve execution parameters
-        _canExecuteTakerAsk(takerAsk, makerBid);
+        // _canExecuteTakerAsk(takerAsk, makerBid);
 
         // Update maker bid order status to true (prevents replay)
         _isUserOrderNonceExecutedOrCancelled[makerBid.signer][makerBid.nonce] = true;
 
         // Execution part 1/2
-        _transferNonFungibleTokenBidLz(takerAsk, makerBid, toChainId);
+        _transferNonFungibleTokenLz(takerAsk, makerBid, toChainId, fromChainId, false);
 
         // Execution part 2/2
-        _transferFeesAndFundsBidLz(takerAsk, makerBid, toChainId);
+        _transferFeesAndFundsBidLz(takerAsk, makerBid, fromChainId, toChainId);
 
         emit TakerAsk(
             bidHash,
@@ -655,7 +650,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         bool remoteSend
     ) internal {
         // Retrieve the transfer manager address
-        address transferManager = transferSelectorNFT.checkTransferManagerForToken(collectionTo);
+        address transferManager = transferSelectorNFT.checkTransferManagerForToken(remoteSend ? collectionTo : collectionFrom);
 
         // If no transfer manager found, it returns address(0)
         require(transferManager != address(0), "Transfer: No NFT transfer manager available");
@@ -692,16 +687,16 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         // require(executionManager.isStrategyWhitelisted(strategy), "Strategy: Not whitelisted");
     }
 
-    function _canExecuteTakerBid(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint16 chainId) 
-        internal view returns (uint256, uint256) {
-        address strategy = remoteAddrManager.checkRemoteAddress(makerAsk.strategy, chainId);
-        (bool isExecutionValid, uint256 tokenId, uint256 amount) = IExecutionStrategy(strategy)
-            .canExecuteTakerBid(takerBid, makerAsk);
+    // function _canExecuteTakerBid(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint16 chainId) 
+    //     internal view returns (uint256, uint256) {
+    //     address strategy = remoteAddrManager.checkRemoteAddress(makerAsk.strategy, chainId);
+    //     (bool isExecutionValid, uint256 tokenId, uint256 amount) = IExecutionStrategy(strategy)
+    //         .canExecuteTakerBid(takerBid, makerAsk);
 
-        require(isExecutionValid, "Strategy: Execution invalid");
+    //     require(isExecutionValid, "Strategy: Execution invalid");
 
-        return (tokenId, amount);
-    }
+    //     return (tokenId, amount);
+    // }
 
     function _transferFeesAndFundsLzWithWETH(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint16 chainId) internal {
         address strategy = remoteAddrManager.checkRemoteAddress(makerAsk.strategy, chainId);
@@ -742,21 +737,23 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         );
     }
 
-    function _transferNonFungibleTokenLz(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint16 fromChainId, uint16 toChainId) internal {
-        address collection = makerAsk.collection;
+    function _transferNonFungibleTokenLz(OrderTypes.TakerOrder calldata takerOrder, OrderTypes.MakerOrder calldata makerOrder, uint16 fromChainId, uint16 toChainId, bool remoteSend) internal {
+        address collection = makerOrder.collection;
         if (fromChainId != toChainId) {
-            collection = remoteAddrManager.checkRemoteAddress(makerAsk.collection, fromChainId);
+            collection = remoteAddrManager.checkRemoteAddress(makerOrder.collection, fromChainId);
         }
+        address from = remoteSend ? makerOrder.signer : takerOrder.taker;
+        address to = remoteSend ? takerOrder.taker : makerOrder.signer;
 
         _transferNonFungibleToken(
-            makerAsk.collection,
+            makerOrder.collection,
             collection,
-            makerAsk.signer,
-            takerBid.taker,
-            makerAsk.tokenId,
-            makerAsk.amount,
+            from,
+            to,
+            makerOrder.tokenId,
+            makerOrder.amount,
             fromChainId,
-            true
+            remoteSend
         );
     }
 
@@ -770,7 +767,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         uint16 fromChainId,
         bool remoteSend
     ) internal view returns(uint256) {
-        address transferManager = transferSelectorNFT.checkTransferManagerForToken(collectionTo);
+        address transferManager = transferSelectorNFT.checkTransferManagerForToken(remoteSend ? collectionFrom : collectionTo);
 
         if (transferManager == address(0)) {
             return 0;
@@ -781,7 +778,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         return messageFee;
     }
 
-    function _validateLzFees(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint16 fromChainId, uint16 toChainId) internal {
+    function _validateLzFees(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint16 fromChainId, uint16 toChainId, bool remoteSend) internal {
         address collection = remoteAddrManager.checkRemoteAddress(makerAsk.collection, fromChainId);
         address currency = remoteAddrManager.checkRemoteAddress(makerAsk.currency, fromChainId);
 
@@ -795,26 +792,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             toChainId
         );
         uint256 nftFee = _lzFeeTransferNFT(
-            makerAsk.collection, collection, makerAsk.signer, takerBid.taker, makerAsk.tokenId, makerAsk.amount, fromChainId, true);
-        
-        require (currencyFee + nftFee <= msg.value, "insufficient value");
-    }
-
-    function _validateLzFeesBid(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint16 fromChainId, uint16 toChainId) internal {
-        address collection = remoteAddrManager.checkRemoteAddress(makerAsk.collection, fromChainId);
-        address currency = remoteAddrManager.checkRemoteAddress(makerAsk.currency, fromChainId);
-
-        uint256 currencyFee = fundManager.lzFeeTransferCurrency(
-            address(currencyManager),
-            address(stargatePoolManager),
-            currency,
-            makerAsk.signer,
-            takerBid.price,
-            fromChainId,
-            toChainId
-        );
-        uint256 nftFee = _lzFeeTransferNFT(
-            makerAsk.collection, collection, makerAsk.signer, takerBid.taker, makerAsk.tokenId, makerAsk.amount, fromChainId, false);
+            makerAsk.collection, collection, makerAsk.signer, takerBid.taker, makerAsk.tokenId, makerAsk.amount, fromChainId, remoteSend);
         
         require (currencyFee + nftFee <= msg.value, "insufficient value");
     }
@@ -827,39 +805,44 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         
         return nftFee;
     }
-    function _canExecuteTakerAsk(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid) 
-        internal view returns (uint256, uint256) {
-        (bool isExecutionValid, uint256 tokenId, uint256 amount) = IExecutionStrategy(makerBid.strategy)
-            .canExecuteTakerAsk(takerAsk, makerBid);
+    // function _canExecuteTakerAsk(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid) 
+    //     internal view returns (uint256, uint256) {
+    //     (bool isExecutionValid, uint256 tokenId, uint256 amount) = IExecutionStrategy(makerBid.strategy)
+    //         .canExecuteTakerAsk(takerAsk, makerBid);
 
-        require(isExecutionValid, "Strategy: Execution invalid");
+    //     require(isExecutionValid, "Strategy: Execution invalid");
 
-        return (tokenId, amount);
-    }
+    //     return (tokenId, amount);
+    // }
 
-    function _transferNonFungibleTokenBidLz(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid, uint16 chainId) internal {
-        address collection = remoteAddrManager.checkRemoteAddress(makerBid.collection, chainId);
+    function _transferFeesAndFundsBidLz(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid, uint16 fromChainId, uint16 toChainId) internal {
+        if (fromChainId == toChainId) {
+            _transferFeesAndFunds(
+                makerBid.strategy,
+                makerBid.collection,
+                makerBid.tokenId,
+                makerBid.currency,
+                makerBid.signer,
+                takerAsk.taker,
+                takerAsk.price,
+                makerBid.minPercentageToAsk,
+                toChainId,
+                fromChainId
+            );
+        }
+        else {
+            require(trustedRemoteLookup[toChainId].length != 0, "LzSend: destination chain is not a trusted source.");
 
-        _transferNonFungibleToken(
-            makerBid.collection,
-            collection,
-            takerAsk.taker,
-            makerBid.signer,
-            makerBid.tokenId,
-            makerBid.amount,
-            chainId,
-            false
-        );
-    }
+            address strategy = remoteAddrManager.checkRemoteAddress(makerBid.strategy, toChainId);
+            address collection = remoteAddrManager.checkRemoteAddress(makerBid.collection, toChainId);
+            address currency = remoteAddrManager.checkRemoteAddress(makerBid.currency, toChainId);
 
-    function _transferFeesAndFundsBidLz(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid, uint16 chainId) internal {
-        require(trustedRemoteLookup[chainId].length != 0, "LzSend: destination chain is not a trusted source.");
+            bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
+            bytes memory payload = abi.encode(strategy, collection, currency, makerBid.signer, takerAsk.taker, makerBid.tokenId, takerAsk.price, takerAsk.minPercentageToAsk);
 
-        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
-        bytes memory payload = abi.encode(makerBid.strategy, makerBid.collection, makerBid.currency, makerBid.signer, takerAsk.taker, makerBid.tokenId, takerAsk.price, takerAsk.minPercentageToAsk);
-
-        (uint256 messageFee,) = lzEndpoint.estimateFees(chainId, address(this), payload, false, adapterParams);
-        lzEndpoint.send{value: messageFee}(chainId, trustedRemoteLookup[chainId], payload, payable(msg.sender), address(0), adapterParams);
+            (uint256 messageFee,) = lzEndpoint.estimateFees(toChainId, address(this), payload, false, adapterParams);
+            lzEndpoint.send{value: messageFee}(toChainId, trustedRemoteLookup[toChainId], payload, payable(msg.sender), address(0), adapterParams);
+        }
     }
 
     /**
@@ -873,10 +856,11 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         // uint64 nonce = _nonce;
         (address strategy, address collection, address currency, address from, address to, uint tokenId, uint price, uint minPercentageToAsk) = 
             abi.decode(_payload, (address, address, address, address, address, uint, uint, uint));
-        uint16 chainId = _srcChainId;
+        uint16 fromChainId = _srcChainId;
+        uint16 toChainId = lzEndpoint.getChainId();
         // if the toAddress is 0x0, convert to dead address, or it will get cached
         if (to == address(0x0)) to == address(0xdEaD);
-
+        
         _transferFeesAndFunds(
             strategy,
             collection,
@@ -886,8 +870,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             to,
             price,
             minPercentageToAsk,
-            chainId,
-            chainId
+            fromChainId,
+            toChainId
         );
     }
 
