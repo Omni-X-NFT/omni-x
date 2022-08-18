@@ -406,33 +406,33 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
 
     /**
      * @notice get layerzero fees for matching a takerAsk with a makerBid
-     * @param takerBid taker bid order
-     * @param makerAsk maker ask order
+     * @param takerAsk taker ask order
+     * @param makerBid maker bid order
      */
-    function getLzFeesForBidWithTakerAsk(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk)
+    function getLzFeesForBidWithTakerAsk(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid)
         external
         view
         returns (uint256)
     {
-        require((makerAsk.isOrderAsk) && (!takerBid.isOrderAsk), "Order: Wrong sides");
+        require((!makerBid.isOrderAsk) && (takerAsk.isOrderAsk), "Order: Wrong sides");
 
-        (uint16 fromChainId) = makerAsk.decodeParams();
-        (uint16 toChainId) = takerBid.decodeParams();
-        address collection = remoteAddrManager.checkRemoteAddress(makerAsk.collection, fromChainId);
-        address currency = remoteAddrManager.checkRemoteAddress(makerAsk.currency, fromChainId);
+        (uint16 fromChainId) = makerBid.decodeParams();
+        (uint16 toChainId) = takerAsk.decodeParams();
+        address collection = remoteAddrManager.checkRemoteAddress(makerBid.collection, fromChainId);
+        address currency = remoteAddrManager.checkRemoteAddress(makerBid.currency, fromChainId);
 
         uint256 currencyFee = fundManager.lzFeeTransferCurrency(
             address(currencyManager),
             address(stargatePoolManager),
             currency,
-            makerAsk.signer,
-            takerBid.price,
+            makerBid.signer,
+            takerAsk.price,
             fromChainId,
             toChainId
         );
 
         uint256 nftFee = _lzFeeTransferNFT(
-            makerAsk.collection, collection, makerAsk.signer, takerBid.taker, makerAsk.tokenId, makerAsk.amount, fromChainId, false);
+            makerBid.collection, collection, makerBid.signer, takerAsk.taker, makerBid.tokenId, makerBid.amount, fromChainId, false);
 
         return (currencyFee + nftFee);
     }

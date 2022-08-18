@@ -1,5 +1,5 @@
 import shell from 'shelljs'
-import { getContractAddrByName } from './shared'
+import { getContractAddrByName, toWei } from './shared'
 import { getDeploymentAddresses } from '../utils/readStatic'
 import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
 
@@ -42,7 +42,8 @@ export const verifyOmni = async () => {
   const { ethers, run, network } = hre
   const [owner] = await ethers.getSigners()
   
-  // const lzEndpoint = ENDPOINTS[network.name]
+  const lzEndpoint = ENDPOINTS[network.name]
+
   // await run('verify:verify', {
   //   address: getContractAddrByName(network.name, 'TransferManagerGhosts'),
   //   constructorArguments: [
@@ -57,10 +58,18 @@ export const verifyOmni = async () => {
           getContractAddrByName(network.name, 'ExecutionManager'),
           getContractAddrByName(network.name, 'RoyaltyFeeManager'),
           ethers.constants.AddressZero,
-          owner.address
+          owner.address,
+          lzEndpoint
       ],
       contract: "contracts/core/OmniXExchange.sol:OmniXExchange"
   })
+  await run('verify:verify', {
+    address: getContractAddrByName(network.name, 'OFTMock'),
+    constructorArguments: [
+      'OMNI', 'OMNI', toWei(ethers, 1000), lzEndpoint
+    ],
+    contract: "contracts/mocks/OFTMock.sol:OFTMock"
+})
 
   // await run('verify:verify', {
   //   address: getContractAddrByName(network.name, 'Router'),

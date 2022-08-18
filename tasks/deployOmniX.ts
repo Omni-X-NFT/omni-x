@@ -62,5 +62,5 @@ export const deployOmniX = async () => {
   await omniXExchange.setStargatePoolManager(poolManager.address)
 
   const fundManager = await deployContract(_hre, 'FundManager', owner, [omniXExchange.address])
-  await omniXExchange.setStargatePoolManager(fundManager.address)
+  await omniXExchange.setFundManager(fundManager.address)
 }
