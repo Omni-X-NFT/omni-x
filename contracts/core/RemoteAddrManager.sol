@@ -45,6 +45,10 @@ contract RemoteAddrManager is IRemoteAddrManager, Ownable {
         }
 
         address srcAddr = remoteAddresses[remoteAddress][remoteChainId];
+        if (srcAddr == address(0)) {
+            return remoteAddress;
+        }
+
         return srcAddr;
     }
 }

@@ -713,15 +713,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     }
 
     function _transferFeesAndFundsLz(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint16 fromChainId, uint16 toChainId) internal {
-        address strategy = makerAsk.strategy;
-        address collection = makerAsk.collection;
-        address currency = makerAsk.currency;
-
-        if (fromChainId != toChainId) {
-            strategy = remoteAddrManager.checkRemoteAddress(makerAsk.strategy, fromChainId);
-            collection = remoteAddrManager.checkRemoteAddress(makerAsk.collection, fromChainId);
-            currency = remoteAddrManager.checkRemoteAddress(makerAsk.currency, fromChainId);
-        }
+        // if fromChainId and toChainId is same, checkRemoteAddress returns same
+        address strategy = remoteAddrManager.checkRemoteAddress(makerAsk.strategy, fromChainId);
+        address collection = remoteAddrManager.checkRemoteAddress(makerAsk.collection, fromChainId);
+        address currency = remoteAddrManager.checkRemoteAddress(makerAsk.currency, fromChainId);
 
         _transferFeesAndFunds(
             strategy,
@@ -738,10 +733,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     }
 
     function _transferNonFungibleTokenLz(OrderTypes.TakerOrder calldata takerOrder, OrderTypes.MakerOrder calldata makerOrder, uint16 fromChainId, uint16 toChainId, bool remoteSend) internal {
-        address collection = makerOrder.collection;
-        if (fromChainId != toChainId) {
-            collection = remoteAddrManager.checkRemoteAddress(makerOrder.collection, fromChainId);
-        }
+        // if fromChainId and toChainId is same, collection is makerOrder.collection
+        address collection = remoteAddrManager.checkRemoteAddress(makerOrder.collection, fromChainId);
         address from = remoteSend ? makerOrder.signer : takerOrder.taker;
         address to = remoteSend ? takerOrder.taker : makerOrder.signer;
 
