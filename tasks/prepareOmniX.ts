@@ -8,6 +8,7 @@ import {
   waitFor
 } from './shared'
 import STARGATE from '../constants/stargate.json'
+import shell from 'shelljs'
 
 const TRANSACTION_CONFIRM_DELAY = 5000
 const CurrencyManagerAbi = loadAbi('../artifacts/contracts/core/CurrencyManager.sol/CurrencyManager.json')
@@ -38,7 +39,7 @@ export const prepareOmniX = async () => {
 
   await currencyManager.addCurrency(getContractAddrByName(network.name, 'OFTMock'))
   await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSale'))
-  await transferSelector.addCollectionTransferManager(getContractAddrByName(network.name, 'ghosts'), getContractAddrByName(network.name, 'TransferManagerGhosts'))
+  // await transferSelector.addCollectionTransferManager(getContractAddrByName(network.name, 'ghosts'), getContractAddrByName(network.name, 'TransferManagerGhosts'))
 }
 
 export const linkOmniX = async (taskArgs: any) => {
@@ -46,7 +47,7 @@ export const linkOmniX = async (taskArgs: any) => {
   // eslint-disable-next-line
   const _hre = hre
   const { ethers, network } = _hre
-  const [owner, , , deployer] = await ethers.getSigners()
+  const [owner, , deployer] = await ethers.getSigners()
 
   const { dstchainname: dstNetwork } = taskArgs
   const dstChainId = getChainId(dstNetwork)
@@ -67,7 +68,7 @@ export const linkOmniX = async (taskArgs: any) => {
 
   const remoteAddrManager = createContractByName(_hre, 'RemoteAddrManager', RemoteAddrManagerAbi().abi, owner)
   await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'OFTMock'), dstChainId, getContractAddrByName(network.name, 'OFTMock'))
-  await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'ghosts'), dstChainId, getContractAddrByName(network.name, 'ghosts'))
+  // await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'ghosts'), dstChainId, getContractAddrByName(network.name, 'ghosts'))
   await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'StrategyStandardSale'), dstChainId, getContractAddrByName(network.name, 'StrategyStandardSale'))
 }
 
@@ -148,5 +149,43 @@ export const setupBridge = async (taskArgs: any) => {
 
       await router.sendCredits(dstChainId, srcPoolId, dstPoolId, owner.address, { value: toWei(ethers, 0.3) })
     }
+  }
+}
+
+const environments: any = {
+  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
+  testnet: ['rinkeby', 'bsc-testnet', 'fuji', 'mumbai' /*, 'arbitrum-rinkeby', 'fantom-testnet'*/]
+}
+
+export const prepareOmnixAll = async function (taskArgs: any) {
+  const networks = environments[taskArgs.e]
+  if (!taskArgs.e || networks.length === 0) {
+    console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+
+  await Promise.all(
+    networks.map(async (network: string) => {
+      const checkWireUpCommand = `npx hardhat prepareOmniX --network ${network}`
+      shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+    })
+  )
+}
+
+export const linkOmnixAll = async function (taskArgs: any) {
+  const networks = environments[taskArgs.e]
+  if (!taskArgs.e || networks.length === 0) {
+    console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+
+  for (const network of networks) {
+    await Promise.all(
+      networks.map(async (dst: string) => {
+        if (network != dst) {
+          const checkWireUpCommand = `npx hardhat linkOmniX --network ${network} --dstchainname ${dst}`
+          console.log(checkWireUpCommand)
+          shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+        }
+      })
+    )
   }
 }

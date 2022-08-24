@@ -1,7 +1,7 @@
 import { task } from 'hardhat/config'
 import { setTrustedRemote } from './setTrustedRemote'
-import { deployOmniX } from './deployOmniX'
-import { linkOmniX, prepareOmniX, prepareStargate, setupBridge } from './prepareOmniX'
+import { deployGhosts, deployOmniX, deployOmnixAll } from './deployOmniX'
+import { linkOmniX, linkOmnixAll, prepareOmniX, prepareOmnixAll, prepareStargate, setupBridge } from './prepareOmniX'
 import { testGhosts } from './test'
 import { verifyOmni, verifyAll } from './verify'
 import { deployNormal, linkNormal, testNormal } from './testNormal'
@@ -18,13 +18,23 @@ task(
 
 task('deployOmniX', 'deploys an OmniX exchange')
   .setAction(deployOmniX)
-
+task('deployGhosts', 'deploys an OmniX exchange')
+  .setAction(deployGhosts)
 task('prepareOmniX', 'deploys an OmniX exchange')
   .setAction(prepareOmniX)
-
 task('linkOmniX', 'deploys an OmniX exchange')
   .addParam('dstchainname', 'destination chain name. ex: rinkeby')
   .setAction(linkOmniX)
+task('deployAllX', 'deploys an OmniX exchange')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(deployOmnixAll)
+task('prepareAllX', 'deploys an OmniX exchange')
+.addParam('e', 'testnet or mainnet')
+  .setAction(prepareOmnixAll)
+task('linkAllX', 'deploys an OmniX exchange')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(linkOmnixAll)
+
 
 task('testOmniX', 'test OmniXEchange with Gh0stlyGh0sts NFT between rinkeby vs bsctest')
   .addParam('step', 'listing prepare buy')

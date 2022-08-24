@@ -2,10 +2,12 @@ import {
   STRATEGY_PROTOCAL_FEE,
   ROYALTY_FEE_LIMIT,
   deployContract,
-  toWei
+  toWei,
+  getContractAddrByName
 } from './shared'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
+import shell from 'shelljs'
 
 export const deployOmniX = async () => {
   // @ts-ignore
@@ -64,3 +66,34 @@ export const deployOmniX = async () => {
   const fundManager = await deployContract(_hre, 'FundManager', owner, [omniXExchange.address])
   await omniXExchange.setFundManager(fundManager.address)
 }
+
+export const deployGhosts = async () => {
+  // @ts-ignore
+  // eslint-disable-next-line
+  const _hre = hre
+  const { ethers, network } = _hre
+  const [, , deployer] = await ethers.getSigners()
+  const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
+
+  await deployContract(_hre, 'TransferManagerGhosts', deployer, [getContractAddrByName(network.name, 'OmniXExchange'), lzEndpoint])
+}
+
+const environments: any = {
+  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
+  testnet: ['rinkeby', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-rinkeby', 'fantom-testnet']
+}
+
+export const deployOmnixAll = async function (taskArgs: any) {
+  const networks = environments[taskArgs.e]
+  if (!taskArgs.e || networks.length === 0) {
+    console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+
+  await Promise.all(
+    networks.map(async (network: string) => {
+      const checkWireUpCommand = `npx hardhat deployOmniX --network ${network}`
+      shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+    })
+  )
+}
+
