@@ -76,6 +76,7 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   const chain: any = {}
   // layerzero endpoint
   chain.layerZeroEndpoint = await deployContract('LZEndpointMock', owner, [chainId]) as LZEndpointMock
+  await chain.layerZeroEndpoint.setEstimatedFees(10000, 0)
   // normal currency
   chain.erc20Mock = await deployContract('LRTokenMock', owner, []) as LRTokenMock
 
@@ -153,15 +154,15 @@ export const linkChains = async (src: Chain, dst: Chain) => {
   await src.omniXExchange.setTrustedRemote(await dst.chainId, dst.omniXExchange.address)
 
   await src.remoteAddrManager.addRemoteAddress(dst.erc20Mock.address, dst.chainId, src.erc20Mock.address)
-  await src.remoteAddrManager.addRemoteAddress(src.erc20Mock.address, dst.chainId, dst.erc20Mock.address)
+  // await src.remoteAddrManager.addRemoteAddress(src.erc20Mock.address, dst.chainId, dst.erc20Mock.address)
   await src.remoteAddrManager.addRemoteAddress(dst.strategy.address, dst.chainId, src.strategy.address)
-  await src.remoteAddrManager.addRemoteAddress(src.strategy.address, dst.chainId, dst.strategy.address)
-  await src.remoteAddrManager.addRemoteAddress(dst.nftMock.address, dst.chainId, src.nftMock.address)
-  await src.remoteAddrManager.addRemoteAddress(src.nftMock.address, dst.chainId, dst.nftMock.address)
+  // await src.remoteAddrManager.addRemoteAddress(src.strategy.address, dst.chainId, dst.strategy.address)
+  // await src.remoteAddrManager.addRemoteAddress(dst.nftMock.address, dst.chainId, src.nftMock.address)
+  // await src.remoteAddrManager.addRemoteAddress(src.nftMock.address, dst.chainId, dst.nftMock.address)
   await src.remoteAddrManager.addRemoteAddress(dst.omni.address, dst.chainId, src.omni.address)
-  await src.remoteAddrManager.addRemoteAddress(src.omni.address, dst.chainId, dst.omni.address)
+  // await src.remoteAddrManager.addRemoteAddress(src.omni.address, dst.chainId, dst.omni.address)
   await src.remoteAddrManager.addRemoteAddress(dst.onft721.address, dst.chainId, src.onft721.address)
-  await src.remoteAddrManager.addRemoteAddress(src.onft721.address, dst.chainId, dst.onft721.address)
+  // await src.remoteAddrManager.addRemoteAddress(src.onft721.address, dst.chainId, dst.onft721.address)
   await src.remoteAddrManager.addRemoteAddress(dst.ghosts.address, dst.chainId, src.ghosts.address)
 }
 

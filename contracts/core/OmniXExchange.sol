@@ -348,7 +348,6 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
 
         uint256 nftFee = _lzFeeTransferNFT(
             makerAsk.collection, collection, makerAsk.signer, takerBid.taker, makerAsk.tokenId, makerAsk.amount, fromChainId, true);
-
         return (currencyFee + nftFee);
     }
 
@@ -565,15 +564,29 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
 
         // 3. Transfer final amount (post-fees) to seller
         {
-            fundManager.transferCurrency{value: 0}(
+            address currency0 = currency;
+            address from0 = from;
+            address to0 = to;
+            uint16 chainId0 = fromChainId;
+            uint16 chainId1 = toChainId;
+            uint256 currencyFee = fundManager.lzFeeTransferCurrency(
                 address(currencyManager),
                 address(stargatePoolManager),
-                currency,
-                from,
-                to,
+                currency0,
+                from0,
                 finalSellerAmount,
-                fromChainId,
-                toChainId
+                chainId0,
+                chainId1
+            );
+            fundManager.transferCurrency{value: currencyFee}(
+                address(currencyManager),
+                address(stargatePoolManager),
+                currency0,
+                from0,
+                to0,
+                finalSellerAmount,
+                chainId0,
+                chainId1
             );
         }
     }
@@ -760,7 +773,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         uint16 fromChainId,
         bool remoteSend
     ) internal view returns(uint256) {
-        address transferManager = transferSelectorNFT.checkTransferManagerForToken(remoteSend ? collectionFrom : collectionTo);
+        address transferManager = transferSelectorNFT.checkTransferManagerForToken(remoteSend ? collectionTo : collectionFrom);
 
         if (transferManager == address(0)) {
             return 0;
@@ -786,7 +799,6 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         );
         uint256 nftFee = _lzFeeTransferNFT(
             makerAsk.collection, collection, makerAsk.signer, takerBid.taker, makerAsk.tokenId, makerAsk.amount, fromChainId, remoteSend);
-        
         require (currencyFee + nftFee <= msg.value, "insufficient value");
     }
 
