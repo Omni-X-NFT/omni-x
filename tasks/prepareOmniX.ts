@@ -66,6 +66,9 @@ export const linkOmniX = async (taskArgs: any) => {
   const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi().abi, owner)
   await omni.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'OFTMock'))
 
+  const omniXExchange = createContractByName(_hre, 'OmniXExchange', OFTMockAbi().abi, owner)
+  await omniXExchange.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'OmniXExchange'))
+
   const remoteAddrManager = createContractByName(_hre, 'RemoteAddrManager', RemoteAddrManagerAbi().abi, owner)
   await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'OFTMock'), dstChainId, getContractAddrByName(network.name, 'OFTMock'))
   // await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'ghosts'), dstChainId, getContractAddrByName(network.name, 'ghosts'))
