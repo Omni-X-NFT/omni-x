@@ -39,7 +39,7 @@ export const deployOmniX = async () => {
   const remoteAddrManager = await deployContract(_hre, 'RemoteAddrManager', owner, [])
   await deployContract(_hre, 'TransferManagerONFT721', owner, [omniXExchange.address, lzEndpoint])
   await deployContract(_hre, 'TransferManagerONFT1155', owner, [omniXExchange.address, lzEndpoint])
-  await deployContract(_hre, 'TransferManagerGhosts', deployer, [omniXExchange.address, lzEndpoint])
+  // await deployContract(_hre, 'TransferManagerGhosts', deployer, [omniXExchange.address, lzEndpoint])
 
   await deployContract(_hre, 'OFTMock', owner, ['OMNI', 'OMNI', toWei(ethers, 1000), lzEndpoint])
 
@@ -48,17 +48,17 @@ export const deployOmniX = async () => {
 
   // deploy stargate
   let stargateRouter = stargateEndpoint.router
-  const isTest = stargateEndpoint.isTest
-  if (isTest) {
-    const stargateRouterContract = await deployContract(_hre, 'Router', owner, [])
-    stargateRouter = stargateRouterContract.address
+  // const isTest = stargateEndpoint.isTest
+  // if (isTest) {
+  //   const stargateRouterContract = await deployContract(_hre, 'Router', owner, [])
+  //   stargateRouter = stargateRouterContract.address
 
-    await deployContract(_hre, 'Bridge', owner, [lzEndpoint, stargateRouter])
-    await deployContract(_hre, 'StargateFeeLibraryMock', owner, [])
-    await deployContract(_hre, 'Factory', owner, [stargateRouter])
+  //   await deployContract(_hre, 'Bridge', owner, [lzEndpoint, stargateRouter])
+  //   await deployContract(_hre, 'StargateFeeLibraryMock', owner, [])
+  //   await deployContract(_hre, 'Factory', owner, [stargateRouter])
 
-    await deployContract(_hre, 'LRTokenMock', owner, [])
-  }
+  //   await deployContract(_hre, 'LRTokenMock', owner, [])
+  // }
 
   const poolManager = await deployContract(_hre, 'StargatePoolManager', owner, [stargateRouter])
   await omniXExchange.setStargatePoolManager(poolManager.address)
@@ -80,7 +80,8 @@ export const deployGhosts = async () => {
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
-  testnet: ['rinkeby', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-rinkeby', 'fantom-testnet']
+  // testnet: ['rinkeby', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-rinkeby', 'fantom-testnet'],
+  testnet: ['fuji', 'mumbai']
 }
 
 export const deployOmnixAll = async function (taskArgs: any) {
