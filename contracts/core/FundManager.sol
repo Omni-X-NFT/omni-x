@@ -88,11 +88,9 @@ contract FundManager is IFundManager {
             }
             else {
                 bytes memory toAddress = abi.encodePacked(to);
-
                 bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
-                (uint256 lzFee, ) = IOFT(currency).estimateSendFee(fromChainId, toAddress, amount, false, adapterParams);
                 
-                IOFT(currency).sendFrom{value: lzFee}(
+                IOFT(currency).sendFrom{value: msg.value}(
                     from, fromChainId, toAddress, amount, payable(msg.sender), address(0x0), adapterParams
                 );
             }
@@ -103,8 +101,7 @@ contract FundManager is IFundManager {
                 stargatePoolManager != address(0) &&
                 IStargatePoolManager(stargatePoolManager).isSwappable(currency, fromChainId)
             ) {
-                (uint256 fee, ) = IStargatePoolManager(stargatePoolManager).getSwapFee(fromChainId, to);
-                IStargatePoolManager(stargatePoolManager).swap{value: fee}(currency, fromChainId, payable(msg.sender), amount, from, to);
+                IStargatePoolManager(stargatePoolManager).swap{value: msg.value}(currency, fromChainId, payable(msg.sender), amount, from, to);
             }
             else {
                 IERC20(currency).safeTransferFrom(from, to, amount);

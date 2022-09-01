@@ -65,35 +65,11 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 - npx hardhat testNormal --step listing --tokenid 1 --nonce 2 --network fuji
 - npx hardhat testNormal --step buy --tokenid 1 --network bsct
 
-# Deployed Contracts
+# Deployed Contracts at once
+- npx hardhat deployAllX --e testnet [mainnet]
+- npx hardhat prepareAllX --e testnet [mainnet]
+- npx hardhat linkAllX --e testnet [mainnet]
 
-## BSC testnet
-- deployed StrategyStandardSale to  0xF879784C48d0C8c003Df4289e614d1771B8Ac75e
-- deployed CurrencyManager to  0xD275A5285F9917c8cB7B58E8ADef25FD7CdB2144
-- deployed ExecutionManager to  0x614389E0006e13F6f5be18faD6A3627D3c80CeC4
-- deployed RoyaltyFeeRegistry to  0x9344a7f70E0F05E36fFD583f059f9F18355BFDDd
-- deployed RoyaltyFeeManager to  0x0a6d3E201aE8d0dFd93eDeA13FF43372CC7f112f
-- deployed OmniXExchange to  0xf4eF74634945d13e5f8F3e539885CAce8f079bE2
-- deployed TransferManagerERC721 to  0x5F8D2c82ca3b5510b87A406B7e446dB480a2ECDe
-- deployed TransferManagerERC1155 to  0x07Dbef39a5143c21D31b85D1D68a1eC1Ea05d0da
-- deployed TransferSelectorNFT to  0x30be2979F1297C914fbD6De7A8a45549362f2b6E
-- deployed RemoteAddrManager to  0x956B386B27eaA08b88AC945D52e4D65299767c88
-- deployed TransferManagerONFT721 to  0x3C5155e243E1F25f56009F164d75c70ade97c588
-- deployed TransferManagerONFT1155 to  0x1DF525AFF1B9e6baFeC04A92e99B163Bd7B1a498
-- deployed TransferManagerGhosts to  0xD14e3adA7FbbdE9a0E34f5Cc94322275Db880036
-- deployed OFTMock to  0xFC2c41Ab2A525bCf7BC479b9A7ebA7ab7c3c0850
-## Fuji
-- deployed StrategyStandardSale to  0xc454e1189B0677561bB42f0016f818829458e978
-- deployed CurrencyManager to  0xAbe3BD6B19334A2EBB422078528d7C26Eef02626
-- deployed ExecutionManager to  0x16007df2A3f7Aa502cf3990EEb4DA3F1D11c223C
-- deployed RoyaltyFeeRegistry to  0xF879784C48d0C8c003Df4289e614d1771B8Ac75e
-- deployed RoyaltyFeeManager to  0xD275A5285F9917c8cB7B58E8ADef25FD7CdB2144
-- deployed OmniXExchange to  0x614389E0006e13F6f5be18faD6A3627D3c80CeC4
-- deployed TransferManagerERC721 to  0x9344a7f70E0F05E36fFD583f059f9F18355BFDDd
-- deployed TransferManagerERC1155 to  0x0a6d3E201aE8d0dFd93eDeA13FF43372CC7f112f
-- deployed TransferSelectorNFT to  0xf4eF74634945d13e5f8F3e539885CAce8f079bE2
-- deployed RemoteAddrManager to  0x5F8D2c82ca3b5510b87A406B7e446dB480a2ECDe
-- deployed TransferManagerONFT721 to  0x07Dbef39a5143c21D31b85D1D68a1eC1Ea05d0da
-- deployed TransferManagerONFT1155 to  0x30be2979F1297C914fbD6De7A8a45549362f2b6E
-- deployed TransferManagerGhosts to  0xD14e3adA7FbbdE9a0E34f5Cc94322275Db880036
-- deployed OFTMock to  0x956B386B27eaA08b88AC945D52e4D65299767c88
+*Caution*
+If the collection is only on a certain chain, then TransferSelector can't determine TransferManager.
+In this case you need to set the corresponding TransferManager for the collection.

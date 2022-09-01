@@ -40,11 +40,11 @@ contract RoyaltyFeeManager is IRoyaltyFeeManager, Ownable {
         (address receiver, uint256 royaltyAmount) = royaltyFeeRegistry.royaltyInfo(collection, amount);
 
         // 2. If the receiver is address(0), fee is null, check if it supports the ERC2981 interface
-        if ((receiver == address(0)) || (royaltyAmount == 0)) {
-            if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC2981)) {
-                (receiver, royaltyAmount) = IERC2981(collection).royaltyInfo(tokenId, amount);
-            }
-        }
+        // if ((receiver == address(0)) || (royaltyAmount == 0)) {
+        //     if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC2981)) {
+        //         (receiver, royaltyAmount) = IERC2981(collection).royaltyInfo(tokenId, amount);
+        //     }
+        // }
         return (receiver, royaltyAmount);
     }
 }

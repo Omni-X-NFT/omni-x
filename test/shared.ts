@@ -76,7 +76,7 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   const chain: any = {}
   // layerzero endpoint
   chain.layerZeroEndpoint = await deployContract('LZEndpointMock', owner, [chainId]) as LZEndpointMock
-  await chain.layerZeroEndpoint.setEstimatedFees(10000, 0)
+  await chain.layerZeroEndpoint.setEstimatedFees(10000000, 0)
   // normal currency
   chain.erc20Mock = await deployContract('LRTokenMock', owner, []) as LRTokenMock
 

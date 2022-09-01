@@ -63,6 +63,7 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         }
         else {
             if (remoteSend) {
+                console.log("--onft transfer--");
                 _crossSendToSrc(collectionFrom, collectionTo, from, to, tokenId, amount, remoteChainId);
             }
             else {
@@ -127,6 +128,7 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         if (messageType == MT_ON_SRC_CHAIN) {
             emit ReceiveFromDstChain(chainId, collectionFrom, fromAddress, toAddress, tokenId, amount, nonce);
 
+            console.log("--received--", fromAddress, toAddress);
             if (_onReceiveOnSrcChain(collectionFrom, fromAddress, toAddress, tokenId, amount, chainId)) {
                 _crossSendToDst(collectionFrom, collectionTo, fromAddress, toAddress, tokenId, amount, chainId);
             }
