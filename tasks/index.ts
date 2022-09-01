@@ -5,6 +5,8 @@ import { deployAll } from './deployAll'
 import { verifyAll } from './verifyAll'
 import { aonftSetWhitelist } from './aonftSetWhitelist'
 import { aonftSetPrice } from './aonftSetPrice'
+import { aonftSetBaseURI } from './aonftSetBaseURI'
+import { aonftReveal } from './aonftReveal'
 
 task(
   'setTrustedRemote',
@@ -46,3 +48,15 @@ task(
   'setPrice(price) to set a new price for the mint',
   aonftSetPrice
 ).addParam('price', 'new price of the mint')
+
+task(
+  'aonftSetBaseURI',
+  'set new baseURI for a collection',
+  aonftSetBaseURI
+).addParam('baseuri', 'new baseURI')
+
+task(
+  'aonftReveal',
+  'reveal or unreveal the collection',
+  aonftReveal
+)
