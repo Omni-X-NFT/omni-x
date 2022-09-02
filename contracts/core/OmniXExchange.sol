@@ -433,7 +433,23 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         uint256 nftFee = _lzFeeTransferNFT(
             makerBid.collection, collection, makerBid.signer, takerAsk.taker, makerBid.tokenId, makerBid.amount, fromChainId, false);
 
-        return (currencyFee + nftFee);
+        uint256 messageFee = getCrossMessageFee(takerAsk, makerBid);
+
+        return (currencyFee + nftFee + messageFee);
+    }
+
+    function getCrossMessageFee(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid) internal view returns (uint256) {
+        (uint16 toChainId) = makerBid.decodeParams();
+        address collection = remoteAddrManager.checkRemoteAddress(makerBid.collection, toChainId);
+        address currency = remoteAddrManager.checkRemoteAddress(makerBid.currency, toChainId);
+        address strategy = remoteAddrManager.checkRemoteAddress(makerBid.strategy, toChainId);
+
+        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
+        bytes memory payload = abi.encode(makerBid.signer, takerAsk.taker, makerBid.tokenId, takerAsk.price, takerAsk.minPercentageToAsk, strategy, collection, currency);
+
+        (uint256 messageFee,) = lzEndpoint.estimateFees(toChainId, address(this), payload, false, adapterParams);
+
+        return messageFee;
     }
 
     /**

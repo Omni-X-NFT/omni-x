@@ -63,7 +63,6 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         }
         else {
             if (remoteSend) {
-                console.log("--onft transfer--");
                 _crossSendToSrc(collectionFrom, collectionTo, from, to, tokenId, amount, remoteChainId);
             }
             else {

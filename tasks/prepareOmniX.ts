@@ -40,6 +40,9 @@ export const prepareOmniX = async () => {
   await currencyManager.addCurrency(getContractAddrByName(network.name, 'OFTMock'))
   await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSale'))
   // await transferSelector.addCollectionTransferManager(getContractAddrByName(network.name, 'ghosts'), getContractAddrByName(network.name, 'TransferManagerGhosts'))
+
+  // add collection
+  await transferSelector.addCollectionTransferManager("0xb74bf94049d2c01f8805b8b15db0909168cabf46", getContractAddrByName(network.name, 'TransferManagerERC721'))
 }
 
 export const linkOmniX = async (taskArgs: any) => {
@@ -50,7 +53,9 @@ export const linkOmniX = async (taskArgs: any) => {
   const [owner, , deployer] = await ethers.getSigners()
 
   const { dstchainname: dstNetwork } = taskArgs
+  const srcNetwork = network.name
   const dstChainId = getChainId(dstNetwork)
+  const scrChainId = getChainId(srcNetwork)
 
   // const transferManagerGhosts = createContractByName(_hre, 'TransferManagerGhosts', TransferManagerGhostsAbi().abi, deployer)
   // await transferManagerGhosts.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerGhosts'))
@@ -71,8 +76,10 @@ export const linkOmniX = async (taskArgs: any) => {
 
   const remoteAddrManager = createContractByName(_hre, 'RemoteAddrManager', RemoteAddrManagerAbi().abi, owner)
   await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'OFTMock'), dstChainId, getContractAddrByName(network.name, 'OFTMock'))
+  await remoteAddrManager.addRemoteAddress(getContractAddrByName(srcNetwork, 'OFTMock'), dstChainId, getContractAddrByName(dstNetwork, 'OFTMock'))
   // await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'ghosts'), dstChainId, getContractAddrByName(network.name, 'ghosts'))
   await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'StrategyStandardSale'), dstChainId, getContractAddrByName(network.name, 'StrategyStandardSale'))
+  await remoteAddrManager.addRemoteAddress(getContractAddrByName(srcNetwork, 'StrategyStandardSale'), dstChainId, getContractAddrByName(dstNetwork, 'StrategyStandardSale'))
 }
 
 export const prepareStargate = async () => {
@@ -158,7 +165,7 @@ export const setupBridge = async (taskArgs: any) => {
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
   // testnet: ['rinkeby', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-rinkeby', 'fantom-testnet']
-  testnet: ['rinkeby', 'bsc-testnet', 'fuji', 'mumbai']
+  testnet: ['rinkeby', 'bsc-testnet', 'fuji']
 }
 
 export const prepareOmnixAll = async function (taskArgs: any) {

@@ -25,8 +25,6 @@ contract TransferManagerERC721 is TransferManagerLzBase {
         uint256 amount,
         uint16
     ) virtual internal override returns(bool) {
-        console.log(collection, from, to);
-
         _normalTransfer(collection, from, to, tokenId, amount);
         return false;
     }
