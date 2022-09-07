@@ -27,7 +27,8 @@ export const setTrustedRemote = async function (taskArgs: any, hre: any) {
 
   // setTrustedRemote() on the local contract, so it can receive message from the source contract
   try {
-    const tx = await (await contractInstance.setTrustedRemote(dstChainId, dstAddr)).wait()
+    const trustedRemote = hre.ethers.utils.solidityPack(['address', 'address'], [dstAddr, addresses])
+    const tx = await (await contractInstance.setTrustedRemote(dstChainId, trustedRemote)).wait()
     console.log(`✅ [${hre.network.name}] setTrustedRemote(${dstChainId}, ${dstAddr})`)
     console.log(` tx: ${tx.transactionHash}`)
   } catch (e: any) {
