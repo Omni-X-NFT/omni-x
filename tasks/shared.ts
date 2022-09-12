@@ -69,6 +69,10 @@ export const getContractAddrByName = (network: string, name: string): string => 
     return contractInfo.address
   }
 
+  if (name === 'USDC' || name === 'USDT') {
+    const stargate = STARGATE as any
+    return stargate[network]?.usdc || stargate[network]?.usdt
+  }
   return (CONTRACTS as any)[folderName][name]
 }
 
