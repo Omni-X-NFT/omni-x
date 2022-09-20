@@ -79,6 +79,11 @@ const config: HardhatUserConfig = {
       chainId: 4,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
+    goerli: {
+      url: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
+      chainId: 5,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
     'bsc-testnet': {
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
       chainId: 97,
@@ -90,7 +95,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     mumbai: {
-      url: 'https://speedy-nodes-nyc.moralis.io/99e98b2333a911011f42606d/polygon/mumbai',
+      url: 'https://polygon-mumbai.g.alchemy.com/v2/H2EfIYrKg--DbTdHW37WJaSVuaJvTF0T',
       chainId: 80001,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },

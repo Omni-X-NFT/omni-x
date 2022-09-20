@@ -7,7 +7,7 @@ import { getDeploymentAddresses } from '../utils/readStatic'
 // import fantomWL from '../constants/og/fantom.json'
 // import optimismWL from '../constants/og/optimism.json'
 // import polygonWL from '../constants/og/polygon.json'
-import earlySupporterWL from '../constants/og/earlysupporter.json'
+import * as earlySupporterWL from '../constants/og/earlysupporter.json'
 const { MerkleTree } = require('merkletreejs')
 
 export const aonftSetWhitelist = async function (taskArgs: any, hre: HardhatRuntimeEnvironment) {
@@ -20,7 +20,7 @@ export const aonftSetWhitelist = async function (taskArgs: any, hre: HardhatRunt
   // Generate Merkle Root and setting up to contract
   const leaves = await Promise.all(
     // change the WL here
-    earlySupporterWL.map(async (account) => {
+    earlySupporterWL.map(async (account: any) => {
       return hre.ethers.utils.keccak256(account)
     })
   )
