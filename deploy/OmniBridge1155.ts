@@ -15,13 +15,13 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
   // get the Endpoint address
   const endpointAddr = ENDPOINTS[hre.network.name]
 
-  await deploy("OmniBridge1155", {
+  await deploy('OmniBridge1155', {
     from: deployer,
     args: [endpointAddr],
     log: true,
-    waitConfirmations: 1,
+    waitConfirmations: 1
   })
   console.log(`✅ [${hre.network.name}]`)
 }
 
-module.exports.tags = ["OmniBridge1155"]
+module.exports.tags = ['OmniBridge1155']
