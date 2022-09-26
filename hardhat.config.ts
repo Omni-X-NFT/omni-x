@@ -90,7 +90,17 @@ const config: HardhatUserConfig = {
       url: 'https://rpc.testnet.fantom.network/',
       chainId: 4002,
       accounts
-    }
+    },
+    'arbitrum-goerli': {
+      url: 'https://goerli-rollup.arbitrum.io/rpc/',
+      chainId: 421613,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    'optimism-goerli': {
+      url: 'https://goerli.optimism.io/',
+      chainId: 420,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
   },
 
   gasReporter: {
