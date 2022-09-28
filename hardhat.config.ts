@@ -91,15 +91,20 @@ const config: HardhatUserConfig = {
       chainId: 4002,
       accounts
     },
+    goerli: {
+      url: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
+      chainId: 5,
+      accounts
+    },
     'arbitrum-goerli': {
       url: 'https://goerli-rollup.arbitrum.io/rpc/',
       chainId: 421613,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+      accounts
     },
     'optimism-goerli': {
       url: 'https://goerli.optimism.io/',
       chainId: 420,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+      accounts
     },
   },
 

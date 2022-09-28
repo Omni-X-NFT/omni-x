@@ -46,8 +46,11 @@ export const deployOmniX = async () => {
   await omniXExchange.updateTransferSelectorNFT(transferSelector.address)
   await omniXExchange.setRemoteAddrManager(remoteAddrManager.address)
 
+  const fundManager = await deployContract(_hre, 'FundManager', owner, [omniXExchange.address])
+  await omniXExchange.setFundManager(fundManager.address)
+
   // deploy stargate
-  let stargateRouter = stargateEndpoint.router
+  let stargateRouter = stargateEndpoint?.router
   // const isTest = stargateEndpoint.isTest
   // if (isTest) {
   //   const stargateRouterContract = await deployContract(_hre, 'Router', owner, [])
@@ -60,11 +63,10 @@ export const deployOmniX = async () => {
   //   await deployContract(_hre, 'LRTokenMock', owner, [])
   // }
 
-  const poolManager = await deployContract(_hre, 'StargatePoolManager', owner, [stargateRouter])
-  await omniXExchange.setStargatePoolManager(poolManager.address)
-
-  const fundManager = await deployContract(_hre, 'FundManager', owner, [omniXExchange.address])
-  await omniXExchange.setFundManager(fundManager.address)
+  if (stargateRouter) {
+    const poolManager = await deployContract(_hre, 'StargatePoolManager', owner, [stargateRouter])
+    await omniXExchange.setStargatePoolManager(poolManager.address)
+  }
 }
 
 export const deployGhosts = async () => {
@@ -81,7 +83,7 @@ export const deployGhosts = async () => {
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
   // testnet: ['rinkeby', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-rinkeby', 'fantom-testnet'],
-  testnet: ['rinkeby', 'bsc-testnet', 'fuji']
+  testnet: ['goerli', 'optimism-goerli']
 }
 
 export const deployOmnixAll = async function (taskArgs: any) {

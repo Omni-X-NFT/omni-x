@@ -8,6 +8,7 @@ import {
 } from '../utils/order-types'
 import CHAIN_IDS from '../constants/chainIds.json'
 import STARGATE from '../constants/stargate.json'
+import PANDA from '../constants/kanpaiPanda.json'
 
 export const STRATEGY_PROTOCAL_FEE = 200 // 2%
 export const ROYALTY_FEE_LIMIT = 500 // 5%
@@ -72,6 +73,10 @@ export const getContractAddrByName = (network: string, name: string): string => 
   if (name === 'USDC' || name === 'USDT') {
     const stargate = STARGATE as any
     return stargate[network]?.usdc || stargate[network]?.usdt
+  }
+  if (name === 'panda') {
+    const panda = PANDA as any
+    return panda[network]
   }
   return (CONTRACTS as any)[folderName][name]
 }
