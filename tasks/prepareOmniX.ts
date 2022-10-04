@@ -28,6 +28,10 @@ const StargateBridgeAbi = loadAbi('../artifacts/contracts/stargate/Bridge.sol/Br
 const StargatePoolManagerAbi = loadAbi('../artifacts/contracts/core/StargatePoolManager.sol/StargatePoolManager.json')
 const LRTokenMockAbi = loadAbi('../artifacts/contracts/mocks/LRTokenMock.sol/LRTokenMock.json')
 
+const tx = async (tx1: any) => {
+  await tx1.wait()
+}
+
 export const prepareOmniX = async () => {
   // @ts-ignore
   // eslint-disable-next-line
@@ -44,7 +48,7 @@ export const prepareOmniX = async () => {
   // await transferSelector.addCollectionTransferManager(getContractAddrByName(network.name, 'ghosts'), getContractAddrByName(network.name, 'TransferManagerGhosts'))
 
   // add collection
-  await transferSelector.addCollectionTransferManager("0xb74bf94049d2c01f8805b8b15db0909168cabf46", getContractAddrByName(network.name, 'TransferManagerERC721'))
+  // await transferSelector.addCollectionTransferManager("0xb74bf94049d2c01f8805b8b15db0909168cabf46", getContractAddrByName(network.name, 'TransferManagerERC721'))
 }
 
 export const linkOmniX = async (taskArgs: any) => {
@@ -62,44 +66,28 @@ export const linkOmniX = async (taskArgs: any) => {
   // const transferManagerGhosts = createContractByName(_hre, 'TransferManagerGhosts', TransferManagerGhostsAbi().abi, deployer)
   // await transferManagerGhosts.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerGhosts'))
   const transferManager721 = createContractByName(_hre, 'TransferManagerERC721', TransferManager721Abi().abi, owner)
-  await transferManager721.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerERC721'))
-  console.log('----1')
-  waitFor(1000)
+  await tx(await transferManager721.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerERC721')))
   const transferManager1155 = createContractByName(_hre, 'TransferManagerERC1155', TransferManager1155Abi().abi, owner)
-  await transferManager1155.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerERC1155'))
-  console.log('----2')
-  waitFor(1000)
+  await tx(await transferManager1155.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerERC1155')))
   const transferManagerONFT721 = createContractByName(_hre, 'TransferManagerONFT721', TransferManagerONFT721Abi().abi, owner)
-  await transferManagerONFT721.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerONFT721'))
-  console.log('----3')
-  waitFor(1000)
+  await tx(await transferManagerONFT721.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerONFT721')))
   const transferManagerONFT1155 = createContractByName(_hre, 'TransferManagerONFT1155', TransferManagerONFT1155Abi().abi, owner)
-  await transferManagerONFT1155.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerONFT1155'))
-  console.log('----4')
-  waitFor(1000)
+  await tx(await transferManagerONFT1155.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'TransferManagerONFT1155')))
 
   const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi().abi, owner)
-  await omni.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'OFTMock'))
-  console.log('----5')
-  waitFor(1000)
+  await tx(await omni.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'OFTMock')))
 
   const omniXExchange = createContractByName(_hre, 'OmniXExchange', OFTMockAbi().abi, owner)
-  await omniXExchange.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'OmniXExchange'))
-  console.log('----6')
-  waitFor(1000)
+  await tx(await omniXExchange.setTrustedRemote(dstChainId, getContractAddrByName(dstNetwork, 'OmniXExchange')))
 
   const remoteAddrManager = createContractByName(_hre, 'RemoteAddrManager', RemoteAddrManagerAbi().abi, owner)
-  await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'OFTMock'), dstChainId, getContractAddrByName(network.name, 'OFTMock'))
-  console.log('----7')
-  waitFor(1000)
-  await remoteAddrManager.addRemoteAddress(getContractAddrByName(srcNetwork, 'OFTMock'), dstChainId, getContractAddrByName(dstNetwork, 'OFTMock'))
-  console.log('----8')
-  waitFor(1000)
+  await tx(await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'OFTMock'), dstChainId, getContractAddrByName(network.name, 'OFTMock')))
+  await tx(await remoteAddrManager.addRemoteAddress(getContractAddrByName(srcNetwork, 'OFTMock'), dstChainId, getContractAddrByName(dstNetwork, 'OFTMock')))
   // await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'ghosts'), dstChainId, getContractAddrByName(network.name, 'ghosts'))
-  await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'StrategyStandardSale'), dstChainId, getContractAddrByName(network.name, 'StrategyStandardSale'))
-  console.log('----9')
-  waitFor(1000)
-  await remoteAddrManager.addRemoteAddress(getContractAddrByName(srcNetwork, 'StrategyStandardSale'), dstChainId, getContractAddrByName(dstNetwork, 'StrategyStandardSale'))
+  await tx(await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'StrategyStandardSale'), dstChainId, getContractAddrByName(network.name, 'StrategyStandardSale')))
+  await tx(await remoteAddrManager.addRemoteAddress(getContractAddrByName(srcNetwork, 'StrategyStandardSale'), dstChainId, getContractAddrByName(dstNetwork, 'StrategyStandardSale')))
+  await tx(await remoteAddrManager.addRemoteAddress(getContractAddrByName(srcNetwork, 'panda'), dstChainId, getContractAddrByName(dstNetwork, 'panda')))
+  await tx(await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'panda'), dstChainId, getContractAddrByName(srcNetwork, 'panda')))
 }
 
 export const prepareStargate = async () => {
@@ -147,57 +135,85 @@ export const setupBridge = async (taskArgs: any) => {
   const srcPoolId = getPoolId(network.name)
   const dstPoolId = getPoolId(dstNetwork)
 
-  // const stargateEndpoint = (STARGATE as any)[network.name]
-  // const isTest = stargateEndpoint.isTest
+  const stargateEndpoint = (STARGATE as any)[network.name]
+  const isTest = stargateEndpoint.isTest
 
-  // if (isTest) {
-  //   const dstChainId = getChainId(dstNetwork)
-  //   const srcPoolId = getPoolId(network.name)
-  //   const dstPoolId = getPoolId(dstNetwork)
+  if (isTest) {
+    // const dstChainId = getChainId(dstNetwork)
+    // const srcPoolId = getPoolId(network.name)
+    // const dstPoolId = getPoolId(dstNetwork)
 
-  //   {
-  //     const bridge = createContractByName(_hre, 'Bridge', StargateBridgeAbi().abi, owner)
-  //     await bridge.setBridge(dstChainId, getContractAddrByName(dstNetwork, 'Bridge'))
-  //     await bridge.setGasAmount(dstChainId, 1, 200000)
-  //     await bridge.setGasAmount(dstChainId, 2, 200000)
-  //     await bridge.setGasAmount(dstChainId, 3, 200000)
-  //     await bridge.setGasAmount(dstChainId, 4, 200000)
+    // {
+    //   const bridge = createContractByName(_hre, 'Bridge', StargateBridgeAbi().abi, owner)
+    //   await bridge.setBridge(dstChainId, getContractAddrByName(dstNetwork, 'Bridge'))
+    //   await bridge.setGasAmount(dstChainId, 1, 200000)
+    //   await bridge.setGasAmount(dstChainId, 2, 200000)
+    //   await bridge.setGasAmount(dstChainId, 3, 200000)
+    //   await bridge.setGasAmount(dstChainId, 4, 200000)
 
-  //     await waitFor(TRANSACTION_CONFIRM_DELAY)
-  //   }
+    //   await waitFor(TRANSACTION_CONFIRM_DELAY)
+    // }
 
-  //   {
-  //     const router = createContractByName(_hre, 'Router', StargateRouterAbi().abi, owner)
+    // {
+    //   const router = createContractByName(_hre, 'Router', StargateRouterAbi().abi, owner)
 
-  //     await router.createChainPath(srcPoolId, dstChainId, dstPoolId, 1)
-  //     await waitFor(TRANSACTION_CONFIRM_DELAY)
+    //   await router.createChainPath(srcPoolId, dstChainId, dstPoolId, 1)
+    //   await waitFor(TRANSACTION_CONFIRM_DELAY)
 
-  //     await router.activateChainPath(srcPoolId, dstChainId, dstPoolId)
-  //     await waitFor(TRANSACTION_CONFIRM_DELAY)
+    //   await router.activateChainPath(srcPoolId, dstChainId, dstPoolId)
+    //   await waitFor(TRANSACTION_CONFIRM_DELAY)
 
-  //     const erc20 = createContractByName(_hre, 'LRTokenMock', LRTokenMockAbi().abi, owner)
-  //     await erc20.mint(owner.address, toWei(ethers, 100))
-  //     await erc20.connect(owner).approve(router.address, toWei(ethers, 100))
-  //     await waitFor(TRANSACTION_CONFIRM_DELAY)
+    //   const erc20 = createContractByName(_hre, 'LRTokenMock', LRTokenMockAbi().abi, owner)
+    //   await erc20.mint(owner.address, toWei(ethers, 100))
+    //   await erc20.connect(owner).approve(router.address, toWei(ethers, 100))
+    //   await waitFor(TRANSACTION_CONFIRM_DELAY)
 
-  //     await router.connect(owner).addLiquidity(srcPoolId, toWei(ethers, 100), owner.address)
-  //     await waitFor(TRANSACTION_CONFIRM_DELAY)
+    //   await router.connect(owner).addLiquidity(srcPoolId, toWei(ethers, 100), owner.address)
+    //   await waitFor(TRANSACTION_CONFIRM_DELAY)
 
-  //     await router.sendCredits(dstChainId, srcPoolId, dstPoolId, owner.address, { value: toWei(ethers, 0.3) })
-  //   }
-  // }
+    //   await router.sendCredits(dstChainId, srcPoolId, dstPoolId, owner.address, { value: toWei(ethers, 0.3) })
+    // }
 
-  const stargatePoolManager = createContractByName(_hre, 'StargatePoolManager', StargatePoolManagerAbi().abi, owner)
-  await stargatePoolManager.setPoolId(getContractAddrByName(network.name, 'USDC'), dstChainId, srcPoolId, dstPoolId)
+    const router = createContract(ethers, stargateEndpoint.router, StargateRouterAbi().abi, owner)
 
-  const remoteAddrManager = createContractByName(_hre, 'RemoteAddrManager', RemoteAddrManagerAbi().abi, owner)
-  await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'USDC'), dstChainId, getContractAddrByName(network.name, 'USDC'))
+    const erc20 = createContractByName(_hre, 'USDC', LRTokenMockAbi().abi, owner)
+    await (await erc20.mint(owner.address, toWei(ethers, 200000000000))).wait()
+    await (await erc20.connect(owner).approve(router.address, toWei(ethers, 100000000000))).wait()
+
+    console.log('--1--', router.address, erc20.address, srcPoolId, dstPoolId, network.name, dstNetwork)
+    await (await router.connect(owner).addLiquidity(srcPoolId, toWei(ethers, 100000000000), owner.address)).wait()
+    let quoteData = await router.quoteLayerZeroFee(
+      dstChainId,                 // destination chainId
+      2,                          // function type: see Bridge.sol for all types
+      owner.address,              // destination of tokens
+      "0x",                         // payload, using abi.encode()
+      ({
+          dstGasForCall: 0,       // extra gas, if calling smart contract,
+          dstNativeAmount: 0,     // amount of dust dropped in destination wallet 
+          dstNativeAddr: "0x" // destination wallet for dust
+      })
+    )
+    let credits = quoteData[0] // toWei(ethers, '0.1')
+    if (credits.lt(quoteData[0])) {
+      credits = quoteData[0]
+    }
+    console.log('--2--', ethers.utils.formatEther(quoteData[0]))
+    await (await router.callDelta(srcPoolId, true)).wait()
+    await (await router.sendCredits(dstChainId, srcPoolId, dstPoolId, owner.address, { value: credits })).wait()
+    console.log('--3--')
+  }
+
+  // const stargatePoolManager = createContractByName(_hre, 'StargatePoolManager', StargatePoolManagerAbi().abi, owner)
+  // await stargatePoolManager.setPoolId(getContractAddrByName(network.name, 'USDC'), dstChainId, srcPoolId, dstPoolId)
+
+  // const remoteAddrManager = createContractByName(_hre, 'RemoteAddrManager', RemoteAddrManagerAbi().abi, owner)
+  // await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'USDC'), dstChainId, getContractAddrByName(network.name, 'USDC'))
 }
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
   // testnet: ['rinkeby', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-rinkeby', 'fantom-testnet']
-  testnet: ['rinkeby', 'bsc-testnet', 'fuji']
+  testnet: ['goerli', 'arbitrum-goerli', 'optimism-goerli']
 }
 
 export const prepareOmnixAll = async function (taskArgs: any) {

@@ -72,7 +72,7 @@ const config: HardhatUserConfig = {
       accounts
     },
     mumbai: {
-      url: 'https://polygon-mumbai.g.alchemy.com/v2/H2EfIYrKg--DbTdHW37WJaSVuaJvTF0T',
+      url: 'https://speedy-nodes-nyc.moralis.io/99e98b2333a911011f42606d/polygon/mumbai',
       chainId: 80001,
       accounts
     },
@@ -118,7 +118,7 @@ const config: HardhatUserConfig = {
     apiKey: {
       rinkeby: process.env.ETHERSCAN_API_KEY,
       bscTestnet: process.env.BSCSCAN_API_KEY,
-      // polygonMumbai: process.env.POLYGON_API_KEY,
+      polygonMumbai: process.env.POLYGON_API_KEY,
       avalancheFujiTestnet: process.env.AVALANCHE_API_KEY
       // arbitrumTestnet: process.env.ARBITRUM_API_KEY,
       // optimisticKovan: process.env.OPTIMISTIC_API_KEY,
