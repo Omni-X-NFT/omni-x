@@ -213,7 +213,7 @@ export const setupBridge = async (taskArgs: any) => {
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
   // testnet: ['rinkeby', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-rinkeby', 'fantom-testnet']
-  testnet: ['goerli', 'arbitrum-goerli', 'optimism-goerli']
+  testnet: ['bsc-testnet', 'fuji', 'mumbai', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
 }
 
 export const prepareOmnixAll = async function (taskArgs: any) {
