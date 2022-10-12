@@ -20,7 +20,7 @@ contract OmniBridge1155 is
     Pausable
 {
 
-    event LzReceive(address ercAddress, address toAddress, uint tokenId, bytes payload, address onftaddress);
+    event LzReceive(address ercAddress, address toAddress, uint tokenId, uint amount, bytes payload, address onftaddress);
 
     // regular address => PersistentNFT address
     mapping(address => address) public persistentAddresses;
@@ -104,7 +104,7 @@ contract OmniBridge1155 is
             collectionLockedCounter[persistentAddresses[_tokenAddress]] += 1;
             persistentAddress = persistentAddresses[_tokenAddress];
         }
-        emit LzReceive(_tokenAddress, _toAddress, _tokenId, _payload, persistentAddress);
+        emit LzReceive(_tokenAddress, _toAddress, _tokenId, _amount, _payload, persistentAddress);
     }
 
     function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
