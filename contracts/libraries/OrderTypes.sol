@@ -60,13 +60,15 @@ library OrderTypes {
     }
 
     function decodeParams(MakerOrder memory makerOrder) internal pure returns (uint16) {
-        (uint16 chainId) = abi.decode(makerOrder.params, (uint16));
-        return chainId;
+        // lzChainId
+        return abi.decode(makerOrder.params, (uint16));
     }
 
-    function decodeParams(TakerOrder memory takerOrder) internal pure returns (uint16) {
-        (uint16 chainId) = abi.decode(takerOrder.params, (uint16));
-        return chainId;
+    function decodeParams(TakerOrder memory takerOrder) internal pure 
+        returns (uint16, address, address, address, uint256)
+    {
+        // lzChainId, currency, collection, strategy, currencyRate
+        return abi.decode(takerOrder.params, (uint16, address, address, address, uint256));
     }
 
     function checkValid(MakerOrder memory makerOrder, bytes32 orderHash) internal pure {
