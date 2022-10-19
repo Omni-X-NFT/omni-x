@@ -41,8 +41,8 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
      * @param from address of the sender
      * @param to address of the recipient
      * @param tokenId tokenId
-     * @param remoteChainId layerzero remote chain id
-     * @param remoteSend indicate NFT owner is on remoteChain or not
+     * @param fromChainId nft source chain id
+     * @param toChainId layerzero remote chain id
      * @dev For ERC721, amount is not used
      */
     function transferNonFungibleToken(
@@ -52,59 +52,36 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         address to,
         uint256 tokenId,
         uint256 amount,
-        uint16 remoteChainId,
-        bool remoteSend
+        uint16 fromChainId,
+        uint16 toChainId
     ) external payable override {
-        // require(msg.sender == OMNIX_EXCHANGE, "Transfer: Only OmniX Exchange");
-
-        uint16 toChainId = lzEndpoint.getChainId();
-        if (remoteChainId == toChainId) {
+        if (fromChainId == toChainId) {
             _normalTransfer(collectionFrom, from, to, tokenId, amount);
         }
         else {
-            if (remoteSend) {
-                _crossSendToSrc(collectionFrom, collectionTo, from, to, tokenId, amount, remoteChainId);
-            }
-            else {
-                if (_onReceiveOnSrcChain(collectionFrom, from, to, tokenId, amount, remoteChainId)) {
-                    _crossSendToDst(collectionFrom, collectionTo, from, to, tokenId, amount, remoteChainId);
-                }
+            if (_onReceiveOnSrcChain(collectionFrom, from, to, tokenId, amount, toChainId)) {
+                _crossSendToDst(collectionFrom, collectionTo, from, to, tokenId, amount, toChainId);
             }
         }
     }
 
     /**
      * @notice Estimate gas fees for cross transfering nft.
-     * @param collectionFrom address of the collection on from chain
-     * @param collectionTo address of the collection on current chain
-     * @param from address of the sender
-     * @param to address of the recipient
-     * @param tokenId tokenId
-     * @dev For ERC721, amount is not used
      */
     function estimateSendFee(
-        address collectionFrom,
-        address collectionTo,
-        address from,
-        address to,
-        uint256 tokenId,
-        uint256 amount,
-        uint16 remoteChainId,
-        bool
+        address,
+        address,
+        address,
+        address,
+        uint256,
+        uint256,
+        uint16,
+        uint16
     )
         virtual public view override
         returns (uint, uint)
     {
-        uint16 toChainId = lzEndpoint.getChainId();
-        if (remoteChainId == toChainId) {
-            return (0, 0);
-        }
-        else {
-            bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOnftLzReceive);
-            bytes memory payload = abi.encode(MT_ON_SRC_CHAIN, from, to, collectionFrom, collectionTo, tokenId, amount);
-
-            return lzEndpoint.estimateFees(remoteChainId, address(this), payload, false, adapterParams);
-        }
+        return (0, 0);
     }
 
     /**
@@ -118,21 +95,13 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         // decode and load the toAddress
         uint16 chainId = _srcChainId;
         uint64 nonce = _nonce;
-        (uint16 messageType, address fromAddress, address toAddress, address collectionFrom, address collectionTo, uint tokenId, uint amount) = 
+        (uint16 messageType, address fromAddress, address toAddress, , address collectionTo, uint tokenId, uint amount) = 
             abi.decode(_payload, (uint16, address, address, address, address, uint, uint));
 
         // if the toAddress is 0x0, convert to dead address, or it will get cached
         if (toAddress == address(0x0)) toAddress == address(0xdEaD);
 
-        if (messageType == MT_ON_SRC_CHAIN) {
-            emit ReceiveFromDstChain(chainId, collectionFrom, fromAddress, toAddress, tokenId, amount, nonce);
-
-            console.log("--received--", fromAddress, toAddress);
-            if (_onReceiveOnSrcChain(collectionFrom, fromAddress, toAddress, tokenId, amount, chainId)) {
-                _crossSendToDst(collectionFrom, collectionTo, fromAddress, toAddress, tokenId, amount, chainId);
-            }
-        }
-        else if (messageType == MT_ON_DST_CHAIN) {
+        if (messageType == MT_ON_DST_CHAIN) {
             emit ReceiveFromSrcChain(chainId, collectionTo, fromAddress, toAddress, tokenId, amount, nonce);
 
             // transfer nft from this to toAddr on dst chain
@@ -141,22 +110,20 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         }
     }
 
-    /**
-     * @notice cross send from taker chain to maker chain. 1st step
-     * @dev no need to change this function
-     */
-    function _crossSendToSrc(
+    function _getCrossFeeAndPayload(
         address collectionFrom,
         address collectionTo,
         address from,
         address to,
         uint256 tokenId,
         uint256 amount,
-        uint16 fromChainId
-    ) internal {
+        uint16 dstChainId
+    ) internal view returns (uint256, bytes memory, bytes memory) {
         bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOnftLzReceive);
-        bytes memory payload = abi.encode(MT_ON_SRC_CHAIN, from, to, collectionFrom, collectionTo, tokenId, amount);
-        _crossSend(fromChainId, payload, payable(this), address(0x0), adapterParams);
+        bytes memory payload = abi.encode(MT_ON_DST_CHAIN, from, to, collectionFrom, collectionTo, tokenId, amount);
+        (uint256 messageFee,) = lzEndpoint.estimateFees(dstChainId, address(this), payload, false, adapterParams);
+
+        return (messageFee, payload, adapterParams);
     }
 
     /**
@@ -172,16 +139,10 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         uint256 amount,
         uint16 dstChainId
     ) internal {
-        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOnftLzReceive);
-        bytes memory payload = abi.encode(MT_ON_DST_CHAIN, from, to, collectionFrom, collectionTo, tokenId, amount);
-        _crossSend(dstChainId, payload, payable(this), address(0x0), adapterParams);
-    }
+        require(trustedRemoteLookup[dstChainId].length != 0, "LzSend: destination chain is not a trusted source.");
 
-    function _crossSend(uint16 _dstChainId, bytes memory _payload, address payable _refundAddress, address _zroPaymentAddress, bytes memory _adapterParam) internal {
-        require(trustedRemoteLookup[_dstChainId].length != 0, "LzSend: destination chain is not a trusted source.");
-
-        (uint256 messageFee,) = lzEndpoint.estimateFees(_dstChainId, address(this), _payload, false, _adapterParam);
-        lzEndpoint.send{value: messageFee}(_dstChainId, trustedRemoteLookup[_dstChainId], _payload, _refundAddress, _zroPaymentAddress, _adapterParam);
+        (uint256 fee, bytes memory payload, bytes memory adapterParams) = _getCrossFeeAndPayload(collectionFrom, collectionTo, from, to, tokenId, amount, dstChainId);
+        lzEndpoint.send{value: fee}(dstChainId, trustedRemoteLookup[dstChainId], payload, payable(this), address(0x0), adapterParams);
     }
 
     receive() external payable {

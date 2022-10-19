@@ -30,24 +30,20 @@ contract TransferManagerGregs is TransferManagerLzBase {
         address to,
         uint256 tokenId,
         uint256 amount,
-        uint16 remoteChainId,
-        bool remoteSend
+        uint16 fromChainId,
+        uint16 toChainId
     )
         public view override
         returns (uint, uint)
     {
-        (uint256 messageFee, uint256 lzFee) = super.estimateSendFee(
-            collectionFrom,
-            collectionTo,
-            from,
-            to,
-            tokenId,
-            amount,
-            remoteChainId,
-            remoteSend
-        );
+        if (fromChainId == toChainId) {
+            return (0, 0);
+        }
+        else {
+            (uint256 fee,,) = _getCrossFeeAndPayload(collectionFrom, collectionTo, from, to, tokenId, amount, toChainId);
 
-        return (messageFee * 2, lzFee * 2);
+            return (fee * 2, 0);
+        }
     }
 
     /**
@@ -63,8 +59,11 @@ contract TransferManagerGregs is TransferManagerLzBase {
     ) virtual internal override returns(bool) {
         // transfer nft from fromAddr to this
         IGregs(collection).safeTransferFrom(from, address(this), tokenId);
+
+        (uint256 fee,, ) = _getCrossFeeAndPayload(collection, collection, from, from, tokenId, 1, dstChainId);
+        
         // transfer nft from current chain to srcchain
-        IGregs(collection).sendNFT(dstChainId, tokenId);
+        IGregs(collection).sendNFT{value: fee}(dstChainId, tokenId);
 
         return true;
     }
