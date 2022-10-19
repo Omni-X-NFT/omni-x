@@ -10,6 +10,7 @@ import {IExecutionStrategy} from "../interfaces/IExecutionStrategy.sol";
 import {IRoyaltyFeeManager} from "../interfaces/IRoyaltyFeeManager.sol";
 import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
 import {IFundManager} from "../interfaces/IFundManager.sol";
+import {OmniXExchange} from "./OmniXExchange.sol";
 import {IOFT} from "../token/oft/IOFT.sol";
 
 import "hardhat/console.sol";
@@ -23,15 +24,23 @@ contract FundManager is IFundManager {
 
     uint16 private constant LZ_ADAPTER_VERSION = 1;
     uint256 public gasForOmniLzReceive = 350000;
-    address public omnixExchange;
+    OmniXExchange public omnixExchange;
+
+    event RoyaltyPayment(
+        address indexed collection,
+        uint256 indexed tokenId,
+        address indexed royaltyRecipient,
+        address currency,
+        uint256 amount
+    );
 
     modifier onlyOmnix() {
-        require (msg.sender == omnixExchange, "Only available from OmniXExchange");
+        require (msg.sender == address(omnixExchange), "Only available from OmniXExchange");
         _;
     }
 
     constructor (address _omnixExchange) {
-        omnixExchange = _omnixExchange;
+        omnixExchange = OmniXExchange(payable(_omnixExchange));
     }
 
     /**
@@ -42,13 +51,14 @@ contract FundManager is IFundManager {
      * @param amount amount being transferred (in currency)
      */
     function getFeesAndFunds(
-        address royaltyFeeManager,
         address strategy,
         address collection,
-        address protocolFeeRecipient,
         uint256 tokenId,
         uint256 amount
     ) public view override returns(uint256, uint256, uint256, address) {
+        address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
+        address royaltyFeeManager = address(omnixExchange.royaltyFeeManager());
+
         // Initialize the final amount that is transferred to seller
         uint256 finalSellerAmount = amount;
 
@@ -73,8 +83,6 @@ contract FundManager is IFundManager {
     }
 
     function transferCurrency(
-        address currencyManager,
-        address stargatePoolManager,
         address currency,
         address from,
         address to,
@@ -82,7 +90,10 @@ contract FundManager is IFundManager {
         uint16 fromChainId,
         uint16 toChainId
     ) public payable override onlyOmnix {
-        if (ICurrencyManager(currencyManager).isOmniCurrency(currency)) {
+        ICurrencyManager currencyManager = omnixExchange.currencyManager();
+        IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
+
+        if (currencyManager.isOmniCurrency(currency)) {
             if (fromChainId == toChainId) {
                 IERC20(currency).safeTransferFrom(from, to, amount);
             }
@@ -91,17 +102,17 @@ contract FundManager is IFundManager {
                 bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
                 
                 IOFT(currency).sendFrom{value: msg.value}(
-                    from, fromChainId, toAddress, amount, payable(msg.sender), address(0x0), adapterParams
+                    from, toChainId, toAddress, amount, payable(msg.sender), address(0x0), adapterParams
                 );
             }
         }
         else {
             if (
                 fromChainId != toChainId && 
-                stargatePoolManager != address(0) &&
-                IStargatePoolManager(stargatePoolManager).isSwappable(currency, fromChainId)
+                address(stargatePoolManager) != address(0) &&
+                stargatePoolManager.isSwappable(currency, toChainId)
             ) {
-                IStargatePoolManager(stargatePoolManager).swap{value: msg.value}(currency, fromChainId, payable(msg.sender), amount, from, to);
+                stargatePoolManager.swap{value: msg.value}(currency, toChainId, payable(msg.sender), amount, from, to);
             }
             else {
                 IERC20(currency).safeTransferFrom(from, to, amount);
@@ -120,15 +131,16 @@ contract FundManager is IFundManager {
     }
 
     function lzFeeTransferCurrency(
-        address currencyManager,
-        address stargatePoolManager,
         address currency,
         address to,
         uint256 amount,
         uint16 fromChainId,
         uint16 toChainId
     ) public view override returns(uint256) {
-        if (ICurrencyManager(currencyManager).isOmniCurrency(currency)) {
+        ICurrencyManager currencyManager = omnixExchange.currencyManager();
+        IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
+
+        if (currencyManager.isOmniCurrency(currency)) {
             if (fromChainId == toChainId) {
                 return 0;
             }
@@ -144,14 +156,134 @@ contract FundManager is IFundManager {
         else {
             if (
                 fromChainId != toChainId && 
-                stargatePoolManager != address(0) && 
-                IStargatePoolManager(stargatePoolManager).isSwappable(currency, fromChainId)
+                address(stargatePoolManager) != address(0) && 
+                stargatePoolManager.isSwappable(currency, fromChainId)
             ) {
-                (uint256 fee, ) = IStargatePoolManager(stargatePoolManager).getSwapFee(fromChainId, to);
+                (uint256 fee, ) = stargatePoolManager.getSwapFee(fromChainId, to);
                 return fee;
             }
         }
 
         return 0;
+    }
+
+    /**
+     * @notice Transfer fees and funds to royalty recipient, protocol, and seller
+     * @param strategy address of the execution strategy
+     * @param collection non fungible token address for the transfer
+     * @param tokenId tokenId
+     * @param currency currency being used for the purchase (e.g., WETH/USDC)
+     * @param from sender of the funds
+     * @param to seller's recipient
+     * @param amount amount being transferred (in currency)
+     * @param minPercentageToAsk minimum percentage of the gross amount that goes to ask
+     * @param fromChainId ask chain id
+     */
+    function transferFeesAndFunds(
+        address strategy,
+        address collection,
+        uint256 tokenId,
+        address currency,
+        address from,
+        address to,
+        uint256 amount,
+        uint256 minPercentageToAsk,
+        uint16 fromChainId,
+        uint16 toChainId
+    ) external payable override {
+        address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
+        // Initialize the final amount that is transferred to seller
+        (
+            uint256 protocolFeeAmount,
+            uint256 royaltyFeeAmount,
+            uint256 finalSellerAmount,
+            address royaltyFeeRecipient
+        ) = getFeesAndFunds(strategy, collection, tokenId, amount);
+
+        // 1. Protocol fee
+        {
+            // Check if the protocol fee is different than 0 for this strategy
+            if ((protocolFeeRecipient != address(0)) && (protocolFeeAmount != 0)) {
+                IERC20(currency).safeTransferFrom(from, protocolFeeRecipient, protocolFeeAmount);
+            }
+        }
+
+        // 2. Royalty fee
+        {
+            // Check if there is a royalty fee and that it is different to 0
+            if ((royaltyFeeRecipient != address(0)) && (royaltyFeeAmount != 0)) {
+                IERC20(currency).safeTransferFrom(from, royaltyFeeRecipient, royaltyFeeAmount);
+
+                emit RoyaltyPayment(collection, tokenId, royaltyFeeRecipient, currency, royaltyFeeAmount);
+            }
+        }
+
+        require((finalSellerAmount * 10000) >= (minPercentageToAsk * amount), "Fees: Higher than expected");
+
+        // 3. Transfer final amount (post-fees) to seller
+        {
+            this.transferCurrency{value: msg.value}(
+                currency,
+                from,
+                to,
+                finalSellerAmount,
+                fromChainId,
+                toChainId
+            );
+        }
+    }
+
+    /**
+     * @notice Transfer fees and funds to royalty recipient, protocol, and seller
+     * @param strategy address of the execution strategy
+     * @param collection non fungible token address for the transfer
+     * @param tokenId tokenId
+     * @param to seller's recipient
+     * @param amount amount being transferred (in currency)
+     * @param minPercentageToAsk minimum percentage of the gross amount that goes to ask
+     */
+    function transferFeesAndFundsWithWETH(
+        address strategy,
+        address collection,
+        uint256 tokenId,
+        address to,
+        uint256 amount,
+        uint256 minPercentageToAsk
+    ) external override {
+        address WETH = omnixExchange.WETH();
+        address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
+
+        // Initialize the final amount that is transferred to seller
+        (
+            uint256 protocolFeeAmount,
+            uint256 royaltyFeeAmount,
+            uint256 finalSellerAmount,
+            address royaltyFeeRecipient
+        ) = getFeesAndFunds(strategy, collection, tokenId, amount);
+
+        // 1. Protocol fee
+        {
+            // Check if the protocol fee is different than 0 for this strategy
+            if ((protocolFeeRecipient != address(0)) && (protocolFeeAmount != 0)) {
+                IERC20(WETH).safeTransfer(protocolFeeRecipient, protocolFeeAmount);
+            }
+        }
+
+        // 2. Royalty fee
+        {
+            // Check if there is a royalty fee and that it is different to 0
+            if ((royaltyFeeRecipient != address(0)) && (royaltyFeeAmount != 0)) {
+                IERC20(WETH).safeTransfer(royaltyFeeRecipient, royaltyFeeAmount);
+
+                emit RoyaltyPayment(collection, tokenId, royaltyFeeRecipient, address(WETH), royaltyFeeAmount);
+            }
+        }
+
+        require((finalSellerAmount * 10000) >= (minPercentageToAsk * amount), "Fees: Higher than expected");
+
+        // 3. Transfer final amount (post-fees) to seller
+        {
+            IERC20(WETH).safeTransfer(to, finalSellerAmount);
+        }
     }
 }

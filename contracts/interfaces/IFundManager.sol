@@ -13,17 +13,13 @@ import {IOFT} from "../token/oft/IOFT.sol";
 
 interface IFundManager {
     function getFeesAndFunds(
-        address royaltyFeeManager,
         address strategy,
         address collection,
-        address protocolFeeRecipient,
         uint256 tokenId,
         uint256 amount
     ) external view returns(uint256, uint256, uint256, address);
 
     function transferCurrency(
-        address currencyManager,
-        address stargatePoolManager,
         address currency,
         address from,
         address to,
@@ -40,12 +36,32 @@ interface IFundManager {
     function calculateProtocolFee(address executionStrategy, uint256 amount) external view returns (uint256);
 
     function lzFeeTransferCurrency(
-        address currencyManager,
-        address stargatePoolManager,
         address currency,
         address to,
         uint256 amount,
         uint16 fromChainId,
         uint16 toChainId
     ) external view returns(uint256);
+
+    function transferFeesAndFunds(
+        address strategy,
+        address collection,
+        uint256 tokenId,
+        address currency,
+        address from,
+        address to,
+        uint256 amount,
+        uint256 minPercentageToAsk,
+        uint16 fromChainId,
+        uint16 toChainId
+    ) external payable;
+
+    function transferFeesAndFundsWithWETH(
+        address strategy,
+        address collection,
+        uint256 tokenId,
+        address to,
+        uint256 amount,
+        uint256 minPercentageToAsk
+    ) external;
 }
