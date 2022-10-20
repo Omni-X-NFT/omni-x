@@ -154,17 +154,19 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         OrderTypes.MakerOrder calldata makerAsk
     ) external payable override nonReentrant {
         require((makerAsk.isOrderAsk) && (!takerBid.isOrderAsk), "Order: Wrong sides");
-        require(makerAsk.currency == WETH, "Order: Currency must be WETH");
         require(msg.sender == takerBid.taker, "Order: Taker must be the sender");
 
         // Check the maker ask order
         bytes32 askHash = makerAsk.hash();
         _validateOrder(makerAsk, askHash);
 
+        (, address currency,,,) = takerBid.decodeParams();
+        require(currency == WETH, "Order: Currency must be WETH");
         // validate value
         {
-            (uint256 omnixFee,, ) = _getCrossMessageFeedPayload(takerBid, makerAsk);
-            uint256 totalValue = takerBid.price + omnixFee + omnixFee;
+            (uint256 omnixFee,, uint256 nftFee) = getLzFeesForTrading(takerBid, makerAsk);
+
+            uint256 totalValue = takerBid.price + omnixFee + nftFee;
             // If not enough ETH to cover the price, use WETH
             if (totalValue > msg.value) {
                 IERC20(WETH).safeTransferFrom(takerBid.taker, address(this), (totalValue - msg.value));
@@ -275,7 +277,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         (uint16 takerChainId, address currency, address collection,,) = taker.decodeParams();
 
         if (maker.isOrderAsk) {
-            uint256 currencyFee = fundManager.lzFeeTransferCurrency(
+            uint256 currencyFee = currency == WETH ? 0 : fundManager.lzFeeTransferCurrency(
                 currency,
                 maker.signer,
                 taker.price,
@@ -285,6 +287,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
 
             (uint256 omnixFee,, ) = _getCrossMessageFeedPayload(taker, maker);
 
+            // this is not correct calculation. if NFT is a normal NFT, then there is no fee to transfer.
             // we can't calculate the nft fee so assume that it is same with omniFee
             uint256 nftFee = omnixFee;
 
@@ -304,6 +307,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
 
             (uint256 omnixFee,, ) = _getCrossMessageFeedPayload(taker, maker);
 
+            // this is not correct calculation. assumes that OMNI and USDC fee is mostly same.
             // we can't calculate the nft fee so assume that it is same with omniFee
             uint256 currencyFee = omnixFee;
 
@@ -581,14 +585,14 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         }
         else {
             _transferNonFungibleToken(
-                maker.collection,
                 collection,
+                maker.collection,
                 from,
                 to,
                 maker.tokenId,
                 maker.amount,
-                makerChainId,
                 takerChainId,
+                makerChainId,
                 nftFee
             );
         }
@@ -748,7 +752,16 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             ));
 
             uint16 toChainId = _srcChainId;
-            fundManager.transferFeesAndFunds(
+
+            uint256 currencyFee = fundManager.lzFeeTransferCurrency(
+                currency,
+                to,
+                price,
+                lzChainId,
+                toChainId
+            );
+
+            fundManager.transferFeesAndFunds{value: currencyFee}(
                 strategy,
                 collection,
                 tokenId,

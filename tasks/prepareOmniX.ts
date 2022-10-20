@@ -11,44 +11,35 @@ import {
 import STARGATE from '../constants/stargate.json'
 import shell from 'shelljs'
 
-const TRANSACTION_CONFIRM_DELAY = 5000
 const CurrencyManagerAbi = loadAbi('../artifacts/contracts/core/CurrencyManager.sol/CurrencyManager.json')
 const ExecutionManagerAbi = loadAbi('../artifacts/contracts/core/ExecutionManager.sol/ExecutionManager.json')
 const TransferSelectorNFTAbi = loadAbi('../artifacts/contracts/core/TransferSelectorNFT.sol/TransferSelectorNFT.json')
-const TransferManagerGhostsAbi = loadAbi('../artifacts/contracts/transfer/TransferManagerGhosts.sol/TransferManagerGhosts.json')
 const TransferManager721Abi = loadAbi('../artifacts/contracts/transfer/TransferManagerERC721.sol/TransferManagerERC721.json')
 const TransferManager1155Abi = loadAbi('../artifacts/contracts/transfer/TransferManagerERC721.sol/TransferManagerERC721.json')
 const TransferManagerONFT721Abi = loadAbi('../artifacts/contracts/transfer/TransferManagerONFT721.sol/TransferManagerONFT721.json')
 const TransferManagerONFT1155Abi = loadAbi('../artifacts/contracts/transfer/TransferManagerONFT1155.sol/TransferManagerONFT1155.json')
-const RemoteAddrManagerAbi = loadAbi('../artifacts/contracts/core/RemoteAddrManager.sol/RemoteAddrManager.json')
 const OFTMockAbi = loadAbi('../artifacts/contracts/mocks/OFTMock.sol/OFTMock.json')
+const StargatePoolManagerAbi = loadAbi('../artifacts/contracts/core/StargatePoolManager.sol/StargatePoolManager.json')
+const TransferManagerGhostsAbi = loadAbi('../artifacts/contracts/transfer/TransferManagerGhosts.sol/TransferManagerGhosts.json')
 const StargateFactoryAbi = loadAbi('../artifacts/contracts/stargate/Factory.sol/Factory.json')
 const StargateRouterAbi = loadAbi('../artifacts/contracts/stargate/Router.sol/Router.json')
 const StargateBridgeAbi = loadAbi('../artifacts/contracts/stargate/Bridge.sol/Bridge.json')
-const StargatePoolManagerAbi = loadAbi('../artifacts/contracts/core/StargatePoolManager.sol/StargatePoolManager.json')
 const LRTokenMockAbi = loadAbi('../artifacts/contracts/mocks/LRTokenMock.sol/LRTokenMock.json')
 
 const tx = async (tx1: any) => {
   await tx1.wait()
 }
 
-export const prepareOmniX = async () => {
-  // @ts-ignore
-  // eslint-disable-next-line
-  const _hre = hre
-  const { ethers, network } = _hre
+export const prepareOmniX = async (taskArgs: any, hre: any) => {
+  const { ethers, network } = hre
   const [owner] = await ethers.getSigners()
 
-  const currencyManager = createContractByName(_hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
-  const executionManager = createContractByName(_hre, 'ExecutionManager', ExecutionManagerAbi().abi, owner)
-  const transferSelector = createContractByName(_hre, 'TransferSelectorNFT', TransferSelectorNFTAbi().abi, owner)
+  const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
+  const executionManager = createContractByName(hre, 'ExecutionManager', ExecutionManagerAbi().abi, owner)
 
   await currencyManager.addCurrency(getContractAddrByName(network.name, 'OFTMock'))
   await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSale'))
-  // await transferSelector.addCollectionTransferManager(getContractAddrByName(network.name, 'ghosts'), getContractAddrByName(network.name, 'TransferManagerGhosts'))
-
-  // add collection
-  // await transferSelector.addCollectionTransferManager("0xb74bf94049d2c01f8805b8b15db0909168cabf46", getContractAddrByName(network.name, 'TransferManagerERC721'))
+  await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSale'))
 }
 
 const packTrustedRemote = (hre: any, srcNetwork: string, dstNetwork: string, contractName: string) => {
@@ -58,50 +49,33 @@ const packTrustedRemote = (hre: any, srcNetwork: string, dstNetwork: string, con
   return trustedRemote
 }
 
-export const linkOmniX = async (taskArgs: any) => {
-  // @ts-ignore
-  // eslint-disable-next-line
-  const _hre = hre
-  const { ethers, network } = _hre
-  const [owner, , deployer] = await ethers.getSigners()
+export const linkOmniX = async (taskArgs: any, hre: any) => {
+  const { ethers, network } = hre
+  const [owner] = await ethers.getSigners()
 
   const { dstchainname: dstNetwork } = taskArgs
   const srcNetwork = network.name
   const dstChainId = getChainId(dstNetwork)
   const scrChainId = getChainId(srcNetwork)
 
-  // const transferManagerGhosts = createContractByName(_hre, 'TransferManagerGhosts', TransferManagerGhostsAbi().abi, deployer)
-  // await transferManagerGhosts.setTrustedRemote(dstChainId, packTrustedRemote(_hre, srcNetwork, dstNetwork, 'TransferManagerGhosts'))
-  const transferManager721 = createContractByName(_hre, 'TransferManagerERC721', TransferManager721Abi().abi, owner)
-  await tx(await transferManager721.setTrustedRemote(dstChainId, packTrustedRemote(_hre, srcNetwork, dstNetwork, 'TransferManagerERC721')))
-  const transferManager1155 = createContractByName(_hre, 'TransferManagerERC1155', TransferManager1155Abi().abi, owner)
-  await tx(await transferManager1155.setTrustedRemote(dstChainId, packTrustedRemote(_hre, srcNetwork, dstNetwork, 'TransferManagerERC1155')))
-  const transferManagerONFT721 = createContractByName(_hre, 'TransferManagerONFT721', TransferManagerONFT721Abi().abi, owner)
-  await tx(await transferManagerONFT721.setTrustedRemote(dstChainId, packTrustedRemote(_hre, srcNetwork, dstNetwork, 'TransferManagerONFT721')))
-  const transferManagerONFT1155 = createContractByName(_hre, 'TransferManagerONFT1155', TransferManagerONFT1155Abi().abi, owner)
-  await tx(await transferManagerONFT1155.setTrustedRemote(dstChainId, packTrustedRemote(_hre, srcNetwork, dstNetwork, 'TransferManagerONFT1155')))
+  const transferManager721 = createContractByName(hre, 'TransferManagerERC721', TransferManager721Abi().abi, owner)
+  await tx(await transferManager721.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'TransferManagerERC721')))
+  const transferManager1155 = createContractByName(hre, 'TransferManagerERC1155', TransferManager1155Abi().abi, owner)
+  await tx(await transferManager1155.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'TransferManagerERC1155')))
+  const transferManagerONFT721 = createContractByName(hre, 'TransferManagerONFT721', TransferManagerONFT721Abi().abi, owner)
+  await tx(await transferManagerONFT721.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'TransferManagerONFT721')))
+  const transferManagerONFT1155 = createContractByName(hre, 'TransferManagerONFT1155', TransferManagerONFT1155Abi().abi, owner)
+  await tx(await transferManagerONFT1155.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'TransferManagerONFT1155')))
 
-  const omni = createContractByName(_hre, 'OFTMock', OFTMockAbi().abi, owner)
-  await tx(await omni.setTrustedRemote(dstChainId, packTrustedRemote(_hre, srcNetwork, dstNetwork, 'OFTMock')))
+  const omni = createContractByName(hre, 'OFTMock', OFTMockAbi().abi, owner)
+  await tx(await omni.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'OFTMock')))
 
-  const omniXExchange = createContractByName(_hre, 'OmniXExchange', OFTMockAbi().abi, owner)
-  await tx(await omniXExchange.setTrustedRemote(dstChainId, packTrustedRemote(_hre, srcNetwork, dstNetwork, 'OmniXExchange')))
-
-  // const remoteAddrManager = createContractByName(_hre, 'RemoteAddrManager', RemoteAddrManagerAbi().abi, owner)
-  // await tx(await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'OFTMock'), dstChainId, getContractAddrByName(network.name, 'OFTMock')))
-  // await tx(await remoteAddrManager.addRemoteAddress(getContractAddrByName(srcNetwork, 'OFTMock'), dstChainId, getContractAddrByName(dstNetwork, 'OFTMock')))
-  // // await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'ghosts'), dstChainId, getContractAddrByName(network.name, 'ghosts'))
-  // await tx(await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'StrategyStandardSale'), dstChainId, getContractAddrByName(network.name, 'StrategyStandardSale')))
-  // await tx(await remoteAddrManager.addRemoteAddress(getContractAddrByName(srcNetwork, 'StrategyStandardSale'), dstChainId, getContractAddrByName(dstNetwork, 'StrategyStandardSale')))
-  // await tx(await remoteAddrManager.addRemoteAddress(getContractAddrByName(srcNetwork, 'panda'), dstChainId, getContractAddrByName(dstNetwork, 'panda')))
-  // await tx(await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'panda'), dstChainId, getContractAddrByName(srcNetwork, 'panda')))
+  const omniXExchange = createContractByName(hre, 'OmniXExchange', OFTMockAbi().abi, owner)
+  await tx(await omniXExchange.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'OmniXExchange')))
 }
 
-export const prepareStargate = async () => {
-  // @ts-ignore
-  // eslint-disable-next-line
-  const _hre = hre
-  const { ethers, network } = _hre
+export const prepareStargate = async (taskArgs: any, hre: any) => {
+  const { ethers, network } = hre
   const [owner] = await ethers.getSigners()
 
   // const stargateEndpoint = (STARGATE as any)[network.name]
@@ -125,7 +99,7 @@ export const prepareStargate = async () => {
   //     'SSS'
   //   )
   // }
-  const currencyManager = createContractByName(_hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
+  const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
   await currencyManager.addCurrency(getContractAddrByName(network.name, 'USDC'))
 }
 
@@ -212,9 +186,6 @@ export const setupBridge = async (taskArgs: any) => {
 
   const stargatePoolManager = createContractByName(_hre, 'StargatePoolManager', StargatePoolManagerAbi().abi, owner)
   await stargatePoolManager.setPoolId(getContractAddrByName(network.name, 'USDC'), dstChainId, srcPoolId, dstPoolId)
-
-  const remoteAddrManager = createContractByName(_hre, 'RemoteAddrManager', RemoteAddrManagerAbi().abi, owner)
-  await remoteAddrManager.addRemoteAddress(getContractAddrByName(dstNetwork, 'USDC'), dstChainId, getContractAddrByName(network.name, 'USDC'))
 }
 
 const environments: any = {

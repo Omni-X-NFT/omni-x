@@ -19,7 +19,8 @@ import {
   ONFT721Mock,
   ONFT1155,
   LZEndpointMock,
-  FundManager
+  FundManager,
+  StrategyStargateSale
 } from '../typechain-types'
 import {
   deployContract, getBlockTime, toWei
@@ -112,7 +113,7 @@ describe('OmniXExchange', () => {
     currencyManager = await deployContract('CurrencyManager', owner, []) as CurrencyManager
 
     // execution manager with strategy. protocal fee 200 = 2%
-    strategy = await deployContract('StrategyStandardSale', owner, [STRATEGY_PROTOCAL_FEE]) as StrategyStandardSale
+    strategy = await deployContract('StrategyStargateSale', owner, [STRATEGY_PROTOCAL_FEE]) as StrategyStargateSale
     executionManager = await deployContract('ExecutionManager', owner, []) as ExecutionManager
 
     // royalty fee manager
@@ -129,15 +130,12 @@ describe('OmniXExchange', () => {
       layerZeroEndpoint.address
     ]) as OmniXExchange
 
-    const remoteAddrManager = await deployContract('RemoteAddrManager', owner, [])
-    await omniXExchange.setRemoteAddrManager(remoteAddrManager.address)
-
     // transfer selector
     transferManager721 = await deployContract('TransferManagerERC721', owner, [omniXExchange.address, layerZeroEndpoint.address]) as TransferManagerERC721
     transferManager1155 = await deployContract('TransferManagerERC1155', owner, [omniXExchange.address, layerZeroEndpoint.address]) as TransferManagerERC1155
     transferManagerONFT721 = await deployContract('TransferManagerONFT721', owner, [omniXExchange.address, layerZeroEndpoint.address]) as TransferManagerONFT721
     transferManagerONFT1155 = await deployContract('TransferManagerONFT1155', owner, [omniXExchange.address, layerZeroEndpoint.address]) as TransferManagerONFT1155
-    transferSelector = await deployContract('TransferSelectorNFT', owner, [transferManager721.address, transferManager1155.address]) as TransferSelectorNFT
+    transferSelector = await deployContract('TransferSelectorNFT', owner, [transferManager721.address, transferManager1155.address, transferManagerONFT721.address, transferManagerONFT1155.address]) as TransferSelectorNFT
     fundManager = await deployContract('FundManager', owner, [omniXExchange.address]) as FundManager
 
     await omniXExchange.setFundManager(fundManager.address)
@@ -177,12 +175,10 @@ describe('OmniXExchange', () => {
     await nftMock.connect(maker).approve(transferManager721.address, 1)
     await nftMock.connect(maker).approve(transferManager721.address, 2)
     await nftMock.connect(maker).approve(transferManager721.address, 3)
-    await erc20Mock.connect(taker).approve(omniXExchange.address, toWei(100))
-    await erc20Mock.connect(taker).approve(fundManager.address, toWei(100))
-    await erc20Mock.connect(maker).approve(omniXExchange.address, toWei(100))
 
-    await omni.connect(taker).approve(omniXExchange.address, toWei(100))
+    await erc20Mock.connect(taker).approve(fundManager.address, toWei(100))
     await omni.connect(taker).approve(fundManager.address, toWei(100))
+    
     await onft721.connect(maker).approve(transferManagerONFT721.address, 1)
     await onft721.connect(maker).approve(transferManagerONFT721.address, 2)
   }
@@ -203,8 +199,8 @@ describe('OmniXExchange', () => {
       await fillMakerOrder(makerAsk, 1, erc20Mock.address, nftMock.address, 1, maker.address)
       fillTakerOrder(takerBid, 1, taker.address)
 
-      makerAsk.encodeParams(await maker.getChainId(), taker.address)
-      takerBid.encodeParams(await taker.getChainId())
+      makerAsk.encodeParams(await maker.getChainId())
+      takerBid.encodeParams(await taker.getChainId(), erc20Mock.address, nftMock.address, strategy.address, 1)
       await makerAsk.sign(maker)
 
       await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
@@ -218,8 +214,8 @@ describe('OmniXExchange', () => {
       await fillMakerOrder(makerAsk, 2, omni.address, nftMock.address, 2, maker.address)
       fillTakerOrder(takerBid, 2, taker.address)
 
-      makerAsk.encodeParams(await maker.getChainId(), taker.address)
-      takerBid.encodeParams(await taker.getChainId())
+      makerAsk.encodeParams(await maker.getChainId())
+      takerBid.encodeParams(await taker.getChainId(), omni.address, nftMock.address, strategy.address, 1)
       await makerAsk.sign(maker)
       await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
 
@@ -233,8 +229,8 @@ describe('OmniXExchange', () => {
       await fillMakerOrder(makerAsk, 1, erc20Mock.address, onft721.address, 3, maker.address)
       fillTakerOrder(takerBid, 1, taker.address)
 
-      makerAsk.encodeParams(await maker.getChainId(), taker.address)
-      takerBid.encodeParams(await taker.getChainId())
+      makerAsk.encodeParams(await maker.getChainId())
+      takerBid.encodeParams(await taker.getChainId(), erc20Mock.address, onft721.address, strategy.address, 1)
       await makerAsk.sign(maker)
       await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
 
@@ -248,8 +244,8 @@ describe('OmniXExchange', () => {
       await fillMakerOrder(makerAsk, 2, omni.address, onft721.address, 4, maker.address)
       fillTakerOrder(takerBid, 2, taker.address)
 
-      makerAsk.encodeParams(await maker.getChainId(), taker.address)
-      takerBid.encodeParams(await taker.getChainId())
+      makerAsk.encodeParams(await maker.getChainId())
+      takerBid.encodeParams(await taker.getChainId(), omni.address, onft721.address, strategy.address, 1)
       await makerAsk.sign(maker)
       await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
 
@@ -265,8 +261,8 @@ describe('OmniXExchange', () => {
       await fillMakerOrder(makerBid, 3, omni.address, nftMock.address, 5, taker.address)
       fillTakerOrder(takerAsk, 3, maker.address)
 
-      makerBid.encodeParams(await bidder.getChainId(), seller.address)
-      takerAsk.encodeParams(await seller.getChainId())
+      makerBid.encodeParams(await bidder.getChainId())
+      takerAsk.encodeParams(await seller.getChainId(), omni.address, nftMock.address, strategy.address, 1)
       await makerBid.sign(bidder)
       await omniXExchange.connect(seller).matchBidWithTakerAsk(takerAsk, makerBid)
 

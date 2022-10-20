@@ -77,13 +77,8 @@ export class MakerOrder {
     )
   }
 
-  encodeParams (chainId: number, buyer: string) {
-    if (this.isOrderAsk) {
-      this.setParams(['uint16', 'address'], [chainId, buyer])
-    } else {
-      // TODO!!! this should be checked again later
-      this.setParams(['uint16', 'address'], [chainId, buyer])
-    }
+  encodeParams (chainId: number) {
+    this.setParams(['uint16'], [chainId])
   }
 
   async sign (signer: SignerWithAddress) {
@@ -124,12 +119,7 @@ export class TakerOrder {
     )
   }
 
-  encodeParams (chainId: number) {
-    if (this.isOrderAsk) {
-      // TODO!!! this should be checked again later
-      this.setParams(['uint16'], [chainId])
-    } else {
-      this.setParams(['uint16'], [chainId])
-    }
+  encodeParams (chainId: number, currency: string, collection: string, strategy: string, currencyRate: number) {
+    this.setParams(['uint16', 'address', 'address', 'address', 'uint256'], [chainId, currency, collection, strategy, currencyRate])
   }
 }

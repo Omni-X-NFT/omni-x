@@ -59,7 +59,6 @@ contract TransferManagerONFT721 is TransferManagerLzBase {
         bytes memory toAddress = abi.encodePacked(to);
         bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOnftLzReceive);
 
-        // Assumes that fee is same with this.estimateSendFee().fee / 2
         (uint256 fee, ) = IONFT721(collection).estimateSendFee(dstChainId, toAddress, tokenId, false, adapterParams);
         IONFT721(collection).sendFrom{value: fee}(from, dstChainId, toAddress, tokenId, payable(this), address(0), adapterParams);
         return false;

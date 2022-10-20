@@ -89,7 +89,7 @@ contract FundManager is IFundManager {
         uint256 amount,
         uint16 fromChainId,
         uint16 toChainId
-    ) public payable override onlyOmnix {
+    ) internal {
         ICurrencyManager currencyManager = omnixExchange.currencyManager();
         IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
 
@@ -137,6 +137,8 @@ contract FundManager is IFundManager {
         uint16 fromChainId,
         uint16 toChainId
     ) public view override returns(uint256) {
+        if (currency == address(0)) return 0;
+        
         ICurrencyManager currencyManager = omnixExchange.currencyManager();
         IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
 
@@ -149,7 +151,7 @@ contract FundManager is IFundManager {
                 bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
                 bytes memory toAddress = abi.encodePacked(to);
                 // get the fees we need to pay to LayerZero for message delivery
-                (uint256 messageFee, ) = IOFT(currency).estimateSendFee(fromChainId, toAddress, amount, false, adapterParams);
+                (uint256 messageFee, ) = IOFT(currency).estimateSendFee(toChainId, toAddress, amount, false, adapterParams);
                 return messageFee;
             }
         }
@@ -159,7 +161,7 @@ contract FundManager is IFundManager {
                 address(stargatePoolManager) != address(0) && 
                 stargatePoolManager.isSwappable(currency, fromChainId)
             ) {
-                (uint256 fee, ) = stargatePoolManager.getSwapFee(fromChainId, to);
+                (uint256 fee, ) = stargatePoolManager.getSwapFee(toChainId, to);
                 return fee;
             }
         }
@@ -190,7 +192,7 @@ contract FundManager is IFundManager {
         uint256 minPercentageToAsk,
         uint16 fromChainId,
         uint16 toChainId
-    ) external payable override {
+    ) external payable override onlyOmnix() {
         address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
         // Initialize the final amount that is transferred to seller
         (
@@ -222,7 +224,7 @@ contract FundManager is IFundManager {
 
         // 3. Transfer final amount (post-fees) to seller
         {
-            this.transferCurrency{value: msg.value}(
+            transferCurrency(
                 currency,
                 from,
                 to,

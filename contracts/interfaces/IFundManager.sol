@@ -19,15 +19,6 @@ interface IFundManager {
         uint256 amount
     ) external view returns(uint256, uint256, uint256, address);
 
-    function transferCurrency(
-        address currency,
-        address from,
-        address to,
-        uint256 amount,
-        uint16 fromChainId,
-        uint16 toChainId
-    ) external payable;
-
     /**
      * @notice Calculate protocol fee for an execution strategy
      * @param executionStrategy strategy

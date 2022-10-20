@@ -20,7 +20,6 @@ import {
   ONFT1155,
   GhostsMock,
   LZEndpointMock,
-  RemoteAddrManager,
   TransferManagerGhosts,
   StargatePoolManager,
   IStargateRouter,
@@ -54,7 +53,6 @@ export type Chain = {
   layerZeroEndpoint: LZEndpointMock
   stargateRouter: IStargateRouter
   stargateBridge: Bridge
-  remoteAddrManager: RemoteAddrManager
   chainId: number
 }
 
@@ -112,16 +110,13 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
     chain.layerZeroEndpoint.address
   ]) as OmniXExchange
 
-  chain.remoteAddrManager = await deployContract('RemoteAddrManager', owner, [])
-  await chain.omniXExchange.setRemoteAddrManager(chain.remoteAddrManager.address)
-
   // transfer selector
   chain.transferManager721 = await deployContract('TransferManagerERC721', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerERC721
   chain.transferManager1155 = await deployContract('TransferManagerERC1155', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerERC1155
   chain.transferManagerONFT721 = await deployContract('TransferManagerONFT721', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerONFT721
   chain.transferManagerONFT1155 = await deployContract('TransferManagerONFT1155', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerONFT1155
   chain.transferManagerGhosts = await deployContract('TransferManagerGhosts', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerGhosts
-  chain.transferSelector = await deployContract('TransferSelectorNFT', owner, [chain.transferManager721.address, chain.transferManager1155.address]) as TransferSelectorNFT
+  chain.transferSelector = await deployContract('TransferSelectorNFT', owner, [chain.transferManager721.address, chain.transferManager1155.address, chain.transferManagerONFT721.address, chain.transferManagerONFT1155.address]) as TransferSelectorNFT
   chain.fundManager = await deployContract('FundManager', owner, [chain.omniXExchange.address]) as FundManager
   chain.chainId = chainId
 
@@ -152,28 +147,12 @@ export const linkChains = async (src: Chain, dst: Chain) => {
   await src.transferManagerGhosts.setTrustedRemote(await dst.chainId, dst.transferManagerGhosts.address)
   await src.transferManagerONFT1155.setTrustedRemote(await dst.chainId, dst.transferManagerONFT1155.address)
   await src.omniXExchange.setTrustedRemote(await dst.chainId, dst.omniXExchange.address)
-
-  await src.remoteAddrManager.addRemoteAddress(dst.erc20Mock.address, dst.chainId, src.erc20Mock.address)
-  await src.remoteAddrManager.addRemoteAddress(src.erc20Mock.address, dst.chainId, dst.erc20Mock.address)
-  await src.remoteAddrManager.addRemoteAddress(dst.strategy.address, dst.chainId, src.strategy.address)
-  await src.remoteAddrManager.addRemoteAddress(src.strategy.address, dst.chainId, dst.strategy.address)
-  // await src.remoteAddrManager.addRemoteAddress(dst.nftMock.address, dst.chainId, src.nftMock.address)
-  // await src.remoteAddrManager.addRemoteAddress(src.nftMock.address, dst.chainId, dst.nftMock.address)
-  await src.remoteAddrManager.addRemoteAddress(dst.omni.address, dst.chainId, src.omni.address)
-  await src.remoteAddrManager.addRemoteAddress(src.omni.address, dst.chainId, dst.omni.address)
-  await src.remoteAddrManager.addRemoteAddress(dst.onft721.address, dst.chainId, src.onft721.address)
-  await src.remoteAddrManager.addRemoteAddress(src.onft721.address, dst.chainId, dst.onft721.address)
-  await src.remoteAddrManager.addRemoteAddress(dst.ghosts.address, dst.chainId, src.ghosts.address)
 }
 
 export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
   await chain.executionManager.addStrategy(chain.strategy.address)
   await chain.currencyManager.addCurrency(chain.erc20Mock.address)
   await chain.currencyManager.addCurrency(chain.omni.address)
-
-  await chain.transferSelector.addCollectionTransferManager(chain.onft721.address, chain.transferManagerONFT721.address)
-  await chain.transferSelector.addCollectionTransferManager(chain.ghosts.address, chain.transferManagerGhosts.address)
-  await chain.transferSelector.addCollectionTransferManager(chain.onft1155.address, chain.transferManagerONFT1155.address)
   await chain.omniXExchange.updateTransferSelectorNFT(chain.transferSelector.address)
 
   // normal currency and normal nft, mint token#1, #2, #3
@@ -189,6 +168,7 @@ export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
   await chain.ghosts.connect(maker).mint(1)
 
   await chain.erc20Mock.mint(maker.address, toWei(200))
+  await chain.omni.transfer(maker.address, toWei(200))
 }
 
 export const prepareTaker = async (chain: Chain, taker: SignerWithAddress) => {
@@ -196,10 +176,6 @@ export const prepareTaker = async (chain: Chain, taker: SignerWithAddress) => {
 
   await chain.currencyManager.addCurrency(chain.erc20Mock.address)
   await chain.currencyManager.addCurrency(chain.omni.address)
-
-  await chain.transferSelector.addCollectionTransferManager(chain.onft721.address, chain.transferManagerONFT721.address)
-  await chain.transferSelector.addCollectionTransferManager(chain.ghosts.address, chain.transferManagerGhosts.address)
-  await chain.transferSelector.addCollectionTransferManager(chain.onft1155.address, chain.transferManagerONFT1155.address)
   await chain.omniXExchange.updateTransferSelectorNFT(chain.transferSelector.address)
 
   // normal currency and normal nft, mint token#1, #2, #3
@@ -208,24 +184,7 @@ export const prepareTaker = async (chain: Chain, taker: SignerWithAddress) => {
 
   await chain.nftMock.mint(taker.address)
   await chain.nftMock.mint(taker.address)
-}
 
-export const approveMaker = async (chain: Chain, maker: SignerWithAddress) => {
-  await chain.nftMock.connect(maker).approve(chain.transferManager721.address, 1)
-  await chain.nftMock.connect(maker).approve(chain.transferManager721.address, 2)
-  await chain.nftMock.connect(maker).approve(chain.transferManager721.address, 3)
-  await chain.nftMock.connect(maker).approve(chain.transferManager721.address, 4)
-
-  await chain.onft721.connect(maker).approve(chain.transferManagerONFT721.address, 1)
-  await chain.onft721.connect(maker).approve(chain.transferManagerONFT721.address, 2)
-  await chain.onft721.connect(maker).approve(chain.transferManagerONFT721.address, 3)
-  await chain.onft721.connect(maker).approve(chain.transferManagerONFT721.address, 4)
-  await chain.ghosts.connect(maker).approve(chain.transferManagerGhosts.address, 1)
-}
-
-export const approveTaker = async (chain: Chain, taker: SignerWithAddress) => {
-  await chain.erc20Mock.connect(taker).approve(chain.omniXExchange.address, toWei(100))
-  await chain.erc20Mock.connect(taker).approve(chain.fundManager.address, toWei(100))
-  await chain.omni.connect(taker).approve(chain.omniXExchange.address, toWei(100))
-  await chain.omni.connect(taker).approve(chain.fundManager.address, toWei(100))
+  await chain.onft721.mint(taker.address, 10001)
+  await chain.onft721.mint(taker.address, 10002)
 }
