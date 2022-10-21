@@ -22,6 +22,16 @@ contract StrategyStargateSale is IExecutionStrategy {
         PROTOCOL_FEE = _protocolFee;
     }
 
+    function comparePrice(uint256 price1, uint256 price2, uint256 currencyRate) internal pure returns (bool) {
+        // if currencyRate is greater than 100, currencyRate is negative
+        if (currencyRate < 100) {
+            return (price1 == price2 * 10 ** currencyRate);
+        }
+        else {
+            return (price1 == price2 / 10 ** currencyRate);
+        }
+    }
+
     /**
      * @notice Check whether a taker ask order can be executed against a maker bid
      * @param takerAsk taker ask order
@@ -40,7 +50,7 @@ contract StrategyStargateSale is IExecutionStrategy {
     {
         (,,,,uint256 currencyRate) = takerAsk.decodeParams();
         return (
-            ((makerBid.price == takerAsk.price * currencyRate) &&
+            (comparePrice(makerBid.price, takerAsk.price, currencyRate) &&
                 (makerBid.tokenId == takerAsk.tokenId) &&
                 (makerBid.startTime <= block.timestamp) &&
                 (makerBid.endTime >= block.timestamp)),
@@ -67,7 +77,7 @@ contract StrategyStargateSale is IExecutionStrategy {
     {
         (,,,,uint256 currencyRate) = takerBid.decodeParams();
         return (
-            ((makerAsk.price == takerBid.price * currencyRate) &&
+            (comparePrice(makerAsk.price, takerBid.price, currencyRate) &&
                 (makerAsk.tokenId == takerBid.tokenId) &&
                 (makerAsk.startTime <= block.timestamp) &&
                 (makerAsk.endTime >= block.timestamp)),
