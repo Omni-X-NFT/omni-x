@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 import {IRoyaltyFeeRegistry} from "../interfaces/IRoyaltyFeeRegistry.sol";
@@ -11,7 +11,7 @@ import {IOwnable} from "../interfaces/IOwnable.sol";
  * @title RoyaltyFeeSetter
  * @notice It is used to allow creators to set royalty parameters in the RoyaltyFeeRegistry.
  */
-contract RoyaltyFeeSetter is Ownable {
+contract RoyaltyFeeSetter is AccessControl {
     // ERC721 interfaceID
     bytes4 public constant INTERFACE_ID_ERC721 = 0x80ac58cd;
 
@@ -21,6 +21,8 @@ contract RoyaltyFeeSetter is Ownable {
     // ERC2981 interfaceID
     bytes4 public constant INTERFACE_ID_ERC2981 = 0x2a55205a;
 
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+
     address public immutable royaltyFeeRegistry;
 
     /**
@@ -28,6 +30,7 @@ contract RoyaltyFeeSetter is Ownable {
      * @param _royaltyFeeRegistry address of the royalty fee registry
      */
     constructor(address _royaltyFeeRegistry) {
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         royaltyFeeRegistry = _royaltyFeeRegistry;
     }
 
@@ -104,7 +107,7 @@ contract RoyaltyFeeSetter is Ownable {
         address setter,
         address receiver,
         uint256 fee
-    ) external onlyOwner {
+    ) external onlyRole(ADMIN_ROLE) {
         IRoyaltyFeeRegistry(royaltyFeeRegistry).updateRoyaltyInfoForCollection(collection, setter, receiver, fee);
     }
 
@@ -113,7 +116,7 @@ contract RoyaltyFeeSetter is Ownable {
      * @dev Can be used for migration of this royalty fee setter contract
      * @param _owner new owner address
      */
-    function updateOwnerOfRoyaltyFeeRegistry(address _owner) external onlyOwner {
+    function updateOwnerOfRoyaltyFeeRegistry(address _owner) external onlyRole(ADMIN_ROLE) {
         IOwnable(royaltyFeeRegistry).transferOwnership(_owner);
     }
 
@@ -121,7 +124,7 @@ contract RoyaltyFeeSetter is Ownable {
      * @notice Update royalty info for collection
      * @param _royaltyFeeLimit new royalty fee limit (500 = 5%, 1,000 = 10%)
      */
-    function updateRoyaltyFeeLimit(uint256 _royaltyFeeLimit) external onlyOwner {
+    function updateRoyaltyFeeLimit(uint256 _royaltyFeeLimit) external onlyRole(ADMIN_ROLE) {
         IRoyaltyFeeRegistry(royaltyFeeRegistry).updateRoyaltyFeeLimit(_royaltyFeeLimit);
     }
 
@@ -183,5 +186,11 @@ contract RoyaltyFeeSetter is Ownable {
         );
 
         IRoyaltyFeeRegistry(royaltyFeeRegistry).updateRoyaltyInfoForCollection(collection, setter, receiver, fee);
+    }
+
+    function setAllowList(address[] calldata addresses) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        for (uint256 i = 0; i < addresses.length; i++) {
+            grantRole(ADMIN_ROLE, addresses[i]);
+        }
     }
 }
