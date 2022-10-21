@@ -20,6 +20,7 @@ const TransferManagerONFT721Abi = loadAbi('../artifacts/contracts/transfer/Trans
 const TransferManagerONFT1155Abi = loadAbi('../artifacts/contracts/transfer/TransferManagerONFT1155.sol/TransferManagerONFT1155.json')
 const OFTMockAbi = loadAbi('../artifacts/contracts/mocks/OFTMock.sol/OFTMock.json')
 const StargatePoolManagerAbi = loadAbi('../artifacts/contracts/core/StargatePoolManager.sol/StargatePoolManager.json')
+const OmniXExchangeAbi = loadAbi('../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json')
 const TransferManagerGhostsAbi = loadAbi('../artifacts/contracts/transfer/TransferManagerGhosts.sol/TransferManagerGhosts.json')
 const StargateFactoryAbi = loadAbi('../artifacts/contracts/stargate/Factory.sol/Factory.json')
 const StargateRouterAbi = loadAbi('../artifacts/contracts/stargate/Router.sol/Router.json')
@@ -37,9 +38,9 @@ export const prepareOmniX = async (taskArgs: any, hre: any) => {
   const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
   const executionManager = createContractByName(hre, 'ExecutionManager', ExecutionManagerAbi().abi, owner)
 
-  await currencyManager.addCurrency(getContractAddrByName(network.name, 'OFTMock'))
-  await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSale'))
-  await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSale'))
+  await tx(await currencyManager.addCurrency(getContractAddrByName(network.name, 'OFTMock')))
+  await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSale')))
+  await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSale')))
 }
 
 const packTrustedRemote = (hre: any, srcNetwork: string, dstNetwork: string, contractName: string) => {
@@ -70,7 +71,7 @@ export const linkOmniX = async (taskArgs: any, hre: any) => {
   const omni = createContractByName(hre, 'OFTMock', OFTMockAbi().abi, owner)
   await tx(await omni.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'OFTMock')))
 
-  const omniXExchange = createContractByName(hre, 'OmniXExchange', OFTMockAbi().abi, owner)
+  const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
   await tx(await omniXExchange.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'OmniXExchange')))
 }
 
@@ -191,7 +192,7 @@ export const setupBridge = async (taskArgs: any) => {
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
   // testnet: ['rinkeby', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-rinkeby', 'fantom-testnet']
-  testnet: ['bsc-testnet', 'fuji', 'mumbai', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
+  testnet: ['bsc-testnet', 'fuji', 'mumbai']
 }
 
 export const prepareOmnixAll = async function (taskArgs: any) {
@@ -203,6 +204,7 @@ export const prepareOmnixAll = async function (taskArgs: any) {
   await Promise.all(
     networks.map(async (network: string) => {
       const checkWireUpCommand = `npx hardhat prepareOmniX --network ${network}`
+      console.log(checkWireUpCommand)
       shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
     })
   )

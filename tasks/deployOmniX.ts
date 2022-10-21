@@ -34,16 +34,21 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
 
   const transferManager721 = await deployContract(hre, 'TransferManagerERC721', owner, [omniXExchange.address, lzEndpoint])
   const transferManager1155 = await deployContract(hre, 'TransferManagerERC1155', owner, [omniXExchange.address, lzEndpoint])
-  const transferSelector = await deployContract(hre, 'TransferSelectorNFT', owner, [transferManager721.address, transferManager1155.address])
-  await deployContract(hre, 'TransferManagerONFT721', owner, [omniXExchange.address, lzEndpoint])
-  await deployContract(hre, 'TransferManagerONFT1155', owner, [omniXExchange.address, lzEndpoint])
+  const transferManagerONFT721 = await deployContract(hre, 'TransferManagerONFT721', owner, [omniXExchange.address, lzEndpoint])
+  const transferManagerONFT1155 = await deployContract(hre, 'TransferManagerONFT1155', owner, [omniXExchange.address, lzEndpoint])
+  const transferSelector = await deployContract(hre, 'TransferSelectorNFT', owner, [
+    transferManager721.address,
+    transferManager1155.address,
+    transferManagerONFT721.address,
+    transferManagerONFT1155.address
+  ])
 
-  await deployContract(hre, 'OFTMock', owner, ['OMNI', 'OMNI', toWei(ethers, 1000), lzEndpoint])
+  // await deployContract(hre, 'OFTMock', owner, ['OMNI', 'OMNI', toWei(ethers, 1000), lzEndpoint])
 
-  await omniXExchange.updateTransferSelectorNFT(transferSelector.address)
+  await (await omniXExchange.updateTransferSelectorNFT(transferSelector.address)).wait()
 
   const fundManager = await deployContract(hre, 'FundManager', owner, [omniXExchange.address])
-  await omniXExchange.setFundManager(fundManager.address)
+  await (await omniXExchange.setFundManager(fundManager.address)).wait()
 
   // deploy stargate
   let stargateRouter = stargateEndpoint?.router
@@ -55,8 +60,6 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
 }
 
 export const deployGhosts = async (taskArgs: any, hre: any) => {
-  // @ts-ignore
-  // eslint-disable-next-line
   const { ethers, network } = hre
   const [, , deployer] = await ethers.getSigners()
   const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
@@ -67,7 +70,7 @@ export const deployGhosts = async (taskArgs: any, hre: any) => {
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
   // testnet: ['rinkeby', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-rinkeby', 'fantom-testnet'],
-  testnet: ['goerli', 'optimism-goerli']
+  testnet: ['fuji', 'mumbai', 'bsc-testnet']
 }
 
 export const deployOmnixAll = async function (taskArgs: any) {
@@ -79,6 +82,7 @@ export const deployOmnixAll = async function (taskArgs: any) {
   await Promise.all(
     networks.map(async (network: string) => {
       const checkWireUpCommand = `npx hardhat deployOmniX --network ${network}`
+      console.log(checkWireUpCommand)
       shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
     })
   )
