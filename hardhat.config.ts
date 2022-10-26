@@ -72,7 +72,7 @@ const config: HardhatUserConfig = {
       accounts
     },
     mumbai: {
-      url: 'https://polygon-mumbai.g.alchemy.com/v2/PBnAhVXSPI5sRtN4YRc4Xadl6bFpkyFv',
+      url: 'https://polygon-mumbai.g.alchemy.com/v2/GsyyWufdg0PLN8BIetxuVzVZ8sZ4KiDF',
       chainId: 80001,
       accounts
     },

@@ -98,11 +98,17 @@ contract TransferSelectorNFT is ITransferSelectorNFT, Ownable {
         transferManager = transferManagerSelectorForCollection[collection];
 
         if (transferManager == address(0)) {
-            if (IERC165(collection).supportsInterface(INTERFACE_ID_ONFT721)) {
-                transferManager = TRANSFER_MANAGER_ONFT721;
-            } else if (IERC165(collection).supportsInterface(INTERFACE_ID_ONFT1155)) {
-                transferManager = TRANSFER_MANAGER_ONFT1155;
-            } else if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC721)) {
+            // if (IERC165(collection).supportsInterface(INTERFACE_ID_ONFT721)) {
+            //     transferManager = TRANSFER_MANAGER_ONFT721;
+            // } else if (IERC165(collection).supportsInterface(INTERFACE_ID_ONFT1155)) {
+            //     transferManager = TRANSFER_MANAGER_ONFT1155;
+            // } else if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC721)) {
+            //     transferManager = TRANSFER_MANAGER_ERC721;
+            // } else if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC1155)) {
+            //     transferManager = TRANSFER_MANAGER_ERC1155;
+            // }
+
+            if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC721)) {
                 transferManager = TRANSFER_MANAGER_ERC721;
             } else if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC1155)) {
                 transferManager = TRANSFER_MANAGER_ERC1155;

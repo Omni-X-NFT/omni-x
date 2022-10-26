@@ -295,8 +295,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         }
         else {
             uint256 nftFee = _lzFeeTransferNFT(
-                maker.collection,
                 collection,
+                maker.collection,
                 maker.signer,
                 taker.taker,
                 maker.tokenId,

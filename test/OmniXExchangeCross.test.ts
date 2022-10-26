@@ -16,7 +16,7 @@ import {
   TakerOrder,
   MakerOrder
 } from '../utils/order-types'
-import { fillMakerOrder, fillTakerOrder, waitFor } from '../tasks/shared'
+import { fillMakerOrder, fillTakerOrder } from '../tasks/shared'
 
 chai.use(solidity)
 const { expect } = chai
@@ -148,7 +148,7 @@ describe('OmniXExchangeCross', () => {
       await makerAsk.sign(maker)
   
       await owner.sendTransaction({to: makerChain.omniXExchange.address, value: toWei(1)})
-      await makerChain.onft721.connect(maker).approve(makerChain.transferManagerONFT721.address, tokenId)
+      await makerChain.onft721.connect(maker).approve(makerChain.transferManager721.address, tokenId)
       await takerChain.omni.connect(taker).approve(takerChain.fundManager.address, price)
 
       const oldBalance = await makerChain.omni.balanceOf(maker.address)
@@ -156,7 +156,7 @@ describe('OmniXExchangeCross', () => {
       const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.getLzFeesForTrading(takerBid, makerAsk)
       await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk, {value: omnixFee.add(currencyFee).add(nftFee)})
   
-      expect(await takerChain.onft721.ownerOf(takerBid.tokenId)).to.eq(taker.address)
+      expect(await makerChain.onft721.ownerOf(takerBid.tokenId)).to.eq(taker.address)
       expect(await makerChain.omni.balanceOf(maker.address)).to.eq(oldBalance.add(toWei(0.98)))
     })
 
@@ -225,14 +225,14 @@ describe('OmniXExchangeCross', () => {
       await makerBid.sign(maker)
 
       await owner.sendTransaction({to: makerChain.omniXExchange.address, value: toWei(1)})
-      await takerChain.onft721.connect(taker).approve(takerChain.transferManagerONFT721.address, tokenId)
+      await takerChain.onft721.connect(taker).approve(takerChain.transferManager721.address, tokenId)
       await makerChain.omni.connect(maker).approve(makerChain.fundManager.address, price)
 
       const oldBalance = await takerChain.omni.balanceOf(taker.address)
       const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.getLzFeesForTrading(takerAsk, makerBid)
       await takerChain.omniXExchange.connect(taker).matchBidWithTakerAsk(takerAsk, makerBid, { value: omnixFee.add(currencyFee).add(nftFee) })
 
-      expect(await makerChain.onft721.ownerOf(takerAsk.tokenId)).to.eq(maker.address)
+      expect(await takerChain.onft721.ownerOf(takerAsk.tokenId)).to.eq(maker.address)
       expect(await takerChain.omni.balanceOf(taker.address)).to.eq(oldBalance.add(toWei(0.98)))
     })
   })
