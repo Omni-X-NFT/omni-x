@@ -35,12 +35,18 @@ export const prepareOmniX = async (taskArgs: any, hre: any) => {
   const { ethers, network } = hre
   const [owner] = await ethers.getSigners()
 
-  const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
-  const executionManager = createContractByName(hre, 'ExecutionManager', ExecutionManagerAbi().abi, owner)
+  // const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
+  // const executionManager = createContractByName(hre, 'ExecutionManager', ExecutionManagerAbi().abi, owner)
 
-  await tx(await currencyManager.addCurrency(getContractAddrByName(network.name, 'OFTMock')))
+  // await tx(await currencyManager.addCurrency(getContractAddrByName(network.name, 'OFTMock')))
+  // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSale')))
+  // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSale')))
+
+  const executionManager = createContractByName(hre, 'ExecutionManager', ExecutionManagerAbi().abi, owner)
   await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSale')))
+  await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSaleForCollection')))
   await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSale')))
+  await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSaleForCollection')))
 }
 
 const packTrustedRemote = (hre: any, srcNetwork: string, dstNetwork: string, contractName: string) => {
@@ -132,8 +138,7 @@ export const setupBridge = async (taskArgs: any, hre: any) => {
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
-  // testnet: ['bsc-testnet', 'fuji', 'mumbai', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
-  testnet: ['bsc-testnet', 'fuji', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
+  testnet: ['bsc-testnet', 'fuji', 'mumbai', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
 }
 
 export const prepareOmnixAll = async function (taskArgs: any) {

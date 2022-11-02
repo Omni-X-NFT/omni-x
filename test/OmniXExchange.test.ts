@@ -36,7 +36,6 @@ const { expect } = chai
 
 setEthers(ethers)
 
-const STRATEGY_PROTOCAL_FEE = 200 // 2%
 const ROYALTY_FEE_LIMIT = 500 // 5%
 
 describe('OmniXExchange', () => {
@@ -113,7 +112,7 @@ describe('OmniXExchange', () => {
     currencyManager = await deployContract('CurrencyManager', owner, []) as CurrencyManager
 
     // execution manager with strategy. protocal fee 200 = 2%
-    strategy = await deployContract('StrategyStargateSale', owner, [STRATEGY_PROTOCAL_FEE]) as StrategyStargateSale
+    strategy = await deployContract('StrategyStargateSale', owner, []) as StrategyStargateSale
     executionManager = await deployContract('ExecutionManager', owner, []) as ExecutionManager
 
     // royalty fee manager
@@ -200,7 +199,7 @@ describe('OmniXExchange', () => {
       fillTakerOrder(takerBid, 1, taker.address)
 
       makerAsk.encodeParams(await maker.getChainId())
-      takerBid.encodeParams(await taker.getChainId(), erc20Mock.address, nftMock.address, strategy.address, 1)
+      takerBid.encodeParams(await taker.getChainId(), erc20Mock.address, nftMock.address, strategy.address, 0)
       await makerAsk.sign(maker)
 
       await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
@@ -215,7 +214,7 @@ describe('OmniXExchange', () => {
       fillTakerOrder(takerBid, 2, taker.address)
 
       makerAsk.encodeParams(await maker.getChainId())
-      takerBid.encodeParams(await taker.getChainId(), omni.address, nftMock.address, strategy.address, 1)
+      takerBid.encodeParams(await taker.getChainId(), omni.address, nftMock.address, strategy.address, 0)
       await makerAsk.sign(maker)
       await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
 
@@ -230,7 +229,7 @@ describe('OmniXExchange', () => {
       fillTakerOrder(takerBid, 1, taker.address)
 
       makerAsk.encodeParams(await maker.getChainId())
-      takerBid.encodeParams(await taker.getChainId(), erc20Mock.address, onft721.address, strategy.address, 1)
+      takerBid.encodeParams(await taker.getChainId(), erc20Mock.address, onft721.address, strategy.address, 0)
       await makerAsk.sign(maker)
       await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
 
@@ -245,7 +244,7 @@ describe('OmniXExchange', () => {
       fillTakerOrder(takerBid, 2, taker.address)
 
       makerAsk.encodeParams(await maker.getChainId())
-      takerBid.encodeParams(await taker.getChainId(), omni.address, onft721.address, strategy.address, 1)
+      takerBid.encodeParams(await taker.getChainId(), omni.address, onft721.address, strategy.address, 0)
       await makerAsk.sign(maker)
       await omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk)
 
@@ -262,7 +261,7 @@ describe('OmniXExchange', () => {
       fillTakerOrder(takerAsk, 3, maker.address)
 
       makerBid.encodeParams(await bidder.getChainId())
-      takerAsk.encodeParams(await seller.getChainId(), omni.address, nftMock.address, strategy.address, 1)
+      takerAsk.encodeParams(await seller.getChainId(), omni.address, nftMock.address, strategy.address, 0)
       await makerBid.sign(bidder)
       await omniXExchange.connect(seller).matchBidWithTakerAsk(takerAsk, makerBid)
 

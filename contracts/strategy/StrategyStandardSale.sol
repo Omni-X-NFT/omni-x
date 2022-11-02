@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {OrderTypes} from "../libraries/OrderTypes.sol";
 import {IExecutionStrategy} from "../interfaces/IExecutionStrategy.sol";
 
@@ -9,16 +10,12 @@ import {IExecutionStrategy} from "../interfaces/IExecutionStrategy.sol";
  * @notice Strategy that executes an order at a fixed price that
  * can be taken either by a bid or an ask.
  */
-contract StrategyStandardSale is IExecutionStrategy {
-    uint256 public immutable PROTOCOL_FEE;
+contract StrategyStandardSale is Ownable, IExecutionStrategy {
+    // Event if the protocol fee changes
+    event NewProtocolFee(uint256 protocolFee);
 
-    /**
-     * @notice Constructor
-     * @param _protocolFee protocol fee (200 --> 2%, 400 --> 4%)
-     */
-    constructor(uint256 _protocolFee) {
-        PROTOCOL_FEE = _protocolFee;
-    }
+    // Protocol fee
+    uint256 internal _protocolFee = 200;
 
     /**
      * @notice Check whether a taker ask order can be executed against a maker bid
@@ -73,10 +70,20 @@ contract StrategyStandardSale is IExecutionStrategy {
     }
 
     /**
+     * @notice Set new protocol fee for this strategy
+     * @param newProtocolFee protocol fee
+     */
+    function setProtocolFee(uint256 newProtocolFee) external onlyOwner {
+        _protocolFee = newProtocolFee;
+
+        emit NewProtocolFee(newProtocolFee);
+    }
+
+    /**
      * @notice Return protocol fee for this strategy
      * @return protocol fee
      */
     function viewProtocolFee() external view override returns (uint256) {
-        return PROTOCOL_FEE;
+        return _protocolFee;
     }
 }

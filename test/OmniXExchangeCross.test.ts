@@ -70,7 +70,7 @@ describe('OmniXExchangeCross', () => {
       fillTakerOrder(takerBid, taker.address, tokenId, price)
 
       makerAsk.encodeParams(makerChain.chainId)
-      takerBid.encodeParams(takerChain.chainId, takerChain.erc20Mock.address, takerChain.nftMock.address, takerChain.strategy.address, 1)
+      takerBid.encodeParams(takerChain.chainId, takerChain.erc20Mock.address, takerChain.nftMock.address, takerChain.strategy.address, 0)
       await makerAsk.sign(maker)
 
       await makerChain.nftMock.connect(maker).approve(makerChain.transferManager721.address, tokenId)
@@ -106,7 +106,7 @@ describe('OmniXExchangeCross', () => {
       fillTakerOrder(takerBid, taker.address, tokenId, price)
   
       makerAsk.encodeParams(makerChain.chainId)
-      takerBid.encodeParams(takerChain.chainId, takerChain.omni.address, takerChain.nftMock.address, takerChain.strategy.address, 1)
+      takerBid.encodeParams(takerChain.chainId, takerChain.omni.address, takerChain.nftMock.address, takerChain.strategy.address, 0)
       await makerAsk.sign(maker)
   
       await makerChain.nftMock.connect(maker).approve(makerChain.transferManager721.address, tokenId)
@@ -144,7 +144,7 @@ describe('OmniXExchangeCross', () => {
       fillTakerOrder(takerBid, taker.address, tokenId, price)
   
       makerAsk.encodeParams(makerChain.chainId)
-      takerBid.encodeParams(takerChain.chainId, takerChain.omni.address, takerChain.onft721.address, takerChain.strategy.address, 1)
+      takerBid.encodeParams(takerChain.chainId, takerChain.omni.address, takerChain.onft721.address, takerChain.strategy.address, 0)
       await makerAsk.sign(maker)
   
       await owner.sendTransaction({to: makerChain.omniXExchange.address, value: toWei(1)})
@@ -183,7 +183,7 @@ describe('OmniXExchangeCross', () => {
       fillTakerOrder(takerAsk, taker.address, tokenId, price)
 
       makerBid.encodeParams(makerChain.chainId)
-      takerAsk.encodeParams(takerChain.chainId, takerChain.erc20Mock.address, takerChain.nftMock.address, takerChain.strategy.address, 1)
+      takerAsk.encodeParams(takerChain.chainId, takerChain.erc20Mock.address, takerChain.nftMock.address, takerChain.strategy.address, 0)
       await makerBid.sign(maker)
 
       await owner.sendTransaction({to: makerChain.omniXExchange.address, value: toWei(1)})
@@ -221,7 +221,7 @@ describe('OmniXExchangeCross', () => {
       fillTakerOrder(takerAsk, taker.address, tokenId, price)
   
       makerBid.encodeParams(makerChain.chainId)
-      takerAsk.encodeParams(takerChain.chainId, takerChain.omni.address, takerChain.onft721.address, takerChain.strategy.address, 1)
+      takerAsk.encodeParams(takerChain.chainId, takerChain.omni.address, takerChain.onft721.address, takerChain.strategy.address, 0)
       await makerBid.sign(maker)
 
       await owner.sendTransaction({to: makerChain.omniXExchange.address, value: toWei(1)})

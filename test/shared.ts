@@ -28,7 +28,6 @@ import {
   StrategyStargateSale
 } from '../typechain-types'
 
-const STRATEGY_PROTOCAL_FEE = 200 // 2%
 const ROYALTY_FEE_LIMIT = 500 // 5%
 
 export type Chain = {
@@ -94,7 +93,7 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   chain.currencyManager = await deployContract('CurrencyManager', owner, []) as CurrencyManager
 
   // execution manager with strategy. protocal fee 200 = 2%
-  chain.strategy = await deployContract('StrategyStargateSale', owner, [STRATEGY_PROTOCAL_FEE]) as StrategyStargateSale
+  chain.strategy = await deployContract('StrategyStargateSale', owner, []) as StrategyStargateSale
   chain.executionManager = await deployContract('ExecutionManager', owner, []) as ExecutionManager
 
   // royalty fee manager

@@ -6,31 +6,16 @@ import {OrderTypes} from "../libraries/OrderTypes.sol";
 import {IExecutionStrategy} from "../interfaces/IExecutionStrategy.sol";
 
 /**
- * @title StrategyStargateSale
+ * @title StrategyStandardSaleForCollection
  * @notice Strategy that executes an order at a fixed price that
  * can be taken either by a bid or an ask.
  */
-contract StrategyStargateSale is Ownable, IExecutionStrategy {
+contract StrategyStandardSaleForCollection is Ownable, IExecutionStrategy {
     // Event if the protocol fee changes
     event NewProtocolFee(uint256 protocolFee);
 
     // Protocol fee
     uint256 internal _protocolFee = 200;
-
-    using OrderTypes for OrderTypes.TakerOrder;
-
-    function comparePrice(uint256 price1, uint256 price2, uint256 currencyRate) internal pure returns (bool) {
-        // if currencyRate is greater than 100, currencyRate is negative
-        if (currencyRate == 0) {
-            return price1 == price2;
-        }
-        else if (currencyRate < 100) {
-            return (price1 == price2 * 10 ** currencyRate);
-        }
-        else {
-            return (price1 == price2 / 10 ** (currencyRate - 100));
-        }
-    }
 
     /**
      * @notice Check whether a taker ask order can be executed against a maker bid
@@ -48,10 +33,8 @@ contract StrategyStargateSale is Ownable, IExecutionStrategy {
             uint256
         )
     {
-        (,,,,uint256 currencyRate) = takerAsk.decodeParams();
         return (
-            (comparePrice(makerBid.price, takerAsk.price, currencyRate) &&
-                (makerBid.tokenId == takerAsk.tokenId) &&
+            ((makerBid.price == takerAsk.price) &&
                 (makerBid.startTime <= block.timestamp) &&
                 (makerBid.endTime >= block.timestamp)),
             makerBid.tokenId,
@@ -61,13 +44,11 @@ contract StrategyStargateSale is Ownable, IExecutionStrategy {
 
     /**
      * @notice Check whether a taker bid order can be executed against a maker ask
-     * @param takerBid taker bid order
-     * @param makerAsk maker ask order
      * @return (whether strategy can be executed, tokenId to execute, amount of tokens to execute)
      */
-    function canExecuteTakerBid(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk)
+    function canExecuteTakerBid(OrderTypes.TakerOrder calldata, OrderTypes.MakerOrder calldata)
         external
-        view
+        pure
         override
         returns (
             bool,
@@ -75,15 +56,7 @@ contract StrategyStargateSale is Ownable, IExecutionStrategy {
             uint256
         )
     {
-        (,,,,uint256 currencyRate) = takerBid.decodeParams();
-        return (
-            (comparePrice(makerAsk.price, takerBid.price, currencyRate) &&
-                (makerAsk.tokenId == takerBid.tokenId) &&
-                (makerAsk.startTime <= block.timestamp) &&
-                (makerAsk.endTime >= block.timestamp)),
-            makerAsk.tokenId,
-            makerAsk.amount
-        );
+        return (false, 0, 0);
     }
 
     /**

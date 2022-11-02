@@ -6,11 +6,11 @@ import {OrderTypes} from "../libraries/OrderTypes.sol";
 import {IExecutionStrategy} from "../interfaces/IExecutionStrategy.sol";
 
 /**
- * @title StrategyStargateSale
+ * @title StrategyStargateSaleForCollection
  * @notice Strategy that executes an order at a fixed price that
  * can be taken either by a bid or an ask.
  */
-contract StrategyStargateSale is Ownable, IExecutionStrategy {
+contract StrategyStargateSaleForCollection is Ownable, IExecutionStrategy {
     // Event if the protocol fee changes
     event NewProtocolFee(uint256 protocolFee);
 
@@ -51,7 +51,6 @@ contract StrategyStargateSale is Ownable, IExecutionStrategy {
         (,,,,uint256 currencyRate) = takerAsk.decodeParams();
         return (
             (comparePrice(makerBid.price, takerAsk.price, currencyRate) &&
-                (makerBid.tokenId == takerAsk.tokenId) &&
                 (makerBid.startTime <= block.timestamp) &&
                 (makerBid.endTime >= block.timestamp)),
             makerBid.tokenId,
@@ -61,13 +60,11 @@ contract StrategyStargateSale is Ownable, IExecutionStrategy {
 
     /**
      * @notice Check whether a taker bid order can be executed against a maker ask
-     * @param takerBid taker bid order
-     * @param makerAsk maker ask order
      * @return (whether strategy can be executed, tokenId to execute, amount of tokens to execute)
      */
-    function canExecuteTakerBid(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk)
+    function canExecuteTakerBid(OrderTypes.TakerOrder calldata, OrderTypes.MakerOrder calldata)
         external
-        view
+        pure
         override
         returns (
             bool,
@@ -75,15 +72,7 @@ contract StrategyStargateSale is Ownable, IExecutionStrategy {
             uint256
         )
     {
-        (,,,,uint256 currencyRate) = takerBid.decodeParams();
-        return (
-            (comparePrice(makerAsk.price, takerBid.price, currencyRate) &&
-                (makerAsk.tokenId == takerBid.tokenId) &&
-                (makerAsk.startTime <= block.timestamp) &&
-                (makerAsk.endTime >= block.timestamp)),
-            makerAsk.tokenId,
-            makerAsk.amount
-        );
+        return (false, 0, 0);
     }
 
     /**
