@@ -33,7 +33,7 @@ task('linkAllX', 'deploys an OmniX exchange')
   .addParam('e', 'testnet or mainnet')
   .setAction(linkOmnixAll)
 
-task('verifyOmni', 'verify an omni')
+task('verifyOmniX', 'verify an omni')
   .setAction(verifyOmni)
 
 task(

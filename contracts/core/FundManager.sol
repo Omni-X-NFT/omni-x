@@ -159,7 +159,7 @@ contract FundManager is IFundManager {
             if (
                 fromChainId != toChainId && 
                 address(stargatePoolManager) != address(0) && 
-                stargatePoolManager.isSwappable(currency, fromChainId)
+                stargatePoolManager.isSwappable(currency, toChainId)
             ) {
                 (uint256 fee, ) = stargatePoolManager.getSwapFee(toChainId, to);
                 return fee;

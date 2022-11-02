@@ -24,11 +24,14 @@ contract StrategyStargateSale is IExecutionStrategy {
 
     function comparePrice(uint256 price1, uint256 price2, uint256 currencyRate) internal pure returns (bool) {
         // if currencyRate is greater than 100, currencyRate is negative
-        if (currencyRate < 100) {
+        if (currencyRate == 0) {
+            return price1 == price2;
+        }
+        else if (currencyRate < 100) {
             return (price1 == price2 * 10 ** currencyRate);
         }
         else {
-            return (price1 == price2 / 10 ** currencyRate);
+            return (price1 == price2 / 10 ** (currencyRate - 100));
         }
     }
 

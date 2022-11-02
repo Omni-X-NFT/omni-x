@@ -129,16 +129,16 @@ describe('Stargate', () => {
         makerChain.strategy.address,
         maker.address,
         blockTime,
-        price,
+        ethers.BigNumber.from('1000000'),
         nonce
       )
       fillTakerOrder(takerBid, taker.address, tokenId, price)
 
       makerAsk.encodeParams(makerChain.chainId)
-      takerBid.encodeParams(takerChain.chainId, takerChain.erc20Mock.address, takerChain.nftMock.address, takerChain.strategy.address, 1)
+      takerBid.encodeParams(takerChain.chainId, takerChain.erc20Mock.address, takerChain.nftMock.address, takerChain.strategy.address, 112)
       await makerAsk.sign(maker)
 
-      const takerBalance = await takerChain.erc20Mock.balanceOf(taker.address)
+      const makerBalance = await makerChain.erc20Mock.balanceOf(maker.address)
 
       await makerChain.nftMock.connect(maker).approve(makerChain.transferManager721.address, tokenId)
       await takerChain.erc20Mock.connect(taker).approve(takerChain.fundManager.address, price)
@@ -149,7 +149,7 @@ describe('Stargate', () => {
       await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk, {value: omnixFee.add(currencyFee).add(nftFee)})
 
       expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
-      expect(await takerChain.erc20Mock.balanceOf(taker.address)).to.eq(takerBalance.add(toWei(0.98)))
+      expect(await makerChain.erc20Mock.balanceOf(maker.address)).to.eq(makerBalance.add(toWei(0.98)))
     })
   })
 })

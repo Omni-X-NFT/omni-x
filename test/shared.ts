@@ -24,7 +24,8 @@ import {
   StargatePoolManager,
   IStargateRouter,
   Bridge,
-  FundManager
+  FundManager,
+  StrategyStargateSale
 } from '../typechain-types'
 
 const STRATEGY_PROTOCAL_FEE = 200 // 2%
@@ -43,7 +44,7 @@ export type Chain = {
   transferManager1155: TransferManagerERC1155
   royaltyFeeManager: RoyaltyFeeManager
   fundManager: FundManager
-  strategy: StrategyStandardSale
+  strategy: StrategyStargateSale
   nftMock: Nft721Mock
   erc20Mock: LRTokenMock
   omni: OFTMock
@@ -93,7 +94,7 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   chain.currencyManager = await deployContract('CurrencyManager', owner, []) as CurrencyManager
 
   // execution manager with strategy. protocal fee 200 = 2%
-  chain.strategy = await deployContract('StrategyStandardSale', owner, [STRATEGY_PROTOCAL_FEE]) as StrategyStandardSale
+  chain.strategy = await deployContract('StrategyStargateSale', owner, [STRATEGY_PROTOCAL_FEE]) as StrategyStargateSale
   chain.executionManager = await deployContract('ExecutionManager', owner, []) as ExecutionManager
 
   // royalty fee manager

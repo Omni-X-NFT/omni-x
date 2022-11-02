@@ -68,8 +68,8 @@ export const linkOmniX = async (taskArgs: any, hre: any) => {
   const transferManagerONFT1155 = createContractByName(hre, 'TransferManagerONFT1155', TransferManagerONFT1155Abi().abi, owner)
   await tx(await transferManagerONFT1155.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'TransferManagerONFT1155')))
 
-  const omni = createContractByName(hre, 'OFTMock', OFTMockAbi().abi, owner)
-  await tx(await omni.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'OFTMock')))
+  // const omni = createContractByName(hre, 'OFTMock', OFTMockAbi().abi, owner)
+  // await tx(await omni.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'OFTMock')))
 
   const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
   await tx(await omniXExchange.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'OmniXExchange')))
@@ -79,27 +79,6 @@ export const prepareStargate = async (taskArgs: any, hre: any) => {
   const { ethers, network } = hre
   const [owner] = await ethers.getSigners()
 
-  // const stargateEndpoint = (STARGATE as any)[network.name]
-  // const isTest = stargateEndpoint.isTest
-
-  // if (isTest) {
-  //   const factory = createContractByName(_hre, 'Factory', StargateFactoryAbi().abi, owner)
-  //   const router = createContractByName(_hre, 'Router', StargateRouterAbi().abi, owner)
-
-  //   await router.setBridgeAndFactory(getContractAddrByName(network.name, 'Bridge'), getContractAddrByName(network.name, 'Factory'))
-  //   await factory.setDefaultFeeLibrary(getContractAddrByName(network.name, 'StargateFeeLibraryMock'))
-  //   await waitFor(TRANSACTION_CONFIRM_DELAY)
-
-  //   // create pool
-  //   await router.createPool(
-  //     getPoolId(network.name),
-  //     getContractAddrByName(network.name, 'LRTokenMock'),
-  //     18,
-  //     18,
-  //     'pool',
-  //     'SSS'
-  //   )
-  // }
   const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
   await currencyManager.addCurrency(getContractAddrByName(network.name, 'USDC'))
 }
@@ -118,41 +97,6 @@ export const setupBridge = async (taskArgs: any, hre: any) => {
   const isTest = stargateEndpoint.isTest
 
   if (isTest) {
-    // const dstChainId = getChainId(dstNetwork)
-    // const srcPoolId = getPoolId(network.name)
-    // const dstPoolId = getPoolId(dstNetwork)
-
-    // {
-    //   const bridge = createContractByName(_hre, 'Bridge', StargateBridgeAbi().abi, owner)
-    //   await bridge.setBridge(dstChainId, getContractAddrByName(dstNetwork, 'Bridge'))
-    //   await bridge.setGasAmount(dstChainId, 1, 200000)
-    //   await bridge.setGasAmount(dstChainId, 2, 200000)
-    //   await bridge.setGasAmount(dstChainId, 3, 200000)
-    //   await bridge.setGasAmount(dstChainId, 4, 200000)
-
-    //   await waitFor(TRANSACTION_CONFIRM_DELAY)
-    // }
-
-    // {
-    //   const router = createContractByName(_hre, 'Router', StargateRouterAbi().abi, owner)
-
-    //   await router.createChainPath(srcPoolId, dstChainId, dstPoolId, 1)
-    //   await waitFor(TRANSACTION_CONFIRM_DELAY)
-
-    //   await router.activateChainPath(srcPoolId, dstChainId, dstPoolId)
-    //   await waitFor(TRANSACTION_CONFIRM_DELAY)
-
-    //   const erc20 = createContractByName(_hre, 'LRTokenMock', LRTokenMockAbi().abi, owner)
-    //   await erc20.mint(owner.address, toWei(ethers, 100))
-    //   await erc20.connect(owner).approve(router.address, toWei(ethers, 100))
-    //   await waitFor(TRANSACTION_CONFIRM_DELAY)
-
-    //   await router.connect(owner).addLiquidity(srcPoolId, toWei(ethers, 100), owner.address)
-    //   await waitFor(TRANSACTION_CONFIRM_DELAY)
-
-    //   await router.sendCredits(dstChainId, srcPoolId, dstPoolId, owner.address, { value: toWei(ethers, 0.3) })
-    // }
-
     const router = createContract(ethers, stargateEndpoint.router, StargateRouterAbi().abi, owner)
 
     const erc20 = createContractByName(hre, 'USDC', LRTokenMockAbi().abi, owner)
@@ -189,7 +133,7 @@ export const setupBridge = async (taskArgs: any, hre: any) => {
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
   // testnet: ['bsc-testnet', 'fuji', 'mumbai', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
-  testnet: ['goerli', 'arbitrum-goerli', 'optimism-goerli']
+  testnet: ['bsc-testnet', 'fuji', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
 }
 
 export const prepareOmnixAll = async function (taskArgs: any) {
@@ -215,11 +159,19 @@ export const linkOmnixAll = async function (taskArgs: any) {
 
   for (const network of networks) {
     await Promise.all(
-      networks.map(async (dst: string) => {
+      ['mumbai'].map(async (dst: string) => {
         if (network != dst) {
-          const checkWireUpCommand = `npx hardhat linkOmniX --network ${network} --dstchainname ${dst}`
-          console.log(checkWireUpCommand)
-          shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+          {
+            const checkWireUpCommand = `npx hardhat linkOmniX --network ${dst} --dstchainname ${network}`
+            console.log(checkWireUpCommand)
+            shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+          }
+
+          {
+            const checkWireUpCommand = `npx hardhat linkOmniX --network ${network} --dstchainname ${dst}`
+            console.log(checkWireUpCommand)
+            shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+          }
         }
       })
     )
