@@ -43,8 +43,8 @@ export const prepareOmniX = async (taskArgs: any, hre: any) => {
   // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSale')))
 
   const executionManager = createContractByName(hre, 'ExecutionManager', ExecutionManagerAbi().abi, owner)
-  await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSale')))
-  await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSaleForCollection')))
+  // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSale')))
+  // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSaleForCollection')))
   await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSale')))
   await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSaleForCollection')))
 }

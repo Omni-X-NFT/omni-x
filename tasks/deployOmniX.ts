@@ -16,8 +16,8 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
   const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
   const stargateEndpoint = (STARGATE as any)[network.name]
 
-  await deployContract(hre, 'StrategyStandardSale', owner, [])
-  await deployContract(hre, 'StrategyStandardSaleForCollection', owner, [])
+  // await deployContract(hre, 'StrategyStandardSale', owner, [])
+  // await deployContract(hre, 'StrategyStandardSaleForCollection', owner, [])
   await deployContract(hre, 'StrategyStargateSale', owner, [])
   await deployContract(hre, 'StrategyStargateSaleForCollection', owner, [])
 
