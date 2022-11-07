@@ -10,8 +10,8 @@ import {TransferManagerLzBase} from "./TransferManagerLzBase.sol";
  * @notice It allows the transfer of ERC1155 tokens.
  */
 contract TransferManagerERC1155 is TransferManagerLzBase {
-    constructor(address _omniXExchange, address _lzEndpoint) 
-        TransferManagerLzBase(_omniXExchange, _lzEndpoint) {
+    constructor(address _lzEndpoint) 
+        TransferManagerLzBase(_lzEndpoint) {
     }
 
     /**

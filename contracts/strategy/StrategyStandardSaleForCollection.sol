@@ -37,7 +37,7 @@ contract StrategyStandardSaleForCollection is Ownable, IExecutionStrategy {
             ((makerBid.price == takerAsk.price) &&
                 (makerBid.startTime <= block.timestamp) &&
                 (makerBid.endTime >= block.timestamp)),
-            makerBid.tokenId,
+            takerAsk.tokenId,
             makerBid.amount
         );
     }

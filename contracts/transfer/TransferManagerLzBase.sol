@@ -12,7 +12,6 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
     uint16 public constant MT_ON_SRC_CHAIN = 1;
     uint16 public constant MT_ON_DST_CHAIN = 2;
     uint16 public constant LZ_ADAPTER_VERSION = 1;
-    address public immutable OMNIX_EXCHANGE;
 
     uint256 public gasForOnftLzReceive = 350000;
 
@@ -21,10 +20,8 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
 
     /**
      * @notice Constructor
-     * @param _omniXExchange address of the OmniX exchange
      */
-    constructor(address _omniXExchange, address _lzEndpoint) NonblockingLzApp(_lzEndpoint) {
-        OMNIX_EXCHANGE = _omniXExchange;
+    constructor(address _lzEndpoint) NonblockingLzApp(_lzEndpoint) {
     }
 
     /**

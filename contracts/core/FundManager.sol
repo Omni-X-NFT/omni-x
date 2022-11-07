@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 // OpenZeppelin contracts
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 // OmniX interfaces
@@ -19,7 +20,7 @@ import "hardhat/console.sol";
  * @title FundManager
  * @notice It is the contract for funds transfer.
  */
-contract FundManager is IFundManager {
+contract FundManager is IFundManager, Ownable {
     using SafeERC20 for IERC20;
 
     uint16 private constant LZ_ADAPTER_VERSION = 1;
@@ -41,6 +42,14 @@ contract FundManager is IFundManager {
 
     constructor (address _omnixExchange) {
         omnixExchange = OmniXExchange(payable(_omnixExchange));
+    }
+
+    function setOmnixExchange(address _omnixExchange) external onlyOwner {
+        omnixExchange = OmniXExchange(payable(_omnixExchange));
+    }
+
+    function setGasForOmniLZReceive(uint256 gas) external onlyOwner {
+        gasForOmniLzReceive = gas;
     }
 
     /**

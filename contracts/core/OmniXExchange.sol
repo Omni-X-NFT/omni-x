@@ -201,7 +201,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             makerAsk.strategy,
             makerAsk.currency,
             makerAsk.collection,
-            makerAsk.tokenId,
+            takerBid.tokenId,
             makerAsk.amount,
             takerBid.price,
             makerChainId,
@@ -254,7 +254,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             makerAsk.strategy,
             makerAsk.currency,
             makerAsk.collection,
-            makerAsk.tokenId,
+            takerBid.tokenId,
             makerAsk.amount,
             takerBid.price,
             makerChainId,
@@ -299,7 +299,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 maker.collection,
                 maker.signer,
                 taker.taker,
-                maker.tokenId,
+                taker.tokenId,
                 maker.amount,
                 makerChainId,
                 takerChainId
@@ -361,7 +361,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             makerBid.strategy,
             makerBid.currency,
             makerBid.collection,
-            makerBid.tokenId,
+            takerAsk.tokenId,
             makerBid.amount,
             takerAsk.price,
             fromChainId,
@@ -393,7 +393,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 collection,
                 maker.signer,
                 taker.taker,
-                maker.tokenId,
+                taker.tokenId,
                 maker.amount,
                 makerChainId
             );
@@ -411,7 +411,6 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             return (messageFee, payload, adapterParams);
         }
         else {
-            uint256 price = taker.price;
             uint256 minPercentageToAsk = taker.minPercentageToAsk;
 
             bytes memory payload = abi.encode(
@@ -419,10 +418,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 maker.strategy,
                 maker.collection,
                 maker.currency,
-                maker.signer,
                 taker.taker,
-                maker.tokenId,
-                price,
+                taker.tokenId,
+                taker.price,
+                maker.signer,
                 minPercentageToAsk,
                 makerChainId
             );
@@ -564,7 +563,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         fundManager.transferFeesAndFundsWithWETH(
             strategy,
             collection,
-            makerAsk.tokenId,
+            takerBid.tokenId,
             makerAsk.signer,
             takerBid.price,
             makerAsk.minPercentageToAsk
@@ -589,7 +588,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 maker.collection,
                 from,
                 to,
-                maker.tokenId,
+                taker.tokenId,
                 maker.amount,
                 takerChainId,
                 makerChainId,
@@ -642,7 +641,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     }
 
     function _transferFeesAndFundsLz(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint256 currencyFee) internal {
-        uint256 tokenId = maker.tokenId;
+        uint256 tokenId = taker.tokenId;
         address from = maker.isOrderAsk ? taker.taker : maker.signer;
         address to = maker.isOrderAsk ? maker.signer : taker.taker;
         uint256 price = taker.price;
@@ -732,10 +731,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 address strategy,
                 address collection,
                 address currency,
-                address from,
                 address to,
                 uint tokenId,
                 uint price,
+                address from,
                 uint minPercentageToAsk,
                 uint16 lzChainId
             ) = abi.decode(_payload, (
@@ -744,9 +743,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 address,
                 address,
                 address,
+                uint,
+                uint,
                 address,
-                uint,
-                uint,
                 uint,
                 uint16
             ));
@@ -760,7 +759,6 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 lzChainId,
                 toChainId
             );
-
             fundManager.transferFeesAndFunds{value: currencyFee}(
                 strategy,
                 collection,

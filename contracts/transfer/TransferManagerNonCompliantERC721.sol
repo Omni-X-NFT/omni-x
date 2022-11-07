@@ -9,8 +9,8 @@ import {TransferManagerLzBase} from "./TransferManagerLzBase.sol";
  * @notice It allows the transfer of ERC721 tokens without safeTransferFrom.
  */
 contract TransferManagerNonCompliantERC721 is TransferManagerLzBase {
-    constructor(address _omniXExchange, address _lzEndpoint) 
-        TransferManagerLzBase(_omniXExchange, _lzEndpoint) {
+    constructor(address _lzEndpoint) 
+        TransferManagerLzBase(_lzEndpoint) {
     }
 
     /**

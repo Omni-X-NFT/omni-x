@@ -12,8 +12,8 @@ import "hardhat/console.sol";
  * @notice It allows the transfer of GhostlyGhosts tokens.
  */
 contract TransferManagerGhosts is TransferManagerLzBase, IERC721Receiver {
-    constructor(address _omniXExchange, address _lzEndpoint) 
-        TransferManagerLzBase(_omniXExchange, _lzEndpoint) {
+    constructor(address _lzEndpoint) 
+        TransferManagerLzBase(_lzEndpoint) {
     }
 
     function onERC721Received(address, address, uint256, bytes calldata) public virtual override returns (bytes4) {

@@ -10,8 +10,8 @@ import {TransferManagerLzBase} from "./TransferManagerLzBase.sol";
  * @notice It allows the transfer of GhostlyGhosts tokens.
  */
 contract TransferManagerGregs is TransferManagerLzBase {
-    constructor(address _omniXExchange, address _lzEndpoint) 
-        TransferManagerLzBase(_omniXExchange, _lzEndpoint) {
+    constructor(address _lzEndpoint) 
+        TransferManagerLzBase(_lzEndpoint) {
     }
 
     /**
