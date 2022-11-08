@@ -18,8 +18,8 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
 
   // await deployContract(hre, 'StrategyStandardSale', owner, [])
   // await deployContract(hre, 'StrategyStandardSaleForCollection', owner, [])
-  await deployContract(hre, 'StrategyStargateSale', owner, [])
-  await deployContract(hre, 'StrategyStargateSaleForCollection', owner, [])
+  // await deployContract(hre, 'StrategyStargateSale', owner, [])
+  // await deployContract(hre, 'StrategyStargateSaleForCollection', owner, [])
 
   // const currencyManager = await deployContract(hre, 'CurrencyManager', owner, [])
   // const executionManager = await deployContract(hre, 'ExecutionManager', owner, [])
@@ -34,10 +34,10 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
   //   lzEndpoint
   // ])
 
-  // const transferManager721 = await deployContract(hre, 'TransferManagerERC721', owner, [omniXExchange.address, lzEndpoint])
-  // const transferManager1155 = await deployContract(hre, 'TransferManagerERC1155', owner, [omniXExchange.address, lzEndpoint])
-  // const transferManagerONFT721 = await deployContract(hre, 'TransferManagerONFT721', owner, [omniXExchange.address, lzEndpoint])
-  // const transferManagerONFT1155 = await deployContract(hre, 'TransferManagerONFT1155', owner, [omniXExchange.address, lzEndpoint])
+  // const transferManager721 = await deployContract(hre, 'TransferManagerERC721', owner, [lzEndpoint])
+  // const transferManager1155 = await deployContract(hre, 'TransferManagerERC1155', owner, [lzEndpoint])
+  // const transferManagerONFT721 = await deployContract(hre, 'TransferManagerONFT721', owner, [lzEndpoint])
+  // const transferManagerONFT1155 = await deployContract(hre, 'TransferManagerONFT1155', owner, [lzEndpoint])
   // const transferSelector = await deployContract(hre, 'TransferSelectorNFT', owner, [
   //   transferManager721.address,
   //   transferManager1155.address,
@@ -60,18 +60,10 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
   //   await omniXExchange.setStargatePoolManager(poolManager.address)
   // }
 
-  // const OmniXExchangeAbi = loadAbi('../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json')
+  const OmniXExchangeAbi = loadAbi('../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json')
 
-  // const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
-  // // let stargateRouter = stargateEndpoint?.router
-
-  // // if (stargateRouter) {
-  // //   const poolManager = await deployContract(hre, 'StargatePoolManager', owner, [stargateRouter])
-  // //   await omniXExchange.setStargatePoolManager(poolManager.address)
-  // // }
-
-  // const fundManager = await deployContract(hre, 'FundManager', owner, [omniXExchange.address])
-  // await (await omniXExchange.setFundManager(fundManager.address)).wait()
+  const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
+  await (await omniXExchange.updateTransferSelectorNFT(getContractAddrByName(network.name, 'TransferSelectorNFT'))).wait()
 }
 
 export const deployGhosts = async (taskArgs: any, hre: any) => {

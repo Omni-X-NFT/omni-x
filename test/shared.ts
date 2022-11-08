@@ -111,11 +111,11 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   ]) as OmniXExchange
 
   // transfer selector
-  chain.transferManager721 = await deployContract('TransferManagerERC721', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerERC721
-  chain.transferManager1155 = await deployContract('TransferManagerERC1155', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerERC1155
-  chain.transferManagerONFT721 = await deployContract('TransferManagerONFT721', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerONFT721
-  chain.transferManagerONFT1155 = await deployContract('TransferManagerONFT1155', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerONFT1155
-  chain.transferManagerGhosts = await deployContract('TransferManagerGhosts', owner, [chain.omniXExchange.address, chain.layerZeroEndpoint.address]) as TransferManagerGhosts
+  chain.transferManager721 = await deployContract('TransferManagerERC721', owner, [chain.layerZeroEndpoint.address]) as TransferManagerERC721
+  chain.transferManager1155 = await deployContract('TransferManagerERC1155', owner, [chain.layerZeroEndpoint.address]) as TransferManagerERC1155
+  chain.transferManagerONFT721 = await deployContract('TransferManagerONFT721', owner, [chain.layerZeroEndpoint.address]) as TransferManagerONFT721
+  chain.transferManagerONFT1155 = await deployContract('TransferManagerONFT1155', owner, [chain.layerZeroEndpoint.address]) as TransferManagerONFT1155
+  chain.transferManagerGhosts = await deployContract('TransferManagerGhosts', owner, [chain.layerZeroEndpoint.address]) as TransferManagerGhosts
   chain.transferSelector = await deployContract('TransferSelectorNFT', owner, [chain.transferManager721.address, chain.transferManager1155.address, chain.transferManagerONFT721.address, chain.transferManagerONFT1155.address]) as TransferSelectorNFT
   chain.fundManager = await deployContract('FundManager', owner, [chain.omniXExchange.address]) as FundManager
   chain.chainId = chainId
