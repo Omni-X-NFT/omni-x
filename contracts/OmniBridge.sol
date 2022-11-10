@@ -117,6 +117,7 @@ contract OmniBridge is
         } else {
             IERC721Persistent(persistentAddresses[_tokenAddress]).safeMint(_toAddress, _tokenId, _tokenURI);
             collectionLockedCounter[persistentAddresses[_tokenAddress]] += 1;
+            persistentAddress = persistentAddresses[_tokenAddress];
         }
         emit LzReceive(_tokenAddress, _toAddress, _tokenId, _payload, persistentAddress);
     }

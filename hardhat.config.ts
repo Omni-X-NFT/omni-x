@@ -54,6 +54,11 @@ const config: HardhatUserConfig = {
       chainId: 4,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
+    goerli: {
+      url: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
+      chainId: 5,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
     'bsc-testnet': {
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
       chainId: 97,
@@ -65,7 +70,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     mumbai: {
-      url: 'https://speedy-nodes-nyc.moralis.io/99e98b2333a911011f42606d/polygon/mumbai',
+      url: 'https://polygon-mumbai.g.alchemy.com/v2/PBnAhVXSPI5sRtN4YRc4Xadl6bFpkyFv',
       chainId: 80001,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
@@ -74,9 +79,19 @@ const config: HardhatUserConfig = {
       chainId: 421611,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
+    'arbitrum-goerli': {
+      url: 'https://goerli-rollup.arbitrum.io/rpc/',
+      chainId: 421613,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
     'optimism-kovan': {
       url: 'https://kovan.optimism.io/',
       chainId: 69,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    'optimism-goerli': {
+      url: 'https://goerli.optimism.io/',
+      chainId: 420,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     'fantom-testnet': {
@@ -94,14 +109,34 @@ const config: HardhatUserConfig = {
   // https://hardhat.org/plugins/nomiclabs-hardhat-etherscan#multiple-api-keys-and-alternative-block-explorers
   etherscan: {
     apiKey: {
-      rinkeby: process.env.ETHERSCAN_API_KEY,
-      bscTestnet: process.env.BSCSCAN_API_KEY,
-      polygonMumbai: process.env.POLYGON_API_KEY,
-      avalancheFujiTestnet: process.env.AVALANCHE_API_KEY,
-      arbitrumTestnet: process.env.ARBITRUM_API_KEY,
-      optimisticKovan: process.env.OPTIMISTIC_API_KEY,
-      ftmTestnet: process.env.FANTOM_API_KEY
-    }
+      goerli: process.env.ETHERSCAN_API_KEY || '',
+      bscTestnet: process.env.BSCSCAN_API_KEY || '',
+      polygonMumbai: process.env.POLYGON_API_KEY || '',
+      avalancheFujiTestnet: process.env.AVALANCHE_API_KEY || '',
+      arbitrumTestnet: process.env.ARBITRUM_API_KEY || '',
+      optimisticKovan: process.env.OPTIMISTIC_API_KEY || '',
+      ftmTestnet: process.env.FANTOM_API_KEY || '',
+      'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
+      'optimism-goerli': process.env.OPTIMISTIC_API_KEY || ''
+    },
+    customChains: [
+      {
+        network: 'arbitrum-goerli',
+        chainId: 421613,
+        urls: {
+          apiURL: 'https://goerli-rollup-explorer.arbitrum.io/api',
+          browserURL: 'https://goerli-rollup-explorer.arbitrum.io'
+        }
+      },
+      {
+        network: 'optimism-goerli',
+        chainId: 420,
+        urls: {
+          apiURL: 'https://api-goerli-optimism.etherscan.io/api',
+          browserURL: 'https://goerli-optimism.etherscan.io'
+        }
+      }
+    ]
   },
 
   contractSizer: {
