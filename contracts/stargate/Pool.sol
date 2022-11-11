@@ -193,7 +193,6 @@ contract Pool is LPTokenERC20, ReentrancyGuard {
         //     - lpFee: booked and stayed at remote, can be withdrawn anywhere
 
         s.lkbRemove = amountSD.sub(s.lpFee).add(s.eqReward);
-
         // check for transfer solvency.
         require(cp.balance >= s.lkbRemove, "Stargate: dst balance too low");
         cp.balance = cp.balance.sub(s.lkbRemove);
