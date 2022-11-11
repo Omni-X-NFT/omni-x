@@ -116,7 +116,7 @@ const config: HardhatUserConfig = {
   // https://hardhat.org/plugins/nomiclabs-hardhat-etherscan#multiple-api-keys-and-alternative-block-explorers
   etherscan: {
     apiKey: {
-      rinkeby: process.env.ETHERSCAN_API_KEY,
+      goerli: process.env.ETHERSCAN_API_KEY,
       bscTestnet: process.env.BSCSCAN_API_KEY,
       polygonMumbai: process.env.POLYGON_API_KEY,
       avalancheFujiTestnet: process.env.AVALANCHE_API_KEY
