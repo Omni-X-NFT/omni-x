@@ -21,6 +21,7 @@ import {IWETH} from "../interfaces/IWETH.sol";
 import {IOFT} from "../token/oft/IOFT.sol";
 
 import {OrderTypes} from "../libraries/OrderTypes.sol";
+import {BytesLib} from "../libraries/BytesLib.sol";
 import "hardhat/console.sol";
 
 /**
@@ -30,12 +31,13 @@ import "hardhat/console.sol";
 contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGuard {
     string private constant SIGNING_DOMAIN = "OmniXExchange";
     string private constant SIGNATURE_VERSION = "1";
-    uint16 private constant LZ_ADAPTER_VERSION = 1;
+    uint16 private constant LZ_ADAPTER_VERSION = 2;
 
     using SafeERC20 for IERC20;
 
     using OrderTypes for OrderTypes.MakerOrder;
     using OrderTypes for OrderTypes.TakerOrder;
+    using BytesLib for bytes;
 
     address public immutable WETH;
 
@@ -150,6 +152,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
      * @param makerAsk maker ask order
      */
     function matchAskWithTakerBidUsingETHAndWETH(
+        uint destAirdrop,
         OrderTypes.TakerOrder calldata takerBid,
         OrderTypes.MakerOrder calldata makerAsk
     ) external payable override nonReentrant {
@@ -164,7 +167,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         require(currency == WETH, "Order: Currency must be WETH");
         // validate value
         {
-            (uint256 omnixFee,, uint256 nftFee) = getLzFeesForTrading(takerBid, makerAsk);
+            (uint256 omnixFee,, uint256 nftFee) = getLzFeesForTrading(takerBid, makerAsk, destAirdrop);
 
             uint256 totalValue = takerBid.price + omnixFee + nftFee;
             // If not enough ETH to cover the price, use WETH
@@ -214,7 +217,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
      * @param takerBid taker bid order
      * @param makerAsk maker ask order
      */
-    function matchAskWithTakerBid(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk)
+    function matchAskWithTakerBid(uint destAirdrop, OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk)
         external
         payable
         override
@@ -231,14 +234,14 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
 
         {
             // check fees
-            (uint256 omnixFee, uint256 currencyFee, uint256 nftFee) = getLzFeesForTrading(takerBid, makerAsk);
+            (uint256 omnixFee, uint256 currencyFee, uint256 nftFee) = getLzFeesForTrading(takerBid, makerAsk, destAirdrop);
             require (omnixFee+ currencyFee + nftFee <= msg.value, "Order: Insufficient value");
 
             // Execution part 1/2
             _transferFeesAndFundsLz(takerBid, makerAsk, currencyFee);
 
             // Execution part 2/2
-            _transferNonFungibleTokenLz(takerBid, makerAsk, nftFee);
+            _transferNonFungibleTokenLz(takerBid, makerAsk, destAirdrop);
         }
         
         (uint16 makerChainId) = makerAsk.decodeParams();
@@ -268,7 +271,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
      * @param maker maker ask order
      * @return (omnixFee, fundManagerFee, nftTransferManagerFee)
      */
-    function getLzFeesForTrading(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker)
+    function getLzFeesForTrading(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint destAirdrop)
         public
         view
         returns (uint256, uint256, uint256)
@@ -285,11 +288,11 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 makerChainId
             );
 
-            (uint256 omnixFee,, ) = _getCrossMessageFeedPayload(taker, maker);
+            (uint256 omnixFee,, ) = _getCrossMessageFeedPayload(destAirdrop, taker, maker);
 
-            // this is not correct calculation. if NFT is a normal NFT, then there is no fee to transfer.
-            // we can't calculate the nft fee so assume that it is same with omniFee
-            uint256 nftFee = omnixFee;
+            // on this taker chain, no NFT transfer fee
+            // on the maker chain, there is transfer fee if using TransferManagerONFT
+            uint256 nftFee = 0;
 
             return (omnixFee, currencyFee, nftFee);
         }
@@ -305,11 +308,11 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 takerChainId
             );
 
-            (uint256 omnixFee,, ) = _getCrossMessageFeedPayload(taker, maker);
+            (uint256 omnixFee,, ) = _getCrossMessageFeedPayload(destAirdrop, taker, maker);
 
-            // this is not correct calculation. assumes that OMNI and USDC fee is mostly same.
-            // we can't calculate the nft fee so assume that it is same with omniFee
-            uint256 currencyFee = omnixFee;
+            // on this taker ask chain, no currency fee because currency transfer tx will be executed on the maker chain
+            // on the maker bid chain, there is fee.
+            uint256 currencyFee = 0;
 
             return (omnixFee, currencyFee, nftFee);
         }
@@ -321,7 +324,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
      * @param takerAsk seller
      * @param makerBid bidder
      */
-    function matchBidWithTakerAsk(OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid)
+    function matchBidWithTakerAsk(uint destAirdrop, OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid)
         external
         payable
         override
@@ -337,14 +340,14 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         _canExecuteTakerAsk(takerAsk, makerBid);
 
         {
-            (uint256 omnixFee, uint256 currencyFee, uint256 nftFee) = getLzFeesForTrading(takerAsk, makerBid);
+            (uint256 omnixFee, uint256 currencyFee, uint256 nftFee) = getLzFeesForTrading(takerAsk, makerBid, destAirdrop);
             require (omnixFee+ currencyFee + nftFee <= msg.value, "Order: Insufficient value");
 
             // Execution part 1/2
             _transferNonFungibleTokenLz(takerAsk, makerBid, nftFee);
 
             // Execution part 2/2
-            _transferFeesAndFundsLz(takerAsk, makerBid, currencyFee);
+            _transferFeesAndFundsLz(takerAsk, makerBid, destAirdrop);
         }
         
         (uint16 toChainId) = makerBid.decodeParams();
@@ -369,7 +372,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         );
     }
 
-    function _getCrossMessageFeedPayload(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker)
+    function _getCrossMessageFeedPayload(uint destAirdrop, OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker)
         internal view returns (uint256, bytes memory, bytes memory)
     {
         (uint16 makerChainId) = maker.decodeParams();
@@ -397,8 +400,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 maker.amount,
                 makerChainId
             );
-
-            bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
+            address destAddress = trustedRemoteLookup[makerChainId].toAddress(0);
+            bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive, destAirdrop, destAddress);
 
             (uint256 messageFee,) = lzEndpoint.estimateFees(
                 makerChainId,
@@ -426,7 +429,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 makerChainId
             );
 
-            bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
+            address destAddress = trustedRemoteLookup[makerChainId].toAddress(0);
+            bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive, destAirdrop, destAddress);
 
             (uint256 messageFee,) = lzEndpoint.estimateFees(
                 makerChainId,
@@ -440,14 +444,13 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         }
     }
 
-    function _sendCrossMessage(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker)
+    function _sendCrossMessage(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint destAirdrop)
         internal
     {
         (uint16 makerChainId) = maker.decodeParams();
 
         require(trustedRemoteLookup[makerChainId].length != 0, "LzSend: destination chain is not a trusted source.");
-
-        (uint256 messageFee, bytes memory payload, bytes memory adapterParams) = _getCrossMessageFeedPayload(taker, maker);
+        (uint256 messageFee, bytes memory payload, bytes memory adapterParams) = _getCrossMessageFeedPayload(destAirdrop, taker, maker);
         lzEndpoint.send{value: messageFee}(makerChainId, trustedRemoteLookup[makerChainId], payload, payable(msg.sender), address(0), adapterParams);
     }
 
@@ -572,6 +575,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
 
     /**
      * @notice transfer NFT
+     * @param nftFee nft transfer fee or destAirdrop
      */
     function _transferNonFungibleTokenLz(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint256 nftFee) internal {
         (uint16 makerChainId) = maker.decodeParams();
@@ -580,7 +584,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         address to = maker.isOrderAsk ? taker.taker : maker.signer;
 
         if (makerChainId != takerChainId && maker.isOrderAsk) {
-            _sendCrossMessage(taker, maker);
+            _sendCrossMessage(taker, maker, nftFee);
         }
         else {
             _transferNonFungibleToken(
@@ -640,6 +644,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         return (tokenId, amount);
     }
 
+    /**
+     * @notice transfer funds
+     * @param currencyFee currency transfer fee or destAirdrop
+     */
     function _transferFeesAndFundsLz(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint256 currencyFee) internal {
         uint256 tokenId = taker.tokenId;
         address from = maker.isOrderAsk ? taker.taker : maker.signer;
@@ -666,7 +674,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         else {
             // taker is ask, maker is bid
             // taker is a seller, maker is a bidder and running on taker chain
-            _sendCrossMessage(taker, maker);
+            _sendCrossMessage(taker, maker, currencyFee);
         }
     }
 
@@ -759,6 +767,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 lzChainId,
                 toChainId
             );
+
             fundManager.transferFeesAndFunds{value: currencyFee}(
                 strategy,
                 collection,

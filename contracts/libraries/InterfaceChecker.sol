@@ -15,18 +15,9 @@ library InterfaceChecker {
     ) internal returns (bool) {
         bytes memory payload = abi.encodeWithSignature("supportsInterface(bytes4)", interfaceId);
         (bool success, bytes memory returnData) = tokenContract.call(payload);
-        require(success == true, "invalid contract");
+        if (!success) return false;
 
         (bool result) = abi.decode(returnData, (bool));
         return result;
-    }
-
-    function checkLzApp(
-        address tokenContract
-    ) internal returns (bool) {
-        bytes memory payload = abi.encodeWithSignature("getLzEndpoint()");
-        (bool success, ) = tokenContract.call(payload);
-
-        return success;
     }
 }
