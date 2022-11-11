@@ -51,18 +51,18 @@ export const verifyOmni = async () => {
   //   ]
   // })
 
-  // await run('verify:verify', {
-  //   address: getContractAddrByName(network.name, 'OmniXExchange'),
-  //   constructorArguments: [
-  //       getContractAddrByName(network.name, 'CurrencyManager'),
-  //       getContractAddrByName(network.name, 'ExecutionManager'),
-  //       getContractAddrByName(network.name, 'RoyaltyFeeManager'),
-  //       ethers.constants.AddressZero,
-  //       owner.address,
-  //       lzEndpoint
-  //   ],
-  //   contract: "contracts/core/OmniXExchange.sol:OmniXExchange"
-  // })
+  await run('verify:verify', {
+    address: getContractAddrByName(network.name, 'OmniXExchange'),
+    constructorArguments: [
+        getContractAddrByName(network.name, 'CurrencyManager'),
+        getContractAddrByName(network.name, 'ExecutionManager'),
+        getContractAddrByName(network.name, 'RoyaltyFeeManager'),
+        ethers.constants.AddressZero,
+        owner.address,
+        lzEndpoint
+    ],
+    contract: "contracts/core/OmniXExchange.sol:OmniXExchange"
+  })
 
   // await run('verify:verify', {
   //   address: getContractAddrByName(network.name, 'OFTMock'),
@@ -72,13 +72,13 @@ export const verifyOmni = async () => {
   //   contract: "contracts/mocks/OFTMock.sol:OFTMock"
   // })
 
-  // await run('verify:verify', {
-  //   address: getContractAddrByName(network.name, 'FundManager'),
-  //   constructorArguments: [
-  //       getContractAddrByName(network.name, 'OmniXExchange')
-  //   ],
-  //   contract: "contracts/core/FundManager.sol:FundManager"
-  // })
+  await run('verify:verify', {
+    address: getContractAddrByName(network.name, 'FundManager'),
+    constructorArguments: [
+        getContractAddrByName(network.name, 'OmniXExchange')
+    ],
+    contract: "contracts/core/FundManager.sol:FundManager"
+  })
 
   // await run('verify:verify', {
   //   address: getContractAddrByName(network.name, 'CurrencyManager'),
@@ -94,14 +94,14 @@ export const verifyOmni = async () => {
   //   contract: "contracts/core/TransferSelectorNFT.sol:TransferSelectorNFT"
   // })
 
-  await run('verify:verify', {
-    address: getContractAddrByName(network.name, 'TransferManagerERC721'),
-    constructorArguments: [
-        getContractAddrByName(network.name, 'OmniXExchange'),
-        lzEndpoint
-    ],
-    contract: "contracts/transfer/TransferManagerERC721.sol:TransferManagerERC721"
-  })
+  // await run('verify:verify', {
+  //   address: getContractAddrByName(network.name, 'TransferManagerERC721'),
+  //   constructorArguments: [
+  //       getContractAddrByName(network.name, 'OmniXExchange'),
+  //       lzEndpoint
+  //   ],
+  //   contract: "contracts/transfer/TransferManagerERC721.sol:TransferManagerERC721"
+  // })
 
   // await run('verify:verify', {
   //   address: getContractAddrByName(network.name, 'RoyaltyFeeManager'),

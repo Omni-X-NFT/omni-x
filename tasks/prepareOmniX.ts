@@ -171,12 +171,6 @@ export const linkOmnixAll = async function (taskArgs: any) {
             console.log(checkWireUpCommand)
             shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
           }
-
-          {
-            const checkWireUpCommand = `npx hardhat linkOmniX --network ${network} --dstchainname ${dst}`
-            console.log(checkWireUpCommand)
-            shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
-          }
         }
       })
     )
