@@ -28,7 +28,7 @@ contract CurrencyManager is ICurrencyManager, Ownable {
     function addCurrency(address currency) external override onlyOwner {
         require(!_whitelistedCurrencies.contains(currency), "Currency: Already whitelisted");
         _whitelistedCurrencies.add(currency);
-        _omniCurrencies[currency] = InterfaceChecker.checkLzApp(currency);
+        _omniCurrencies[currency] = InterfaceChecker.check(currency, type(IOFT).interfaceId);
         emit CurrencyWhitelisted(currency);
     }
 
