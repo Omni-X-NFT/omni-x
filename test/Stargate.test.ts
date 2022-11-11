@@ -68,7 +68,9 @@ export const setupChainPath = async (chain: Chain, dstChainId: number, srcPoolId
 
 export const setupBridge = async (src: Chain, dst: Chain) => {
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.stargateBridge.address, dst.layerZeroEndpoint.address)
-  await src.stargateBridge.setBridge(dst.chainId, dst.stargateBridge.address)
+  await src.stargateBridge.setBridge(dst.chainId, ethers.utils.solidityPack(['address', 'address'], [dst.stargateBridge.address, src.stargateBridge.address]))
+  await src.stargateBridge.setGasAmount(dst.chainId, 1, 350000)
+  await src.stargateBridge.setGasAmount(dst.chainId, 2, 350000)
 }
 
 export const setupPool = async (chain: Chain, dstChainId: number, srcPoolId: number, dstPoolId: number, owner: SignerWithAddress) => {
@@ -77,7 +79,7 @@ export const setupPool = async (chain: Chain, dstChainId: number, srcPoolId: num
   await chain.erc20Mock.connect(owner).approve(stargateRouter.address, toWei(100))
   await stargateRouter.connect(owner).addLiquidity(srcPoolId, toWei(100), owner.address)
 
-  await stargateRouter.sendCredits(dstChainId, srcPoolId, dstPoolId, owner.address, { value: toWei(1) })
+  await stargateRouter.sendCredits(dstChainId, srcPoolId, dstPoolId, owner.address, { value: toWei(3) })
 }
 
 describe('Stargate', () => {
@@ -144,9 +146,9 @@ describe('Stargate', () => {
       await takerChain.erc20Mock.connect(taker).approve(takerChain.fundManager.address, price)
       await takerChain.erc20Mock.connect(taker).approve(takerChain.stargatePoolManager.address, price)
 
-      const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.connect(taker).getLzFeesForTrading(takerBid, makerAsk)
+      const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.connect(taker).getLzFeesForTrading(takerBid, makerAsk, 0)
 
-      await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(takerBid, makerAsk, {value: omnixFee.add(currencyFee).add(nftFee)})
+      await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(0, takerBid, makerAsk, {value: omnixFee.add(currencyFee).add(nftFee)})
 
       expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
       expect(await makerChain.erc20Mock.balanceOf(maker.address)).to.eq(makerBalance.add(toWei(0.98)))
