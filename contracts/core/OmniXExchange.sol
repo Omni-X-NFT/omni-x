@@ -170,6 +170,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             (uint256 omnixFee,, uint256 nftFee) = getLzFeesForTrading(takerBid, makerAsk, destAirdrop);
 
             uint256 totalValue = takerBid.price + omnixFee + nftFee;
+
             // If not enough ETH to cover the price, use WETH
             if (totalValue > msg.value) {
                 IERC20(WETH).safeTransferFrom(takerBid.taker, address(this), (totalValue - msg.value));
@@ -181,7 +182,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         _canExecuteTakerBid(takerBid, makerAsk);
 
         // Wrap ETH sent to this contract
-        IWETH(WETH).deposit{value: msg.value}();
+        IWETH(WETH).deposit{value: takerBid.price}();
+        IERC20(WETH).approve(address(fundManager), takerBid.price);
         
         // Execution part 1/2
         _transferFeesAndFundsLzWithWETH(takerBid, makerAsk);
@@ -561,7 +563,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     }
 
     function _transferFeesAndFundsLzWithWETH(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk) internal {
-        (,, address collection, address strategy,) = takerBid.decodeParams();
+        (uint16 takerChainId,, address collection, address strategy,) = takerBid.decodeParams();
+        (uint16 makerChainId) = makerAsk.decodeParams();
 
         fundManager.transferFeesAndFundsWithWETH(
             strategy,
@@ -569,7 +572,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             takerBid.tokenId,
             makerAsk.signer,
             takerBid.price,
-            makerAsk.minPercentageToAsk
+            makerAsk.minPercentageToAsk,
+            takerChainId,
+            makerChainId
         );
     }
 

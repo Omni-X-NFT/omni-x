@@ -259,7 +259,9 @@ contract FundManager is IFundManager, Ownable {
         uint256 tokenId,
         address to,
         uint256 amount,
-        uint256 minPercentageToAsk
+        uint256 minPercentageToAsk,
+        uint16 fromChainId,
+        uint16 toChainId
     ) external override {
         address WETH = omnixExchange.WETH();
         address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
@@ -276,7 +278,7 @@ contract FundManager is IFundManager, Ownable {
         {
             // Check if the protocol fee is different than 0 for this strategy
             if ((protocolFeeRecipient != address(0)) && (protocolFeeAmount != 0)) {
-                IERC20(WETH).safeTransfer(protocolFeeRecipient, protocolFeeAmount);
+                IERC20(WETH).safeTransferFrom(address(omnixExchange), protocolFeeRecipient, protocolFeeAmount);
             }
         }
 
@@ -284,7 +286,7 @@ contract FundManager is IFundManager, Ownable {
         {
             // Check if there is a royalty fee and that it is different to 0
             if ((royaltyFeeRecipient != address(0)) && (royaltyFeeAmount != 0)) {
-                IERC20(WETH).safeTransfer(royaltyFeeRecipient, royaltyFeeAmount);
+                IERC20(WETH).safeTransferFrom(address(omnixExchange), royaltyFeeRecipient, royaltyFeeAmount);
 
                 emit RoyaltyPayment(collection, tokenId, royaltyFeeRecipient, address(WETH), royaltyFeeAmount);
             }
@@ -294,7 +296,14 @@ contract FundManager is IFundManager, Ownable {
 
         // 3. Transfer final amount (post-fees) to seller
         {
-            IERC20(WETH).safeTransfer(to, finalSellerAmount);
+            transferCurrency(
+                address(WETH),
+                address(omnixExchange),
+                to,
+                finalSellerAmount,
+                fromChainId,
+                toChainId
+            );
         }
     }
 }

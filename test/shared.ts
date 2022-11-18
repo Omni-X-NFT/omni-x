@@ -25,7 +25,8 @@ import {
   IStargateRouter,
   Bridge,
   FundManager,
-  StrategyStargateSale
+  StrategyStargateSale,
+  WETH9
 } from '../typechain-types'
 
 const ROYALTY_FEE_LIMIT = 500 // 5%
@@ -46,6 +47,7 @@ export type Chain = {
   strategy: StrategyStargateSale
   nftMock: Nft721Mock
   erc20Mock: LRTokenMock
+  weth: WETH9
   omni: OFTMock
   onft721: ONFT721Mock
   ghosts: GhostsMock
@@ -76,6 +78,7 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   chain.layerZeroEndpoint = await deployContract('LZEndpointMock', owner, [chainId]) as LZEndpointMock
   // normal currency
   chain.erc20Mock = await deployContract('LRTokenMock', owner, []) as LRTokenMock
+  chain.weth = await deployContract('WETH9', owner, []) as WETH9
 
   // normal nft
   chain.nftMock = await deployContract('Nft721Mock', owner, []) as Nft721Mock
@@ -104,7 +107,7 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
     chain.currencyManager.address,
     chain.executionManager.address,
     chain.royaltyFeeManager.address,
-    ethers.constants.AddressZero,
+    chain.weth.address,
     owner.address,
     chain.layerZeroEndpoint.address
   ]) as OmniXExchange
@@ -168,6 +171,7 @@ export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
 
   await chain.erc20Mock.mint(maker.address, toWei(200))
   await chain.omni.transfer(maker.address, toWei(200))
+  await chain.weth.deposit({value: toWei(1)})
 }
 
 export const prepareTaker = async (chain: Chain, taker: SignerWithAddress) => {

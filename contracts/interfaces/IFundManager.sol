@@ -53,6 +53,8 @@ interface IFundManager {
         uint256 tokenId,
         address to,
         uint256 amount,
-        uint256 minPercentageToAsk
+        uint256 minPercentageToAsk,
+        uint16 fromChainId,
+        uint16 toChainId
     ) external;
 }
