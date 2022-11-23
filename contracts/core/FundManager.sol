@@ -121,7 +121,13 @@ contract FundManager is IFundManager, Ownable {
                 address(stargatePoolManager) != address(0) &&
                 stargatePoolManager.isSwappable(currency, toChainId)
             ) {
-                stargatePoolManager.swap{value: msg.value}(currency, toChainId, payable(msg.sender), amount, from, to);
+                address WETH = omnixExchange.WETH();
+                if (currency == WETH) {
+                    stargatePoolManager.swapETH{value: msg.value}(currency, toChainId, payable(msg.sender), amount, from, to);
+                }
+                else {
+                    stargatePoolManager.swap{value: msg.value}(currency, toChainId, payable(msg.sender), amount, from, to);
+                }
             }
             else {
                 IERC20(currency).safeTransferFrom(from, to, amount);
@@ -170,8 +176,15 @@ contract FundManager is IFundManager, Ownable {
                 address(stargatePoolManager) != address(0) && 
                 stargatePoolManager.isSwappable(currency, toChainId)
             ) {
-                (uint256 fee, ) = stargatePoolManager.getSwapFee(toChainId, to);
-                return fee;
+                address WETH = omnixExchange.WETH();
+                if (currency == WETH) {
+                    (uint256 fee, ) = stargatePoolManager.getSwapFeeETH(toChainId, to);
+                    return fee;
+                }
+                else {
+                    (uint256 fee, ) = stargatePoolManager.getSwapFee(toChainId, to);
+                    return fee;
+                }
             }
         }
 

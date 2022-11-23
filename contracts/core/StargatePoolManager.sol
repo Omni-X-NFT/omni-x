@@ -14,9 +14,18 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
   // IERC20 => dst chain id => pool id
   mapping (address => mapping (uint16 => PoolID)) public poolIds;
   IStargateRouter public stargateRouter;
+  IStargateRouter public stargateRouterEth;
 
   constructor(address stargateRouter_) {
     stargateRouter = IStargateRouter(stargateRouter_);
+  }
+
+  function setStargateRouter(address stargateRouter_) external onlyOwner {
+    stargateRouter = IStargateRouter(stargateRouter_);
+  }
+
+  function setStargateRouterEth(address stargateRouterEth_) external onlyOwner {
+    stargateRouterEth = IStargateRouter(stargateRouterEth_);
   }
 
   /**
@@ -104,6 +113,66 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     IERC20(token).approve(address(stargateRouter), amount);
 
     stargateRouter.swap{value: msg.value}(
+      dstChainId,
+      poolId.srcPoolId,
+      poolId.dstPoolId,
+      refundAddress,
+      amount,
+      MIN_AMOUNT_LD,
+      lzTxParams,
+      toAddress,
+      payload
+    );
+  }
+
+  /**
+    * @notice get WETH swap fee
+    * @param dstChainId address of the execution strategy
+    * @param to seller's recipient
+    */
+  function getSwapFeeETH(
+    uint16 dstChainId,
+    address to
+  ) public view override returns (uint256, uint256) {
+    IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(0, 0, "0x");
+    bytes memory payload = bytes("");
+    bytes memory toAddress = abi.encodePacked(to);
+
+    (uint256 fee, uint256 lzFee) = stargateRouterEth.quoteLayerZeroFee(
+      dstChainId,
+      TYPE_SWAP_REMOTE,
+      toAddress,
+      payload,
+      lzTxParams
+    );
+
+    return (fee, lzFee);
+  }
+
+  /**
+    * @notice swap WETH
+    * @param dstChainId address of the execution strategy
+    * @param refundAddress non fungible token address for the transfer
+    * @param amount tokenId
+    * @param to seller's recipient
+    */
+  function swapETH(
+    address token,
+    uint16 dstChainId,
+    address payable refundAddress,
+    uint256 amount,
+    address from,
+    address to
+  ) external payable override {
+    IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(0, 0, "0x");
+    bytes memory payload = bytes("");
+    bytes memory toAddress = abi.encodePacked(to);
+    PoolID memory poolId = getPoolId(token, dstChainId);
+
+    IERC20(token).transferFrom(from, address(this), amount);
+    IERC20(token).approve(address(stargateRouter), amount);
+
+    stargateRouterEth.swap{value: msg.value}(
       dstChainId,
       poolId.srcPoolId,
       poolId.dstPoolId,
