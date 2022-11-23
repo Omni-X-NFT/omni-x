@@ -42,7 +42,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     address public immutable WETH;
 
     address public protocolFeeRecipient;
-    uint256 public gasForOmniLzReceive = 350000;
+    uint256 public gasForOmniLzReceive = 800000;
 
     ICurrencyManager public currencyManager;
     IExecutionManager public executionManager;

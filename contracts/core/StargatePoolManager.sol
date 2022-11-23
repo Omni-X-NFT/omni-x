@@ -134,6 +134,8 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     uint16 dstChainId,
     address to
   ) public view override returns (uint256, uint256) {
+    require (address(stargateRouterEth) != address(0), "invalid router eth");
+
     IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(0, 0, "0x");
     bytes memory payload = bytes("");
     bytes memory toAddress = abi.encodePacked(to);
@@ -164,6 +166,8 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     address from,
     address to
   ) external payable override {
+    require (address(stargateRouterEth) != address(0), "invalid router eth");
+    
     IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(0, 0, "0x");
     bytes memory payload = bytes("");
     bytes memory toAddress = abi.encodePacked(to);
