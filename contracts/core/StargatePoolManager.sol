@@ -134,21 +134,7 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     uint16 dstChainId,
     address to
   ) public view override returns (uint256, uint256) {
-    require (address(stargateRouterEth) != address(0), "invalid router eth");
-
-    IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(0, 0, "0x");
-    bytes memory payload = bytes("");
-    bytes memory toAddress = abi.encodePacked(to);
-
-    (uint256 fee, uint256 lzFee) = stargateRouterEth.quoteLayerZeroFee(
-      dstChainId,
-      TYPE_SWAP_REMOTE,
-      toAddress,
-      payload,
-      lzTxParams
-    );
-
-    return (fee, lzFee);
+    return getSwapFee(dstChainId, to);
   }
 
   /**
