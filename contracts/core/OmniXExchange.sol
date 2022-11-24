@@ -174,19 +174,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
 
             uint256 totalValue = takerBid.price + omnixFee + currencyFee + nftFee;
 
-            // If not enough ETH to cover the price, use WETH
-            if (totalValue > msg.value) {
-                IERC20(WETH).safeTransferFrom(takerBid.taker, address(this), (totalValue - msg.value));
-            } else {
-                require(totalValue == msg.value, "Order: Msg.value too high");
-            }
-
-            // Wrap ETH sent to this contract
-            IWETH(WETH).deposit{value: takerBid.price}();
-            IERC20(WETH).approve(address(fundManager), takerBid.price);
+            require(totalValue <= msg.value, "Order: Msg.value too high");
             
             // Execution part 1/2
-            _transferFeesAndFundsLzWithWETH(takerBid, makerAsk, currencyFee);
+            _transferFeesAndFundsLzWithWETH(takerBid, makerAsk, currencyFee + takerBid.price);
 
             // Execution part 2/2
             _transferNonFungibleTokenLz(takerBid, makerAsk, destAirdrop);

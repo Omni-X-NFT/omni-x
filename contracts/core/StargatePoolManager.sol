@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IStargateRouter} from "../interfaces/IStargateRouter.sol";
+import {IStargateRouterETH} from "../interfaces/IStargateRouterETH.sol";
 import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
 import "hardhat/console.sol";
 
@@ -14,7 +15,7 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
   // IERC20 => dst chain id => pool id
   mapping (address => mapping (uint16 => PoolID)) public poolIds;
   IStargateRouter public stargateRouter;
-  IStargateRouter public stargateRouterEth;
+  IStargateRouterETH public stargateRouterEth;
 
   constructor(address stargateRouter_) {
     stargateRouter = IStargateRouter(stargateRouter_);
@@ -25,7 +26,7 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
   }
 
   function setStargateRouterEth(address stargateRouterEth_) external onlyOwner {
-    stargateRouterEth = IStargateRouter(stargateRouterEth_);
+    stargateRouterEth = IStargateRouterETH(stargateRouterEth_);
   }
 
   /**
@@ -145,33 +146,21 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     * @param to seller's recipient
     */
   function swapETH(
-    address token,
     uint16 dstChainId,
     address payable refundAddress,
     uint256 amount,
-    address from,
     address to
   ) external payable override {
     require (address(stargateRouterEth) != address(0), "invalid router eth");
     
-    IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(0, 0, "0x");
-    bytes memory payload = bytes("");
     bytes memory toAddress = abi.encodePacked(to);
-    PoolID memory poolId = getPoolId(token, dstChainId);
 
-    IERC20(token).transferFrom(from, address(this), amount);
-    IERC20(token).approve(address(stargateRouter), amount);
-
-    stargateRouterEth.swap{value: msg.value}(
+    stargateRouterEth.swapETH{value: msg.value}(
       dstChainId,
-      poolId.srcPoolId,
-      poolId.dstPoolId,
       refundAddress,
-      amount,
-      MIN_AMOUNT_LD,
-      lzTxParams,
       toAddress,
-      payload
+      amount,
+      MIN_AMOUNT_LD
     );
   }
 }

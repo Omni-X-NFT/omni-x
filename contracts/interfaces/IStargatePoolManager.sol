@@ -29,11 +29,9 @@ interface IStargatePoolManager {
     ) external view returns (uint256, uint256);
 
     function swapETH(
-        address token,
         uint16 dstChainId,
         address payable refundAddress,
         uint256 amount,
-        address from,
         address to
     ) external payable;
 

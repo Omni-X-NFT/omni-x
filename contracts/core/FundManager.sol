@@ -35,6 +35,13 @@ contract FundManager is IFundManager, Ownable {
         uint256 amount
     );
 
+    event RoyaltyPaymentETH(
+        address indexed collection,
+        uint256 indexed tokenId,
+        address indexed royaltyRecipient,
+        uint256 amount
+    );
+
     modifier onlyOmnix() {
         require (msg.sender == address(omnixExchange), "Only available from OmniXExchange");
         _;
@@ -121,13 +128,7 @@ contract FundManager is IFundManager, Ownable {
                 address(stargatePoolManager) != address(0) &&
                 stargatePoolManager.isSwappable(currency, toChainId)
             ) {
-                address WETH = omnixExchange.WETH();
-                if (currency == WETH) {
-                    stargatePoolManager.swapETH{value: msg.value}(currency, toChainId, payable(msg.sender), amount, from, to);
-                }
-                else {
-                    stargatePoolManager.swap{value: msg.value}(currency, toChainId, payable(msg.sender), amount, from, to);
-                }
+                stargatePoolManager.swap{value: msg.value}(currency, toChainId, payable(msg.sender), amount, from, to);
             }
             else {
                 IERC20(currency).safeTransferFrom(from, to, amount);
@@ -276,7 +277,6 @@ contract FundManager is IFundManager, Ownable {
         uint16 fromChainId,
         uint16 toChainId
     ) external payable override {
-        address WETH = omnixExchange.WETH();
         address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
 
         // Initialize the final amount that is transferred to seller
@@ -291,7 +291,7 @@ contract FundManager is IFundManager, Ownable {
         {
             // Check if the protocol fee is different than 0 for this strategy
             if ((protocolFeeRecipient != address(0)) && (protocolFeeAmount != 0)) {
-                IERC20(WETH).safeTransferFrom(address(omnixExchange), protocolFeeRecipient, protocolFeeAmount);
+                payable(protocolFeeRecipient).transfer(protocolFeeAmount);
             }
         }
 
@@ -299,24 +299,30 @@ contract FundManager is IFundManager, Ownable {
         {
             // Check if there is a royalty fee and that it is different to 0
             if ((royaltyFeeRecipient != address(0)) && (royaltyFeeAmount != 0)) {
-                IERC20(WETH).safeTransferFrom(address(omnixExchange), royaltyFeeRecipient, royaltyFeeAmount);
+                payable(royaltyFeeRecipient).transfer(royaltyFeeAmount);
 
-                emit RoyaltyPayment(collection, tokenId, royaltyFeeRecipient, address(WETH), royaltyFeeAmount);
+                emit RoyaltyPaymentETH(collection, tokenId, royaltyFeeRecipient, royaltyFeeAmount);
             }
         }
 
         require((finalSellerAmount * 10000) >= (minPercentageToAsk * amount), "Fees: Higher than expected");
 
         // 3. Transfer final amount (post-fees) to seller
-        {
-            transferCurrency(
-                address(WETH),
-                address(omnixExchange),
-                to,
-                finalSellerAmount,
-                fromChainId,
-                toChainId
-            );
+        address toAddr = to;
+        if (toAddr != address(0)) {
+            IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
+
+            if (
+                fromChainId != toChainId && 
+                address(stargatePoolManager) != address(0) &&
+                stargatePoolManager.isSwappable(omnixExchange.WETH(), toChainId)
+            ) {
+                // msv.value = amount + swap fee
+                stargatePoolManager.swapETH{value: msg.value - amount + finalSellerAmount}(toChainId, payable(msg.sender), finalSellerAmount, toAddr);
+            }
+            else {
+                payable(toAddr).transfer(finalSellerAmount);
+            }
         }
     }
 }
