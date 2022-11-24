@@ -62,7 +62,7 @@ const config: HardhatUserConfig = {
       accounts
     },
     'bsc-testnet': {
-      url: 'https://data-seed-prebsc-2-s1.binance.org:8545/',
+      url: 'https://rpc.ankr.com/bsc_testnet_chapel',
       chainId: 97,
       accounts
     },
@@ -72,7 +72,7 @@ const config: HardhatUserConfig = {
       accounts
     },
     mumbai: {
-      url: 'https://polygon-mumbai.g.alchemy.com/v2/GsyyWufdg0PLN8BIetxuVzVZ8sZ4KiDF',
+      url: 'https://rpc.ankr.com/polygon_mumbai',
       chainId: 80001,
       accounts
     },
@@ -116,14 +116,34 @@ const config: HardhatUserConfig = {
   // https://hardhat.org/plugins/nomiclabs-hardhat-etherscan#multiple-api-keys-and-alternative-block-explorers
   etherscan: {
     apiKey: {
-      goerli: process.env.ETHERSCAN_API_KEY,
-      bscTestnet: process.env.BSCSCAN_API_KEY,
-      polygonMumbai: process.env.POLYGON_API_KEY,
-      avalancheFujiTestnet: process.env.AVALANCHE_API_KEY
-      // arbitrumTestnet: process.env.ARBITRUM_API_KEY,
-      // optimisticKovan: process.env.OPTIMISTIC_API_KEY,
-      // ftmTestnet: process.env.FANTOM_API_KEY
-    }
+      goerli: process.env.ETHERSCAN_API_KEY || '',
+      bscTestnet: process.env.BSCSCAN_API_KEY || '',
+      polygonMumbai: process.env.POLYGON_API_KEY || '',
+      avalancheFujiTestnet: process.env.AVALANCHE_API_KEY || '',
+      arbitrumTestnet: process.env.ARBITRUM_API_KEY || '',
+      optimisticKovan: process.env.OPTIMISTIC_API_KEY || '',
+      'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
+      'optimism-goerli': process.env.OPTIMISTIC_API_KEY || ''
+      // ftmTestnet: process.env.FANTOM_API_KEY,
+    },
+    customChains: [
+      {
+        network: 'arbitrum-goerli',
+        chainId: 421613,
+        urls: {
+          apiURL: 'https://api-goerli.arbiscan.io/api',
+          browserURL: 'https://testnet.arbiscan.io/'
+        }
+      },
+      {
+        network: 'optimism-goerli',
+        chainId: 420,
+        urls: {
+          apiURL: 'https://api-goerli-optimism.etherscan.io/api',
+          browserURL: 'https://goerli-optimism.etherscan.io'
+        }
+      }
+    ]
   },
 
   contractSizer: {
