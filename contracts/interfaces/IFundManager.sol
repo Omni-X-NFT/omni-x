@@ -56,5 +56,5 @@ interface IFundManager {
         uint256 minPercentageToAsk,
         uint16 fromChainId,
         uint16 toChainId
-    ) external;
+    ) external payable;
 }

@@ -275,7 +275,7 @@ contract FundManager is IFundManager, Ownable {
         uint256 minPercentageToAsk,
         uint16 fromChainId,
         uint16 toChainId
-    ) external override {
+    ) external payable override {
         address WETH = omnixExchange.WETH();
         address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
 
