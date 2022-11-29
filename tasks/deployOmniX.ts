@@ -57,22 +57,33 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
 
   // if (stargateRouter) {
   //   const poolManager = await deployContract(hre, 'StargatePoolManager', owner, [stargateRouter])
-  //   await omniXExchange.setStargatePoolManager(poolManager.address)
+  //   if (stargateEndpoint?.routerEth) {
+  //       await (await poolManager.setStargateRouterEth(stargateEndpoint.routerEth)).wait()
+  //   }
+  //   await (await omniXExchange.setStargatePoolManager(poolManager.address)).wait()
   // }
 
   const omniXExchange = await deployContract(hre, 'OmniXExchange', owner, [
     getContractAddrByName(network.name, 'CurrencyManager'),
     getContractAddrByName(network.name, 'ExecutionManager'),
     getContractAddrByName(network.name, 'RoyaltyFeeManager'),
-    ethers.constants.AddressZero,
+    getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero,
     owner.address,
     lzEndpoint
   ])
+  const fundManager = await deployContract(hre, 'FundManager', owner, [omniXExchange.address])
+  await (await omniXExchange.setFundManager(fundManager.address)).wait()
   await (await omniXExchange.updateTransferSelectorNFT(getContractAddrByName(network.name, 'TransferSelectorNFT'))).wait()
-  await (await omniXExchange.setFundManager(getContractAddrByName(network.name, 'FundManager'))).wait()
 
-  if (stargateEndpoint?.router) {
-    await omniXExchange.setStargatePoolManager(getContractAddrByName(network.name, 'StargatePoolManager'))
+  let stargateRouter = stargateEndpoint?.router
+
+  if (stargateRouter) {
+    const poolManager = await deployContract(hre, 'StargatePoolManager', owner, [stargateRouter])
+    if (stargateEndpoint?.routerEth) {
+        await (await poolManager.setStargateRouterEth(stargateEndpoint.routerEth)).wait()
+    }
+
+    await (await omniXExchange.setStargatePoolManager(getContractAddrByName(network.name, 'StargatePoolManager'))).wait()
   }
 }
 
@@ -86,8 +97,8 @@ export const deployGhosts = async (taskArgs: any, hre: any) => {
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
-  testnet: ['fuji', 'mumbai', 'bsc-testnet', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
-  // testnet: ['goerli', 'arbitrum-goerli', 'optimism-goerli']
+  // testnet: ['fuji', 'mumbai', 'bsc-testnet', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
+  testnet: ['fuji', 'optimism-goerli', 'bsc-testnet']
 }
 
 export const deployOmnixAll = async function (taskArgs: any) {

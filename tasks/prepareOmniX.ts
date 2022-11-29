@@ -26,6 +26,7 @@ const StargateFactoryAbi = loadAbi('../artifacts/contracts/stargate/Factory.sol/
 const StargateRouterAbi = loadAbi('../artifacts/contracts/stargate/Router.sol/Router.json')
 const StargateBridgeAbi = loadAbi('../artifacts/contracts/stargate/Bridge.sol/Bridge.json')
 const LRTokenMockAbi = loadAbi('../artifacts/contracts/mocks/LRTokenMock.sol/LRTokenMock.json')
+const FundManagerAbi = loadAbi('../artifacts/contracts/core/FundManager.sol/FundManager.json')
 
 const tx = async (tx1: any) => {
   await tx1.wait()
@@ -41,12 +42,11 @@ export const prepareOmniX = async (taskArgs: any, hre: any) => {
   // await tx(await currencyManager.addCurrency(getContractAddrByName(network.name, 'OFTMock')))
   // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSale')))
   // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSale')))
+  // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSale')))
+  // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSaleForCollection')))
 
-  const executionManager = createContractByName(hre, 'ExecutionManager', ExecutionManagerAbi().abi, owner)
-  // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSale')))
-  // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStandardSaleForCollection')))
-  await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSale')))
-  await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSaleForCollection')))
+  // const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
+  // await (await omniXExchange.setStargatePoolManager(getContractAddrByName(network.name, 'StargatePoolManager'))).wait()
 }
 
 const packTrustedRemote = (hre: any, srcNetwork: string, dstNetwork: string, contractName: string) => {
@@ -79,6 +79,12 @@ export const linkOmniX = async (taskArgs: any, hre: any) => {
 
   const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
   await tx(await omniXExchange.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'OmniXExchange')))
+
+  const stargatePoolManager = createContractByName(hre, 'StargatePoolManager', StargatePoolManagerAbi().abi, owner)
+  if (getContractAddrByName(srcNetwork, 'SGETH') && getContractAddrByName(dstNetwork, 'SGETH')) {
+    await (await stargatePoolManager.setPoolId(getContractAddrByName(srcNetwork, 'SGETH'), dstChainId, 13, 13)).wait()
+  }
+  await (await stargatePoolManager.setPoolId(getContractAddrByName(srcNetwork, 'USDC'), dstChainId, getPoolId(srcNetwork), getPoolId(dstNetwork))).wait()
 }
 
 export const prepareStargate = async (taskArgs: any, hre: any) => {
@@ -138,7 +144,8 @@ export const setupBridge = async (taskArgs: any, hre: any) => {
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
-  testnet: ['bsc-testnet', 'fuji', 'mumbai', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
+  // testnet: ['bsc-testnet', 'fuji', 'mumbai', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
+  testnet: ['fuji', 'optimism-goerli', 'bsc-testnet'] // ['goerli', 'arbitrum-goerli', 'mumbai']
 }
 
 export const prepareOmnixAll = async function (taskArgs: any) {

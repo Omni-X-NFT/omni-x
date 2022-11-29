@@ -77,6 +77,10 @@ export const getContractAddrByName = (network: string, name: string): string => 
     const panda = PANDA as any
     return panda[network]
   }
+  if (name === 'SGETH') {
+    const stargate = STARGATE as any
+    return stargate[network]?.sgeth || null
+  }
   return (CONTRACTS as any)[folderName][name]
 }
 
