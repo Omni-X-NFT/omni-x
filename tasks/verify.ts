@@ -46,75 +46,41 @@ export const verifyOmni = async () => {
   
   const lzEndpoint = ENDPOINTS[network.name]
 
-  await run('verify:verify', {
-    address: getContractAddrByName(network.name, 'OmniXExchange'),
-    constructorArguments: [
-        getContractAddrByName(network.name, 'CurrencyManager'),
-        getContractAddrByName(network.name, 'ExecutionManager'),
-        getContractAddrByName(network.name, 'RoyaltyFeeManager'),
-        getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero,
-        owner.address,
-        lzEndpoint
-    ],
-    contract: "contracts/core/OmniXExchange.sol:OmniXExchange"
-  })
-
   // await run('verify:verify', {
-  //   address: getContractAddrByName(network.name, 'OFTMock'),
+  //   address: getContractAddrByName(network.name, 'OmniXExchange'),
   //   constructorArguments: [
-  //     'OMNI', 'OMNI', toWei(ethers, 1000), lzEndpoint
-  //   ],
-  //   contract: "contracts/mocks/OFTMock.sol:OFTMock"
-  // })
-
-  await run('verify:verify', {
-    address: getContractAddrByName(network.name, 'FundManager'),
-    constructorArguments: [
-        getContractAddrByName(network.name, 'OmniXExchange')
-    ],
-    contract: "contracts/core/FundManager.sol:FundManager"
-  })
-
-  // await run('verify:verify', {
-  //   address: getContractAddrByName(network.name, 'CurrencyManager'),
-  //   constructorArguments: [],
-  //   contract: "contracts/core/CurrencyManager.sol:CurrencyManager"
-  // })
-
-  const stargateEndpoint = (STARGATE as any)[network.name]
-  await run('verify:verify', {
-    address: getContractAddrByName(network.name, 'StargatePoolManager'),
-    constructorArguments: [stargateEndpoint.router],
-    contract: "contracts/core/StargatePoolManager.sol:StargatePoolManager"
-  })
-
-  // await run('verify:verify', {
-  //   address: getContractAddrByName(network.name, 'TransferSelectorNFT'),
-  //   constructorArguments: [
-  //       getContractAddrByName(network.name, 'TransferManagerERC721'),
-  //       getContractAddrByName(network.name, 'TransferManagerERC1155')
-  //   ],
-  //   contract: "contracts/core/TransferSelectorNFT.sol:TransferSelectorNFT"
-  // })
-
-  // await run('verify:verify', {
-  //   address: getContractAddrByName(network.name, 'TransferManagerERC721'),
-  //   constructorArguments: [
-  //       getContractAddrByName(network.name, 'OmniXExchange'),
+  //       getContractAddrByName(network.name, 'CurrencyManager'),
+  //       getContractAddrByName(network.name, 'ExecutionManager'),
+  //       getContractAddrByName(network.name, 'RoyaltyFeeManager'),
+  //       getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero,
+  //       owner.address,
   //       lzEndpoint
   //   ],
-  //   contract: "contracts/transfer/TransferManagerERC721.sol:TransferManagerERC721"
+  //   contract: "contracts/core/OmniXExchange.sol:OmniXExchange"
   // })
 
   // await run('verify:verify', {
-  //   address: getContractAddrByName(network.name, 'RoyaltyFeeManager'),
+  //   address: getContractAddrByName(network.name, 'FundManager'),
   //   constructorArguments: [
-  //     getContractAddrByName(network.name, 'RoyaltyFeeRegistry')
-  //   ]
+  //       getContractAddrByName(network.name, 'OmniXExchange')
+  //   ],
+  //   contract: "contracts/core/FundManager.sol:FundManager"
   // })
 
+  // const stargateEndpoint = (STARGATE as any)[network.name]
   // await run('verify:verify', {
-  //   address: getContractAddrByName(network.name, 'Router'),
-  //   constructorArguments: []
+  //   address: getContractAddrByName(network.name, 'StargatePoolManager'),
+  //   constructorArguments: [stargateEndpoint.router],
+  //   contract: "contracts/core/StargatePoolManager.sol:StargatePoolManager"
   // })
+
+  await run('verify:verify', {
+    address: getContractAddrByName(network.name, 'StrategyStargateSale'),
+    constructorArguments: []
+  })
+
+  await run('verify:verify', {
+    address: getContractAddrByName(network.name, 'StrategyStargateSaleForCollection'),
+    constructorArguments: []
+  })
 }

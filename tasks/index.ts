@@ -6,6 +6,7 @@ import { verifyOmni, verifyAll } from './verify'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
 import { checkNonce } from './checkNonce'
 import { deployAll } from './deploy'
+import { migrate } from './migrate'
 
 task(
   'setTrustedRemote',
@@ -71,3 +72,8 @@ task(
 task('setupBridge', 'setup chain and add liquidity to the pool')
   .addParam('dstchainname', 'destination chain name. ex: rinkeby')
   .setAction(setupBridge)
+
+task(
+  'migrate',
+  'update or check configuration of omnixexchange contracts'
+).setAction(migrate)
