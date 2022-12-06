@@ -4,13 +4,17 @@ pragma solidity ^0.8;
 
 import "../ONFT721Enumerable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import { GelatoRelayContext } from "@gelatonetwork/relay-context/contracts/GelatoRelayContext.sol";
 
 /// @title Interface of the AdvancedONFT standard
 /// @author exakoss
 /// @notice this implementation supports: batch mint, payable public and private mint, reveal of metadata and EIP-2981 on-chain royalties
-contract KanpaiPandas is ONFT721Enumerable, ReentrancyGuard {
+contract KanpaiPandas is ONFT721Enumerable, GelatoRelayContext, ReentrancyGuard {
     using Strings for uint;
+    using SafeERC20 for IERC20;
 
     uint public price = 0;
     uint public nextMintId;
@@ -33,6 +37,10 @@ contract KanpaiPandas is ONFT721Enumerable, ReentrancyGuard {
     bool public _saleStarted;
     bool revealed;
 
+    /// For stable minting
+    uint public stablePrice = 0;
+    IERC20 public immutable stableToken;
+
     /// @notice Constructor for the AdvancedONFT
     /// @param _name the name of the token
     /// @param _symbol the token symbol
@@ -41,13 +49,15 @@ contract KanpaiPandas is ONFT721Enumerable, ReentrancyGuard {
     /// @param _endMintId the max number of mints on this chain
     /// @param _maxTokensPerMint the max number of tokens that could be minted in a single transaction
     /// @param _baseTokenURI the base URI for computing the tokenURI
-    constructor(string memory _name, string memory _symbol, address _layerZeroEndpoint, uint _startMintId, uint _endMintId, uint _maxTokensPerMint, string memory _baseTokenURI) ONFT721Enumerable(_name, _symbol, _layerZeroEndpoint) {
+    /// @param _stableToken stable coin address to be paid for minting
+    constructor(string memory _name, string memory _symbol, address _layerZeroEndpoint, uint _startMintId, uint _endMintId, uint _maxTokensPerMint, string memory _baseTokenURI, address _stableToken) ONFT721Enumerable(_name, _symbol, _layerZeroEndpoint) {
         nextMintId = _startMintId;
         maxMintId = _endMintId;
         maxTokensPerMint = _maxTokensPerMint;
         //set default beneficiary to owner
         beneficiary = payable(msg.sender);
         baseURI = _baseTokenURI;
+        stableToken = IERC20(_stableToken);
     }
 
     /// @notice Mint your ONFTs
@@ -89,12 +99,38 @@ contract KanpaiPandas is ONFT721Enumerable, ReentrancyGuard {
         nextMintId = local_nextMintId;
     }
 
+    /// @notice gasless mint 
+    function gaslessMint(uint _nbTokens, address minter) external onlyGelatoRelay {
+        require(_publicSaleStarted == true, "KanpaiPandas: Public sale has not started yet!");
+        require(_saleStarted == true, "KanpaiPandas: Sale has not started yet!");
+        require(_nbTokens != 0, "KanpaiPandas: Cannot mint 0 tokens!");
+        require(_nbTokens <= maxTokensPerMint, "KanpaiPandas: You cannot mint more than maxTokensPerMint tokens at once!");
+        require(nextMintId + _nbTokens <= maxMintId, "KanpaiPandas: max mint limit reached");
+        require(stablePrice > 0, "KanpaiPandas: you need to set stable price");
+        require(address(stableToken) != address(0), "KanpaiPandas: not support stable mint");
+
+        _transferRelayFee();
+
+        stableToken.safeTransferFrom(minter, beneficiary, stablePrice * _nbTokens);
+
+        //using a local variable, _mint and ++X pattern to save gas
+        uint local_nextMintId = nextMintId;
+        for (uint i; i < _nbTokens; i++) {
+            _mint(minter, ++local_nextMintId);
+        }
+        nextMintId = local_nextMintId;
+    }
+
     function setMerkleRoot(bytes32 _merkleRoot) external onlyOwner {
         merkleRoot = _merkleRoot;
     }
 
     function setPrice(uint newPrice) external onlyOwner {
         price = newPrice;
+    }
+
+    function setStablePrice(uint newPrice) external onlyOwner {
+        stablePrice = newPrice;
     }
 
     function withdraw() public virtual onlyOwner {
@@ -145,4 +181,6 @@ contract KanpaiPandas is ONFT721Enumerable, ReentrancyGuard {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
         return string(abi.encodePacked(_baseURI(), tokenId.toString()));
     }
+
+    receive() external payable {}
 }
