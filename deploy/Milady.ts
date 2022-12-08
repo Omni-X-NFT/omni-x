@@ -1,7 +1,7 @@
 import hre from 'hardhat'
 import { ethers } from 'ethers'
 import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
-import GREG_ARGS from '../constants/gregArgs.json'
+import GREG_ARGS from '../constants/milady.json'
 import STABLE_COINS from '../constants/usd.json'
 
 type CHAINTYPE = {
@@ -24,7 +24,7 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
   console.log({ aonftArgs })
   console.log(`[${hre.network.name}] LayerZero Endpoint address: ${lzEndpointAddress}`)
 
-  await deploy('AdvancedONFT721', {
+  await deploy('Milady', {
     from: deployer,
     args: [
       aonftArgs.name,
@@ -42,4 +42,4 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
   })
 }
 
-module.exports.tags = ['AdvancedONFT721']
+module.exports.tags = ['Milady']

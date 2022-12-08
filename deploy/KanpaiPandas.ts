@@ -1,7 +1,6 @@
 import hre from 'hardhat'
 import { ethers } from 'ethers'
 import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
-// const AONFT_ARGS = require("../constants/advancedOnftArgs.json")
 import GREG_ARGS from '../constants/kanpaiPandas.json'
 import STABLE_COINS from '../constants/usd.json'
 
