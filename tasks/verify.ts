@@ -27,7 +27,7 @@ const CONTRACTS: any = {
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom'],
   // testnet: ['goerli', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet']
-  testnet: ['bsc-testnet', 'fuji', 'mumbai', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet']
+  testnet: ['fuji']
 }
 
 export const verifyAll = async function (taskArgs: any, hre: any) {

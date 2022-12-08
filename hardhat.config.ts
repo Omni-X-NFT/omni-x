@@ -60,7 +60,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     'bsc-testnet': {
-      url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
+      url: 'https://rpc.ankr.com/bsc_testnet_chapel',
       chainId: 97,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
@@ -124,8 +124,8 @@ const config: HardhatUserConfig = {
         network: 'arbitrum-goerli',
         chainId: 421613,
         urls: {
-          apiURL: 'https://goerli-rollup-explorer.arbitrum.io/api',
-          browserURL: 'https://goerli-rollup-explorer.arbitrum.io'
+          apiURL: 'https://api-goerli.arbiscan.io/api',
+          browserURL: 'https://testnet.arbiscan.io/'
         }
       },
       {
