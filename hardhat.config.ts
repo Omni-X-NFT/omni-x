@@ -6,9 +6,11 @@ import 'hardhat-gas-reporter'
 import 'hardhat-deploy'
 import 'hardhat-deploy-ethers'
 import 'solidity-coverage'
+import 'xdeployer'
 import './tasks'
 
 import * as dotenv from 'dotenv'
+import { ethers } from 'hardhat'
 dotenv.config()
 
 // You need to export an object to set up your config
@@ -70,7 +72,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     mumbai: {
-      url: 'https://polygon-mumbai.g.alchemy.com/v2/PBnAhVXSPI5sRtN4YRc4Xadl6bFpkyFv',
+      url: 'https://rpc.ankr.com/polygon_mumbai',
       chainId: 80001,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
@@ -114,7 +116,6 @@ const config: HardhatUserConfig = {
       polygonMumbai: process.env.POLYGON_API_KEY || '',
       avalancheFujiTestnet: process.env.AVALANCHE_API_KEY || '',
       arbitrumTestnet: process.env.ARBITRUM_API_KEY || '',
-      optimisticKovan: process.env.OPTIMISTIC_API_KEY || '',
       ftmTestnet: process.env.FANTOM_API_KEY || '',
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
       'optimism-goerli': process.env.OPTIMISTIC_API_KEY || ''
@@ -144,6 +145,32 @@ const config: HardhatUserConfig = {
     disambiguatePaths: false,
     runOnCompile: false,
     strict: true
+  },
+
+  xdeploy: {
+    contract: 'Milady',
+    constructorArgsPath: 'constants/miladyXargs.js',
+    salt: 'OMNIXV1',
+    signer: process.env.PRIVATE_KEY,
+    networks: [
+      'goerli',
+      'bscTestnet',
+      'fuji',
+      'mumbai',
+      'arbitrumTestnet',
+      'optimismTestnet',
+      'fantomTestnet'
+    ],
+    rpcUrls: [
+      'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+      'https://rpc.ankr.com/bsc_testnet_chapel',
+      'https://api.avax-test.network/ext/bc/C/rpc',
+      'https://rpc.ankr.com/polygon_mumbai',
+      'https://convincing-clean-reel.arbitrum-goerli.discover.quiknode.pro/a7679fef301ca865c612a70bf2c98bc17c37135f/',
+      'https://rpc.ankr.com/optimism_testnet',
+      'https://rpc.testnet.fantom.network/',
+    ],
+    gasLimit: 7 * 10 ** 6
   }
 }
 

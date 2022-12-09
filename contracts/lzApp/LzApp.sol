@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "../access/Initializable.sol";
 import "../interfaces/ILayerZeroReceiver.sol";
 import "../interfaces/ILayerZeroUserApplicationConfig.sol";
 import "../interfaces/ILayerZeroEndpoint.sol";
@@ -10,8 +10,8 @@ import "../interfaces/ILayerZeroEndpoint.sol";
 /*
  * a generic LzReceiver implementation
  */
-abstract contract LzApp is Ownable, ILayerZeroReceiver, ILayerZeroUserApplicationConfig {
-    ILayerZeroEndpoint internal immutable lzEndpoint;
+abstract contract LzApp is Initializable, ILayerZeroReceiver, ILayerZeroUserApplicationConfig {
+    ILayerZeroEndpoint internal lzEndpoint;
 
     mapping(uint16 => bytes) internal trustedRemoteLookup;
 
@@ -80,5 +80,9 @@ abstract contract LzApp is Ownable, ILayerZeroReceiver, ILayerZeroUserApplicatio
 
     function getLzEndpoint() external view returns (address) {
         return address(lzEndpoint);
+    }
+
+    function setLzEndpoint(address _lzEndpoint) external onlyOwner {
+        lzEndpoint = ILayerZeroEndpoint(_lzEndpoint);
     }
 }
