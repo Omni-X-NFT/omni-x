@@ -43,18 +43,18 @@ export const setupMiladyArgs = async function (taskArgs: any, hre: any) {
     await (await contractInstance.setPrice(args.price)).wait()
     await (await contractInstance.setStableToken(stableAddr)).wait()
     
-    // // setTrustedRemote() on the local contract, so it can receive message from the source contract
-    // const trustedRemote = hre.ethers.utils.solidityPack(['address', 'address'], [contractAddr, contractAddr])
+    // setTrustedRemote() on the local contract, so it can receive message from the source contract
+    const trustedRemote = hre.ethers.utils.solidityPack(['address', 'address'], [contractAddr, contractAddr])
 
-    // for (const dstNetwork of networks) {
-    //   if (srcNetwork != dstNetwork) {
-    //     const dstChainId = CHAIN_IDS[dstNetwork]
-    //     const tx = await (await contractInstance.setTrustedRemote(dstChainId, trustedRemote)).wait()
+    for (const dstNetwork of networks) {
+      if (srcNetwork != dstNetwork) {
+        const dstChainId = CHAIN_IDS[dstNetwork]
+        const tx = await (await contractInstance.setTrustedRemote(dstChainId, trustedRemote)).wait()
 
-    //     console.log(`✅ [${hre.network.name}] setTrustedRemote(${dstChainId}, ${contractAddr})`)
-    //     console.log(` tx: ${tx.transactionHash}`)
-    //   }
-    // }
+        console.log(`✅ [${hre.network.name}] setTrustedRemote(${dstChainId}, ${contractAddr})`)
+        console.log(` tx: ${tx.transactionHash}`)
+      }
+    }
   } catch (e: any) {
     if (e.error.message.includes('The chainId + address is already trusted')) {
       console.log('*source already set*')
