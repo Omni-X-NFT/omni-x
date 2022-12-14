@@ -15,8 +15,8 @@ const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom'],
-  // testnet: ['goerli', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet']
-  testnet: ['goerli', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet']
+  // testnet: ['goerli', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet']
+  testnet: ['moonbeam_testnet']
 }
 
 export const setupMiladyArgs = async function (taskArgs: any, hre: any) {
@@ -33,15 +33,15 @@ export const setupMiladyArgs = async function (taskArgs: any, hre: any) {
   const contractInstance = await hre.ethers.getContractAt(contractName, contractAddr, deployer)
 
   try {
-    await (await contractInstance.initialize()).wait()
-    await (await contractInstance.flipPublicSaleStarted()).wait()
-    await (await contractInstance.flipSaleStarted()).wait()
-    await (await contractInstance.flipRevealed()).wait()
-    await (await contractInstance.setMintRage(args.startMintId, args.endMintId, args.maxTokensPerMint)).wait()
-    await (await contractInstance.setLzEndpoint(lzEndpointAddress)).wait()
+    // await (await contractInstance.initialize()).wait()
+    // await (await contractInstance.flipPublicSaleStarted()).wait()
+    // await (await contractInstance.flipSaleStarted()).wait()
+    // await (await contractInstance.flipRevealed()).wait()
+    // await (await contractInstance.setMintRage(args.startMintId, args.endMintId, args.maxTokensPerMint)).wait()
+    // await (await contractInstance.setLzEndpoint(lzEndpointAddress)).wait()
 
-    await (await contractInstance.setPrice(args.price)).wait()
-    await (await contractInstance.setStableToken(stableAddr)).wait()
+    // await (await contractInstance.setPrice(args.price)).wait()
+    // await (await contractInstance.setStableToken(stableAddr)).wait()
     
     // setTrustedRemote() on the local contract, so it can receive message from the source contract
     const trustedRemote = hre.ethers.utils.solidityPack(['address', 'address'], [contractAddr, contractAddr])
@@ -56,10 +56,6 @@ export const setupMiladyArgs = async function (taskArgs: any, hre: any) {
       }
     }
   } catch (e: any) {
-    if (e.error.message.includes('The chainId + address is already trusted')) {
-      console.log('*source already set*')
-    } else {
-      console.log(e)
-    }
+    console.log(e)
   }
 }

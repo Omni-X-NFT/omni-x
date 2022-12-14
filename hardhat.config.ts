@@ -100,7 +100,12 @@ const config: HardhatUserConfig = {
       url: 'https://rpc.testnet.fantom.network/',
       chainId: 4002,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
-    }
+    },
+    moonbeam_testnet: {
+      url: 'https://rpc.testnet.moonbeam.network',
+      accounts:
+          process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+  },
   },
 
   gasReporter: {
@@ -118,7 +123,10 @@ const config: HardhatUserConfig = {
       arbitrumTestnet: process.env.ARBITRUM_API_KEY || '',
       ftmTestnet: process.env.FANTOM_API_KEY || '',
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
-      'optimism-goerli': process.env.OPTIMISTIC_API_KEY || ''
+      'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
+      moonbeam: process.env.MOONBEAM_API_KEY || '', // Moonbeam Moonscan API Key
+      moonriver: process.env.MOONBEAM_API_KEY || '', // Moonriver Moonscan API Key
+      moonbaseAlpha: process.env.MOONBEAM_API_KEY || '', // Moonbeam Moonscan API Key
     },
     customChains: [
       {
@@ -153,22 +161,24 @@ const config: HardhatUserConfig = {
     salt: 'OMNIXV1',
     signer: process.env.PRIVATE_KEY,
     networks: [
-      'goerli',
-      'bscTestnet',
-      'fuji',
-      'mumbai',
-      'arbitrumTestnet',
-      'optimismTestnet',
-      'fantomTestnet'
+      // 'goerli',
+      // 'bscTestnet',
+      // 'fuji',
+      // 'mumbai',
+      // 'arbitrumTestnet',
+      // 'optimismTestnet',
+      // 'fantomTestnet',
+      'moonbaseAlpha'
     ],
     rpcUrls: [
-      'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
-      'https://rpc.ankr.com/bsc_testnet_chapel',
-      'https://api.avax-test.network/ext/bc/C/rpc',
-      'https://rpc.ankr.com/polygon_mumbai',
-      'https://convincing-clean-reel.arbitrum-goerli.discover.quiknode.pro/a7679fef301ca865c612a70bf2c98bc17c37135f/',
-      'https://rpc.ankr.com/optimism_testnet',
-      'https://rpc.testnet.fantom.network/',
+      // 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+      // 'https://rpc.ankr.com/bsc_testnet_chapel',
+      // 'https://api.avax-test.network/ext/bc/C/rpc',
+      // 'https://rpc.ankr.com/polygon_mumbai',
+      // 'https://convincing-clean-reel.arbitrum-goerli.discover.quiknode.pro/a7679fef301ca865c612a70bf2c98bc17c37135f/',
+      // 'https://rpc.ankr.com/optimism_testnet',
+      // 'https://rpc.testnet.fantom.network/',
+      'https://rpc.testnet.moonbeam.network'
     ],
     gasLimit: 7 * 10 ** 6
   }
