@@ -156,8 +156,8 @@ const config: HardhatUserConfig = {
   },
 
   xdeploy: {
-    contract: 'Milady',
-    constructorArgsPath: 'constants/miladyXargs.js',
+    contract: 'ElementONFT721',
+    constructorArgsPath: 'constants/elementXargs.js',
     salt: 'OMNIXV1',
     signer: process.env.PRIVATE_KEY,
     networks: [
@@ -166,9 +166,9 @@ const config: HardhatUserConfig = {
       // 'fuji',
       // 'mumbai',
       // 'arbitrumTestnet',
-      // 'optimismTestnet',
+      'optimismTestnet',
       // 'fantomTestnet',
-      'moonbaseAlpha'
+      // 'moonbaseAlpha'
     ],
     rpcUrls: [
       // 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
@@ -176,9 +176,9 @@ const config: HardhatUserConfig = {
       // 'https://api.avax-test.network/ext/bc/C/rpc',
       // 'https://rpc.ankr.com/polygon_mumbai',
       // 'https://convincing-clean-reel.arbitrum-goerli.discover.quiknode.pro/a7679fef301ca865c612a70bf2c98bc17c37135f/',
-      // 'https://rpc.ankr.com/optimism_testnet',
+      'https://rpc.ankr.com/optimism_testnet',
       // 'https://rpc.testnet.fantom.network/',
-      'https://rpc.testnet.moonbeam.network'
+      // 'https://rpc.testnet.moonbeam.network'
     ],
     gasLimit: 7 * 10 ** 6
   }
