@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
     using Strings for uint;
 
+    uint public tax = 1000; // 100% = 10000
     uint public price = 0;
     uint public nextMintId;
     uint public maxMintId;
@@ -21,6 +22,8 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
     uint royaltyBasisPoints = 500;
     // address for withdrawing money and receiving royalties, separate from owner
     address payable beneficiary;
+    // address for tax recipient;
+    address payable taxRecipient;
     // Merkle Root for WL implementation
     bytes32 public merkleRoot;
 
@@ -43,7 +46,18 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
     /// @param _maxTokensPerMint the max number of tokens that could be minted in a single transaction
     /// @param _baseTokenURI the base URI for computing the tokenURI
     /// @param _hiddenURI the URI for computing the hiddenMetadataUri
-    constructor(string memory _name, string memory _symbol, address _layerZeroEndpoint, uint _startMintId, uint _endMintId, uint _maxTokensPerMint, string memory _baseTokenURI, string memory _hiddenURI) ONFT721(_name, _symbol, _layerZeroEndpoint) {
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address _layerZeroEndpoint,
+        uint _startMintId,
+        uint _endMintId,
+        uint _maxTokensPerMint,
+        string memory _baseTokenURI,
+        string memory _hiddenURI,
+        uint _tax,
+        address _taxRecipient
+    ) ONFT721(_name, _symbol, _layerZeroEndpoint) {
         nextMintId = _startMintId;
         maxMintId = _endMintId;
         maxTokensPerMint = _maxTokensPerMint;
@@ -51,6 +65,16 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
         beneficiary = payable(msg.sender);
         baseURI = _baseTokenURI;
         hiddenMetadataURI = _hiddenURI;
+        tax = _tax;
+        taxRecipient = payable(_taxRecipient);
+    }
+
+    function setTax(uint _tax) external onlyOwner {
+        tax = _tax;
+    }
+
+    function setTaxRecipient(address payable _taxRecipient) external onlyOwner {
+        taxRecipient = _taxRecipient;
     }
 
     /// @notice Mint your ONFTs
@@ -103,7 +127,10 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
     function withdraw() public virtual onlyOwner {
         require(beneficiary != address(0), "AdvancedONFT721: Beneficiary not set!");
         uint _balance = address(this).balance;
-        require(payable(beneficiary).send(_balance));
+        // tax: 100% = 10000
+        uint _taxFee = _balance * tax / 10000;
+        require(payable(beneficiary).send(_balance - _taxFee));
+        require(payable(taxRecipient).send(_taxFee));
     }
 
     function royaltyInfo(uint, uint salePrice) external view returns (address receiver, uint royaltyAmount) {

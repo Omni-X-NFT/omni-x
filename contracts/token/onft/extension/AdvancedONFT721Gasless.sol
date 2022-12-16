@@ -16,6 +16,7 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
     using Strings for uint;
     using SafeERC20 for IERC20;
 
+    uint public tax = 1000; // 10% = 1000, 100 % = 10000
     uint public price = 0;
     uint public nextMintId;
     uint public maxMintId;
@@ -25,6 +26,8 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
     uint royaltyBasisPoints = 500;
     // address for withdrawing money and receiving royalties, separate from owner
     address payable beneficiary;
+    // address for tax recipient;
+    address payable taxRecipient;
     // Merkle Root for WL implementation
     bytes32 public merkleRoot;
 
@@ -49,7 +52,19 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
     /// @param _maxTokensPerMint the max number of tokens that could be minted in a single transaction
     /// @param _baseTokenURI the base URI for computing the tokenURI
     /// @param _hiddenURI the URI for computing the hiddenMetadataUri
-    constructor(string memory _name, string memory _symbol, address _layerZeroEndpoint, uint _startMintId, uint _endMintId, uint _maxTokensPerMint, string memory _baseTokenURI, string memory _hiddenURI, address _stableToken) ONFT721(_name, _symbol, _layerZeroEndpoint) {
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address _layerZeroEndpoint,
+        uint _startMintId,
+        uint _endMintId,
+        uint _maxTokensPerMint,
+        string memory _baseTokenURI,
+        string memory _hiddenURI,
+        address _stableToken,
+        uint _tax,
+        address _taxRecipient
+    ) ONFT721(_name, _symbol, _layerZeroEndpoint) {
         nextMintId = _startMintId;
         maxMintId = _endMintId;
         maxTokensPerMint = _maxTokensPerMint;
@@ -58,12 +73,22 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         baseURI = _baseTokenURI;
         hiddenMetadataURI = _hiddenURI;
         stableToken = IERC20(_stableToken);
+        tax = _tax;
+        taxRecipient = payable(_taxRecipient);
     }
 
     function setMintRange(uint _startMintId, uint _endMintId, uint _maxTokensPerMint) external onlyOwner {
         nextMintId = _startMintId;
         maxMintId = _endMintId;
         maxTokensPerMint = _maxTokensPerMint;
+    }
+
+    function setTax(uint _tax) external onlyOwner {
+        tax = _tax;
+    }
+
+    function setTaxRecipient(address payable _taxRecipient) external onlyOwner {
+        taxRecipient = payable(_taxRecipient);
     }
 
     /// @notice mint with stable coin
@@ -88,7 +113,7 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
 
         _transferRelayFee();
 
-        stableToken.safeTransferFrom(minter, beneficiary, price * _nbTokens);
+        stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
 
         _mintTokens(minter, _nbTokens);
     }
@@ -103,7 +128,7 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         require(price > 0, "ONFT721Gasless: you need to set stable price");
         require(address(stableToken) != address(0), "ONFT721Gasless: not support stable mint");
 
-        stableToken.safeTransferFrom(msg.sender, beneficiary, price * _nbTokens);
+        stableToken.safeTransferFrom(msg.sender, address(this), price * _nbTokens);
 
         //using a local variable, _mint and ++X pattern to save gas
         _mintTokens(msg.sender, _nbTokens);
@@ -122,7 +147,7 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
 
         _transferRelayFee();
 
-        stableToken.safeTransferFrom(minter, beneficiary, price * _nbTokens);
+        stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
         
         _boughtCount[minter] += _nbTokens;
 
@@ -140,7 +165,7 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(_msgSender())));
         require(isWL == true, "ONFT721Gasless: Invalid Merkle Proof");
 
-        stableToken.safeTransferFrom(msg.sender, beneficiary, price * _nbTokens);
+        stableToken.safeTransferFrom(msg.sender, address(this), price * _nbTokens);
 
         _boughtCount[msg.sender] += _nbTokens;
 
@@ -155,10 +180,20 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         price = newPrice;
     }
 
+    function withdrawNative() public virtual onlyOwner {
+        uint _balance = address(this).balance;
+        // tax: 100% = 10000
+        require(payable(msg.sender).send(_balance));
+    }
+
     function withdraw() public virtual onlyOwner {
         require(beneficiary != address(0), "AdvancedONFT721: Beneficiary not set!");
-        uint _balance = address(this).balance;
-        require(payable(beneficiary).send(_balance));
+
+        uint _balance = stableToken.balanceOf(address(this));
+        uint _taxFee = _balance * tax / 10000;
+
+        stableToken.safeTransfer(taxRecipient, _taxFee);
+        stableToken.safeTransfer(beneficiary, _balance - _taxFee);
     }
 
     function royaltyInfo(uint, uint salePrice) external view returns (address receiver, uint royaltyAmount) {

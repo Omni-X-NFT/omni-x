@@ -2,13 +2,8 @@
 
 pragma solidity ^0.8;
 
-import "../AdvancedONFT721Gasless.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./AdvancedONFT721Gasless.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import { GelatoRelayContext } from "@gelatonetwork/relay-context/contracts/GelatoRelayContext.sol";
 
 /// @title Interface of the Elements standard
 /// @author green9016
@@ -30,10 +25,19 @@ contract AdvancedONFT721GaslessClaim is AdvancedONFT721Gasless {
     /// @param _maxTokensPerMint the max number of tokens that could be minted in a single transaction
     /// @param _baseTokenURI the base URI for computing the tokenURI
     /// @param _hiddenURI the URI for computing the hiddenMetadataUri
-    constructor(string memory _name, string memory _symbol, address _layerZeroEndpoint, uint _startMintId, uint _endMintId, uint _maxTokensPerMint, string memory _baseTokenURI, string memory _hiddenURI, address _stableToken)
-        AdvancedONFT721GaslessClaim(_name, _symbol, _layerZeroEndpoint, _startMintId, _endMintId, _maxTokensPerMint, _baseTokenURI, _hiddenURI, _stableToken)
-    {
-    }
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address _layerZeroEndpoint,
+        uint _startMintId,
+        uint _endMintId,
+        uint _maxTokensPerMint,
+        string memory _baseTokenURI,
+        string memory _hiddenURI,
+        address _stableToken,
+        uint _tax,
+        address _taxRecipient
+    ) AdvancedONFT721Gasless(_name, _symbol, _layerZeroEndpoint, _startMintId, _endMintId, _maxTokensPerMint, _baseTokenURI, _hiddenURI, _stableToken, _tax, _taxRecipient) {}
 
     function claim(address claimer, uint tokenId) external onlyGelatoRelay {
         require(_claimable == true, "ElementONFT721: Sale has not started yet!");
