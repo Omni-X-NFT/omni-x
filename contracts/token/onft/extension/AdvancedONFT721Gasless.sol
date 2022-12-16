@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8;
 
-import "../ONFT721Enumerable.sol";
+import "../ONFT721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -12,7 +12,7 @@ import { GelatoRelayContext } from "@gelatonetwork/relay-context/contracts/Gelat
 /// @title Interface of the AdvancedONFT standard
 /// @author exakoss
 /// @notice this implementation supports: batch mint, payable public and private mint, reveal of metadata and EIP-2981 on-chain royalties
-contract AdvancedONFT721Gasless is ONFT721Enumerable, GelatoRelayContext, ReentrancyGuard {
+contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard {
     using Strings for uint;
     using SafeERC20 for IERC20;
 
@@ -49,7 +49,7 @@ contract AdvancedONFT721Gasless is ONFT721Enumerable, GelatoRelayContext, Reentr
     /// @param _maxTokensPerMint the max number of tokens that could be minted in a single transaction
     /// @param _baseTokenURI the base URI for computing the tokenURI
     /// @param _hiddenURI the URI for computing the hiddenMetadataUri
-    constructor(string memory _name, string memory _symbol, address _layerZeroEndpoint, uint _startMintId, uint _endMintId, uint _maxTokensPerMint, string memory _baseTokenURI, string memory _hiddenURI, address _stableToken) ONFT721Enumerable(_name, _symbol, _layerZeroEndpoint) {
+    constructor(string memory _name, string memory _symbol, address _layerZeroEndpoint, uint _startMintId, uint _endMintId, uint _maxTokensPerMint, string memory _baseTokenURI, string memory _hiddenURI, address _stableToken) ONFT721(_name, _symbol, _layerZeroEndpoint) {
         nextMintId = _startMintId;
         maxMintId = _endMintId;
         maxTokensPerMint = _maxTokensPerMint;
@@ -60,7 +60,7 @@ contract AdvancedONFT721Gasless is ONFT721Enumerable, GelatoRelayContext, Reentr
         stableToken = IERC20(_stableToken);
     }
 
-    function setMintRage(uint _startMintId, uint _endMintId, uint _maxTokensPerMint) external onlyOwner {
+    function setMintRange(uint _startMintId, uint _endMintId, uint _maxTokensPerMint) external onlyOwner {
         nextMintId = _startMintId;
         maxMintId = _endMintId;
         maxTokensPerMint = _maxTokensPerMint;
@@ -119,6 +119,8 @@ contract AdvancedONFT721Gasless is ONFT721Enumerable, GelatoRelayContext, Reentr
 
         bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(minter)));
         require(isWL == true, "ONFT721Gasless: Invalid Merkle Proof");
+
+        _transferRelayFee();
 
         stableToken.safeTransferFrom(minter, beneficiary, price * _nbTokens);
         
