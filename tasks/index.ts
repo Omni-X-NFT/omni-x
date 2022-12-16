@@ -2,6 +2,7 @@ import { task } from 'hardhat/config'
 import { setTrustedRemote } from './setTrustedRemote'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
 import { setupMiladyArgs } from './setupMiladyArgs'
+import { setupDoodleArgs } from './setupDoodleArgs'
 import { deployAll } from './deploy'
 import { verifyAll } from './verify'
 
@@ -39,5 +40,12 @@ task(
   'setupMilady',
   'setup milady args',
   setupMiladyArgs
+).addParam('e', 'testnet or mainnet')
+  .addParam('addr', 'Contract address xdeployed')
+
+task(
+  'setupDoodleArgs',
+  'setup doodle args',
+  setupDoodleArgs
 ).addParam('e', 'testnet or mainnet')
   .addParam('addr', 'Contract address xdeployed')

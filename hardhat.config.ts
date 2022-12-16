@@ -156,8 +156,8 @@ const config: HardhatUserConfig = {
   },
 
   xdeploy: {
-    contract: 'ElementONFT721',
-    constructorArgsPath: 'constants/elementXargs.js',
+    contract: 'AdvancedONFT721GaslessClaim',
+    constructorArgsPath: 'constants/doodleXargs.js',
     salt: 'OMNIXV1',
     signer: process.env.PRIVATE_KEY,
     networks: [

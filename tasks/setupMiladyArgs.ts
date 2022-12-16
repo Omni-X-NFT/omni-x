@@ -23,7 +23,7 @@ export const setupMiladyArgs = async function (taskArgs: any, hre: any) {
   const [deployer] = await hre.ethers.getSigners()
 
   const contractAddr = taskArgs.addr
-  const contractName = 'contracts/token/onft/extension/Milady.sol:Milady'
+  const contractName = 'contracts/token/onft/extension/AdvancedONFT721Gasless.sol:AdvancedONFT721Gasless'
   const networks = environments[taskArgs.e]
   const srcNetwork = hre.network.name
   const args = ARGS[srcNetwork]
@@ -37,7 +37,7 @@ export const setupMiladyArgs = async function (taskArgs: any, hre: any) {
     // await (await contractInstance.flipPublicSaleStarted()).wait()
     // await (await contractInstance.flipSaleStarted()).wait()
     // await (await contractInstance.flipRevealed()).wait()
-    // await (await contractInstance.setMintRage(args.startMintId, args.endMintId, args.maxTokensPerMint)).wait()
+    // await (await contractInstance.setMintRange(args.startMintId, args.endMintId, args.maxTokensPerMint)).wait()
     // await (await contractInstance.setLzEndpoint(lzEndpointAddress)).wait()
 
     // await (await contractInstance.setPrice(args.price)).wait()

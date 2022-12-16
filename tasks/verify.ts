@@ -11,22 +11,25 @@ type ENDPOINT_TYPE = {
 }
 
 const MILADY_ARGS = require('../constants/miladyXargs.js')
+const DOODLE_ARGS = require('../constants/doodleXargs.js')
 const ENDPOINTS: ENDPOINT_TYPE = LZ_ENDPOINTS
 const stableCoins: ENDPOINT_TYPE = STABLE_COINS
 const ARGS: any = {
   'KanpaiPandas': KANPA_ARGS,
   'AdvancedONFT721': GREG_ARGS,
   'Milady': MILADY_ARGS,
+  'Doodle': DOODLE_ARGS,
 }
 const CONTRACTS: any = {
   'AdvancedONFT721': 'contracts/token/onft/extension/AdvancedONFT721.sol:AdvancedONFT721',
-  'Milady': 'contracts/token/onft/extension/Milady.sol:Milady',
+  'Milady': 'contracts/token/onft/extension/AdvancedONFT721Gasless.sol:AdvancedONFT721Gasless',
+  'Doodle': 'contracts/token/onft/extension/AdvancedONFT721GaslessClaim.sol:AdvancedONFT721GaslessClaim',
 }
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom'],
   // testnet: ['goerli', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet']
-  testnet: ['fantom-testnet']
+  testnet: ['optimism-goerli']
 }
 
 export const verifyAll = async function (taskArgs: any, hre: any) {
