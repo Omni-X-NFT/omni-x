@@ -5,7 +5,7 @@ module.exports = [
   'MLD',
   ethers.constants.AddressZero,
   0,
-  999,
+  0,
   5,
   'https://www.miladymaker.net/milady/json/',
   'https://www.miladymaker.net/milady/json/',
