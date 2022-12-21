@@ -35,8 +35,6 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
     string private baseURI;
     string private hiddenMetadataURI;
 
-    mapping(address => uint) public _boughtCount;
-
     bool public _publicSaleStarted;
     bool public _saleStarted;
     bool revealed;
@@ -140,7 +138,6 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         require(_nbTokens != 0, "ONFT721Gasless: Cannot mint 0 tokens!");
         require(_nbTokens <= maxTokensPerMint, "ONFT721Gasless: You cannot mint more than maxTokensPerMint tokens at once!");
         require(nextMintId + _nbTokens <= maxMintId, "ONFT721Gasless: max mint limit reached");
-        require(_boughtCount[minter] + _nbTokens <= maxTokensPerMint, "ONFT721Gasless: You exceeded your token limit.");
 
         bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(minter)));
         require(isWL == true, "ONFT721Gasless: Invalid Merkle Proof");
@@ -149,8 +146,6 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
 
         stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
         
-        _boughtCount[minter] += _nbTokens;
-
         _mintTokens(minter, _nbTokens);
     }
 
@@ -160,14 +155,11 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         require(_nbTokens != 0, "ONFT721Gasless: Cannot mint 0 tokens!");
         require(_nbTokens <= maxTokensPerMint, "ONFT721Gasless: You cannot mint more than maxTokensPerMint tokens at once!");
         require(nextMintId + _nbTokens <= maxMintId, "ONFT721Gasless: max mint limit reached");
-        require(_boughtCount[msg.sender] + _nbTokens <= maxTokensPerMint, "ONFT721Gasless: You exceeded your token limit.");
 
         bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(_msgSender())));
         require(isWL == true, "ONFT721Gasless: Invalid Merkle Proof");
 
         stableToken.safeTransferFrom(msg.sender, address(this), price * _nbTokens);
-
-        _boughtCount[msg.sender] += _nbTokens;
 
         _mintTokens(msg.sender, _nbTokens);
     }

@@ -31,8 +31,6 @@ contract AdvancedONFT721 is ONFT721Enumerable, ReentrancyGuard {
     string private baseURI;
     string private hiddenMetadataURI;
 
-    mapping(address => uint) public _boughtCount;
-
     bool public _publicSaleStarted;
     bool public _saleStarted;
     bool revealed;
@@ -103,12 +101,9 @@ contract AdvancedONFT721 is ONFT721Enumerable, ReentrancyGuard {
         require(_nbTokens <= maxTokensPerMint, "AdvancedONFT721: You cannot mint more than maxTokensPerMint tokens at once!");
         require(nextMintId + _nbTokens <= maxMintId, "AdvancedONFT721: max mint limit reached");
         require(_nbTokens * price <= msg.value, "AdvancedONFT721: Inconsistent amount sent!");
-        require(_boughtCount[msg.sender] + _nbTokens <= maxTokensPerMint, "AdvancedONFT721: You exceeded your token limit.");
 
         bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(_msgSender())));
         require(isWL == true, "AdvancedONFT721: Invalid Merkle Proof");
-
-        _boughtCount[msg.sender] += _nbTokens;
 
         //using a local variable, _mint and ++X pattern to save gas
         uint local_nextMintId = nextMintId;
