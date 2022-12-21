@@ -1,8 +1,7 @@
 import { task } from 'hardhat/config'
 import { setTrustedRemote } from './setTrustedRemote'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
-import { setupMiladyArgs } from './setupMiladyArgs'
-import { setupDoodleArgs } from './setupDoodleArgs'
+import { setupMiladyArgs, setupDoodleArgs, setXTrustedRemote, setAllXTrustedRemote, setupAllArgs } from './setupArgs'
 import { deployAll } from './deploy'
 import { verifyAll } from './verify'
 
@@ -37,15 +36,38 @@ task(
   .addParam('addr', 'Contract address xdeployed')
 
 task(
-  'setupMilady',
+  'setupMiladyArgs',
   'setup milady args',
   setupMiladyArgs
-).addParam('e', 'testnet or mainnet')
+).addParam('tag', 'testnet or mainnet')
   .addParam('addr', 'Contract address xdeployed')
 
 task(
   'setupDoodleArgs',
   'setup doodle args',
   setupDoodleArgs
+).addParam('tag', 'testnet or mainnet')
+  .addParam('addr', 'Contract address xdeployed')
+  
+task(
+  'setXTrustedRemote',
+  'setup trusted remote for xdeploy contracts',
+  setXTrustedRemote
 ).addParam('e', 'testnet or mainnet')
+  .addParam('tag', 'contract tag')
+  .addParam('addr', 'Contract address xdeployed')
+
+task(
+  'setupAllArgs',
+  'setup xdeployed collection args',
+  setupAllArgs
+).addParam('tag', 'testnet or mainnet')
+  .addParam('addr', 'Contract address xdeployed')
+
+task(
+  'setAllXTrustedRemote',
+  'setup trusted remote for xdeploy contracts',
+  setAllXTrustedRemote
+).addParam('e', 'testnet or mainnet')
+  .addParam('tag', 'contract tag')
   .addParam('addr', 'Contract address xdeployed')
