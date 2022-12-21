@@ -22,14 +22,20 @@ For faster runs of your tests and scripts, consider skipping ts-node's type chec
 Modify `xdeploy` value of hardhat.config.ts with Milady collection params
 ```
 npx hardhat xdeploy
-npx hardhat setupMiladyArgs --e testnet --addr [deployed_address] --network [network_name]
-npx hardhat verifyAll --e testnet --tags Milady --addr [deployed_address] --network [network_name]
+npx hardhat setupAllArgs --tag Milady --e testnet --addr [deployed_address]
+npx hardhat setAllXTrustedRemote --tag Milady --e testnet --addr [deployed_address]
+npx hardhat verifyAll --e testnet --tags Milady --addr [deployed_address]
+
+0x3ca0FCE5170acB1256EceC68557fd664B2baA390
 ```
 
 ## Doodle
 Modify `xdeploy` value of hardhat.config.ts with Doodle collection params
 ```
 npx hardhat xdeploy
-npx hardhat setupDoodleArgs --e testnet --addr [deployed_address] --network [network_name]
+npx hardhat setupAllArgs --tag Doodle --e testnet --addr [deployed_address]
+npx hardhat setAllXTrustedRemote --tag Doodle --e testnet --addr [deployed_address]
 npx hardhat verifyAll --e testnet --tags Doodle --addr [deployed_address]
+
+0x531c201be36f36F6Ff142A5f15160815e01cC7A2
 ```

@@ -61,7 +61,8 @@ task(
   'setupAllArgs',
   'setup xdeployed collection args',
   setupAllArgs
-).addParam('tag', 'testnet or mainnet')
+).addParam('e', 'testnet or mainnet')
+  .addParam('tag', 'testnet or mainnet')
   .addParam('addr', 'Contract address xdeployed')
 
 task(
