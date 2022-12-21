@@ -31,5 +31,5 @@ Modify `xdeploy` value of hardhat.config.ts with Doodle collection params
 ```
 npx hardhat xdeploy
 npx hardhat setupDoodleArgs --e testnet --addr [deployed_address] --network [network_name]
-npx hardhat verifyAll --e testnet --tags Doodle --addr [deployed_address] --network [network_name]
+npx hardhat verifyAll --e testnet --tags Doodle --addr [deployed_address]
 ```

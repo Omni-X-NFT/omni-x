@@ -161,24 +161,24 @@ const config: HardhatUserConfig = {
     salt: 'OMNIXV1',
     signer: process.env.PRIVATE_KEY,
     networks: [
-      // 'goerli',
-      // 'bscTestnet',
-      // 'fuji',
-      // 'mumbai',
-      // 'arbitrumTestnet',
+      'goerli',
+      'bscTestnet',
+      'fuji',
+      'mumbai',
+      'arbitrumTestnet',
       'optimismTestnet',
-      // 'fantomTestnet',
-      // 'moonbaseAlpha'
+      'fantomTestnet',
+      'moonbaseAlpha'
     ],
     rpcUrls: [
-      // 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
-      // 'https://rpc.ankr.com/bsc_testnet_chapel',
-      // 'https://api.avax-test.network/ext/bc/C/rpc',
-      // 'https://rpc.ankr.com/polygon_mumbai',
-      // 'https://convincing-clean-reel.arbitrum-goerli.discover.quiknode.pro/a7679fef301ca865c612a70bf2c98bc17c37135f/',
+      'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+      'https://rpc.ankr.com/bsc_testnet_chapel',
+      'https://api.avax-test.network/ext/bc/C/rpc',
+      'https://rpc.ankr.com/polygon_mumbai',
+      'https://convincing-clean-reel.arbitrum-goerli.discover.quiknode.pro/a7679fef301ca865c612a70bf2c98bc17c37135f/',
       'https://rpc.ankr.com/optimism_testnet',
-      // 'https://rpc.testnet.fantom.network/',
-      // 'https://rpc.testnet.moonbeam.network'
+      'https://rpc.testnet.fantom.network/',
+      'https://rpc.testnet.moonbeam.network'
     ],
     gasLimit: 7 * 10 ** 6
   }

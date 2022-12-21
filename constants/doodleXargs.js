@@ -5,7 +5,7 @@ module.exports = [
   'DOO',
   ethers.constants.AddressZero,
   0,
-  999,
+  0,
   5,
   'ipfs://QmPMc4tcBsMqLRuCQtPmPe84bpSjrC3Ky7t3JWuHXYB4aS/',
   'ipfs://QmPMc4tcBsMqLRuCQtPmPe84bpSjrC3Ky7t3JWuHXYB4aS/',

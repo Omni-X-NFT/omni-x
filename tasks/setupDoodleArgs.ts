@@ -16,7 +16,7 @@ const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom'],
   // testnet: ['goerli', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet']
-  testnet: ['optimism-goerli']
+  testnet: ['goerli', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-goerli', 'optimism-goerli', 'moonbeam_testnet', 'fantom-testnet']
 }
 
 export const setupDoodleArgs = async function (taskArgs: any, hre: any) {
@@ -33,32 +33,35 @@ export const setupDoodleArgs = async function (taskArgs: any, hre: any) {
   const contractInstance = await hre.ethers.getContractAt(contractName, contractAddr, deployer)
 
   try {
-    await (await contractInstance.initialize()).wait()
-    await (await contractInstance.flipPublicSaleStarted()).wait()
-    await (await contractInstance.flipSaleStarted()).wait()
-    await (await contractInstance.flipRevealed()).wait()
-    await (await contractInstance.setMintRange(args.startMintId, args.endMintId, args.maxTokensPerMint)).wait()
-    await (await contractInstance.setLzEndpoint(lzEndpointAddress)).wait()
+    // await (await contractInstance.initialize()).wait()
+    // await (await contractInstance.setLzEndpoint(lzEndpointAddress)).wait()
+    // await (await contractInstance.setStableToken(stableAddr)).wait()
 
-    await (await contractInstance.setPrice(args.price)).wait()
-    await (await contractInstance.setStableToken(stableAddr)).wait()
-
-    if (args.claimable) {
-      await (await contractInstance.startClaim(args.claimableTokenCount, args.claimableCollection)).wait()
-    }
-    
-    // // setTrustedRemote() on the local contract, so it can receive message from the source contract
-    // const trustedRemote = hre.ethers.utils.solidityPack(['address', 'address'], [contractAddr, contractAddr])
-
-    // for (const dstNetwork of networks) {
-    //   if (srcNetwork != dstNetwork) {
-    //     const dstChainId = CHAIN_IDS[dstNetwork]
-    //     const tx = await (await contractInstance.setTrustedRemote(dstChainId, trustedRemote)).wait()
-
-    //     console.log(`✅ [${hre.network.name}] setTrustedRemote(${dstChainId}, ${contractAddr})`)
-    //     console.log(` tx: ${tx.transactionHash}`)
+    // if (args) {
+    //   await (await contractInstance.flipPublicSaleStarted()).wait()
+    //   await (await contractInstance.flipSaleStarted()).wait()
+    //   await (await contractInstance.flipRevealed()).wait()
+    //   await (await contractInstance.setMintRange(args.startMintId, args.endMintId, args.maxTokensPerMint)).wait()
+  
+    //   await (await contractInstance.setPrice(args.price)).wait()
+  
+    //   if (args.claimable) {
+    //     await (await contractInstance.startClaim(args.claimableTokenCount, args.claimableCollection)).wait()
     //   }
+  
     // }
+    // setTrustedRemote() on the local contract, so it can receive message from the source contract
+    const trustedRemote = hre.ethers.utils.solidityPack(['address', 'address'], [contractAddr, contractAddr])
+
+    for (const dstNetwork of networks) {
+      if (srcNetwork != dstNetwork) {
+        const dstChainId = CHAIN_IDS[dstNetwork]
+        const tx = await (await contractInstance.setTrustedRemote(dstChainId, trustedRemote)).wait()
+
+        console.log(`✅ [${hre.network.name}] setTrustedRemote(${dstChainId}, ${contractAddr})`)
+        console.log(` tx: ${tx.transactionHash}`)
+      }
+    }
   } catch (e: any) {
     console.log(e)
   }
