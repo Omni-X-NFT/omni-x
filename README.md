@@ -27,6 +27,7 @@ npx hardhat setAllXTrustedRemote --tag Milady --e testnet --addr [deployed_addre
 npx hardhat verifyAll --e testnet --tags Milady --addr [deployed_address]
 
 0x3ca0FCE5170acB1256EceC68557fd664B2baA390
+0x896CA9931238169186001228ab2D3e060cA21179
 ```
 
 ## Doodle
