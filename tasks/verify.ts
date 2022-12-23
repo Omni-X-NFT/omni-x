@@ -3,6 +3,7 @@ import { getContractAddrByName, toWei } from './shared'
 import { getDeploymentAddresses } from '../utils/readStatic'
 import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
+import GREG_ARGS from '../constants/gregArgs.json'
 
 type ENDPOINT_TYPE = {
   [key: string]: string
@@ -11,9 +12,8 @@ type ENDPOINT_TYPE = {
 const ENDPOINTS: ENDPOINT_TYPE = LZ_ENDPOINTS
 
 const environments: any = {
-  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
-  // testnet: ['fuji', 'mumbai', 'bsc-testnet', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
-  testnet: ['goerli', 'arbitrum-goerli', 'mumbai']
+  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom'],
+  testnet: ['goerli', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet']
 }
 
 export const verifyAll = async function (taskArgs: any, hre: any) {
@@ -28,10 +28,15 @@ export const verifyAll = async function (taskArgs: any, hre: any) {
 
   await Promise.all(
     networks.map(async (network: string) => {
+      // @ts-ignore
+      const aonftArgs = GREG_ARGS[network]
       const address = getDeploymentAddresses(network)[taskArgs.tags]
       const endpointAddr = ENDPOINTS[network]
       if (address) {
-        const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} ${endpointAddr}`
+        // const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} ${endpointAddr}`
+        const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} "${aonftArgs.name}" ${aonftArgs.symbol} ${endpointAddr} ${aonftArgs.startMintId} ${aonftArgs.endMintId} ${aonftArgs.maxTokensPerMint} "${aonftArgs.baseTokenURI}" "${aonftArgs.hiddenURI}"`
+        // const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} "${aonftArgs.name}" ${aonftArgs.symbol} ${endpointAddr} ${aonftArgs.startMintId} ${aonftArgs.endMintId} ${aonftArgs.maxTokensPerMint} "${aonftArgs.baseTokenURI}"`
+        console.log(checkWireUpCommand)
         shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
       }
     })

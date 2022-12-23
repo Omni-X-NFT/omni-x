@@ -61,6 +61,11 @@ const config: HardhatUserConfig = {
       chainId: 4,
       accounts
     },
+    goerli: {
+      url: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
+      chainId: 5,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
     'bsc-testnet': {
       url: 'https://rpc.ankr.com/bsc_testnet_chapel',
       chainId: 97,
@@ -81,32 +86,26 @@ const config: HardhatUserConfig = {
       chainId: 421611,
       accounts
     },
+    'arbitrum-goerli': {
+      url: 'https://goerli-rollup.arbitrum.io/rpc/',
+      chainId: 421613,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
     'optimism-kovan': {
       url: 'https://kovan.optimism.io/',
       chainId: 69,
       accounts
+    },
+    'optimism-goerli': {
+      url: 'https://goerli.optimism.io/',
+      chainId: 420,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     'fantom-testnet': {
       url: 'https://rpc.testnet.fantom.network/',
       chainId: 4002,
       accounts
     },
-    goerli: {
-      url: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
-      chainId: 5,
-      accounts
-    },
-    'arbitrum-goerli': {
-      url: 'https://goerli-rollup.arbitrum.io/rpc/',
-      chainId: 421613,
-      accounts
-    },
-    'optimism-goerli': {
-      url: 'https://goerli.optimism.io/',
-      chainId: 420,
-      accounts
-    },
-
     moonbeam_testnet: {
       url: 'https://rpc.testnet.moonbeam.network',
       accounts,
@@ -127,9 +126,9 @@ const config: HardhatUserConfig = {
       avalancheFujiTestnet: process.env.AVALANCHE_API_KEY || '',
       arbitrumTestnet: process.env.ARBITRUM_API_KEY || '',
       optimisticKovan: process.env.OPTIMISTIC_API_KEY || '',
+      ftmTestnet: process.env.FANTOM_API_KEY || '',
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
       'optimism-goerli': process.env.OPTIMISTIC_API_KEY || ''
-      // ftmTestnet: process.env.FANTOM_API_KEY,
     },
     customChains: [
       {
