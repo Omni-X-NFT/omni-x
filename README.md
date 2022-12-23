@@ -39,4 +39,5 @@ npx hardhat setAllXTrustedRemote --tag Doodle --e testnet --addr [deployed_addre
 npx hardhat verifyAll --e testnet --tags Doodle --addr [deployed_address]
 
 0x531c201be36f36F6Ff142A5f15160815e01cC7A2
+0x314c20Ff9C07De1935eA41eeBa368F03E36f4046
 ```

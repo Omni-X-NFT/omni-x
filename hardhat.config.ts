@@ -105,7 +105,7 @@ const config: HardhatUserConfig = {
       url: 'https://rpc.testnet.moonbeam.network',
       accounts:
           process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-  },
+    },
   },
 
   gasReporter: {
@@ -156,8 +156,8 @@ const config: HardhatUserConfig = {
   },
 
   xdeploy: {
-    contract: 'AdvancedONFT721Gasless',
-    constructorArgsPath: 'constants/miladyXargs.js',
+    contract: 'AdvancedONFT721GaslessClaim',
+    constructorArgsPath: 'constants/doodleXargs.js',
     salt: 'OMNIXV1',
     signer: process.env.PRIVATE_KEY,
     networks: [
