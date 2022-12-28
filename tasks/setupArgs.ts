@@ -20,7 +20,8 @@ const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom'],
-  testnet: ['goerli', 'bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'moonbeam_testnet', 'mumbai', 'fantom-testnet']
+  // testnet: ['goerli', 'bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'moonbeam_testnet', 'mumbai', 'fantom-testnet']
+  testnet: ['bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'moonbeam_testnet', 'mumbai', 'goerli', 'fantom-testnet']
 }
 
 const CONTRACT_NAMES: any = {
