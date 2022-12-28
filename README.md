@@ -54,4 +54,4 @@ npx hardhat setupAllArgs --tag ONFT --e testnet --addr [deployed_address]
 0xb7c7232d052DEfB385AA9d9073c27fc200508578
 
 ## Founder Pirates
-0x4ab2e2C7D6a17962018F1475eCDd012411E7F28F
+0xf4151134C5897C71F0C16D7AD76927c660F78c33
