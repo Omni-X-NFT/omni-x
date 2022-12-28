@@ -157,7 +157,7 @@ const config: HardhatUserConfig = {
 
   xdeploy: {
     contract: 'AdvancedONFT721',
-    constructorArgsPath: 'constants/metroverseXargs.js',
+    constructorArgsPath: 'constants/artGobblerXargs.js',
     salt: 'OMNIXV1',
     signer: process.env.PRIVATE_KEY,
     networks: [
