@@ -52,3 +52,4 @@ npx hardhat verifyAll --e testnet --tags Doodle --addr [deployed_address]
 0xb7c7232d052DEfB385AA9d9073c27fc200508578
 
 ## Founder Pirates
+0x4ab2e2C7D6a17962018F1475eCDd012411E7F28F

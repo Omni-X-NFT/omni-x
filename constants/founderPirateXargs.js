@@ -1,7 +1,7 @@
 const { ethers } = require("ethers");
 
 module.exports = [
-  'Founder Pirates',
+  'FounderPirates',
   'PRA',
   ethers.constants.AddressZero,
   0,

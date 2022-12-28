@@ -18,6 +18,7 @@ const DOODLE_ARGS = require('../constants/doodleXargs.js')
 const METROVERSE_ARGS = require('../constants/metroverseXargs.js')
 const ARTGOBBLER_ARGS = require('../constants/artGobblerXargs.js')
 const TINYDINOS_ARGS = require('../constants/tinyDinosXargs.js')
+const PIRATES_ARGS = require('../constants/founderPirateXargs.js')
 const ENDPOINTS: ENDPOINT_TYPE = LZ_ENDPOINTS
 const stableCoins: ENDPOINT_TYPE = STABLE_COINS
 const ARGS: any = {
@@ -26,6 +27,7 @@ const ARGS: any = {
   'Metroverse': METROVERSE_ARGS,
   'ArtGobbler': ARTGOBBLER_ARGS,
   'Dinos': TINYDINOS_ARGS,
+  'Pirates': PIRATES_ARGS,
   'Milady': MILADY_ARGS,
   'Doodle': DOODLE_ARGS,
   'azuki': AZUKI,
@@ -38,6 +40,7 @@ const CONTRACTS: any = {
   'Metroverse': 'contracts/token/onft/extension/AdvancedONFT721.sol:AdvancedONFT721',
   'ArtGobbler': 'contracts/token/onft/extension/AdvancedONFT721.sol:AdvancedONFT721',
   'Dinos': 'contracts/token/onft/extension/AdvancedONFT721.sol:AdvancedONFT721',
+  'Pirates': 'contracts/token/onft/extension/AdvancedONFT721.sol:AdvancedONFT721',
   'azuki': 'contracts/token/ERC721Vanila.sol:ERC721Vanila',
   'bayc': 'contracts/token/ERC721Vanila.sol:ERC721Vanila',
   'pudgy-penguins': 'contracts/token/ERC721Vanila.sol:ERC721Vanila',
