@@ -46,6 +46,7 @@ npx hardhat verifyAll --e testnet --tags Doodle --addr [deployed_address]
 0x5D09D30D76EBBA528522f9b3c4BD6D861228Bb2b
 
 ## Art Gobblers
+0x2Ad6b001499C99B2b82aD1ED81F0a7A8c6D18fa6
 
 ## Metroverse
 0xb7c7232d052DEfB385AA9d9073c27fc200508578

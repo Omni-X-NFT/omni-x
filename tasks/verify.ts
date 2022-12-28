@@ -15,11 +15,17 @@ type ENDPOINT_TYPE = {
 
 const MILADY_ARGS = require('../constants/miladyXargs.js')
 const DOODLE_ARGS = require('../constants/doodleXargs.js')
+const METROVERSE_ARGS = require('../constants/metroverseXargs.js')
+const ARTGOBBLER_ARGS = require('../constants/artGobblerXargs.js')
+const TINYDINOS_ARGS = require('../constants/tinyDinosXargs.js')
 const ENDPOINTS: ENDPOINT_TYPE = LZ_ENDPOINTS
 const stableCoins: ENDPOINT_TYPE = STABLE_COINS
 const ARGS: any = {
   'KanpaiPandas': KANPA_ARGS,
   'AdvancedONFT721': GREG_ARGS,
+  'Metroverse': METROVERSE_ARGS,
+  'ArtGobbler': ARTGOBBLER_ARGS,
+  'Dinos': TINYDINOS_ARGS,
   'Milady': MILADY_ARGS,
   'Doodle': DOODLE_ARGS,
   'azuki': AZUKI,
@@ -29,6 +35,9 @@ const ARGS: any = {
 const CONTRACTS: any = {
   'KanpaiPandas': 'contracts/token/onft/extension/AdvancedONFT721.sol:AdvancedONFT721',
   'AdvancedONFT721': 'contracts/token/onft/extension/AdvancedONFT721.sol:AdvancedONFT721',
+  'Metroverse': 'contracts/token/onft/extension/AdvancedONFT721.sol:AdvancedONFT721',
+  'ArtGobbler': 'contracts/token/onft/extension/AdvancedONFT721.sol:AdvancedONFT721',
+  'Dinos': 'contracts/token/onft/extension/AdvancedONFT721.sol:AdvancedONFT721',
   'azuki': 'contracts/token/ERC721Vanila.sol:ERC721Vanila',
   'bayc': 'contracts/token/ERC721Vanila.sol:ERC721Vanila',
   'pudgy-penguins': 'contracts/token/ERC721Vanila.sol:ERC721Vanila',
@@ -38,8 +47,8 @@ const CONTRACTS: any = {
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom'],
-  // testnet: ['goerli', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet']
-  testnet: ['goerli']
+  testnet: ['goerli', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet']
+  // testnet: ['goerli']
 }
 
 export const verifyAll = async function (taskArgs: any, hre: any) {
