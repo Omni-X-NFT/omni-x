@@ -3,6 +3,7 @@ import shell from 'shelljs'
 import * as CHAIN_ID from '../constants/chainIds.json'
 import MILADY_ARGS from '../constants/milady.json'
 import DOODLE_ARGS from '../constants/doodle.json'
+import ONFT_ARGS from '../constants/onftArgs.json'
 import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
 import STABLE_COINS from '../constants/usd.json'
 
@@ -14,6 +15,7 @@ const ENDPOINTS: any = LZ_ENDPOINTS
 const STABLECOINS: any = STABLE_COINS
 const MILADYARGS: any = MILADY_ARGS
 const DOODLEARGS: any = DOODLE_ARGS
+const ONFTARGS: any = ONFT_ARGS
 const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
 const environments: any = {
@@ -23,7 +25,8 @@ const environments: any = {
 
 const CONTRACT_NAMES: any = {
   'Milady': 'contracts/token/onft/extension/AdvancedONFT721Gasless.sol:AdvancedONFT721Gasless',
-  'Doodle': 'contracts/token/onft/extension/AdvancedONFT721GaslessClaim.sol:AdvancedONFT721GaslessClaim'
+  'Doodle': 'contracts/token/onft/extension/AdvancedONFT721GaslessClaim.sol:AdvancedONFT721GaslessClaim',
+  'ONFT': 'contracts/token/onft/extension/AdvancedONFT721.sol:AdvancedONFT721'
 }
 
 export const setupMiladyArgs = async function (taskArgs: any, hre: any) {
@@ -85,6 +88,35 @@ export const setupDoodleArgs = async function (taskArgs: any, hre: any) {
       if (args.claimable) {
         await (await contractInstance.startClaim(args.claimableTokenCount, args.claimableCollection)).wait()
       }
+    }
+  } catch (e: any) {
+    console.log(e)
+  }
+}
+
+// Tiny Dinos, Art Gobblers, Metroverse, Founder Pirates
+export const setupONFTArgs = async function (taskArgs: any, hre: any) {
+  const [deployer] = await hre.ethers.getSigners()
+  const {addr, tag} = taskArgs
+
+  const contractAddr = addr
+  const contractName = CONTRACT_NAMES[tag]
+  const srcNetwork = hre.network.name
+  const args = ONFTARGS[srcNetwork]
+  const lzEndpointAddress = ENDPOINTS[srcNetwork]
+  
+  const contractInstance = await hre.ethers.getContractAt(contractName, contractAddr, deployer)
+
+  try {
+    await (await contractInstance.initialize()).wait()
+    await (await contractInstance.setLzEndpoint(lzEndpointAddress)).wait()
+
+    if (args) {
+      await (await contractInstance.flipPublicSaleStarted()).wait()
+      await (await contractInstance.flipSaleStarted()).wait()
+      await (await contractInstance.setMintRange(args.startMintId, args.endMintId, args.maxTokensPerMint)).wait()
+  
+      await (await contractInstance.setPrice(args.price)).wait()
     }
   } catch (e: any) {
     console.log(e)

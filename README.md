@@ -43,6 +43,8 @@ npx hardhat verifyAll --e testnet --tags Doodle --addr [deployed_address]
 ```
 
 ## Tiny Din0s
+npx hardhat setupAllArgs --tag ONFT --e testnet --addr [deployed_address]
+
 0x5D09D30D76EBBA528522f9b3c4BD6D861228Bb2b
 
 ## Art Gobblers

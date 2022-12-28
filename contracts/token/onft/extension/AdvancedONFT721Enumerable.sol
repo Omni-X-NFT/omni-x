@@ -69,6 +69,12 @@ contract AdvancedONFT721Enumerable is ONFT721Enumerable, ReentrancyGuard {
         taxRecipient = payable(_taxRecipient);
     }
 
+    function setMintRange(uint _startMintId, uint _endMintId, uint _maxTokensPerMint) external onlyOwner {
+        nextMintId = _startMintId;
+        maxMintId = _endMintId;
+        maxTokensPerMint = _maxTokensPerMint;
+    }
+
     function setTax(uint _tax) external onlyOwner {
         tax = _tax;
     }

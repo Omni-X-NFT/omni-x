@@ -1,7 +1,7 @@
 import { task } from 'hardhat/config'
 import { setTrustedRemote } from './setTrustedRemote'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
-import { setupMiladyArgs, setupDoodleArgs, setXTrustedRemote, setAllXTrustedRemote, setupAllArgs } from './setupArgs'
+import { setupMiladyArgs, setupDoodleArgs, setXTrustedRemote, setAllXTrustedRemote, setupAllArgs, setupONFTArgs } from './setupArgs'
 import { deployAll } from './deploy'
 import { verifyAll, verifyVanila } from './verify'
 
@@ -49,6 +49,13 @@ task(
 ).addParam('tag', 'testnet or mainnet')
   .addParam('addr', 'Contract address xdeployed')
   
+task(
+  'setupONFTArgs',
+  'setup onft args',
+  setupONFTArgs
+).addParam('tag', 'testnet or mainnet')
+  .addParam('addr', 'Contract address xdeployed')
+
 task(
   'setXTrustedRemote',
   'setup trusted remote for xdeploy contracts',
