@@ -20,7 +20,7 @@ const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom'],
-  testnet: ['goerli', 'bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'mumbai']
+  testnet: ['goerli', 'bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'moonbeam_testnet', 'mumbai', 'fantom-testnet']
 }
 
 const CONTRACT_NAMES: any = {
@@ -108,7 +108,9 @@ export const setupONFTArgs = async function (taskArgs: any, hre: any) {
   const contractInstance = await hre.ethers.getContractAt(contractName, contractAddr, deployer)
 
   try {
+    console.log('-initialize-')
     await (await contractInstance.initialize()).wait()
+    console.log('-lzendpoint-')
     await (await contractInstance.setLzEndpoint(lzEndpointAddress)).wait()
 
     if (args) {

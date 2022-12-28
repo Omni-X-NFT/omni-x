@@ -57,7 +57,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     goerli: {
-      url: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
+      url: 'https://rpc.ankr.com/eth_goerli', // public infura endpoint
       chainId: 5,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
@@ -157,7 +157,7 @@ const config: HardhatUserConfig = {
 
   xdeploy: {
     contract: 'AdvancedONFT721',
-    constructorArgsPath: 'constants/founderPirateXargs.js',
+    constructorArgsPath: 'constants/metroverseXargs.js',
     salt: 'OMNIXV1',
     signer: process.env.PRIVATE_KEY,
     networks: [
@@ -171,7 +171,7 @@ const config: HardhatUserConfig = {
       'fantomTestnet',
     ],
     rpcUrls: [
-      'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+      'https://rpc.ankr.com/eth_goerli',
       'https://rpc.ankr.com/bsc_testnet_chapel',
       'https://api.avax-test.network/ext/bc/C/rpc',
       'https://rpc.ankr.com/polygon_mumbai',
