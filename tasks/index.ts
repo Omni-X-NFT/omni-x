@@ -3,7 +3,7 @@ import { setTrustedRemote } from './setTrustedRemote'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
 import { setupMiladyArgs, setupDoodleArgs, setXTrustedRemote, setAllXTrustedRemote, setupAllArgs } from './setupArgs'
 import { deployAll } from './deploy'
-import { verifyAll } from './verify'
+import { verifyAll, verifyVanila } from './verify'
 
 task(
   'setTrustedRemote',
@@ -72,3 +72,10 @@ task(
 ).addParam('e', 'testnet or mainnet')
   .addParam('tag', 'contract tag')
   .addParam('addr', 'Contract address xdeployed')
+
+task(
+  'verifyVanila',
+  'verify vanila contracts',
+  verifyVanila
+).addParam('tags', 'Contract file name')
+  .addParam('addr', 'Contract address')

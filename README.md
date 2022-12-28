@@ -41,3 +41,13 @@ npx hardhat verifyAll --e testnet --tags Doodle --addr [deployed_address]
 0x531c201be36f36F6Ff142A5f15160815e01cC7A2
 0x314c20Ff9C07De1935eA41eeBa368F03E36f4046
 ```
+
+## Tiny Din0s
+0x5D09D30D76EBBA528522f9b3c4BD6D861228Bb2b
+
+## Art Gobblers
+
+## Metroverse
+0xb7c7232d052DEfB385AA9d9073c27fc200508578
+
+## Founder Pirates

@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 /// @title Interface of the AdvancedONFT standard
 /// @author exakoss
 /// @notice this implementation supports: batch mint, payable public and private mint, reveal of metadata and EIP-2981 on-chain royalties
-contract AdvancedONFT721 is ONFT721Enumerable, ReentrancyGuard {
+contract AdvancedONFT721Enumerable is ONFT721Enumerable, ReentrancyGuard {
     using Strings for uint;
 
     uint public tax = 1000; // 100% = 10000
