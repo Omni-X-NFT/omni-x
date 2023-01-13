@@ -3,6 +3,7 @@ pragma solidity ^0.8;
 
 import "../ONFT1155.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /// @title Interface of the AdvancedONFT standard
@@ -30,10 +31,7 @@ contract AdvancedONFT1155 is ONFT1155, ReentrancyGuard {
     bool public _saleStarted;
     bool revealed;
 
-    mapping (uint256 => uint256) tokenSupply;
-
     /// @notice Constructor for the AdvancedONFT1155
-    /// @param _name the name of the token
     /// @param _layerZeroEndpoint handles message transmission across chains
     /// @param _baseTokenURI the base URI for computing the tokenURI
     /// @param _hiddenURI the URI for computing the hiddenMetadataUri
@@ -58,16 +56,11 @@ contract AdvancedONFT1155 is ONFT1155, ReentrancyGuard {
         taxRecipient = _taxRecipient;
     }
 
-    function setTokenSupply(uint _tokenId, uint _supply) external onlyOwner {
-        tokenSupply[_tokenId] = _supply;
-    }
-
     /// @notice Mint your ONFTs
     function publicMint(uint _tokenId, uint _amount) external payable {
         require(_publicSaleStarted == true, "AdvancedONFT1155: Public sale has not started yet!");
         require(_saleStarted == true, "AdvancedONFT1155: Sale has not started yet!");
         require(_tokenId != 0, "AdvancedONFT1155: Cannot invalid token id!");
-        require(balanceOf(msg.sender, _tokenId) + _amount <= tokenSupply[_tokenId], "AdvancedONFT1155: met total supply");
         require(_amount * price <= msg.value, "AdvancedONFT1155: Inconsistent amount sent!");
 
         _mint(msg.sender, _tokenId, _amount, bytes(""));
@@ -77,7 +70,6 @@ contract AdvancedONFT1155 is ONFT1155, ReentrancyGuard {
     function mint(uint _tokenId, uint _amount, bytes32[] calldata _merkleProof) external payable {
         require(_saleStarted == true, "AdvancedONFT1155: Sale has not started yet!");
         require(_tokenId != 0, "AdvancedONFT1155: Cannot mint 0 tokens!");
-        require(balanceOf(msg.sender, _tokenId) + _amount <= tokenSupply[_tokenId], "AdvancedONFT1155: met total supply");
         require(_amount * price <= msg.value, "AdvancedONFT1155: Inconsistent amount sent!");
 
         bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(_msgSender())));
