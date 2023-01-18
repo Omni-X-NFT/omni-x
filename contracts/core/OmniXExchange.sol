@@ -32,6 +32,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     string private constant SIGNING_DOMAIN = "OmniXExchange";
     string private constant SIGNATURE_VERSION = "1";
     uint16 private constant LZ_ADAPTER_VERSION = 2;
+    uint8 private constant LZ_MESSAGE_ORDER_ASK = 1;
+    uint8 private constant LZ_MESSAGE_ORDER_BID = 2;
+    uint8 private constant LZ_MESSAGE_ORDER_ASK_RESP = 3;
+    uint8 private constant LZ_MESSAGE_ORDER_BID_RESP = 4;
 
     using SafeERC20 for IERC20;
 
@@ -385,7 +389,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         // note: this is executing on TakerChain
         if (maker.isOrderAsk) {
             bytes memory payload = abi.encode(
-                maker.isOrderAsk,
+                LZ_MESSAGE_ORDER_ASK,
                 maker.collection,
                 collection,
                 maker.signer,
@@ -411,7 +415,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             uint256 minPercentageToAsk = taker.minPercentageToAsk;
 
             bytes memory payload = abi.encode(
-                maker.isOrderAsk,
+                LZ_MESSAGE_ORDER_BID,
                 maker.strategy,
                 maker.collection,
                 maker.currency,
@@ -446,6 +450,26 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         require(trustedRemoteLookup[makerChainId].length != 0, "LzSend: destination chain is not a trusted source.");
         (uint256 messageFee, bytes memory payload, bytes memory adapterParams) = _getCrossMessageFeedPayload(destAirdrop, taker, maker);
         lzEndpoint.send{value: messageFee}(makerChainId, trustedRemoteLookup[makerChainId], payload, payable(msg.sender), address(0), adapterParams);
+    }
+
+    function _sendCrossMessageResp(uint8 messageType, uint16 toChainId)
+        internal
+    {
+        require(trustedRemoteLookup[toChainId].length != 0, "LzSend: destination chain is not a trusted source.");
+
+        bytes memory payload = abi.encode(messageType);
+        address destAddress = trustedRemoteLookup[toChainId].toAddress(0);
+        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive, uint256(0), destAddress);
+
+        (uint256 messageFee,) = lzEndpoint.estimateFees(
+            toChainId,
+            address(this),
+            payload,
+            false,
+            adapterParams
+        );
+
+        lzEndpoint.send{value: messageFee}(toChainId, trustedRemoteLookup[toChainId], payload, payable(msg.sender), address(0), adapterParams);
     }
 
     /**
@@ -683,9 +707,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
      */
     function _nonblockingLzReceive(uint16 _srcChainId, bytes memory, uint64, bytes memory _payload) internal virtual override {
         // decode and load the toAddress
-        (bool isOrderAsk) = abi.decode(_payload, (bool));
+        (uint8 lzMessage) = abi.decode(_payload, (uint8));
         
-        if (isOrderAsk) {
+        if (lzMessage == LZ_MESSAGE_ORDER_ASK) {
             (
                 ,
                 address collectionFrom,
@@ -729,8 +753,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 toChainId,
                 nftFee
             );
+
+            _sendCrossMessageResp(LZ_MESSAGE_ORDER_ASK_RESP, toChainId);
         }
-        else {
+        else if (lzMessage == LZ_MESSAGE_ORDER_BID) {
             (
                 ,
                 address strategy,
@@ -777,6 +803,12 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 lzChainId,
                 toChainId
             );
+
+            _sendCrossMessageResp(LZ_MESSAGE_ORDER_BID_RESP, toChainId);
+        }
+        else if (lzMessage == LZ_MESSAGE_ORDER_ASK_RESP) {
+        }
+        else if (lzMessage == LZ_MESSAGE_ORDER_BID_RESP) {
         }
     }
 

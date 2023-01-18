@@ -133,8 +133,8 @@ contract FundManager is IFundManager, Ownable {
                 IERC20(currency).safeTransferFrom(from, to, amount);
             }
             else {
-                bytes memory toAddress = abi.encodePacked(to);
-                bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
+                // bytes memory toAddress = abi.encodePacked(to);
+                // bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
                 
                 // IOFT(currency).sendFrom{value: msg.value}(
                 //     from, toChainId, toAddress, amount, payable(msg.sender), address(0x0), adapterParams
@@ -352,8 +352,8 @@ contract FundManager is IFundManager, Ownable {
             ) {
                 // msv.value = amount + swap fee
                 // stargatePoolManager.swapETH{value: msg.value - amount + finalSellerAmount}(toChainId, payable(msg.sender), finalSellerAmount, toAddr);
-
-                deposit(address(0), address(this), toAddr, toChainId, finalSellerAmount, msg.value - amount + finalSellerAmount);
+                uint256 lzFee = msg.value - amount + finalSellerAmount;
+                deposit(address(0), address(this), toAddr, toChainId, finalSellerAmount, lzFee);
 
             }
             else {
