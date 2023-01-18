@@ -31,6 +31,7 @@ contract FundManager is IFundManager, Ownable {
         uint256 lzFee;
 
     }
+    // currency => to => toChainId => Fund
     mapping (address => mapping (address => mapping (uint16 => Fund))) private _funds;
     uint16 private constant LZ_ADAPTER_VERSION = 1;
     uint256 public gasForOmniLzReceive = 350000;
