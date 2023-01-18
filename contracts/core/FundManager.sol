@@ -23,6 +23,15 @@ import "hardhat/console.sol";
 contract FundManager is IFundManager, Ownable {
     using SafeERC20 for IERC20;
 
+    struct Fund {
+        address from;
+        address to;
+        uint16 toChainId;
+        uint256 amount;
+        uint256 lzFee;
+
+    }
+    mapping (address => mapping (address => mapping (uint16 => Fund))) private _funds;
     uint16 private constant LZ_ADAPTER_VERSION = 1;
     uint256 public gasForOmniLzReceive = 350000;
     OmniXExchange public omnixExchange;
@@ -98,6 +107,15 @@ contract FundManager is IFundManager, Ownable {
         return (protocolFeeAmount, royaltyFeeAmount, finalSellerAmount, royaltyFeeRecipient);
     }
 
+    function deposit(address currency, address from, address to, uint16 toChainId, uint256 amount, uint256 lzFee) private {
+        // if currency is native token, currency is 0x0
+        _funds[currency][to][toChainId].amount += amount;
+        _funds[currency][to][toChainId].lzFee += lzFee;
+        _funds[currency][to][toChainId].from = from;
+        _funds[currency][to][toChainId].to = to;
+        _funds[currency][to][toChainId].toChainId = toChainId;
+    }
+
     function transferCurrency(
         address currency,
         address from,
@@ -117,9 +135,11 @@ contract FundManager is IFundManager, Ownable {
                 bytes memory toAddress = abi.encodePacked(to);
                 bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
                 
-                IOFT(currency).sendFrom{value: msg.value}(
-                    from, toChainId, toAddress, amount, payable(msg.sender), address(0x0), adapterParams
-                );
+                // IOFT(currency).sendFrom{value: msg.value}(
+                //     from, toChainId, toAddress, amount, payable(msg.sender), address(0x0), adapterParams
+                // );
+                IERC20(currency).safeTransferFrom(from, address(this), amount);
+                deposit(currency, from, to, toChainId, amount, msg.value);
             }
         }
         else {
@@ -128,10 +148,14 @@ contract FundManager is IFundManager, Ownable {
                 address(stargatePoolManager) != address(0) &&
                 stargatePoolManager.isSwappable(currency, toChainId)
             ) {
-                stargatePoolManager.swap{value: msg.value}(currency, toChainId, payable(msg.sender), amount, from, to);
+                // stargatePoolManager.swap{value: msg.value}(currency, toChainId, payable(msg.sender), amount, from, to);
+                IERC20(currency).safeTransferFrom(from, address(this), amount);
+                deposit(currency, from, to, toChainId, amount, msg.value);
             }
             else {
-                IERC20(currency).safeTransferFrom(from, to, amount);
+                // IERC20(currency).safeTransferFrom(from, to, amount);
+                IERC20(currency).safeTransferFrom(from, address(this), amount);
+                deposit(currency, from, to, fromChainId, amount, 0);
             }
         }
     }
@@ -229,7 +253,9 @@ contract FundManager is IFundManager, Ownable {
         {
             // Check if the protocol fee is different than 0 for this strategy
             if ((protocolFeeRecipient != address(0)) && (protocolFeeAmount != 0)) {
-                IERC20(currency).safeTransferFrom(from, protocolFeeRecipient, protocolFeeAmount);
+                // IERC20(currency).safeTransferFrom(from, protocolFeeRecipient, protocolFeeAmount);
+                IERC20(currency).safeTransferFrom(from, address(this), protocolFeeAmount);
+                deposit(currency, from, protocolFeeRecipient, fromChainId, protocolFeeAmount, 0);
             }
         }
 
@@ -237,9 +263,11 @@ contract FundManager is IFundManager, Ownable {
         {
             // Check if there is a royalty fee and that it is different to 0
             if ((royaltyFeeRecipient != address(0)) && (royaltyFeeAmount != 0)) {
-                IERC20(currency).safeTransferFrom(from, royaltyFeeRecipient, royaltyFeeAmount);
+                // IERC20(currency).safeTransferFrom(from, royaltyFeeRecipient, royaltyFeeAmount);
+                // emit RoyaltyPayment(collection, tokenId, royaltyFeeRecipient, currency, royaltyFeeAmount);
 
-                emit RoyaltyPayment(collection, tokenId, royaltyFeeRecipient, currency, royaltyFeeAmount);
+                IERC20(currency).safeTransferFrom(from, address(this), royaltyFeeAmount);
+                deposit(currency, from, royaltyFeeRecipient, fromChainId, royaltyFeeAmount, 0);
             }
         }
 
@@ -291,7 +319,9 @@ contract FundManager is IFundManager, Ownable {
         {
             // Check if the protocol fee is different than 0 for this strategy
             if ((protocolFeeRecipient != address(0)) && (protocolFeeAmount != 0)) {
-                payable(protocolFeeRecipient).transfer(protocolFeeAmount);
+                // payable(protocolFeeRecipient).transfer(protocolFeeAmount);
+
+                deposit(address(0), address(this), protocolFeeRecipient, fromChainId, protocolFeeAmount, 0);
             }
         }
 
@@ -299,9 +329,11 @@ contract FundManager is IFundManager, Ownable {
         {
             // Check if there is a royalty fee and that it is different to 0
             if ((royaltyFeeRecipient != address(0)) && (royaltyFeeAmount != 0)) {
-                payable(royaltyFeeRecipient).transfer(royaltyFeeAmount);
+                // payable(royaltyFeeRecipient).transfer(royaltyFeeAmount);
 
-                emit RoyaltyPaymentETH(collection, tokenId, royaltyFeeRecipient, royaltyFeeAmount);
+                // emit RoyaltyPaymentETH(collection, tokenId, royaltyFeeRecipient, royaltyFeeAmount);
+
+                deposit(address(0), address(this), royaltyFeeRecipient, fromChainId, royaltyFeeAmount, 0);
             }
         }
 
@@ -318,10 +350,15 @@ contract FundManager is IFundManager, Ownable {
                 stargatePoolManager.isSwappable(omnixExchange.WETH(), toChainId)
             ) {
                 // msv.value = amount + swap fee
-                stargatePoolManager.swapETH{value: msg.value - amount + finalSellerAmount}(toChainId, payable(msg.sender), finalSellerAmount, toAddr);
+                // stargatePoolManager.swapETH{value: msg.value - amount + finalSellerAmount}(toChainId, payable(msg.sender), finalSellerAmount, toAddr);
+
+                deposit(address(0), address(this), toAddr, toChainId, finalSellerAmount, msg.value - amount + finalSellerAmount);
+
             }
             else {
                 payable(toAddr).transfer(finalSellerAmount);
+
+                deposit(address(0), address(this), toAddr, fromChainId, finalSellerAmount, 0);
             }
         }
     }
