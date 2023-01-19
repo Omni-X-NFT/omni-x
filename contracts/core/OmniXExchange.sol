@@ -235,11 +235,13 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             (uint256 omnixFee, uint256 currencyFee, uint256 nftFee) = getLzFeesForTrading(takerBid, makerAsk, destAirdrop);
             require (omnixFee+ currencyFee + nftFee <= msg.value, "Order: Insufficient value");
 
-            // Execution part 1/2
+            // proxy transfer to dest FundManager.
             _transferFeesAndFundsLz(takerBid, makerAsk, currencyFee);
 
-            // Execution part 2/2
+            // send cross message to dest TransferManager and do trading
             _transferNonFungibleTokenLz(takerBid, makerAsk, destAirdrop);
+
+            // ship or to revert funds on dest chain. refer nonblockingLzReceive.
         }
         
         (uint16 makerChainId) = makerAsk.decodeParams();
@@ -341,11 +343,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             (uint256 omnixFee, uint256 currencyFee, uint256 nftFee) = getLzFeesForTrading(takerAsk, makerBid, destAirdrop);
             require (omnixFee+ currencyFee + nftFee <= msg.value, "Order: Insufficient value");
 
-            // Execution part 1/2
-            _transferNonFungibleTokenLz(takerAsk, makerBid, nftFee);
-
-            // Execution part 2/2
+            // send cross message to dest chain to proxy funds to FundManager
             _transferFeesAndFundsLz(takerAsk, makerBid, destAirdrop);
+
+            // do trading and ship or revert funds on src chain. refer nonblockingLzReceive
         }
         
         (uint16 toChainId) = makerBid.decodeParams();
@@ -800,7 +801,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 uint16
             ));
             
-            _transferNonFungibleTokenLzReceive(
+            try _transferNonFungibleTokenLzReceive(
                 collectionFrom,
                 collectionTo,
                 from,
@@ -810,9 +811,11 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 lzChainId,
                 _srcChainId,
                 nftFee
-            );
-
-            _sendCrossMessageResp(LZ_MESSAGE_ORDER_ASK_RESP, toChainId);
+            ) {
+                fundManager.shipFunds();
+            } catch {
+                fundManager.revertFunds();
+            }
         }
         else if (lzMessage == LZ_MESSAGE_ORDER_BID) {
             (
@@ -839,7 +842,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 uint16
             ));
 
-            try _transferFeesAndFundsLzReceive(
+            _transferFeesAndFundsLzReceive(
                 currency, 
                 from, 
                 to, 
@@ -851,17 +854,18 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 lzChainId, 
                 _srcChainId, 
                 currencyFee
-            ) {
-                _sendCrossMessageResp(LZ_MESSAGE_ORDER_BID_RESP, _srcChainId);
-            } catch {
-                _sendCrossMessageResp(LZ_MESSAGE_ORDER_BID_RESP, _srcChainId);
-            }
+            );
+
+            _sendCrossMessageResp(LZ_MESSAGE_ORDER_BID_RESP, _srcChainId);
         }
         else if (lzMessage == LZ_MESSAGE_ORDER_ASK_RESP) {
-
+            // we don't need this lz message
         }
         else if (lzMessage == LZ_MESSAGE_ORDER_BID_RESP) {
+            // do nft transfer
+            _transferNonFungibleTokenLz(takerAsk, makerBid, nftFee);
 
+            fundManager.shipFunds();
         }
     }
 

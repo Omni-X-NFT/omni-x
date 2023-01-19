@@ -127,16 +127,12 @@ contract FundManager is IFundManager, Ownable {
         return _nextTradingId;
     }
 
-    function _directTransfer(address currency, address from, address to, uint16 toChainId, uint256 amount, uint256 lzFee) private {
-
+    function _shipFunds(uint tradingId) {
+        IERC20(_tradingData[tradingId].currency).safeTransferFrom(address(this), _tradingData[tradingId].to, _tradingData[tradingId].amount);
     }
 
-    function _shipTransfer(uint tradingId) {
-        _tradingData[_nextTradingId];
-    }
-
-    function _revertTransfer(uint tradingId) {
-
+    function _revertFunds(uint tradingId) {
+        IERC20(_tradingData[tradingId].currency).safeTransferFrom(address(this), _tradingData[tradingId].from, _tradingData[tradingId].amount);
     }
 
     function transferCurrency(
