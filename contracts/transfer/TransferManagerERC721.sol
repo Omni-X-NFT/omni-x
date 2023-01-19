@@ -11,8 +11,14 @@ import "hardhat/console.sol";
  * @notice It allows the transfer of ERC721 tokens.
  */
 contract TransferManagerERC721 is TransferManagerLzBase, IERC721Receiver {
-    // to => tokenId => from
-    mapping (address => mapping (uint256 => address)) private _nfts;
+    struct TradingData {
+        address collection;
+        address from;
+        address to;
+        uint tokenId;
+    }
+    mapping (uint => TradingData) _tradingData;
+    uint _nextTradingId;
 
     constructor(address _lzEndpoint) 
         TransferManagerLzBase(_lzEndpoint) {
@@ -52,14 +58,52 @@ contract TransferManagerERC721 is TransferManagerLzBase, IERC721Receiver {
         return false;
     }
 
-    function _normalTransfer(
+    function _proxyTransfer(
+        address collection,
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 
+    ) virtual internal override returns (uint) {
+        ++_nextTradingId;
+
+        _tradingData[_nextTradingId] = TradingData(
+            collection,
+            from,
+            to,
+            tokenId
+        );
+
+        return _nextTradingId;
+    }
+
+    function _directTransfer(
         address collection,
         address from,
         address to,
         uint256 tokenId,
         uint256 
     ) virtual internal override {
-        // IERC721(collection).safeTransferFrom(from, to, tokenId);
-        _nfts[to][tokenId] = from;
+        IERC721(collection).safeTransferFrom(from, to, tokenId);
+    }
+
+    function _shipTransfer(uint tradingId) virtual internal override {
+        IERC721(_tradingData[tradingId].collection).safeTransferFrom(
+            address(this),
+            _tradingData[tradingId].to,
+            _tradingData[tradingId].tokenId
+        );
+
+        delete _tradingData[tradingId];
+    }
+
+    function _revertTransfer(uint tradingId) virtual internal override {
+        IERC721(_tradingData[tradingId].collection).safeTransferFrom(
+            address(this),
+            _tradingData[tradingId].from,
+            _tradingData[tradingId].tokenId
+        );
+
+        delete _tradingData[tradingId];
     }
 }

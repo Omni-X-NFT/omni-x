@@ -699,6 +699,76 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         }
     }
 
+    function _transferFeesAndFundsLzReceive(
+        address currency, 
+        address from, 
+        address to, 
+        address strategy, 
+        address collection, 
+        uint tokenId, 
+        uint price, 
+        uint minPercentageToAsk, 
+        uint16 fromChainId, 
+        uint16 toChainId, 
+        uint currencyFee, 
+    ) private {
+        uint256 currencyFee = fundManager.lzFeeTransferCurrency(
+            currency,
+            to,
+            price,
+            fromChainId,
+            toChainId
+        );
+
+        fundManager.transferFeesAndFunds{value: currencyFee}(
+            strategy,
+            collection,
+            tokenId,
+            currency,
+            from,
+            to,
+            price,
+            minPercentageToAsk,
+            fromChainId,
+            toChainId
+        );
+    }
+
+    function _transferNonFungibleTokenLzReceive(
+        address collectionFrom, 
+        address collectionTo, 
+        address from, 
+        address to, 
+        uint tokenId, 
+        uint amount, 
+        uint16 fromChainId, 
+        uint16 toChainId, 
+        uint nftFee, 
+    ) private {
+        uint256 nftFee = _lzFeeTransferNFT(
+            collectionFrom,
+            collectionTo,
+            from,
+            to,
+            tokenId,
+            amount,
+            fromChainId,
+            toChainId
+        );
+
+        _transferNonFungibleToken(
+            collectionFrom,
+            collectionTo,
+            from,
+            to,
+            tokenId,
+            amount,
+            fromChainId,
+            toChainId,
+            nftFee
+        );
+    }
+
     /**
      * @notice message listener from LayerZero endpoint
      * @param _srcChainId chain id where the message was sent from
@@ -730,8 +800,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 uint16
             ));
             
-            uint16 toChainId = _srcChainId;
-            uint256 nftFee = _lzFeeTransferNFT(
+            _transferNonFungibleTokenLzReceive(
                 collectionFrom,
                 collectionTo,
                 from,
@@ -739,18 +808,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 tokenId,
                 amount,
                 lzChainId,
-                toChainId
-            );
-
-            _transferNonFungibleToken(
-                collectionFrom,
-                collectionTo,
-                from,
-                to,
-                tokenId,
-                amount,
-                lzChainId,
-                toChainId,
+                _srcChainId,
                 nftFee
             );
 
@@ -781,34 +839,29 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 uint16
             ));
 
-            uint16 toChainId = _srcChainId;
-
-            uint256 currencyFee = fundManager.lzFeeTransferCurrency(
-                currency,
-                to,
-                price,
-                lzChainId,
-                toChainId
-            );
-
-            fundManager.transferFeesAndFunds{value: currencyFee}(
-                strategy,
-                collection,
-                tokenId,
-                currency,
-                from,
-                to,
-                price,
-                minPercentageToAsk,
-                lzChainId,
-                toChainId
-            );
-
-            _sendCrossMessageResp(LZ_MESSAGE_ORDER_BID_RESP, toChainId);
+            try _transferFeesAndFundsLzReceive(
+                currency, 
+                from, 
+                to, 
+                strategy, 
+                collection, 
+                tokenId, 
+                price, 
+                minPercentageToAsk, 
+                lzChainId, 
+                _srcChainId, 
+                currencyFee
+            ) {
+                _sendCrossMessageResp(LZ_MESSAGE_ORDER_BID_RESP, _srcChainId);
+            } catch {
+                _sendCrossMessageResp(LZ_MESSAGE_ORDER_BID_RESP, _srcChainId);
+            }
         }
         else if (lzMessage == LZ_MESSAGE_ORDER_ASK_RESP) {
+
         }
         else if (lzMessage == LZ_MESSAGE_ORDER_BID_RESP) {
+
         }
     }
 

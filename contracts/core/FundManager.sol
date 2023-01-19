@@ -23,16 +23,19 @@ import "hardhat/console.sol";
 contract FundManager is IFundManager, Ownable {
     using SafeERC20 for IERC20;
 
-    struct Fund {
+    struct TradingData {
+        address currency;
         address from;
         address to;
+        uint16 fromChainId;
         uint16 toChainId;
         uint256 amount;
         uint256 lzFee;
 
     }
-    // currency => to => toChainId => Fund
-    mapping (address => mapping (address => mapping (uint16 => Fund))) private _funds;
+    // tradingId => TradingData
+    mapping (uint => TradingData) private _tradingData;
+    uint private _nextTradingId;
     uint16 private constant LZ_ADAPTER_VERSION = 1;
     uint256 public gasForOmniLzReceive = 350000;
     OmniXExchange public omnixExchange;
@@ -108,13 +111,32 @@ contract FundManager is IFundManager, Ownable {
         return (protocolFeeAmount, royaltyFeeAmount, finalSellerAmount, royaltyFeeRecipient);
     }
 
-    function deposit(address currency, address from, address to, uint16 toChainId, uint256 amount, uint256 lzFee) private {
+    function _proxyTransfer(address currency, address from, address to, uint16 toChainId, uint256 amount, uint256 lzFee) private returns (uint) {
         // if currency is native token, currency is 0x0
-        _funds[currency][to][toChainId].amount += amount;
-        _funds[currency][to][toChainId].lzFee += lzFee;
-        _funds[currency][to][toChainId].from = from;
-        _funds[currency][to][toChainId].to = to;
-        _funds[currency][to][toChainId].toChainId = toChainId;
+        ++_nextTradingId;
+        _tradingData[_nextTradingId] = TradingData(
+            currency,
+            from,
+            to,
+            fromChainId,
+            toChainId,
+            amount,
+            lzFee
+        );
+
+        return _nextTradingId;
+    }
+
+    function _directTransfer(address currency, address from, address to, uint16 toChainId, uint256 amount, uint256 lzFee) private {
+
+    }
+
+    function _shipTransfer(uint tradingId) {
+        _tradingData[_nextTradingId];
+    }
+
+    function _revertTransfer(uint tradingId) {
+
     }
 
     function transferCurrency(
@@ -130,17 +152,17 @@ contract FundManager is IFundManager, Ownable {
 
         if (currencyManager.isOmniCurrency(currency)) {
             if (fromChainId == toChainId) {
+                // we don't need proxy transfer in this case
                 IERC20(currency).safeTransferFrom(from, to, amount);
             }
             else {
-                // bytes memory toAddress = abi.encodePacked(to);
-                // bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
+                bytes memory toAddress = abi.encodePacked(address(this));
+                bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
                 
-                // IOFT(currency).sendFrom{value: msg.value}(
-                //     from, toChainId, toAddress, amount, payable(msg.sender), address(0x0), adapterParams
-                // );
-                IERC20(currency).safeTransferFrom(from, address(this), amount);
-                deposit(currency, from, to, toChainId, amount, msg.value);
+                IOFT(currency).sendFrom{value: msg.value}(
+                    from, toChainId, toAddress, amount, payable(msg.sender), address(0x0), adapterParams
+                );
+                _proxyTransfer(currency, from, to, fromChainId, toChainId, amount, msg.value);
             }
         }
         else {
@@ -149,14 +171,12 @@ contract FundManager is IFundManager, Ownable {
                 address(stargatePoolManager) != address(0) &&
                 stargatePoolManager.isSwappable(currency, toChainId)
             ) {
-                // stargatePoolManager.swap{value: msg.value}(currency, toChainId, payable(msg.sender), amount, from, to);
-                IERC20(currency).safeTransferFrom(from, address(this), amount);
-                deposit(currency, from, to, toChainId, amount, msg.value);
+                stargatePoolManager.swap{value: msg.value}(currency, toChainId, payable(msg.sender), amount, from, address(this));
+                _proxyTransfer(currency, from, to, fromChainId, toChainId, amount, msg.value);
             }
             else {
-                // IERC20(currency).safeTransferFrom(from, to, amount);
-                IERC20(currency).safeTransferFrom(from, address(this), amount);
-                deposit(currency, from, to, fromChainId, amount, 0);
+                // we don't need proxy transfer in this case
+                IERC20(currency).safeTransferFrom(from, to, amount);
             }
         }
     }
