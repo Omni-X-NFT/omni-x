@@ -14,7 +14,7 @@ import {
   TransferManagerONFT1155,
   StrategyStandardSale,
   Nft721Mock,
-  LRTokenMock,
+  ERC20Mock,
   OFTMock,
   ONFT721Mock,
   ONFT1155,
@@ -26,7 +26,10 @@ import {
   Bridge,
   FundManager,
   StrategyStargateSale,
-  WETH9
+  WETH9,
+  Router,
+  Pool,
+  Factory
 } from '../typechain-types'
 
 const ROYALTY_FEE_LIMIT = 500 // 5%
@@ -46,7 +49,7 @@ export type Chain = {
   fundManager: FundManager
   strategy: StrategyStargateSale
   nftMock: Nft721Mock
-  erc20Mock: LRTokenMock
+  erc20Mock: ERC20Mock
   weth: WETH9
   omni: OFTMock
   onft721: ONFT721Mock
@@ -56,6 +59,9 @@ export type Chain = {
   stargateRouter: IStargateRouter
   stargateBridge: Bridge
   chainId: number
+
+  stargatePool: Pool
+  stargateFactory: Factory
 }
 
 export const toWei = (amount: number | string): BigNumber => {
@@ -77,7 +83,7 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   // layerzero endpoint
   chain.layerZeroEndpoint = await deployContract('LZEndpointMock', owner, [chainId]) as LZEndpointMock
   // normal currency
-  chain.erc20Mock = await deployContract('LRTokenMock', owner, []) as LRTokenMock
+  chain.erc20Mock = await deployContract('ERC20Mock', owner, []) as ERC20Mock
   chain.weth = await deployContract('WETH9', owner, []) as WETH9
 
   // normal nft
@@ -190,4 +196,56 @@ export const prepareTaker = async (chain: Chain, taker: SignerWithAddress) => {
 
   await chain.onft721.mint(taker.address, 10001)
   await chain.onft721.mint(taker.address, 10002)
+}
+
+export const prepareStargate = async (chain: Chain, poolId: number, owner: SignerWithAddress) => {
+  // prepare stargate
+  const stargateRouter = await deployContract('Router', owner, []) as Router
+  const stargateBridge = await deployContract('Bridge', owner, [chain.layerZeroEndpoint.address, stargateRouter.address]) as Bridge
+  const stargateFactory = await deployContract('Factory', owner, [stargateRouter.address]) as Factory
+  const stargateFeeLibrary = await deployContract('StargateFeeLibraryMock', owner, [])
+  await stargateFactory.setDefaultFeeLibrary(stargateFeeLibrary.address)
+  await stargateRouter.setBridgeAndFactory(stargateBridge.address, stargateFactory.address)
+
+  // add pool
+  await stargateRouter.connect(owner).createPool(
+    poolId, chain.erc20Mock.address,
+    18,
+    18,
+    'pool',
+    'SSS')
+
+  // set stargate pool manager to omniXExchange
+  chain.stargatePoolManager = await deployContract('StargatePoolManager', owner, [stargateRouter.address]) as StargatePoolManager
+  await chain.omniXExchange.setStargatePoolManager(chain.stargatePoolManager.address)
+
+  // save stargate router address
+  chain.stargateRouter = stargateRouter
+  chain.stargateBridge = stargateBridge
+}
+
+export const setupChainPath = async (chain: Chain, dstChainId: number, srcPoolId: number, dstPoolId: number, owner: SignerWithAddress) => {
+  // create chain path
+  const stargateRouter = chain.stargateRouter as Router
+  await stargateRouter.createChainPath(srcPoolId, dstChainId, dstPoolId, 1)
+  await stargateRouter.activateChainPath(srcPoolId, dstChainId, dstPoolId)
+
+  // set pool to stargate pool manager
+  await chain.stargatePoolManager.connect(owner).setPoolId(chain.erc20Mock.address, dstChainId, srcPoolId, dstPoolId)
+}
+
+export const setupBridge = async (src: Chain, dst: Chain) => {
+  await src.layerZeroEndpoint.setDestLzEndpoint(dst.stargateBridge.address, dst.layerZeroEndpoint.address)
+  await src.stargateBridge.setBridge(dst.chainId, ethers.utils.solidityPack(['address', 'address'], [dst.stargateBridge.address, src.stargateBridge.address]))
+  await src.stargateBridge.setGasAmount(dst.chainId, 1, 350000)
+  await src.stargateBridge.setGasAmount(dst.chainId, 2, 350000)
+}
+
+export const setupPool = async (chain: Chain, dstChainId: number, srcPoolId: number, dstPoolId: number, owner: SignerWithAddress) => {
+  const stargateRouter = chain.stargateRouter as Router
+
+  await chain.erc20Mock.connect(owner).approve(stargateRouter.address, toWei(100))
+  await stargateRouter.connect(owner).addLiquidity(srcPoolId, toWei(100), owner.address)
+
+  await stargateRouter.sendCredits(dstChainId, srcPoolId, dstPoolId, owner.address, { value: toWei(3) })
 }

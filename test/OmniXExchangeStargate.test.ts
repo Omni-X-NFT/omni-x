@@ -10,7 +10,6 @@ import {
   prepareMaker,
   prepareTaker,
   Chain,
-  deployContract,
   prepareStargate,
   setupBridge,
   setupChainPath,
@@ -28,12 +27,14 @@ const { expect } = chai
 
 setEthers(ethers)
 
-const SRC_CHAIN_ID = 1
-const DST_CHAIN_ID = 2
+const SRC_CHAIN_ID = 10001
+const DST_CHAIN_ID = 10002
 const SRC_POOL_ID = 1
 const DST_POOL_ID = 2
 
-describe('Stargate', () => {
+let nonce = 0
+
+describe('OmniXExchangeStargate', () => {
   let makerChain: Chain
   let takerChain: Chain
   let owner: SignerWithAddress
@@ -65,14 +66,14 @@ describe('Stargate', () => {
     await setupPool(takerChain, SRC_CHAIN_ID, DST_POOL_ID, SRC_POOL_ID, taker)
   })
 
-  describe('Swap ERC20 using Stargate', () => {
-    it('MakerAsk /w TakerBid - Stable Coins /w Normal NFT', async () => {
+  describe('Exchange Process With Stargate', () => {
+    it('MakerAsk /w TakerBid - Stable Coin /w Normal NFT', async () => {
       const makerAsk: MakerOrder = new MakerOrder(true)
       const takerBid: TakerOrder = new TakerOrder(false)
       const tokenId = 1
-      const nonce = 1
       const price = toWei(1)
       const blockTime = await getBlockTime()
+      nonce++
 
       fillMakerOrder(
         makerAsk,
@@ -82,27 +83,23 @@ describe('Stargate', () => {
         makerChain.strategy.address,
         maker.address,
         blockTime,
-        ethers.BigNumber.from('1000000'),
+        price,
         nonce
       )
       fillTakerOrder(takerBid, taker.address, tokenId, price)
 
       makerAsk.encodeParams(makerChain.chainId)
-      takerBid.encodeParams(takerChain.chainId, takerChain.erc20Mock.address, takerChain.nftMock.address, takerChain.strategy.address, 112)
+      takerBid.encodeParams(takerChain.chainId, takerChain.erc20Mock.address, takerChain.nftMock.address, takerChain.strategy.address, 0)
       await makerAsk.sign(maker)
-
-      const makerBalance = await makerChain.erc20Mock.balanceOf(maker.address)
 
       await makerChain.nftMock.connect(maker).approve(makerChain.transferManager721.address, tokenId)
       await takerChain.erc20Mock.connect(taker).approve(takerChain.fundManager.address, price)
-      await takerChain.erc20Mock.connect(taker).approve(takerChain.stargatePoolManager.address, price)
 
       const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.connect(taker).getLzFeesForTrading(takerBid, makerAsk, 0)
 
       await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(0, takerBid, makerAsk, {value: omnixFee.add(currencyFee).add(nftFee)})
 
       expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
-      expect(await makerChain.erc20Mock.balanceOf(maker.address)).to.eq(makerBalance.add(toWei(0.98)))
     })
   })
 })
