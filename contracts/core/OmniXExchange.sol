@@ -181,10 +181,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             require(totalValue <= msg.value, "Order: Msg.value too high");
             
             // Execution part 1/2
-            _transferFeesAndFundsLzWithWETH(takerBid, makerAsk, currencyFee + takerBid.price);
+            uint finalSellerAmount = _transferFeesAndFundsLzWithWETH(takerBid, makerAsk, currencyFee + takerBid.price);
 
             // Execution part 2/2
-            _transferNonFungibleTokenLz(takerBid, makerAsk, destAirdrop);
+            _transferNonFungibleTokenLz(takerBid, makerAsk, destAirdrop, finalSellerAmount);
         }
 
         // maker chain id
@@ -236,10 +236,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             require (omnixFee+ currencyFee + nftFee <= msg.value, "Order: Insufficient value");
 
             // proxy transfer to dest FundManager.
-            _transferFeesAndFundsLz(takerBid, makerAsk, currencyFee);
+            uint finalSellerAmount = _transferFeesAndFundsLz(takerBid, makerAsk, currencyFee);
 
             // send cross message to dest TransferManager and do trading
-            _transferNonFungibleTokenLz(takerBid, makerAsk, destAirdrop);
+            _transferNonFungibleTokenLz(takerBid, makerAsk, destAirdrop, finalSellerAmount);
 
             // ship or to revert funds on dest chain. refer nonblockingLzReceive.
         }
@@ -288,7 +288,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 makerChainId
             );
 
-            (uint256 omnixFee,, ) = _getCrossMessageFeedPayload(destAirdrop, taker, maker);
+            (uint256 omnixFee,, ) = _getCrossMessageFeedPayload(destAirdrop, 0, taker, maker);
 
             // on this taker chain, no NFT transfer fee
             // on the maker chain, there is transfer fee if using TransferManagerONFT
@@ -308,7 +308,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 takerChainId
             );
 
-            (uint256 omnixFee,, ) = _getCrossMessageFeedPayload(destAirdrop, taker, maker);
+            (uint256 omnixFee,, ) = _getCrossMessageFeedPayload(destAirdrop, 0, taker, maker);
 
             // on this taker ask chain, no currency fee because currency transfer tx will be executed on the maker chain
             // on the maker bid chain, there is fee.
@@ -371,13 +371,53 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         );
     }
 
-    function _getCrossMessageFeedPayload(uint destAirdrop, OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker)
+    function _getCrossMessageFeedPayload2(uint destAirdrop, uint finalSellerAmount, OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker)
         internal view returns (uint256, bytes memory, bytes memory)
     {
         (uint16 makerChainId) = maker.decodeParams();
         (uint16 takerChainId,, address collection,,) = taker.decodeParams();
 
         if (makerChainId == takerChainId) {
+            return (0, bytes(""), bytes(""));
+        }
+
+        bytes memory payload = abi.encode(
+            LZ_MESSAGE_ORDER_BID,
+            maker.strategy,
+            maker.collection,
+            maker.currency,
+            taker.taker,
+            taker.tokenId,
+            taker.price,
+            maker.signer,
+            maker.minPercentageToAsk,
+            makerChainId,
+            maker.amount,
+            collection,
+            finalSellerAmount
+        );
+
+        address destAddress = trustedRemoteLookup[makerChainId].toAddress(0);
+        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive, destAirdrop, destAddress);
+
+        (uint256 messageFee,) = lzEndpoint.estimateFees(
+            makerChainId,
+            address(this),
+            payload,
+            false,
+            adapterParams
+        );
+
+        return (messageFee, payload, adapterParams);
+    }
+
+    function _getCrossMessageFeedPayload(uint destAirdrop, uint finalSellerAmount, OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker)
+        internal view returns (uint256, bytes memory, bytes memory)
+    {
+        (uint16 makerChainId) = maker.decodeParams();
+        (uint16 takerChainId, address currency, address collection,,) = taker.decodeParams();
+
+        if (makerChainId == takerChainId || !maker.isOrderAsk) {
             return (0, bytes(""), bytes(""));
         }
 
@@ -388,77 +428,48 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         // send lz message for currency transfering.
 
         // note: this is executing on TakerChain
-        if (maker.isOrderAsk) {
-            bytes memory payload = abi.encode(
-                LZ_MESSAGE_ORDER_ASK,
-                maker.collection,
-                collection,
-                maker.signer,
-                taker.taker,
-                taker.tokenId,
-                maker.amount,
-                makerChainId
-            );
-            address destAddress = trustedRemoteLookup[makerChainId].toAddress(0);
-            bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive, destAirdrop, destAddress);
 
-            (uint256 messageFee,) = lzEndpoint.estimateFees(
-                makerChainId,
-                address(this),
-                payload,
-                false,
-                adapterParams
-            );
+        bytes memory payload = abi.encode(
+            LZ_MESSAGE_ORDER_ASK,
+            finalSellerAmount,
+            maker.collection,
+            collection,
+            maker.signer,
+            taker.taker,
+            taker.tokenId,
+            maker.amount,
+            makerChainId,
+            currency
+        );
+        address destAddress = trustedRemoteLookup[makerChainId].toAddress(0);
+        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive, destAirdrop, destAddress);
 
-            return (messageFee, payload, adapterParams);
-        }
-        else {
-            uint256 minPercentageToAsk = taker.minPercentageToAsk;
+        (uint256 messageFee,) = lzEndpoint.estimateFees(
+            makerChainId,
+            address(this),
+            payload,
+            false,
+            adapterParams
+        );
 
-            bytes memory payload = abi.encode(
-                LZ_MESSAGE_ORDER_BID,
-                maker.strategy,
-                maker.collection,
-                maker.currency,
-                taker.taker,
-                taker.tokenId,
-                taker.price,
-                maker.signer,
-                minPercentageToAsk,
-                makerChainId
-            );
-
-            address destAddress = trustedRemoteLookup[makerChainId].toAddress(0);
-            bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive, destAirdrop, destAddress);
-
-            (uint256 messageFee,) = lzEndpoint.estimateFees(
-                makerChainId,
-                address(this),
-                payload,
-                false,
-                adapterParams
-            );
-
-            return (messageFee, payload, adapterParams);
-        }
+        return (messageFee, payload, adapterParams);
     }
 
-    function _sendCrossMessage(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint destAirdrop)
+    function _sendCrossMessage(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint destAirdrop, uint finalSellerAmount)
         internal
     {
         (uint16 makerChainId) = maker.decodeParams();
 
         require(trustedRemoteLookup[makerChainId].length != 0, "LzSend: destination chain is not a trusted source.");
-        (uint256 messageFee, bytes memory payload, bytes memory adapterParams) = _getCrossMessageFeedPayload(destAirdrop, taker, maker);
+        (uint256 messageFee, bytes memory payload, bytes memory adapterParams) = _getCrossMessageFeedPayload(destAirdrop, finalSellerAmount, taker, maker);
         lzEndpoint.send{value: messageFee}(makerChainId, trustedRemoteLookup[makerChainId], payload, payable(msg.sender), address(0), adapterParams);
     }
 
-    function _sendCrossMessageResp(uint8 messageType, uint16 toChainId)
+    function _sendCrossMessageResp(bytes memory payload, uint16 toChainId)
         internal
     {
         require(trustedRemoteLookup[toChainId].length != 0, "LzSend: destination chain is not a trusted source.");
 
-        bytes memory payload = abi.encode(messageType);
         address destAddress = trustedRemoteLookup[toChainId].toAddress(0);
         bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive, uint256(0), destAddress);
 
@@ -579,7 +590,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         makerOrder.checkValid(orderHash);
     }
 
-    function _transferFeesAndFundsLzWithWETH(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint256 currencyFee) internal {
+    function _transferFeesAndFundsLzWithWETH(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint256 currencyFee) internal returns (uint) {
         (uint16 takerChainId,, address collection, address strategy,) = takerBid.decodeParams();
         (uint16 makerChainId) = makerAsk.decodeParams();
 
@@ -587,26 +598,30 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             strategy,
             collection,
             takerBid.tokenId,
+            takerBid.taker,
             makerAsk.signer,
             takerBid.price,
             makerAsk.minPercentageToAsk,
             takerChainId,
             makerChainId
         );
+
+        (,,uint finalSellerAmount,) = fundManager.getFeesAndFunds(strategy, collection, takerBid.tokenId, takerBid.price);
+        return finalSellerAmount;
     }
 
     /**
      * @notice transfer NFT
      * @param nftFee nft transfer fee or destAirdrop
      */
-    function _transferNonFungibleTokenLz(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint256 nftFee) internal {
+    function _transferNonFungibleTokenLz(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint256 nftFee, uint256 finalSellerAmount) internal {
         (uint16 makerChainId) = maker.decodeParams();
         (uint16 takerChainId,, address collection,,) = taker.decodeParams();
         address from = maker.isOrderAsk ? maker.signer : taker.taker;
         address to = maker.isOrderAsk ? taker.taker : maker.signer;
 
         if (makerChainId != takerChainId && maker.isOrderAsk) {
-            _sendCrossMessage(taker, maker, nftFee);
+            _sendCrossMessage(taker, maker, nftFee, finalSellerAmount);
         }
         else {
             _transferNonFungibleToken(
@@ -670,7 +685,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
      * @notice transfer funds
      * @param currencyFee currency transfer fee or destAirdrop
      */
-    function _transferFeesAndFundsLz(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint256 currencyFee) internal {
+    function _transferFeesAndFundsLz(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint256 currencyFee) internal returns (uint) {
         uint256 tokenId = taker.tokenId;
         address from = maker.isOrderAsk ? taker.taker : maker.signer;
         address to = maker.isOrderAsk ? maker.signer : taker.taker;
@@ -692,26 +707,30 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 takerChainId,
                 makerChainId
             );
+
+            (,,uint finalSellerAmount,) = fundManager.getFeesAndFunds(strategy, collection, tokenId, price);
+            return finalSellerAmount;
         }
         else {
             // taker is ask, maker is bid
             // taker is a seller, maker is a bidder and running on taker chain
-            _sendCrossMessage(taker, maker, currencyFee);
+            _sendCrossMessage(taker, maker, currencyFee, 0);
         }
+
+        return 0;
     }
 
     function _transferFeesAndFundsLzReceive(
+        address strategy, 
+        address collection, 
         address currency, 
         address from, 
         address to, 
-        address strategy, 
-        address collection, 
         uint tokenId, 
         uint price, 
         uint minPercentageToAsk, 
         uint16 fromChainId, 
-        uint16 toChainId, 
-        uint currencyFee, 
+        uint16 toChainId
     ) private {
         uint256 currencyFee = fundManager.lzFeeTransferCurrency(
             currency,
@@ -743,9 +762,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         uint tokenId, 
         uint amount, 
         uint16 fromChainId, 
-        uint16 toChainId, 
-        uint nftFee, 
-    ) private {
+        uint16 toChainId
+    ) external {
         uint256 nftFee = _lzFeeTransferNFT(
             collectionFrom,
             collectionTo,
@@ -781,45 +799,49 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         (uint8 lzMessage) = abi.decode(_payload, (uint8));
         
         if (lzMessage == LZ_MESSAGE_ORDER_ASK) {
-            (
-                ,
-                address collectionFrom,
-                address collectionTo,
-                address from,
-                address to,
-                uint tokenId,
-                uint amount,
-                uint16 lzChainId
-            ) = abi.decode(_payload, (
-                bool,
-                address,
-                address,
-                address,
-                address,
-                uint,
-                uint,
-                uint16
-            ));
-            
-            try _transferNonFungibleTokenLzReceive(
-                collectionFrom,
-                collectionTo,
-                from,
-                to,
-                tokenId,
-                amount,
-                lzChainId,
-                _srcChainId,
-                nftFee
-            ) {
-                fundManager.shipFunds();
-            } catch {
-                fundManager.revertFunds();
-            }
+            // bytes memory subPayload = _payload.slice(0x20, 0);
+            // (
+            //     address collectionFrom,
+            //     address collectionTo,
+            //     address from,
+            //     address to,
+            //     uint tokenId,
+            //     uint amount,
+            //     uint16 lzChainId,
+            //     address currency,
+            //     uint finalSellerAmount
+            // ) = abi.decode(subPayload, (
+            //     address,
+            //     address,
+            //     address,
+            //     address,
+            //     uint,
+            //     uint,
+            //     uint16,
+            //     address,
+            //     uint
+            // ));
+            // uint16 toChainId = _srcChainId;
+            // try this._transferNonFungibleTokenLzReceive(
+            //     collectionFrom,
+            //     collectionTo,
+            //     from,
+            //     to,
+            //     tokenId,
+            //     amount,
+            //     lzChainId,
+            //     toChainId
+            // ) {
+            //     // currency, to, price
+            //     fundManager.shipFunds(currency, to, finalSellerAmount);
+            // } catch {
+            //     // currency, from, price
+            //     fundManager.revertFunds(currency, from, finalSellerAmount);
+            // }
         }
         else if (lzMessage == LZ_MESSAGE_ORDER_BID) {
+            bytes memory subPayload = _payload.slice(0x20, 0);
             (
-                ,
                 address strategy,
                 address collection,
                 address currency,
@@ -829,8 +851,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 address from,
                 uint minPercentageToAsk,
                 uint16 lzChainId
-            ) = abi.decode(_payload, (
-                bool,
+            ) = abi.decode(subPayload, (
                 address,
                 address,
                 address,
@@ -842,30 +863,89 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 uint16
             ));
 
+            uint16 toChainId = _srcChainId;
             _transferFeesAndFundsLzReceive(
+                strategy, 
+                collection, 
                 currency, 
                 from, 
                 to, 
-                strategy, 
-                collection, 
                 tokenId, 
                 price, 
                 minPercentageToAsk, 
                 lzChainId, 
-                _srcChainId, 
-                currencyFee
+                toChainId
             );
 
-            _sendCrossMessageResp(LZ_MESSAGE_ORDER_BID_RESP, _srcChainId);
+            subPayload = _payload.slice(0x20 * 10, 0);
+            (
+                uint amount,
+                address collectionTo,
+                uint finalSellerAmount
+            ) = abi.decode(subPayload, (
+                uint,
+                address,
+                uint
+            ));
+            bytes memory respPayload = abi.encode(
+                LZ_MESSAGE_ORDER_BID_RESP,
+                currency,
+                collection,
+                collectionTo,
+                from,
+                to,
+                tokenId,
+                amount,
+                finalSellerAmount,
+                toChainId
+            );
+            _sendCrossMessageResp(respPayload, toChainId);
         }
         else if (lzMessage == LZ_MESSAGE_ORDER_ASK_RESP) {
             // we don't need this lz message
         }
         else if (lzMessage == LZ_MESSAGE_ORDER_BID_RESP) {
-            // do nft transfer
-            _transferNonFungibleTokenLz(takerAsk, makerBid, nftFee);
+            bytes memory subPayload = _payload.slice(0x20, 0);
+            (
+                address currency,
+                address collectionFrom,
+                address collectionTo,
+                address from,
+                address to,
+                uint tokenId,
+                uint amount,
+                uint finalSellerAmount,
+                uint16 lzChainId
+            ) = abi.decode(subPayload, (
+                address,
+                address,
+                address,
+                address,
+                address,
+                uint,
+                uint,
+                uint,
+                uint16
+            ));
 
-            fundManager.shipFunds();
+            uint16 toChainId = _srcChainId;
+            // do nft transfer
+            try this._transferNonFungibleTokenLzReceive(
+                collectionFrom,
+                collectionTo,
+                from,
+                to,
+                tokenId,
+                amount,
+                lzChainId,
+                toChainId
+            ) {
+                // currency, to, price
+                fundManager.shipFunds(currency, to, finalSellerAmount);
+            } catch {
+                // currency, from, price
+                fundManager.revertFunds(currency, from, finalSellerAmount);
+            }
         }
     }
 

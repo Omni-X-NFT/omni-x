@@ -14,10 +14,6 @@ contract TransferManagerERC721 is TransferManagerLzBase {
         TransferManagerLzBase(_lzEndpoint) {
     }
 
-    function onERC721Received(address, address, uint256, bytes calldata) public virtual override returns (bytes4) {
-        return this.onERC721Received.selector;
-    }
-
     /**
     @dev just transfer the token from maker to taker on maker chain
     */

@@ -51,10 +51,15 @@ interface IFundManager {
         address strategy,
         address collection,
         uint256 tokenId,
+        address from,
         address to,
         uint256 amount,
         uint256 minPercentageToAsk,
         uint16 fromChainId,
         uint16 toChainId
     ) external payable;
+
+    function shipFunds(address currency, address to, uint256 amount) external;
+
+    function revertFunds(address currency, address to, uint256 amount) external;
 }
