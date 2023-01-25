@@ -288,13 +288,13 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 makerChainId
             );
 
-            (uint256 omnixFee,, ) = _getCrossMessageFeedPayload(destAirdrop, 0, taker, maker);
+            (uint256 omnixFee,, ) = _getCrossMessageFeedPayloadAsk(destAirdrop, 0, taker, maker);
 
             // on this taker chain, no NFT transfer fee
             // on the maker chain, there is transfer fee if using TransferManagerONFT
-            uint256 nftFee = 0;
+            // uint256 nftFee = 0;
 
-            return (omnixFee, currencyFee, nftFee);
+            return (omnixFee, currencyFee, uint256(0));
         }
         else {
             uint256 nftFee = _lzFeeTransferNFT(
@@ -308,13 +308,13 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 takerChainId
             );
 
-            (uint256 omnixFee,, ) = _getCrossMessageFeedPayload(destAirdrop, 0, taker, maker);
+            (uint256 omnixFee,, ) = _getCrossMessageFeedPayloadBid(destAirdrop, 0, taker, maker);
 
             // on this taker ask chain, no currency fee because currency transfer tx will be executed on the maker chain
             // on the maker bid chain, there is fee.
-            uint256 currencyFee = 0;
+            // uint256 currencyFee = 0;
 
-            return (omnixFee, currencyFee, nftFee);
+            return (omnixFee, uint256(0), nftFee);
         }
     }
 
@@ -371,16 +371,15 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         );
     }
 
-    function _getCrossMessageFeedPayload2(uint destAirdrop, uint finalSellerAmount, OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker)
+    function _getCrossMessageFeedPayloadBid(uint destAirdrop, uint, OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker)
         internal view returns (uint256, bytes memory, bytes memory)
     {
         (uint16 makerChainId) = maker.decodeParams();
-        (uint16 takerChainId,, address collection,,) = taker.decodeParams();
+        (uint16 takerChainId,,,,) = taker.decodeParams();
 
         if (makerChainId == takerChainId) {
             return (0, bytes(""), bytes(""));
         }
-
         bytes memory payload = abi.encode(
             LZ_MESSAGE_ORDER_BID,
             maker.strategy,
@@ -391,10 +390,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             taker.price,
             maker.signer,
             maker.minPercentageToAsk,
-            makerChainId,
             maker.amount,
-            collection,
-            finalSellerAmount
+            makerChainId
         );
 
         address destAddress = trustedRemoteLookup[makerChainId].toAddress(0);
@@ -411,7 +408,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         return (messageFee, payload, adapterParams);
     }
 
-    function _getCrossMessageFeedPayload(uint destAirdrop, uint finalSellerAmount, OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker)
+    function _getCrossMessageFeedPayloadAsk(uint destAirdrop, uint finalSellerAmount, OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker)
         internal view returns (uint256, bytes memory, bytes memory)
     {
         (uint16 makerChainId) = maker.decodeParams();
@@ -461,8 +458,13 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         (uint16 makerChainId) = maker.decodeParams();
 
         require(trustedRemoteLookup[makerChainId].length != 0, "LzSend: destination chain is not a trusted source.");
-        (uint256 messageFee, bytes memory payload, bytes memory adapterParams) = _getCrossMessageFeedPayload(destAirdrop, finalSellerAmount, taker, maker);
-        lzEndpoint.send{value: messageFee}(makerChainId, trustedRemoteLookup[makerChainId], payload, payable(msg.sender), address(0), adapterParams);
+        if (maker.isOrderAsk) {
+            (uint256 messageFee, bytes memory payload, bytes memory adapterParams) = _getCrossMessageFeedPayloadAsk(destAirdrop, finalSellerAmount, taker, maker);
+            lzEndpoint.send{value: messageFee}(makerChainId, trustedRemoteLookup[makerChainId], payload, payable(msg.sender), address(0), adapterParams);
+        } else {
+            (uint256 messageFee, bytes memory payload, bytes memory adapterParams) = _getCrossMessageFeedPayloadBid(destAirdrop, finalSellerAmount, taker, maker);
+            lzEndpoint.send{value: messageFee}(makerChainId, trustedRemoteLookup[makerChainId], payload, payable(msg.sender), address(0), adapterParams);
+        }
     }
 
     function _sendCrossMessageResp(bytes memory payload, uint16 toChainId)
@@ -731,7 +733,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         uint minPercentageToAsk, 
         uint16 fromChainId, 
         uint16 toChainId
-    ) private {
+    ) private returns (uint) {
         uint256 currencyFee = fundManager.lzFeeTransferCurrency(
             currency,
             to,
@@ -752,6 +754,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             fromChainId,
             toChainId
         );
+
+        (,,uint finalSellerAmount,) = fundManager.getFeesAndFunds(strategy, collection, tokenId, price);
+        return finalSellerAmount;
     }
 
     function _transferNonFungibleTokenLzReceive(
@@ -799,45 +804,45 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         (uint8 lzMessage) = abi.decode(_payload, (uint8));
         
         if (lzMessage == LZ_MESSAGE_ORDER_ASK) {
-            // bytes memory subPayload = _payload.slice(0x20, 0);
-            // (
-            //     address collectionFrom,
-            //     address collectionTo,
-            //     address from,
-            //     address to,
-            //     uint tokenId,
-            //     uint amount,
-            //     uint16 lzChainId,
-            //     address currency,
-            //     uint finalSellerAmount
-            // ) = abi.decode(subPayload, (
-            //     address,
-            //     address,
-            //     address,
-            //     address,
-            //     uint,
-            //     uint,
-            //     uint16,
-            //     address,
-            //     uint
-            // ));
-            // uint16 toChainId = _srcChainId;
-            // try this._transferNonFungibleTokenLzReceive(
-            //     collectionFrom,
-            //     collectionTo,
-            //     from,
-            //     to,
-            //     tokenId,
-            //     amount,
-            //     lzChainId,
-            //     toChainId
-            // ) {
-            //     // currency, to, price
-            //     fundManager.shipFunds(currency, to, finalSellerAmount);
-            // } catch {
-            //     // currency, from, price
-            //     fundManager.revertFunds(currency, from, finalSellerAmount);
-            // }
+            bytes memory subPayload = _payload.slice(0x20, 0);
+            (
+                uint finalSellerAmount,
+                address collectionFrom,
+                address collectionTo,
+                address from,
+                address to,
+                uint tokenId,
+                uint amount,
+                uint16 lzChainId,
+                address currency
+            ) = abi.decode(subPayload, (
+                uint,
+                address,
+                address,
+                address,
+                address,
+                uint,
+                uint,
+                uint16,
+                address
+            ));
+            uint16 toChainId = _srcChainId;
+            try this._transferNonFungibleTokenLzReceive(
+                collectionFrom,
+                collectionTo,
+                from,
+                to,
+                tokenId,
+                amount,
+                lzChainId,
+                toChainId
+            ) {
+                // currency, to, price
+                fundManager.shipFunds(currency, to, finalSellerAmount);
+            } catch {
+                // currency, from, price
+                fundManager.revertFunds(currency, from, finalSellerAmount);
+            }
         }
         else if (lzMessage == LZ_MESSAGE_ORDER_BID) {
             bytes memory subPayload = _payload.slice(0x20, 0);
@@ -850,6 +855,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 uint price,
                 address from,
                 uint minPercentageToAsk,
+                ,
                 uint16 lzChainId
             ) = abi.decode(subPayload, (
                 address,
@@ -860,11 +866,13 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 uint,
                 address,
                 uint,
+                uint,
                 uint16
             ));
 
             uint16 toChainId = _srcChainId;
-            _transferFeesAndFundsLzReceive(
+            subPayload = _payload.slice(0x20 * 8, 0);
+            uint finalSellerAmount = _transferFeesAndFundsLzReceive(
                 strategy, 
                 collection, 
                 currency, 
@@ -877,21 +885,16 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 toChainId
             );
 
-            subPayload = _payload.slice(0x20 * 10, 0);
             (
-                uint amount,
-                address collectionTo,
-                uint finalSellerAmount
+                uint amount
             ) = abi.decode(subPayload, (
-                uint,
-                address,
                 uint
             ));
             bytes memory respPayload = abi.encode(
                 LZ_MESSAGE_ORDER_BID_RESP,
                 currency,
                 collection,
-                collectionTo,
+                address(0x0),
                 from,
                 to,
                 tokenId,
