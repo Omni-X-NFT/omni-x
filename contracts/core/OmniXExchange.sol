@@ -339,6 +339,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
 
         _canExecuteTakerAsk(takerAsk, makerBid);
 
+        (uint16 toChainId) = makerBid.decodeParams();
+        (uint16 fromChainId,,,,) = takerAsk.decodeParams();
+
         {
             (uint256 omnixFee, uint256 currencyFee, uint256 nftFee) = getLzFeesForTrading(takerAsk, makerBid, destAirdrop);
             require (omnixFee+ currencyFee + nftFee <= msg.value, "Order: Insufficient value");
@@ -346,11 +349,12 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             // send cross message to dest chain to proxy funds to FundManager
             _transferFeesAndFundsLz(takerAsk, makerBid, destAirdrop);
 
-            // do trading and ship or revert funds on src chain. refer nonblockingLzReceive
+            // if cross trading,  do trading and ship or revert funds on src chain. refer nonblockingLzReceive
+            // else
+            if (fromChainId == toChainId) {
+                _transferNonFungibleTokenLz(takerAsk, makerBid, destAirdrop, 0);
+            }
         }
-        
-        (uint16 toChainId) = makerBid.decodeParams();
-        (uint16 fromChainId,,,,) = takerAsk.decodeParams();
         
         // Update maker bid order status to true (prevents replay)
         _isUserOrderNonceExecutedOrCancelled[makerBid.signer][toChainId][makerBid.nonce] = true;
