@@ -14,7 +14,7 @@ import {
   TransferManagerONFT1155,
   StrategyStandardSale,
   Nft721Mock,
-  LRTokenMock,
+  ERC20Mock,
   OFTMock,
   ONFT721Mock,
   ONFT1155,
@@ -51,7 +51,7 @@ describe('OmniXExchange', () => {
   let fundManager: FundManager
   let strategy: StrategyStandardSale
   let nftMock: Nft721Mock
-  let erc20Mock: LRTokenMock
+  let erc20Mock: ERC20Mock
   let omni: OFTMock
   let onft721: ONFT721Mock
   let onft1155: ONFT1155
@@ -96,7 +96,7 @@ describe('OmniXExchange', () => {
     layerZeroEndpoint = await deployContract('LZEndpointMock', owner, [await owner.getChainId()]) as LZEndpointMock
 
     // normal currency
-    erc20Mock = await deployContract('LRTokenMock', owner, []) as LRTokenMock
+    erc20Mock = await deployContract('ERC20Mock', owner, []) as ERC20Mock
 
     // normal nft
     nftMock = await deployContract('Nft721Mock', owner, []) as Nft721Mock
