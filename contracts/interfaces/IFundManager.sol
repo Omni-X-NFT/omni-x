@@ -60,6 +60,4 @@ interface IFundManager {
     ) external payable;
 
     function shipFunds(address currency, address to, uint256 amount) external;
-
-    function revertFunds(address currency, address to, uint256 amount) external;
 }

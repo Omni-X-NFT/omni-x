@@ -128,11 +128,23 @@ contract FundManager is IFundManager, Ownable {
     }
 
     function shipFunds(address currency, address to, uint256 amount) external override onlyOmnix() {
-        IERC20(currency).safeTransferFrom(address(this), to, amount);
-    }
+        ICurrencyManager currencyManager = omnixExchange.currencyManager();
+        IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
 
-    function revertFunds(address currency, address to, uint256 amount) external override onlyOmnix() {
-        IERC20(currency).safeTransferFrom(address(this), to, amount);
+        if (currencyManager.isOmniCurrency(currency)) {
+            IERC20(currency).safeTransferFrom(address(this), to, amount);
+        }
+        else {
+            if (
+                address(stargatePoolManager) != address(0) &&
+                stargatePoolManager.isSwappable(currency, toChainId)
+            ) {
+                IERC20(currency).safeTransferFrom(address(this), to, amount);
+            }
+            else {
+                // we don't need proxy transfer in this case
+            }
+        }
     }
 
     function transferCurrency(
