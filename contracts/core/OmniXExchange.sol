@@ -46,7 +46,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     address public immutable WETH;
 
     address public protocolFeeRecipient;
-    uint256 public gasForOmniLzReceive = 800000;
+    uint256 public gasForOmniLzReceive = 900000;
 
     ICurrencyManager public currencyManager;
     IExecutionManager public executionManager;
@@ -844,15 +844,15 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 lzChainId,
                 toChainId
             ) {
-                console.log("_");
-                // currency, to, price
-                fundManager.shipFunds(currency, to, finalSellerAmount);
-                console.log("__");
+                // from is seller, to is buyer
+                // so ship fund to seller.
+                fundManager.shipFunds(currency, from, finalSellerAmount);
             } catch {
                 console.log("_ failed");
 
-                // currency, from, price
-                fundManager.shipFunds(currency, from, finalSellerAmount);
+                // from is seller, to is buyer
+                // so ship fund to seller.
+                fundManager.shipFunds(currency, to, finalSellerAmount);
             }
         }
         else if (lzMessage == LZ_MESSAGE_ORDER_BID) {
@@ -954,11 +954,13 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 lzChainId,
                 toChainId
             ) {
-                // currency, to, price
-                fundManager.shipFunds(currency, to, finalSellerAmount);
-            } catch {
-                // currency, from, price
+                // from is seller, to is buyer
+                // so ship fund to seller.
                 fundManager.shipFunds(currency, from, finalSellerAmount);
+            } catch {
+                // from is seller, to is buyer
+                // so refund back to buyer
+                fundManager.shipFunds(currency, to, finalSellerAmount);
             }
         }
     }

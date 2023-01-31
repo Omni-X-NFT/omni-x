@@ -155,6 +155,7 @@ export const linkChains = async (src: Chain, dst: Chain) => {
   await src.transferManagerGhosts.setTrustedRemoteAddress(await dst.chainId, dst.transferManagerGhosts.address)
   await src.transferManagerONFT1155.setTrustedRemoteAddress(await dst.chainId, dst.transferManagerONFT1155.address)
   await src.omniXExchange.setTrustedRemoteAddress(await dst.chainId, dst.omniXExchange.address)
+  await src.fundManager.setTrustedRemoteAddress(await dst.chainId, dst.fundManager.address)
 }
 
 export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {

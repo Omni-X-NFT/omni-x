@@ -33,6 +33,8 @@ contract FundManager is IFundManager, Ownable {
         uint256 lzFee;
 
     }
+    // lz chain id => fund manager address
+    mapping (uint16 => address) private _trustedRemoteAddress;
     // tradingId => TradingData
     mapping (uint => TradingData) private _tradingData;
     uint private _nextTradingId;
@@ -70,6 +72,10 @@ contract FundManager is IFundManager, Ownable {
 
     function setGasForOmniLZReceive(uint256 gas) external onlyOwner {
         gasForOmniLzReceive = gas;
+    }
+
+    function setTrustedRemoteAddress(uint16 chainId, address _remoteAddress) external onlyOwner {
+        _trustedRemoteAddress[chainId] = _remoteAddress;
     }
 
     /**
@@ -128,23 +134,24 @@ contract FundManager is IFundManager, Ownable {
     }
 
     function shipFunds(address currency, address to, uint256 amount) external override onlyOmnix() {
-        ICurrencyManager currencyManager = omnixExchange.currencyManager();
-        IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
+        IERC20(currency).safeTransfer(to, amount);
+        // ICurrencyManager currencyManager = omnixExchange.currencyManager();
+        // IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
 
-        if (currencyManager.isOmniCurrency(currency)) {
-            IERC20(currency).safeTransferFrom(address(this), to, amount);
-        }
-        else {
-            if (
-                address(stargatePoolManager) != address(0) &&
-                stargatePoolManager.isSwappable(currency, toChainId)
-            ) {
-                IERC20(currency).safeTransferFrom(address(this), to, amount);
-            }
-            else {
-                // we don't need proxy transfer in this case
-            }
-        }
+        // if (currencyManager.isOmniCurrency(currency)) {
+        //     IERC20(currency).safeTransferFrom(address(this), to, amount);
+        // }
+        // else {
+        //     if (
+        //         address(stargatePoolManager) != address(0) &&
+        //         stargatePoolManager.isSwappable(currency, toChainId)
+        //     ) {
+        //         IERC20(currency).safeTransferFrom(address(this), to, amount);
+        //     }
+        //     else {
+        //         // we don't need proxy transfer in this case
+        //     }
+        // }
     }
 
     function transferCurrency(
@@ -158,19 +165,24 @@ contract FundManager is IFundManager, Ownable {
         ICurrencyManager currencyManager = omnixExchange.currencyManager();
         IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
 
+        address remoteAddress = _trustedRemoteAddress[toChainId];
+        if (remoteAddress == address(0)) {
+            remoteAddress = address(this);
+        }
         if (currencyManager.isOmniCurrency(currency)) {
             if (fromChainId == toChainId) {
                 // we don't need proxy transfer in this case
                 IERC20(currency).safeTransferFrom(from, to, amount);
             }
             else {
-                bytes memory toAddress = abi.encodePacked(address(this));
+                bytes memory toAddress = abi.encodePacked(remoteAddress);
                 bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
                 
                 IOFT(currency).sendFrom{value: msg.value}(
-                    from, toChainId, toAddress, amount, payable(from), address(0x0), adapterParams
+                    from, toChainId, toAddress, amount, payable(msg.sender), address(0x0), adapterParams
                 );
-                _proxyTransfer(currency, from, to, fromChainId, toChainId, amount, msg.value);
+
+                // _proxyTransfer(currency, from, to, fromChainId, toChainId, amount, msg.value);
             }
         }
         else {
@@ -179,12 +191,12 @@ contract FundManager is IFundManager, Ownable {
                 address(stargatePoolManager) != address(0) &&
                 stargatePoolManager.isSwappable(currency, toChainId)
             ) {
-                stargatePoolManager.swap{value: msg.value}(currency, toChainId, payable(from), amount, from, address(this));
+                stargatePoolManager.swap{value: msg.value}(currency, toChainId, payable(from), amount, from, remoteAddress);
                 _proxyTransfer(currency, from, to, fromChainId, toChainId, amount, msg.value);
             }
             else {
                 // we don't need proxy transfer in this case
-                IERC20(currency).safeTransferFrom(from, to, amount);
+                revert ("not supported currency");
             }
         }
     }
@@ -373,7 +385,12 @@ contract FundManager is IFundManager, Ownable {
             ) {
                 // msv.value = amount + swap fee
                 uint256 lzFee = msg.value - amount + finalSellerAmount;
-                stargatePoolManager.swapETH{value: lzFee}(toChainId, payable(fromAddr), finalSellerAmount, address(this));
+                address remoteAddress = _trustedRemoteAddress[toChainId];
+                if (remoteAddress == address(0)) {
+                     remoteAddress = address(this);
+                }
+
+                stargatePoolManager.swapETH{value: lzFee}(toChainId, payable(fromAddr), finalSellerAmount, remoteAddress);
                 
                 _proxyTransfer(address(0x0), fromAddr, toAddr, fromChainId, toChainId, finalSellerAmount, lzFee);
 
