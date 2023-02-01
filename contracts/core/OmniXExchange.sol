@@ -473,7 +473,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     {
         (uint16 makerChainId) = maker.decodeParams();
 
-        require(trustedRemoteLookup[makerChainId].length != 0, "LzSend: destination chain is not a trusted source.");
+        require(trustedRemoteLookup[makerChainId].length != 0, "LzSend: dest chain is not trusted.");
         if (maker.isOrderAsk) {
             (uint256 messageFee, bytes memory payload, bytes memory adapterParams) = _getCrossMessageFeedPayloadAsk(destAirdrop, proxyDataId, taker, maker);
             lzEndpoint.send{value: messageFee}(makerChainId, trustedRemoteLookup[makerChainId], payload, payable(msg.sender), address(0), adapterParams);
@@ -486,7 +486,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     function _sendCrossMessageResp(bytes memory payload, uint16 toChainId)
         internal
     {
-        require(trustedRemoteLookup[toChainId].length != 0, "LzSend: destination chain is not a trusted source.");
+        require(trustedRemoteLookup[toChainId].length != 0, "LzSend: dest chain is not trusted.");
 
         address destAddress = trustedRemoteLookup[toChainId].toAddress(0);
         bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive, uint256(0), destAddress);
@@ -507,7 +507,6 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
      * @param _currencyManager new currency manager address
      */
     function updateCurrencyManager(address _currencyManager) external onlyOwner {
-        require(_currencyManager != address(0), "Owner: Cannot be null address");
         currencyManager = ICurrencyManager(_currencyManager);
         emit NewCurrencyManager(_currencyManager);
     }
@@ -517,7 +516,6 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
      * @param _executionManager new execution manager address
      */
     function updateExecutionManager(address _executionManager) external onlyOwner {
-        require(_executionManager != address(0), "Owner: Cannot be null address");
         executionManager = IExecutionManager(_executionManager);
         emit NewExecutionManager(_executionManager);
     }
@@ -536,7 +534,6 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
      * @param _royaltyFeeManager new fee manager address
      */
     function updateRoyaltyFeeManager(address _royaltyFeeManager) external onlyOwner {
-        require(_royaltyFeeManager != address(0), "Owner: Cannot be null address");
         royaltyFeeManager = IRoyaltyFeeManager(_royaltyFeeManager);
         emit NewRoyaltyFeeManager(_royaltyFeeManager);
     }
@@ -546,9 +543,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
      * @param _transferSelectorNFT new transfer selector address
      */
     function updateTransferSelectorNFT(address _transferSelectorNFT) external onlyOwner {
-        require(_transferSelectorNFT != address(0), "Owner: Cannot be null address");
         transferSelectorNFT = ITransferSelectorNFT(_transferSelectorNFT);
-
         emit NewTransferSelectorNFT(_transferSelectorNFT);
     }
 
@@ -586,7 +581,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         address transferManager = transferSelectorNFT.checkTransferManagerForToken(collectionFrom);
 
         // If no transfer manager found, it returns address(0)
-        require(transferManager != address(0), "Transfer: No NFT transfer manager available");
+        require(transferManager != address(0), "Transfer: invalid collection");
 
         ITransferManagerNFT(transferManager).transferNFT{value: nftFee}(collectionFrom, collectionTo, from, to, tokenId, amount, fromChainId, toChainId);
     }
@@ -635,7 +630,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         address transferManager = transferSelectorNFT.checkTransferManagerForToken(collectionFrom);
 
         // If no transfer manager found, it returns address(0)
-        require(transferManager != address(0), "Transfer: No NFT transfer manager available");
+        require(transferManager != address(0), "Transfer: invalid collection");
 
         return transferSelectorNFT.proxyTransferNFT{value: nftFee}(
             collectionFrom,
