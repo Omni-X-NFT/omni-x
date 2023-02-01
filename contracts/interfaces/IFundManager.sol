@@ -59,5 +59,18 @@ interface IFundManager {
         uint16 toChainId
     ) external payable;
 
-    function shipFunds(address currency, address to, uint256 amount) external;
+    function processFunds(uint proxyDataId, uint8 resp) external;
+    function proxyTransfer(
+        uint256 lzFee,
+        uint256 tokenId,
+        address currency,
+        address from,
+        address to,
+        uint256 amount,
+        uint256 minPercentageToAsk,
+        address strategy,
+        address collection,
+        uint16 fromChainId,
+        uint16 toChainId
+    ) external returns (uint);
 }

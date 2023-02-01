@@ -42,7 +42,7 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
      * @param toChainId layerzero remote chain id
      * @dev For ERC721, amount is not used
      */
-    function transferNonFungibleToken(
+    function transferNFT(
         address collectionFrom,
         address collectionTo,
         address from,
@@ -60,6 +60,16 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
                 _crossSendToDst(collectionFrom, collectionTo, from, to, tokenId, amount, toChainId);
             }
         }
+    }
+
+    function proxyTransfer(
+        address collection,
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 amount
+    ) external override {
+        _normalTransfer(collection, from, to, tokenId, amount);
     }
 
     /**

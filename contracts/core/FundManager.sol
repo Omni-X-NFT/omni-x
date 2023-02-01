@@ -23,21 +23,25 @@ import "hardhat/console.sol";
 contract FundManager is IFundManager, Ownable {
     using SafeERC20 for IERC20;
 
-    struct TradingData {
+    struct ProxyData {
+        uint256 lzFee;
+        address strategy;
+        address collection;
+        uint256 tokenId;
         address currency;
         address from;
         address to;
         uint16 fromChainId;
         uint16 toChainId;
         uint256 amount;
-        uint256 lzFee;
+        uint256 minPercentageToAsk;
 
     }
     // lz chain id => fund manager address
     mapping (uint16 => address) private _trustedRemoteAddress;
-    // tradingId => TradingData
-    mapping (uint => TradingData) private _tradingData;
-    uint private _nextTradingId;
+    // proxyDataId => ProxyData
+    mapping (uint => ProxyData) private _proxyData;
+    uint private _nextProxyDataId;
     uint16 private constant LZ_ADAPTER_VERSION = 1;
     uint256 public gasForOmniLzReceive = 350000;
     OmniXExchange public omnixExchange;
@@ -76,6 +80,14 @@ contract FundManager is IFundManager, Ownable {
 
     function setTrustedRemoteAddress(uint16 chainId, address _remoteAddress) external onlyOwner {
         _trustedRemoteAddress[chainId] = _remoteAddress;
+    }
+
+    function _safeTransferFrom(address currency, address from, address to, uint amount) private {
+        if (from == address(this)) {
+            IERC20(currency).safeTransfer(to, amount);
+        } else {
+            IERC20(currency).safeTransferFrom(from, to, amount);
+        }
     }
 
     /**
@@ -117,43 +129,6 @@ contract FundManager is IFundManager, Ownable {
         return (protocolFeeAmount, royaltyFeeAmount, finalSellerAmount, royaltyFeeRecipient);
     }
 
-    function _proxyTransfer(address currency, address from, address to, uint16 fromChainId, uint16 toChainId, uint256 amount, uint256 lzFee) private returns (uint) {
-        // if currency is native token, currency is 0x0
-        ++_nextTradingId;
-        _tradingData[_nextTradingId] = TradingData(
-            currency,
-            from,
-            to,
-            fromChainId,
-            toChainId,
-            amount,
-            lzFee
-        );
-
-        return _nextTradingId;
-    }
-
-    function shipFunds(address currency, address to, uint256 amount) external override onlyOmnix() {
-        IERC20(currency).safeTransfer(to, amount);
-        // ICurrencyManager currencyManager = omnixExchange.currencyManager();
-        // IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
-
-        // if (currencyManager.isOmniCurrency(currency)) {
-        //     IERC20(currency).safeTransferFrom(address(this), to, amount);
-        // }
-        // else {
-        //     if (
-        //         address(stargatePoolManager) != address(0) &&
-        //         stargatePoolManager.isSwappable(currency, toChainId)
-        //     ) {
-        //         IERC20(currency).safeTransferFrom(address(this), to, amount);
-        //     }
-        //     else {
-        //         // we don't need proxy transfer in this case
-        //     }
-        // }
-    }
-
     function transferCurrency(
         address currency,
         address from,
@@ -165,24 +140,17 @@ contract FundManager is IFundManager, Ownable {
         ICurrencyManager currencyManager = omnixExchange.currencyManager();
         IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
 
-        address remoteAddress = _trustedRemoteAddress[toChainId];
-        if (remoteAddress == address(0)) {
-            remoteAddress = address(this);
-        }
         if (currencyManager.isOmniCurrency(currency)) {
             if (fromChainId == toChainId) {
-                // we don't need proxy transfer in this case
-                IERC20(currency).safeTransferFrom(from, to, amount);
+                _safeTransferFrom(currency, from, to, amount);
             }
             else {
-                bytes memory toAddress = abi.encodePacked(remoteAddress);
+                bytes memory toAddress = abi.encodePacked(to);
                 bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
                 
                 IOFT(currency).sendFrom{value: msg.value}(
                     from, toChainId, toAddress, amount, payable(msg.sender), address(0x0), adapterParams
                 );
-
-                // _proxyTransfer(currency, from, to, fromChainId, toChainId, amount, msg.value);
             }
         }
         else {
@@ -191,12 +159,10 @@ contract FundManager is IFundManager, Ownable {
                 address(stargatePoolManager) != address(0) &&
                 stargatePoolManager.isSwappable(currency, toChainId)
             ) {
-                stargatePoolManager.swap{value: msg.value}(currency, toChainId, payable(from), amount, from, remoteAddress);
-                _proxyTransfer(currency, from, to, fromChainId, toChainId, amount, msg.value);
+                stargatePoolManager.swap{value: msg.value}(currency, toChainId, payable(from), amount, from, to);
             }
             else {
-                // we don't need proxy transfer in this case
-                revert ("not supported currency");
+                _safeTransferFrom(currency, from, to, amount);
             }
         }
     }
@@ -281,6 +247,32 @@ contract FundManager is IFundManager, Ownable {
         uint16 fromChainId,
         uint16 toChainId
     ) external payable override onlyOmnix() {
+        _transferFeesAndFunds(
+            strategy,
+            collection,
+            tokenId,
+            currency,
+            from,
+            to,
+            amount,
+            minPercentageToAsk,
+            fromChainId,
+            toChainId
+        );
+    }
+
+    function _transferFeesAndFunds(
+        address strategy,
+        address collection,
+        uint256 tokenId,
+        address currency,
+        address from,
+        address to,
+        uint256 amount,
+        uint256 minPercentageToAsk,
+        uint16 fromChainId,
+        uint16 toChainId
+    ) internal {
         address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
         // Initialize the final amount that is transferred to seller
         (
@@ -294,7 +286,7 @@ contract FundManager is IFundManager, Ownable {
         {
             // Check if the protocol fee is different than 0 for this strategy
             if ((protocolFeeRecipient != address(0)) && (protocolFeeAmount != 0)) {
-                IERC20(currency).safeTransferFrom(from, protocolFeeRecipient, protocolFeeAmount);
+                _safeTransferFrom(currency, from, protocolFeeRecipient, protocolFeeAmount);
             }
         }
 
@@ -302,7 +294,7 @@ contract FundManager is IFundManager, Ownable {
         {
             // Check if there is a royalty fee and that it is different to 0
             if ((royaltyFeeRecipient != address(0)) && (royaltyFeeAmount != 0)) {
-                IERC20(currency).safeTransferFrom(from, royaltyFeeRecipient, royaltyFeeAmount);
+                _safeTransferFrom(currency, from, royaltyFeeRecipient, royaltyFeeAmount);
                 emit RoyaltyPayment(collection, tokenId, royaltyFeeRecipient, currency, royaltyFeeAmount);
             }
         }
@@ -342,6 +334,30 @@ contract FundManager is IFundManager, Ownable {
         uint16 fromChainId,
         uint16 toChainId
     ) external payable override onlyOmnix() {
+        _transferFeesAndFundsWithWETH(
+            strategy,
+            collection,
+            tokenId,
+            from,
+            to,
+            amount,
+            minPercentageToAsk,
+            fromChainId,
+            toChainId
+        );
+    }
+
+    function _transferFeesAndFundsWithWETH(
+        address strategy,
+        address collection,
+        uint256 tokenId,
+        address from,
+        address to,
+        uint256 amount,
+        uint256 minPercentageToAsk,
+        uint16 fromChainId,
+        uint16 toChainId
+    ) private {
         address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
 
         // Initialize the final amount that is transferred to seller
@@ -385,21 +401,93 @@ contract FundManager is IFundManager, Ownable {
             ) {
                 // msv.value = amount + swap fee
                 uint256 lzFee = msg.value - amount + finalSellerAmount;
-                address remoteAddress = _trustedRemoteAddress[toChainId];
-                if (remoteAddress == address(0)) {
-                     remoteAddress = address(this);
-                }
-
-                stargatePoolManager.swapETH{value: lzFee}(toChainId, payable(fromAddr), finalSellerAmount, remoteAddress);
-                
-                _proxyTransfer(address(0x0), fromAddr, toAddr, fromChainId, toChainId, finalSellerAmount, lzFee);
-
+                stargatePoolManager.swapETH{value: lzFee}(toChainId, payable(fromAddr), finalSellerAmount, toAddr);
             }
             else {
-                // payable(toAddr).transfer(finalSellerAmount);
-
-                _proxyTransfer(address(0x0), fromAddr, toAddr, fromChainId, toChainId, finalSellerAmount, 0);
+                payable(toAddr).transfer(finalSellerAmount);
             }
         }
+    }
+
+    function proxyTransfer(
+        uint256 lzFee,
+        uint256 tokenId,
+        address currency,
+        address from,
+        address to,
+        uint256 amount,
+        uint256 minPercentageToAsk,
+        address strategy,
+        address collection,
+        uint16 fromChainId,
+        uint16 toChainId
+    ) public override returns (uint) {
+        // if currency is native token, currency is 0x0
+        ++_nextProxyDataId;
+        _proxyData[_nextProxyDataId] = ProxyData(
+            lzFee,
+            strategy,
+            collection,
+            tokenId,
+            currency,
+            from,
+            to,
+            fromChainId,
+            toChainId,
+            amount,
+            minPercentageToAsk
+        );
+
+        IERC20(currency).safeTransferFrom(from, address(this), amount);
+
+        return _nextProxyDataId;
+    }
+
+    function processFunds(uint proxyDataId, uint8 resp) external override onlyOmnix() {
+        require (_proxyData[proxyDataId].currency != address(0), "proxy funds: invalid data id");
+
+        ProxyData storage data = _proxyData[proxyDataId];
+
+        if (data.currency == omnixExchange.WETH()) {
+            // success
+            if (resp == 1) {
+                // ship funds
+                _transferFeesAndFundsWithWETH(
+                    data.strategy,
+                    data.collection,
+                    data.tokenId,
+                    address(this),
+                    data.to,
+                    data.amount,
+                    data.minPercentageToAsk,
+                    data.fromChainId,
+                    data.toChainId
+                );
+            } else {
+                // revert funds
+                payable(data.from).transfer(data.amount);
+            }
+        } else {
+            // success
+            if (resp == 1) {
+                // ship funds
+                _transferFeesAndFunds(
+                    data.strategy,
+                    data.collection,
+                    data.tokenId,
+                    data.currency,
+                    data.from,
+                    data.to,
+                    data.amount,
+                    data.minPercentageToAsk,
+                    data.fromChainId,
+                    data.toChainId
+                );
+            } else {
+                // revert funds
+                _safeTransferFrom(data.currency, address(this), data.from, data.amount);
+            }
+        }
+        
     }
 }
