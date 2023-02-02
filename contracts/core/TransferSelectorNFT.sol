@@ -3,7 +3,9 @@ pragma solidity ^0.8.0;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import {IERC1155Receiver} from "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 
 import {ITransferSelectorNFT} from "../interfaces/ITransferSelectorNFT.sol";
@@ -148,6 +150,10 @@ contract TransferSelectorNFT is ITransferSelectorNFT, IERC721Receiver, IERC1155R
         return transferManager;
     }
 
+    function is721(address collection) private view returns (bool) {
+        return IERC165(collection).supportsInterface(INTERFACE_ID_ERC721);
+    }
+
     function proxyTransferNFT(
         address collectionFrom,
         address,
@@ -184,6 +190,17 @@ contract TransferSelectorNFT is ITransferSelectorNFT, IERC721Receiver, IERC1155R
 
         ProxyData storage data = _proxyData[proxyDataId];
         address transferManager = checkTransferManagerForToken(data.collection);
+
+        if (is721(data.collection)) {
+            if (!IERC721(data.collection).isApprovedForAll(address(this), transferManager)) {
+                IERC721(data.collection).setApprovalForAll(transferManager, true);
+            }
+        } else {
+            if (!IERC1155(data.collection).isApprovedForAll(address(this), transferManager)) {
+                IERC1155(data.collection).setApprovalForAll(transferManager, true);
+            }
+        }
+
         // success
         if (resp == 1) {
             // ship

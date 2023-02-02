@@ -69,6 +69,7 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
         uint256 tokenId,
         uint256 amount
     ) external override {
+        console.log("proxy nft", collection, to);
         _normalTransfer(collection, from, to, tokenId, amount);
     }
 

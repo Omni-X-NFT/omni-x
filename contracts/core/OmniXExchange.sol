@@ -252,9 +252,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             else {
                 // proxy transfer to dest FundManager.
                 uint proxyDataId = _proxyTransferFunds(takerBid, makerAsk, currencyFee);
-
                 // send cross message to dest TransferManager and do trading
                 _sendCrossMessage(takerBid, makerAsk, destAirdrop, proxyDataId);
+
+                // fundManager.processFunds(proxyDataId, 1);
             }
         }
         
@@ -407,7 +408,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             taker.tokenId,
             taker.price,
             maker.signer,
-            maker.minPercentageToAsk,
+            // maker.minPercentageToAsk,
             makerChainId
         );
 
@@ -499,7 +500,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             adapterParams
         );
 
+        console.log("-", messageFee);
         lzEndpoint.send{value: messageFee}(toChainId, trustedRemoteLookup[toChainId], payload, payable(msg.sender), address(0), adapterParams);
+        console.log("--");
     }
 
     /**
@@ -604,17 +607,17 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     }
 
     function _proxyTransferFunds(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint256 currencyFee) internal returns (uint) {
-        (uint16 takerChainId,, address collection, address strategy,) = takerBid.decodeParams();
+        uint price = takerBid.price;
+        (uint16 takerChainId, address currency, address collection, address strategy,) = takerBid.decodeParams();
         (uint16 makerChainId) = makerAsk.decodeParams();
-
-        return fundManager.proxyTransfer(
+        return fundManager.proxyTransfer{value: currencyFee}(
             currencyFee,
             takerBid.tokenId,
-            makerAsk.currency,
+            currency,
             takerBid.taker,
             makerAsk.signer,
-            takerBid.price,
-            makerAsk.minPercentageToAsk,
+            price,
+            // makerAsk.minPercentageToAsk,
             strategy,
             collection,
             takerChainId,
@@ -655,7 +658,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             takerBid.taker,
             makerAsk.signer,
             takerBid.price,
-            makerAsk.minPercentageToAsk,
+            // makerAsk.minPercentageToAsk,
             takerChainId,
             makerChainId
         );
@@ -736,7 +739,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         address from = maker.isOrderAsk ? taker.taker : maker.signer;
         address to = maker.isOrderAsk ? maker.signer : taker.taker;
         uint256 price = taker.price;
-        uint256 minPercentageToAsk = taker.minPercentageToAsk;
+        // uint256 minPercentageToAsk = taker.minPercentageToAsk;
         (uint16 takerChainId, address currency, address collection, address strategy,) = taker.decodeParams();
         (uint16 makerChainId) = maker.decodeParams();
 
@@ -748,7 +751,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             from,
             to,
             price,
-            minPercentageToAsk,
+            // minPercentageToAsk,
             takerChainId,
             makerChainId
         );
@@ -762,7 +765,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         address to, 
         uint tokenId, 
         uint price, 
-        uint minPercentageToAsk, 
+        // uint minPercentageToAsk, 
         uint16 fromChainId, 
         uint16 toChainId
     ) external {
@@ -782,7 +785,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             from,
             to,
             price,
-            minPercentageToAsk,
+            // minPercentageToAsk,
             fromChainId,
             toChainId
         );
@@ -892,7 +895,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 uint tokenId,
                 uint price,
                 address from,
-                uint minPercentageToAsk,
+                // uint minPercentageToAsk,
                 uint16 lzChainId
             ) = abi.decode(_payload, (
                 uint8,
@@ -904,10 +907,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 uint,
                 uint,
                 address,
-                uint,
+                // uint,
                 uint16
             ));
-
+console.log("cross_bid");
             uint16 toChainId = _srcChainId;
             try this._transferFeesAndFundsLzReceive(
                 strategy, 
@@ -917,7 +920,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 to, 
                 tokenId, 
                 price, 
-                minPercentageToAsk, 
+                // minPercentageToAsk, 
                 lzChainId, 
                 toChainId
             ) {
@@ -950,6 +953,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             fundManager.processFunds(proxyDataId, resp);
         }
         else if (lzMessage == LZ_MESSAGE_ORDER_BID_RESP) {
+            console.log("cross_bid_resp");
             (
                 ,
                 uint proxyDataId,
@@ -961,6 +965,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             ));
 
             transferSelectorNFT.processNFT(proxyDataId, resp);
+            console.log("*");
         }
     }
 

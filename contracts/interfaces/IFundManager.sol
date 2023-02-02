@@ -42,7 +42,7 @@ interface IFundManager {
         address from,
         address to,
         uint256 amount,
-        uint256 minPercentageToAsk,
+        // uint256 minPercentageToAsk,
         uint16 fromChainId,
         uint16 toChainId
     ) external payable;
@@ -54,7 +54,7 @@ interface IFundManager {
         address from,
         address to,
         uint256 amount,
-        uint256 minPercentageToAsk,
+        // uint256 minPercentageToAsk,
         uint16 fromChainId,
         uint16 toChainId
     ) external payable;
@@ -67,10 +67,10 @@ interface IFundManager {
         address from,
         address to,
         uint256 amount,
-        uint256 minPercentageToAsk,
+        // uint256 minPercentageToAsk,
         address strategy,
         address collection,
         uint16 fromChainId,
         uint16 toChainId
-    ) external returns (uint);
+    ) external payable returns (uint);
 }

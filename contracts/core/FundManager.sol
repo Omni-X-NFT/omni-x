@@ -23,6 +23,9 @@ import "hardhat/console.sol";
 contract FundManager is IFundManager, Ownable {
     using SafeERC20 for IERC20;
 
+    uint16 private constant LZ_ADAPTER_VERSION = 1;
+    uint16 private constant MIN_PERCENTAGE_INCOME = 800;
+
     struct ProxyData {
         uint256 lzFee;
         address strategy;
@@ -34,7 +37,7 @@ contract FundManager is IFundManager, Ownable {
         uint16 fromChainId;
         uint16 toChainId;
         uint256 amount;
-        uint256 minPercentageToAsk;
+        // uint256 minPercentageToAsk;
 
     }
     // lz chain id => fund manager address
@@ -42,7 +45,6 @@ contract FundManager is IFundManager, Ownable {
     // proxyDataId => ProxyData
     mapping (uint => ProxyData) private _proxyData;
     uint private _nextProxyDataId;
-    uint16 private constant LZ_ADAPTER_VERSION = 1;
     uint256 public gasForOmniLzReceive = 350000;
     OmniXExchange public omnixExchange;
 
@@ -135,7 +137,8 @@ contract FundManager is IFundManager, Ownable {
         address to,
         uint256 amount,
         uint16 fromChainId,
-        uint16 toChainId
+        uint16 toChainId,
+        uint256 lzFee
     ) internal {
         ICurrencyManager currencyManager = omnixExchange.currencyManager();
         IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
@@ -147,9 +150,11 @@ contract FundManager is IFundManager, Ownable {
             else {
                 bytes memory toAddress = abi.encodePacked(to);
                 bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
-                
-                IOFT(currency).sendFrom{value: msg.value}(
-                    from, toChainId, toAddress, amount, payable(msg.sender), address(0x0), adapterParams
+                console.log(lzFee, address(this), from, to);
+                console.log(address(this).balance);
+                console.log(IOFT(currency).balanceOf(from));
+                IOFT(currency).sendFrom{value: lzFee}(
+                    from, toChainId, toAddress, amount, payable(address(omnixExchange)), address(0x0), adapterParams
                 );
             }
         }
@@ -159,7 +164,7 @@ contract FundManager is IFundManager, Ownable {
                 address(stargatePoolManager) != address(0) &&
                 stargatePoolManager.isSwappable(currency, toChainId)
             ) {
-                stargatePoolManager.swap{value: msg.value}(currency, toChainId, payable(from), amount, from, to);
+                stargatePoolManager.swap{value: lzFee}(currency, toChainId, payable(address(omnixExchange)), amount, from, to);
             }
             else {
                 _safeTransferFrom(currency, from, to, amount);
@@ -232,7 +237,6 @@ contract FundManager is IFundManager, Ownable {
      * @param from sender of the funds
      * @param to seller's recipient
      * @param amount amount being transferred (in currency)
-     * @param minPercentageToAsk minimum percentage of the gross amount that goes to ask
      * @param fromChainId ask chain id
      */
     function transferFeesAndFunds(
@@ -243,7 +247,7 @@ contract FundManager is IFundManager, Ownable {
         address from,
         address to,
         uint256 amount,
-        uint256 minPercentageToAsk,
+        // uint256 minPercentageToAsk,
         uint16 fromChainId,
         uint16 toChainId
     ) external payable override onlyOmnix() {
@@ -255,9 +259,9 @@ contract FundManager is IFundManager, Ownable {
             from,
             to,
             amount,
-            minPercentageToAsk,
-            fromChainId,
-            toChainId
+            // minPercentageToAsk,
+            msg.value,
+            [fromChainId, toChainId]
         );
     }
 
@@ -269,11 +273,12 @@ contract FundManager is IFundManager, Ownable {
         address from,
         address to,
         uint256 amount,
-        uint256 minPercentageToAsk,
-        uint16 fromChainId,
-        uint16 toChainId
+        // uint256 minPercentageToAsk,
+        uint256 msgValue,
+        uint16[2] memory chainIds
     ) internal {
         address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
+
         // Initialize the final amount that is transferred to seller
         (
             uint256 protocolFeeAmount,
@@ -299,7 +304,7 @@ contract FundManager is IFundManager, Ownable {
             }
         }
 
-        require((finalSellerAmount * 10000) >= (minPercentageToAsk * amount), "Fees: Higher than expected");
+        require((finalSellerAmount * 10000) >= (MIN_PERCENTAGE_INCOME * amount), "Fees: Higher than expected");
 
         // 3. Transfer final amount (post-fees) to seller
         {
@@ -308,8 +313,9 @@ contract FundManager is IFundManager, Ownable {
                 from,
                 to,
                 finalSellerAmount,
-                fromChainId,
-                toChainId
+                chainIds[0],
+                chainIds[1],
+                msgValue
             );
         }
     }
@@ -321,7 +327,6 @@ contract FundManager is IFundManager, Ownable {
      * @param tokenId tokenId
      * @param to seller's recipient
      * @param amount amount being transferred (in currency)
-     * @param minPercentageToAsk minimum percentage of the gross amount that goes to ask
      */
     function transferFeesAndFundsWithWETH(
         address strategy,
@@ -330,7 +335,7 @@ contract FundManager is IFundManager, Ownable {
         address from,
         address to,
         uint256 amount,
-        uint256 minPercentageToAsk,
+        // uint256 minPercentageToAsk,
         uint16 fromChainId,
         uint16 toChainId
     ) external payable override onlyOmnix() {
@@ -341,9 +346,10 @@ contract FundManager is IFundManager, Ownable {
             from,
             to,
             amount,
-            minPercentageToAsk,
+            // minPercentageToAsk,
             fromChainId,
-            toChainId
+            toChainId,
+            msg.value
         );
     }
 
@@ -354,9 +360,10 @@ contract FundManager is IFundManager, Ownable {
         address from,
         address to,
         uint256 amount,
-        uint256 minPercentageToAsk,
+        // uint256 minPercentageToAsk,
         uint16 fromChainId,
-        uint16 toChainId
+        uint16 toChainId,
+        uint256 msgValue
     ) private {
         address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
 
@@ -386,7 +393,7 @@ contract FundManager is IFundManager, Ownable {
             }
         }
 
-        require((finalSellerAmount * 10000) >= (minPercentageToAsk * amount), "Fees: Higher than expected");
+        require((finalSellerAmount * 10000) >= (MIN_PERCENTAGE_INCOME * amount), "Fees: Higher than expected");
 
         // 3. Transfer final amount (post-fees) to seller
         address fromAddr = from;
@@ -400,7 +407,7 @@ contract FundManager is IFundManager, Ownable {
                 stargatePoolManager.isSwappable(omnixExchange.WETH(), toChainId)
             ) {
                 // msv.value = amount + swap fee
-                uint256 lzFee = msg.value - amount + finalSellerAmount;
+                uint256 lzFee = msgValue - amount + finalSellerAmount;
                 stargatePoolManager.swapETH{value: lzFee}(toChainId, payable(fromAddr), finalSellerAmount, toAddr);
             }
             else {
@@ -416,12 +423,12 @@ contract FundManager is IFundManager, Ownable {
         address from,
         address to,
         uint256 amount,
-        uint256 minPercentageToAsk,
+        // uint256 minPercentageToAsk,
         address strategy,
         address collection,
         uint16 fromChainId,
         uint16 toChainId
-    ) public override returns (uint) {
+    ) public payable override returns (uint) {
         // if currency is native token, currency is 0x0
         ++_nextProxyDataId;
         _proxyData[_nextProxyDataId] = ProxyData(
@@ -434,11 +441,13 @@ contract FundManager is IFundManager, Ownable {
             to,
             fromChainId,
             toChainId,
-            amount,
-            minPercentageToAsk
+            amount
+            // minPercentageToAsk
         );
 
-        IERC20(currency).safeTransferFrom(from, address(this), amount);
+        if (currency != omnixExchange.WETH()) {
+            IERC20(currency).safeTransferFrom(from, address(this), amount);
+        }
 
         return _nextProxyDataId;
     }
@@ -459,9 +468,10 @@ contract FundManager is IFundManager, Ownable {
                     address(this),
                     data.to,
                     data.amount,
-                    data.minPercentageToAsk,
+                    // data.minPercentageToAsk,
                     data.fromChainId,
-                    data.toChainId
+                    data.toChainId,
+                    data.lzFee
                 );
             } else {
                 // revert funds
@@ -470,19 +480,21 @@ contract FundManager is IFundManager, Ownable {
         } else {
             // success
             if (resp == 1) {
+                console.log("1");
                 // ship funds
                 _transferFeesAndFunds(
                     data.strategy,
                     data.collection,
                     data.tokenId,
                     data.currency,
-                    data.from,
+                    address(this),
                     data.to,
                     data.amount,
-                    data.minPercentageToAsk,
-                    data.fromChainId,
-                    data.toChainId
+                    // data.minPercentageToAsk,
+                    data.lzFee,
+                    [data.fromChainId, data.toChainId]
                 );
+                console.log("2");
             } else {
                 // revert funds
                 _safeTransferFrom(data.currency, address(this), data.from, data.amount);
