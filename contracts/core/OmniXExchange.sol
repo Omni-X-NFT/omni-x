@@ -392,8 +392,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     function _getCrossMessageFeedPayloadBid(uint destAirdrop, uint proxyDataId, OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker)
         internal view returns (uint256, bytes memory, bytes memory)
     {
-        (uint16 makerChainId) = maker.decodeParams();
         (uint16 takerChainId,,,,) = taker.decodeParams();
+        uint256 royaltyFee = maker.getRoyaltyFee();
+        uint16 makerChainId = maker.decodeParams();
 
         if (makerChainId == takerChainId) {
             return (0, bytes(""), bytes(""));
@@ -408,7 +409,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             taker.tokenId,
             taker.price,
             maker.signer,
-            // maker.minPercentageToAsk,
+            royaltyFee,
             makerChainId
         );
 
@@ -500,9 +501,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             adapterParams
         );
 
-        console.log("-", messageFee);
         lzEndpoint.send{value: messageFee}(toChainId, trustedRemoteLookup[toChainId], payload, payable(msg.sender), address(0), adapterParams);
-        console.log("--");
     }
 
     /**
@@ -608,20 +607,20 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
 
     function _proxyTransferFunds(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint256 currencyFee) internal returns (uint) {
         uint price = takerBid.price;
+        address from = takerBid.taker;
+        address to = makerAsk.signer;
+        uint256 royaltyFee = makerAsk.getRoyaltyFee();
+        uint tokenId = takerBid.tokenId;
         (uint16 takerChainId, address currency, address collection, address strategy,) = takerBid.decodeParams();
-        (uint16 makerChainId) = makerAsk.decodeParams();
+        uint16 makerChainId = makerAsk.decodeParams();
         return fundManager.proxyTransfer{value: currencyFee}(
-            currencyFee,
-            takerBid.tokenId,
+            [price, royaltyFee],
+            tokenId,
+            [from, to],
             currency,
-            takerBid.taker,
-            makerAsk.signer,
-            price,
-            // makerAsk.minPercentageToAsk,
             strategy,
             collection,
-            takerChainId,
-            makerChainId
+            [takerChainId, makerChainId]
         );
     }
 
@@ -650,6 +649,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     function _transferFeesAndFundsLzWithWETH(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint256 currencyFee) internal {
         (uint16 takerChainId,, address collection, address strategy,) = takerBid.decodeParams();
         (uint16 makerChainId) = makerAsk.decodeParams();
+        uint256 royaltyFee = makerAsk.getRoyaltyFee();
 
         fundManager.transferFeesAndFundsWithWETH{value: currencyFee}(
             strategy,
@@ -658,7 +658,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             takerBid.taker,
             makerAsk.signer,
             takerBid.price,
-            // makerAsk.minPercentageToAsk,
+            royaltyFee,
             takerChainId,
             makerChainId
         );
@@ -739,9 +739,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         address from = maker.isOrderAsk ? taker.taker : maker.signer;
         address to = maker.isOrderAsk ? maker.signer : taker.taker;
         uint256 price = taker.price;
-        // uint256 minPercentageToAsk = taker.minPercentageToAsk;
+        uint256 royaltyFee = maker.getRoyaltyFee();
         (uint16 takerChainId, address currency, address collection, address strategy,) = taker.decodeParams();
-        (uint16 makerChainId) = maker.decodeParams();
+        uint16 makerChainId = maker.decodeParams();
 
         fundManager.transferFeesAndFunds{value: currencyFee}(
             strategy,
@@ -751,7 +751,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             from,
             to,
             price,
-            // minPercentageToAsk,
+            royaltyFee,
             takerChainId,
             makerChainId
         );
@@ -765,7 +765,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         address to, 
         uint tokenId, 
         uint price, 
-        // uint minPercentageToAsk, 
+        uint royaltyFee, 
         uint16 fromChainId, 
         uint16 toChainId
     ) external {
@@ -785,7 +785,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             from,
             to,
             price,
-            // minPercentageToAsk,
+            royaltyFee,
             fromChainId,
             toChainId
         );
@@ -895,7 +895,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 uint tokenId,
                 uint price,
                 address from,
-                // uint minPercentageToAsk,
+                uint royaltyFee,
                 uint16 lzChainId
             ) = abi.decode(_payload, (
                 uint8,
@@ -907,10 +907,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 uint,
                 uint,
                 address,
-                // uint,
+                uint,
                 uint16
             ));
-console.log("cross_bid");
+
             uint16 toChainId = _srcChainId;
             try this._transferFeesAndFundsLzReceive(
                 strategy, 
@@ -920,7 +920,7 @@ console.log("cross_bid");
                 to, 
                 tokenId, 
                 price, 
-                // minPercentageToAsk, 
+                royaltyFee, 
                 lzChainId, 
                 toChainId
             ) {
@@ -953,7 +953,6 @@ console.log("cross_bid");
             fundManager.processFunds(proxyDataId, resp);
         }
         else if (lzMessage == LZ_MESSAGE_ORDER_BID_RESP) {
-            console.log("cross_bid_resp");
             (
                 ,
                 uint proxyDataId,
@@ -965,7 +964,6 @@ console.log("cross_bid");
             ));
 
             transferSelectorNFT.processNFT(proxyDataId, resp);
-            console.log("*");
         }
     }
 

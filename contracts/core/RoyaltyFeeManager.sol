@@ -34,7 +34,8 @@ contract RoyaltyFeeManager is IRoyaltyFeeManager, Ownable {
     function calculateRoyaltyFeeAndGetRecipient(
         address collection,
         uint256 tokenId,
-        uint256 amount
+        uint256 amount,
+        uint256 royaltyFee
     ) external view override returns (address, uint256) {
         // 1. Check if there is a royalty info in the system
         (address receiver, uint256 royaltyAmount) = royaltyFeeRegistry.royaltyInfo(collection, amount);
