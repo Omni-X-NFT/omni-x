@@ -105,8 +105,7 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   chain.executionManager = await deployContract('ExecutionManager', owner, []) as ExecutionManager
 
   // royalty fee manager
-  const royaltyFeeRegistry = await deployContract('RoyaltyFeeRegistry', owner, [ROYALTY_FEE_LIMIT])
-  chain.royaltyFeeManager = await deployContract('RoyaltyFeeManager', owner, [royaltyFeeRegistry.address]) as RoyaltyFeeManager
+  chain.royaltyFeeManager = await deployContract('RoyaltyFeeManager', owner, []) as RoyaltyFeeManager
 
   // looks rare exchange
   chain.omniXExchange = await deployContract('OmniXExchange', owner, [
@@ -165,6 +164,8 @@ export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
   await chain.omniXExchange.updateTransferSelectorNFT(chain.transferSelector.address)
 
   // normal currency and normal nft, mint token#1, #2, #3
+  await chain.nftMock.mint(maker.address)
+  await chain.nftMock.mint(maker.address)
   await chain.nftMock.mint(maker.address)
   await chain.nftMock.mint(maker.address)
   await chain.nftMock.mint(maker.address)

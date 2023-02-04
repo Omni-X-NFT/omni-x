@@ -17,7 +17,7 @@ interface IFundManager {
         address collection,
         uint256 tokenId,
         uint256 amount,
-        uint256 royaltyFee
+        bytes memory royaltyInfo
     ) external view returns(uint256, uint256, uint256, address);
 
     /**
@@ -43,9 +43,9 @@ interface IFundManager {
         address from,
         address to,
         uint256 amount,
-        uint256 royaltyFee,
         uint16 fromChainId,
-        uint16 toChainId
+        uint16 toChainId,
+        bytes memory royaltyInfo
     ) external payable;
 
     function transferFeesAndFundsWithWETH(
@@ -55,20 +55,19 @@ interface IFundManager {
         address from,
         address to,
         uint256 amount,
-        uint256 royaltyFee,
         uint16 fromChainId,
-        uint16 toChainId
+        uint16 toChainId,
+        bytes memory royaltyInfo
     ) external payable;
 
     function processFunds(uint proxyDataId, uint8 resp) external;
 
     function proxyTransfer(
-        uint256[2] memory amounts,
+        bytes memory royaltyInfo,
+        uint256 amount,
         uint256 tokenId,
         address[2] memory operators,
-        address currency,
-        address strategy,
-        address collection,
+        address[3] memory addresses,
         uint16[2] memory chainIds
     ) external payable returns (uint);
 }

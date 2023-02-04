@@ -37,7 +37,7 @@ contract FundManager is IFundManager, Ownable {
         uint16 fromChainId;
         uint16 toChainId;
         uint256 amount;
-        uint256 royaltyFee;
+        bytes royaltyInfo;
 
     }
     // lz chain id => fund manager address
@@ -104,7 +104,7 @@ contract FundManager is IFundManager, Ownable {
         address collection,
         uint256 tokenId,
         uint256 amount,
-        uint256 royaltyFee
+        bytes memory royaltyInfo
     ) public view override returns(uint256, uint256, uint256, address) {
         address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
         address royaltyFeeManager = address(omnixExchange.royaltyFeeManager());
@@ -122,7 +122,7 @@ contract FundManager is IFundManager, Ownable {
 
         // 2. Royalty fee
         (address royaltyFeeRecipient, uint256 royaltyFeeAmount) = IRoyaltyFeeManager(royaltyFeeManager)
-            .calculateRoyaltyFeeAndGetRecipient(collection, tokenId, amount);
+            .calculateRoyaltyFeeAndGetRecipient(collection, tokenId, amount, royaltyInfo);
 
         // Check if there is a royalty fee and that it is different to 0
         if ((royaltyFeeRecipient != address(0)) && (royaltyFeeAmount != 0)) {
@@ -151,9 +151,7 @@ contract FundManager is IFundManager, Ownable {
             else {
                 bytes memory toAddress = abi.encodePacked(to);
                 bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
-                console.log(lzFee, address(this), from, to);
-                console.log(address(this).balance);
-                console.log(IOFT(currency).balanceOf(from));
+
                 IOFT(currency).sendFrom{value: lzFee}(
                     from, toChainId, toAddress, amount, payable(address(omnixExchange)), address(0x0), adapterParams
                 );
@@ -248,9 +246,9 @@ contract FundManager is IFundManager, Ownable {
         address from,
         address to,
         uint256 amount,
-        uint256 royaltyFee,
         uint16 fromChainId,
-        uint16 toChainId
+        uint16 toChainId,
+        bytes memory royaltyInfo
     ) external payable override onlyOmnix() {
         _transferFeesAndFunds(
             strategy,
@@ -258,13 +256,14 @@ contract FundManager is IFundManager, Ownable {
             tokenId,
             currency,
             [from, to],
-            [amount, msg.value, royaltyFee],
-            [fromChainId, toChainId]
+            [amount, msg.value],
+            [fromChainId, toChainId],
+            royaltyInfo
         );
     }
 
     /// @param operators [0]: from, [1]: to
-    /// @param amounts [0]: amount, [1]: msgValue, [2]: royaltyFee
+    /// @param amounts [0]: amount, [1]: msgValue
     /// @param chainIds [0]: fromChainId, [1]: toChainId
     function _transferFeesAndFunds(
         address strategy,
@@ -272,8 +271,9 @@ contract FundManager is IFundManager, Ownable {
         uint256 tokenId,
         address currency,
         address[2] memory operators,
-        uint256[3] memory amounts,
-        uint16[2] memory chainIds
+        uint256[2] memory amounts,
+        uint16[2] memory chainIds,
+        bytes memory royaltyInfo
     ) internal {
         address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
 
@@ -283,7 +283,7 @@ contract FundManager is IFundManager, Ownable {
             uint256 royaltyFeeAmount,
             uint256 finalSellerAmount,
             address royaltyFeeRecipient
-        ) = getFeesAndFunds(strategy, collection, tokenId, amounts[0], amounts[2]);
+        ) = getFeesAndFunds(strategy, collection, tokenId, amounts[0], royaltyInfo);
 
         // 1. Protocol fee
         {
@@ -333,9 +333,9 @@ contract FundManager is IFundManager, Ownable {
         address from,
         address to,
         uint256 amount,
-        uint256 royaltyFee,
         uint16 fromChainId,
-        uint16 toChainId
+        uint16 toChainId,
+        bytes memory royaltyInfo
     ) external payable override onlyOmnix() {
         _transferFeesAndFundsWithWETH(
             strategy,
@@ -344,10 +344,10 @@ contract FundManager is IFundManager, Ownable {
             from,
             to,
             amount,
-            royaltyFee,
             fromChainId,
             toChainId,
-            msg.value
+            msg.value,
+            royaltyInfo
         );
     }
 
@@ -358,10 +358,10 @@ contract FundManager is IFundManager, Ownable {
         address from,
         address to,
         uint256 amount,
-        uint256 royaltyFee,
         uint16 fromChainId,
         uint16 toChainId,
-        uint256 msgValue
+        uint256 msgValue,
+        bytes memory royaltyInfo
     ) private {
         address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
 
@@ -371,7 +371,7 @@ contract FundManager is IFundManager, Ownable {
             uint256 royaltyFeeAmount,
             uint256 finalSellerAmount,
             address royaltyFeeRecipient
-        ) = getFeesAndFunds(strategy, collection, tokenId, amount, royaltyFee);
+        ) = getFeesAndFunds(strategy, collection, tokenId, amount, royaltyInfo);
 
         // 1. Protocol fee
         {
@@ -414,33 +414,33 @@ contract FundManager is IFundManager, Ownable {
         }
     }
 
+    /// @param addresses [0]: currency, [1]: strategy, [2]: collection
     function proxyTransfer(
-        uint256[2] memory amounts,
+        bytes memory royaltyInfo,
+        uint256 amount,
         uint256 tokenId,
         address[2] memory operators,
-        address currency,
-        address strategy,
-        address collection,
+        address[3] memory addresses,
         uint16[2] memory chainIds
     ) public payable override returns (uint) {
         // if currency is native token, currency is 0x0
         ++_nextProxyDataId;
         _proxyData[_nextProxyDataId] = ProxyData(
             msg.value,
-            strategy,
-            collection,
+            addresses[1],
+            addresses[2],
             tokenId,
-            currency,
+            addresses[0],
             operators[0],
             operators[1],
             chainIds[0],
             chainIds[1],
-            amounts[0],
-            amounts[1]
+            amount,
+            royaltyInfo
         );
 
-        if (currency != omnixExchange.WETH()) {
-            IERC20(currency).safeTransferFrom(operators[0], address(this), amounts[0]);
+        if (addresses[0] != omnixExchange.WETH()) {
+            IERC20(addresses[0]).safeTransferFrom(operators[0], address(this), amount);
         }
 
         return _nextProxyDataId;
@@ -462,10 +462,10 @@ contract FundManager is IFundManager, Ownable {
                     address(this),
                     data.to,
                     data.amount,
-                    data.royaltyFee,
                     data.fromChainId,
                     data.toChainId,
-                    data.lzFee
+                    data.lzFee,
+                    data.royaltyInfo
                 );
             } else {
                 // revert funds
@@ -474,7 +474,6 @@ contract FundManager is IFundManager, Ownable {
         } else {
             // success
             if (resp == 1) {
-                console.log("1");
                 // ship funds
                 _transferFeesAndFunds(
                     data.strategy,
@@ -482,10 +481,10 @@ contract FundManager is IFundManager, Ownable {
                     data.tokenId,
                     data.currency,
                     [address(this), data.to],
-                    [data.amount, data.lzFee, data.royaltyFee],
-                    [data.fromChainId, data.toChainId]
+                    [data.amount, data.lzFee],
+                    [data.fromChainId, data.toChainId],
+                    data.royaltyInfo
                 );
-                console.log("2");
             } else {
                 // revert funds
                 _safeTransferFrom(data.currency, address(this), data.from, data.amount);

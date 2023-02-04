@@ -22,7 +22,7 @@ import {IOFT} from "../token/oft/IOFT.sol";
 
 import {OrderTypes} from "../libraries/OrderTypes.sol";
 import {BytesLib} from "../libraries/BytesLib.sol";
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 
 /**
  * @title OmniXExchange
@@ -48,7 +48,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     address public immutable WETH;
 
     address public protocolFeeRecipient;
-    uint256 public gasForOmniLzReceive = 900000;
+    uint256 public gasForOmniLzReceive;
+    uint256 public gasForOmniLzReceiveResp;
 
     ICurrencyManager public currencyManager;
     IExecutionManager public executionManager;
@@ -119,6 +120,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         royaltyFeeManager = IRoyaltyFeeManager(_royaltyFeeManager);
         WETH = _WETH;
         protocolFeeRecipient = _protocolFeeRecipient;
+
+        gasForOmniLzReceive = 700000;
+        gasForOmniLzReceiveResp = 250000;
     }
 
     /**
@@ -138,8 +142,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     /**
     * @notice set gas for omni destination layerzero receive
     */
-    function setGasForOmniLZReceive(uint256 gas) external onlyOwner {
-        gasForOmniLzReceive = gas;
+    function setGasForOmniLZReceive(uint256 gas1, uint256 gas2) external onlyOwner {
+        gasForOmniLzReceive = gas1;
+        gasForOmniLzReceiveResp = gas2;
     }
 
     /**
@@ -393,7 +398,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         internal view returns (uint256, bytes memory, bytes memory)
     {
         (uint16 takerChainId,,,,) = taker.decodeParams();
-        uint256 royaltyFee = maker.getRoyaltyFee();
+        bytes memory royaltyInfo = maker.getRoyaltyInfo();
         uint16 makerChainId = maker.decodeParams();
 
         if (makerChainId == takerChainId) {
@@ -409,8 +414,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             taker.tokenId,
             taker.price,
             maker.signer,
-            royaltyFee,
-            makerChainId
+            makerChainId,
+            royaltyInfo
         );
 
         address destAddress = trustedRemoteLookup[makerChainId].toAddress(0);
@@ -491,7 +496,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         require(trustedRemoteLookup[toChainId].length != 0, "LzSend: dest chain is not trusted.");
 
         address destAddress = trustedRemoteLookup[toChainId].toAddress(0);
-        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive, uint256(0), destAddress);
+        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceiveResp, uint256(0), destAddress);
 
         (uint256 messageFee,) = lzEndpoint.estimateFees(
             toChainId,
@@ -606,20 +611,19 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     }
 
     function _proxyTransferFunds(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint256 currencyFee) internal returns (uint) {
+        bytes memory royaltyInfo = makerAsk.getRoyaltyInfo();
         uint price = takerBid.price;
         address from = takerBid.taker;
         address to = makerAsk.signer;
-        uint256 royaltyFee = makerAsk.getRoyaltyFee();
         uint tokenId = takerBid.tokenId;
         (uint16 takerChainId, address currency, address collection, address strategy,) = takerBid.decodeParams();
         uint16 makerChainId = makerAsk.decodeParams();
         return fundManager.proxyTransfer{value: currencyFee}(
-            [price, royaltyFee],
+            royaltyInfo,
+            price,
             tokenId,
             [from, to],
-            currency,
-            strategy,
-            collection,
+            [currency, strategy, collection],
             [takerChainId, makerChainId]
         );
     }
@@ -649,7 +653,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
     function _transferFeesAndFundsLzWithWETH(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk, uint256 currencyFee) internal {
         (uint16 takerChainId,, address collection, address strategy,) = takerBid.decodeParams();
         (uint16 makerChainId) = makerAsk.decodeParams();
-        uint256 royaltyFee = makerAsk.getRoyaltyFee();
+        bytes memory royaltyInfo = makerAsk.getRoyaltyInfo();
 
         fundManager.transferFeesAndFundsWithWETH{value: currencyFee}(
             strategy,
@@ -658,9 +662,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             takerBid.taker,
             makerAsk.signer,
             takerBid.price,
-            royaltyFee,
             takerChainId,
-            makerChainId
+            makerChainId,
+            royaltyInfo
         );
     }
 
@@ -739,9 +743,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         address from = maker.isOrderAsk ? taker.taker : maker.signer;
         address to = maker.isOrderAsk ? maker.signer : taker.taker;
         uint256 price = taker.price;
-        uint256 royaltyFee = maker.getRoyaltyFee();
         (uint16 takerChainId, address currency, address collection, address strategy,) = taker.decodeParams();
         uint16 makerChainId = maker.decodeParams();
+        bytes memory royaltyInfo = maker.getRoyaltyInfo();
 
         fundManager.transferFeesAndFunds{value: currencyFee}(
             strategy,
@@ -751,9 +755,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             from,
             to,
             price,
-            royaltyFee,
             takerChainId,
-            makerChainId
+            makerChainId,
+            royaltyInfo
         );
     }
 
@@ -765,9 +769,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         address to, 
         uint tokenId, 
         uint price, 
-        uint royaltyFee, 
         uint16 fromChainId, 
-        uint16 toChainId
+        uint16 toChainId,
+        bytes memory royaltyInfo
     ) external {
         uint256 currencyFee = fundManager.lzFeeTransferCurrency(
             currency,
@@ -785,9 +789,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
             from,
             to,
             price,
-            royaltyFee,
             fromChainId,
-            toChainId
+            toChainId,
+            royaltyInfo
         );
     }
 
@@ -895,8 +899,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 uint tokenId,
                 uint price,
                 address from,
-                uint royaltyFee,
-                uint16 lzChainId
+                uint16 lzChainId,
+                bytes memory royaltyInfo
             ) = abi.decode(_payload, (
                 uint8,
                 uint,
@@ -907,8 +911,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 uint,
                 uint,
                 address,
-                uint,
-                uint16
+                uint16,
+                bytes
             ));
 
             uint16 toChainId = _srcChainId;
@@ -920,9 +924,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
                 to, 
                 tokenId, 
                 price, 
-                royaltyFee, 
                 lzChainId, 
-                toChainId
+                toChainId,
+                royaltyInfo
             ) {
                 bytes memory respPayload = abi.encode(
                     LZ_MESSAGE_ORDER_BID_RESP,

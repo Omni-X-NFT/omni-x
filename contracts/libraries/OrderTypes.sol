@@ -64,10 +64,10 @@ library OrderTypes {
         return abi.decode(makerOrder.params, (uint16));
     }
 
-    function getRoyaltyFee(MakerOrder memory makerOrder) internal pure returns (uint256) {
+    function getRoyaltyInfo(MakerOrder memory makerOrder) internal pure returns (bytes memory) {
         // lzChainId
-        (, uint256 royaltyFee) = abi.decode(makerOrder.params, (uint16, uint256));
-        return royaltyFee;
+        (, bytes memory royaltyInfo) = abi.decode(makerOrder.params, (uint16, bytes));
+        return royaltyInfo;
     }
 
     function decodeParams(TakerOrder memory takerOrder) internal pure 
