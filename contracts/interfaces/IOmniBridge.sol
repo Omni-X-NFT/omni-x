@@ -9,7 +9,7 @@ interface IOmniBridge {
     /**
      * @dev 
      */
-    function wrap(uint16 _dstChainId, address _erc721Address, uint256 _tokenId, bytes memory _adapterParams) external payable;
+    function wrap(uint16 _dstChainId, address _toAddress, address _erc721Address, uint256 _tokenId, bytes memory _adapterParams) external payable;
 
     /**
      * @dev 

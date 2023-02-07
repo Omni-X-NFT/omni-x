@@ -32,6 +32,7 @@ contract OmniBridge is
 
     function wrap(
         uint16 _dstChainId,
+        address _toAddress,
         address _erc721Address,
         uint256 _tokenId,
         bytes memory _adapterParams
@@ -62,7 +63,7 @@ contract OmniBridge is
         }
 
         // encode the payload with the number of tokenAddress, toAddress, tokenId
-        bytes memory payload = abi.encode(erc721Address, msg.sender, name, symbol, tokenURI, _tokenId);
+        bytes memory payload = abi.encode(erc721Address, _toAddress, name, symbol, tokenURI, _tokenId);
 
         // get the fees we need to pay to LayerZero for message delivery
         (uint messageFee, ) = lzEndpoint.estimateFees(_dstChainId, address(this), payload, false, _adapterParams);
