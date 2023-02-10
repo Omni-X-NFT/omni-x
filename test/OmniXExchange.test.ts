@@ -165,9 +165,9 @@ describe('OmniXExchange', () => {
 
     await onft721.mint(maker.address, 1)
     await onft721.mint(maker.address, 2)
-    await onft721.setTrustedRemoteAddress(await owner.getChainId(), onft721.address)
-    await omni.setTrustedRemoteAddress(await owner.getChainId(), omni.address)
-    await omniXExchange.setTrustedRemoteAddress(await owner.getChainId(), omniXExchange.address)
+    await onft721.setTrustedRemote(await owner.getChainId(), onft721.address)
+    await omni.setTrustedRemote(await owner.getChainId(), omni.address)
+    await omniXExchange.setTrustedRemote(await owner.getChainId(), omniXExchange.address)
     await omni.transfer(taker.address, toWei(200))
   }
   const approve = async () => {

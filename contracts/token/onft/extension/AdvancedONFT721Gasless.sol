@@ -1,17 +1,22 @@
 // SPDX-License-Identifier: BUSL-1.1
+
 pragma solidity ^0.8;
 
 import "../ONFT721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import { GelatoRelayContext } from "@gelatonetwork/relay-context/contracts/GelatoRelayContext.sol";
 
 /// @title Interface of the AdvancedONFT standard
 /// @author exakoss
 /// @notice this implementation supports: batch mint, payable public and private mint, reveal of metadata and EIP-2981 on-chain royalties
-contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
+contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard {
     using Strings for uint;
+    using SafeERC20 for IERC20;
 
-    uint public tax = 1000; // 100% = 10000
+    uint public tax = 1000; // 10% = 1000, 100 % = 10000
     uint public price = 0;
     uint public nextMintId;
     uint public maxMintId;
@@ -34,6 +39,8 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
     bool public _saleStarted;
     bool revealed;
 
+    IERC20 public stableToken;
+
     /// @notice Constructor for the AdvancedONFT
     /// @param _name the name of the token
     /// @param _symbol the token symbol
@@ -52,6 +59,7 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
         uint _maxTokensPerMint,
         string memory _baseTokenURI,
         string memory _hiddenURI,
+        address _stableToken,
         uint _tax,
         address _taxRecipient
     ) ONFT721(_name, _symbol, _layerZeroEndpoint) {
@@ -62,6 +70,7 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
         beneficiary = payable(msg.sender);
         baseURI = _baseTokenURI;
         hiddenMetadataURI = _hiddenURI;
+        stableToken = IERC20(_stableToken);
         tax = _tax;
         taxRecipient = payable(_taxRecipient);
     }
@@ -77,43 +86,82 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
     }
 
     function setTaxRecipient(address payable _taxRecipient) external onlyOwner {
-        taxRecipient = _taxRecipient;
+        taxRecipient = payable(_taxRecipient);
     }
 
-    /// @notice Mint your ONFTs
-    function publicMint(uint _nbTokens) external payable {
-        require(_publicSaleStarted == true, "AdvancedONFT721: Public sale has not started yet!");
-        require(_saleStarted == true, "AdvancedONFT721: Sale has not started yet!");
-        require(_nbTokens != 0, "AdvancedONFT721: Cannot mint 0 tokens!");
-        require(_nbTokens <= maxTokensPerMint, "AdvancedONFT721: You cannot mint more than maxTokensPerMint tokens at once!");
-        require(nextMintId + _nbTokens <= maxMintId, "AdvancedONFT721: max mint limit reached");
-        require(_nbTokens * price <= msg.value, "AdvancedONFT721: Inconsistent amount sent!");
-
+    /// @notice mint with stable coin
+    function _mintTokens(address minter, uint _nbTokens) internal {
         //using a local variable, _mint and ++X pattern to save gas
         uint local_nextMintId = nextMintId;
         for (uint i; i < _nbTokens; i++) {
-            _mint(msg.sender, ++local_nextMintId);
+            _mint(minter, ++local_nextMintId);
         }
         nextMintId = local_nextMintId;
+    }
+
+    /// @notice gasless mint 
+    function publicMintGasless(uint _nbTokens, address minter) external onlyGelatoRelay {
+        require(_publicSaleStarted == true, "ONFT721Gasless: Public sale has not started yet!");
+        require(_saleStarted == true, "ONFT721Gasless: Sale has not started yet!");
+        require(_nbTokens != 0, "ONFT721Gasless: Cannot mint 0 tokens!");
+        require(_nbTokens <= maxTokensPerMint, "ONFT721Gasless: You cannot mint more than maxTokensPerMint tokens at once!");
+        require(nextMintId + _nbTokens <= maxMintId, "ONFT721Gasless: max mint limit reached");
+        require(price > 0, "ONFT721Gasless: you need to set stable price");
+        require(address(stableToken) != address(0), "ONFT721Gasless: not support stable token");
+
+        _transferRelayFee();
+
+        stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
+
+        _mintTokens(minter, _nbTokens);
+    }
+
+    /// @notice mint with stable coin
+    function publicMint(uint _nbTokens) external {
+        require(_publicSaleStarted == true, "ONFT721Gasless: Public sale has not started yet!");
+        require(_saleStarted == true, "ONFT721Gasless: Sale has not started yet!");
+        require(_nbTokens != 0, "ONFT721Gasless: Cannot mint 0 tokens!");
+        require(_nbTokens <= maxTokensPerMint, "ONFT721Gasless: You cannot mint more than maxTokensPerMint tokens at once!");
+        require(nextMintId + _nbTokens <= maxMintId, "ONFT721Gasless: max mint limit reached");
+        require(price > 0, "ONFT721Gasless: you need to set stable price");
+        require(address(stableToken) != address(0), "ONFT721Gasless: not support stable mint");
+
+        stableToken.safeTransferFrom(msg.sender, address(this), price * _nbTokens);
+
+        //using a local variable, _mint and ++X pattern to save gas
+        _mintTokens(msg.sender, _nbTokens);
+    }
+
+    /// @notice Gasless Mint your ONFTs, whitelisted addresses only
+    function mintGasless(uint _nbTokens, address minter, bytes32[] calldata _merkleProof) external onlyGelatoRelay {
+        require(_saleStarted == true, "ONFT721Gasless: Sale has not started yet!");
+        require(_nbTokens != 0, "ONFT721Gasless: Cannot mint 0 tokens!");
+        require(_nbTokens <= maxTokensPerMint, "ONFT721Gasless: You cannot mint more than maxTokensPerMint tokens at once!");
+        require(nextMintId + _nbTokens <= maxMintId, "ONFT721Gasless: max mint limit reached");
+
+        bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(minter)));
+        require(isWL == true, "ONFT721Gasless: Invalid Merkle Proof");
+
+        _transferRelayFee();
+
+        stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
+        
+        _mintTokens(minter, _nbTokens);
     }
 
     /// @notice Mint your ONFTs, whitelisted addresses only
-    function mint(uint _nbTokens, bytes32[] calldata _merkleProof) external payable {
-        require(_saleStarted == true, "AdvancedONFT721: Sale has not started yet!");
-        require(_nbTokens != 0, "AdvancedONFT721: Cannot mint 0 tokens!");
-        require(_nbTokens <= maxTokensPerMint, "AdvancedONFT721: You cannot mint more than maxTokensPerMint tokens at once!");
-        require(nextMintId + _nbTokens <= maxMintId, "AdvancedONFT721: max mint limit reached");
-        require(_nbTokens * price <= msg.value, "AdvancedONFT721: Inconsistent amount sent!");
+    function mint(uint _nbTokens, bytes32[] calldata _merkleProof) external {
+        require(_saleStarted == true, "ONFT721Gasless: Sale has not started yet!");
+        require(_nbTokens != 0, "ONFT721Gasless: Cannot mint 0 tokens!");
+        require(_nbTokens <= maxTokensPerMint, "ONFT721Gasless: You cannot mint more than maxTokensPerMint tokens at once!");
+        require(nextMintId + _nbTokens <= maxMintId, "ONFT721Gasless: max mint limit reached");
 
         bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(_msgSender())));
-        require(isWL == true, "AdvancedONFT721: Invalid Merkle Proof");
+        require(isWL == true, "ONFT721Gasless: Invalid Merkle Proof");
 
-        //using a local variable, _mint and ++X pattern to save gas
-        uint local_nextMintId = nextMintId;
-        for (uint i; i < _nbTokens; i++) {
-            _mint(msg.sender, ++local_nextMintId);
-        }
-        nextMintId = local_nextMintId;
+        stableToken.safeTransferFrom(msg.sender, address(this), price * _nbTokens);
+
+        _mintTokens(msg.sender, _nbTokens);
     }
 
     function setMerkleRoot(bytes32 _merkleRoot) external onlyOwner {
@@ -124,13 +172,20 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
         price = newPrice;
     }
 
-    function withdraw() public virtual onlyOwner {
-        require(beneficiary != address(0), "AdvancedONFT721: Beneficiary not set!");
+    function withdrawNative() public virtual onlyOwner {
         uint _balance = address(this).balance;
         // tax: 100% = 10000
+        require(payable(msg.sender).send(_balance));
+    }
+
+    function withdraw() public virtual onlyOwner {
+        require(beneficiary != address(0), "AdvancedONFT721: Beneficiary not set!");
+
+        uint _balance = stableToken.balanceOf(address(this));
         uint _taxFee = _balance * tax / 10000;
-        require(payable(beneficiary).send(_balance - _taxFee));
-        require(payable(taxRecipient).send(_taxFee));
+
+        stableToken.safeTransfer(taxRecipient, _taxFee);
+        stableToken.safeTransfer(beneficiary, _balance - _taxFee);
     }
 
     function royaltyInfo(uint, uint salePrice) external view returns (address receiver, uint royaltyAmount) {
@@ -158,6 +213,10 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
         hiddenMetadataURI = _hiddenMetadataUri;
     }
 
+    function setStableToken(address _stableToken) external onlyOwner {
+        stableToken = IERC20(_stableToken);
+    }
+
     function flipRevealed() external onlyOwner {
         revealed = !revealed;
     }
@@ -182,4 +241,6 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
         }
         return string(abi.encodePacked(_baseURI(), tokenId.toString()));
     }
+
+    receive() external payable {}
 }

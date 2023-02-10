@@ -9,9 +9,10 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 /// @title Interface of the AdvancedONFT standard
 /// @author exakoss
 /// @notice this implementation supports: batch mint, payable public and private mint, reveal of metadata and EIP-2981 on-chain royalties
-contract KanpaiPandas is ONFT721Enumerable, ReentrancyGuard {
+contract AdvancedONFT721Enumerable is ONFT721Enumerable, ReentrancyGuard {
     using Strings for uint;
 
+    uint public tax = 1000; // 100% = 10000
     uint public price = 0;
     uint public nextMintId;
     uint public maxMintId;
@@ -21,13 +22,14 @@ contract KanpaiPandas is ONFT721Enumerable, ReentrancyGuard {
     uint royaltyBasisPoints = 500;
     // address for withdrawing money and receiving royalties, separate from owner
     address payable beneficiary;
+    // address for tax recipient;
+    address payable taxRecipient;
     // Merkle Root for WL implementation
     bytes32 public merkleRoot;
 
     string public contractURI;
     string private baseURI;
-
-    mapping(address => uint) public _boughtCount;
+    string private hiddenMetadataURI;
 
     bool public _publicSaleStarted;
     bool public _saleStarted;
@@ -41,23 +43,54 @@ contract KanpaiPandas is ONFT721Enumerable, ReentrancyGuard {
     /// @param _endMintId the max number of mints on this chain
     /// @param _maxTokensPerMint the max number of tokens that could be minted in a single transaction
     /// @param _baseTokenURI the base URI for computing the tokenURI
-    constructor(string memory _name, string memory _symbol, address _layerZeroEndpoint, uint _startMintId, uint _endMintId, uint _maxTokensPerMint, string memory _baseTokenURI) ONFT721Enumerable(_name, _symbol, _layerZeroEndpoint) {
+    /// @param _hiddenURI the URI for computing the hiddenMetadataUri
+    /// @param _tax tax fee. 100% = 10000
+    /// @param _taxRecipient tax recipient address
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address _layerZeroEndpoint,
+        uint _startMintId,
+        uint _endMintId,
+        uint _maxTokensPerMint,
+        string memory _baseTokenURI,
+        string memory _hiddenURI,
+        uint _tax,
+        address _taxRecipient
+    ) ONFT721Enumerable(_name, _symbol, _layerZeroEndpoint) {
         nextMintId = _startMintId;
         maxMintId = _endMintId;
         maxTokensPerMint = _maxTokensPerMint;
         //set default beneficiary to owner
         beneficiary = payable(msg.sender);
         baseURI = _baseTokenURI;
+        hiddenMetadataURI = _hiddenURI;
+        tax = _tax;
+        taxRecipient = payable(_taxRecipient);
+    }
+
+    function setMintRange(uint _startMintId, uint _endMintId, uint _maxTokensPerMint) external onlyOwner {
+        nextMintId = _startMintId;
+        maxMintId = _endMintId;
+        maxTokensPerMint = _maxTokensPerMint;
+    }
+
+    function setTax(uint _tax) external onlyOwner {
+        tax = _tax;
+    }
+
+    function setTaxRecipient(address payable _taxRecipient) external onlyOwner {
+        taxRecipient = payable(_taxRecipient);
     }
 
     /// @notice Mint your ONFTs
     function publicMint(uint _nbTokens) external payable {
-        require(_publicSaleStarted == true, "KanpaiPandas: Public sale has not started yet!");
-        require(_saleStarted == true, "KanpaiPandas: Sale has not started yet!");
-        require(_nbTokens != 0, "KanpaiPandas: Cannot mint 0 tokens!");
-        require(_nbTokens <= maxTokensPerMint, "KanpaiPandas: You cannot mint more than maxTokensPerMint tokens at once!");
-        require(nextMintId + _nbTokens <= maxMintId, "KanpaiPandas: max mint limit reached");
-        require(_nbTokens * price <= msg.value, "KanpaiPandas: Inconsistent amount sent!");
+        require(_publicSaleStarted == true, "AdvancedONFT721: Public sale has not started yet!");
+        require(_saleStarted == true, "AdvancedONFT721: Sale has not started yet!");
+        require(_nbTokens != 0, "AdvancedONFT721: Cannot mint 0 tokens!");
+        require(_nbTokens <= maxTokensPerMint, "AdvancedONFT721: You cannot mint more than maxTokensPerMint tokens at once!");
+        require(nextMintId + _nbTokens <= maxMintId, "AdvancedONFT721: max mint limit reached");
+        require(_nbTokens * price <= msg.value, "AdvancedONFT721: Inconsistent amount sent!");
 
         //using a local variable, _mint and ++X pattern to save gas
         uint local_nextMintId = nextMintId;
@@ -69,17 +102,14 @@ contract KanpaiPandas is ONFT721Enumerable, ReentrancyGuard {
 
     /// @notice Mint your ONFTs, whitelisted addresses only
     function mint(uint _nbTokens, bytes32[] calldata _merkleProof) external payable {
-        require(_saleStarted == true, "KanpaiPandas: Sale has not started yet!");
-        require(_nbTokens != 0, "KanpaiPandas: Cannot mint 0 tokens!");
-        require(_nbTokens <= maxTokensPerMint, "KanpaiPandas: You cannot mint more than maxTokensPerMint tokens at once!");
-        require(nextMintId + _nbTokens <= maxMintId, "KanpaiPandas: max mint limit reached");
-        require(_nbTokens * price <= msg.value, "KanpaiPandas: Inconsistent amount sent!");
-        require(_boughtCount[msg.sender] + _nbTokens <= maxTokensPerMint, "KanpaiPandas: You exceeded your token limit.");
+        require(_saleStarted == true, "AdvancedONFT721: Sale has not started yet!");
+        require(_nbTokens != 0, "AdvancedONFT721: Cannot mint 0 tokens!");
+        require(_nbTokens <= maxTokensPerMint, "AdvancedONFT721: You cannot mint more than maxTokensPerMint tokens at once!");
+        require(nextMintId + _nbTokens <= maxMintId, "AdvancedONFT721: max mint limit reached");
+        require(_nbTokens * price <= msg.value, "AdvancedONFT721: Inconsistent amount sent!");
 
         bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(_msgSender())));
-        require(isWL == true, "KanpaiPandas: Invalid Merkle Proof");
-
-        _boughtCount[msg.sender] += _nbTokens;
+        require(isWL == true, "AdvancedONFT721: Invalid Merkle Proof");
 
         //using a local variable, _mint and ++X pattern to save gas
         uint local_nextMintId = nextMintId;
@@ -98,9 +128,12 @@ contract KanpaiPandas is ONFT721Enumerable, ReentrancyGuard {
     }
 
     function withdraw() public virtual onlyOwner {
-        require(beneficiary != address(0), "KanpaiPandas: Beneficiary not set!");
+        require(beneficiary != address(0), "AdvancedONFT721: Beneficiary not set!");
         uint _balance = address(this).balance;
-        require(payable(beneficiary).send(_balance));
+        // tax: 100% = 10000
+        uint _taxFee = _balance * tax / 10000;
+        require(payable(beneficiary).send(_balance - _taxFee));
+        require(payable(taxRecipient).send(_taxFee));
     }
 
     function royaltyInfo(uint, uint salePrice) external view returns (address receiver, uint royaltyAmount) {
@@ -124,6 +157,10 @@ contract KanpaiPandas is ONFT721Enumerable, ReentrancyGuard {
         beneficiary = _beneficiary;
     }
 
+    function setHiddenMetadataUri(string memory _hiddenMetadataUri) external onlyOwner {
+        hiddenMetadataURI = _hiddenMetadataUri;
+    }
+
     function flipRevealed() external onlyOwner {
         revealed = !revealed;
     }
@@ -143,6 +180,9 @@ contract KanpaiPandas is ONFT721Enumerable, ReentrancyGuard {
 
     function tokenURI(uint tokenId) public view override(ERC721) returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+        if (!revealed) {
+            return hiddenMetadataURI;
+        }
         return string(abi.encodePacked(_baseURI(), tokenId.toString()));
     }
 }

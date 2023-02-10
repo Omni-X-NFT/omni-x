@@ -137,7 +137,7 @@ contract FundManager is IFundManager, Ownable {
         else {
             if (
                 address(stargatePoolManager) != address(0) &&
-                stargatePoolManager.isSwappable(currency, toChainId)
+                stargatePoolManager.isSwappable(currency, 4)
             ) {
                 IERC20(currency).safeTransferFrom(address(this), to, amount);
             }
