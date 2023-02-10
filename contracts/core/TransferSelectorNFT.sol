@@ -3,15 +3,20 @@ pragma solidity ^0.8.0;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import {IERC1155Receiver} from "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 
 import {ITransferSelectorNFT} from "../interfaces/ITransferSelectorNFT.sol";
+import {ITransferManagerNFT} from "../interfaces/ITransferManagerNFT.sol";
 import "hardhat/console.sol";
 
 /**
  * @title TransferSelectorNFT
  * @notice It selects the NFT transfer manager based on a collection address.
  */
-contract TransferSelectorNFT is ITransferSelectorNFT, Ownable {
+contract TransferSelectorNFT is ITransferSelectorNFT, IERC721Receiver, IERC1155Receiver, Ownable {
     // ERC721 interfaceID
     bytes4 public constant INTERFACE_ID_ERC721 = 0x80ac58cd;
     // ERC1155 interfaceID
@@ -33,8 +38,19 @@ contract TransferSelectorNFT is ITransferSelectorNFT, Ownable {
     // Address of the transfer manager contract for ERC1155 tokens
     address public immutable TRANSFER_MANAGER_ONFT1155;
 
+    struct ProxyData {
+        address collection;
+        address from;
+        address to;
+        uint256 tokenId;
+        uint256 amount;
+    }
+
     // Map collection address to transfer manager address
     mapping(address => address) public transferManagerSelectorForCollection;
+    // proxyDataId => ProxyData
+    mapping (uint => ProxyData) private _proxyData;
+    uint private _nextProxyDataId;
 
     event CollectionTransferManagerAdded(address indexed collection, address indexed transferManager);
     event CollectionTransferManagerRemoved(address indexed collection);
@@ -56,6 +72,22 @@ contract TransferSelectorNFT is ITransferSelectorNFT, Ownable {
         TRANSFER_MANAGER_ERC1155 = _transferManagerERC1155;
         TRANSFER_MANAGER_ONFT721 = _transferManagerONFT721;
         TRANSFER_MANAGER_ONFT1155 = _transferManagerONFT1155;
+    }
+
+    function onERC721Received(address, address, uint256, bytes calldata) public virtual override returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
+
+    function onERC1155Received(address, address, uint, uint, bytes memory) public virtual override returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    function onERC1155BatchReceived(address, address, uint[] memory, uint[] memory, bytes memory) public virtual override returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(IERC1155Receiver).interfaceId || interfaceId == type(IERC721Receiver).interfaceId;
     }
 
     /**
@@ -93,7 +125,7 @@ contract TransferSelectorNFT is ITransferSelectorNFT, Ownable {
      * @param collection collection address
      * @dev Support for ERC165 interface is checked AFTER custom implementation
      */
-    function checkTransferManagerForToken(address collection) external view override returns (address transferManager) {
+    function checkTransferManagerForToken(address collection) public view override returns (address transferManager) {
         // Assign transfer manager (if any)
         transferManager = transferManagerSelectorForCollection[collection];
 
@@ -116,5 +148,78 @@ contract TransferSelectorNFT is ITransferSelectorNFT, Ownable {
         }
 
         return transferManager;
+    }
+
+    function is721(address collection) private view returns (bool) {
+        return IERC165(collection).supportsInterface(INTERFACE_ID_ERC721);
+    }
+
+    function proxyTransferNFT(
+        address collectionFrom,
+        address,
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 amount,
+        uint16 fromChainId,
+        uint16 toChainId
+    ) external payable override returns (uint) {
+        require (fromChainId != toChainId, "proxy nft: invalid operation for same chain trading");
+
+        ++_nextProxyDataId;
+        _proxyData[_nextProxyDataId] = ProxyData(
+            collectionFrom,
+            from,
+            to,
+            tokenId,
+            amount
+        );
+
+        address transferManager = checkTransferManagerForToken(collectionFrom);
+
+        ITransferManagerNFT(transferManager).proxyTransfer(collectionFrom, from, address(this), tokenId, amount);
+
+        return _nextProxyDataId;
+    }
+
+    function processNFT(
+        uint proxyDataId,
+        uint8 resp
+    ) external override {
+        require (_proxyData[proxyDataId].collection != address(0), "proxy nft: invalid data id");
+
+        ProxyData storage data = _proxyData[proxyDataId];
+        address transferManager = checkTransferManagerForToken(data.collection);
+
+        if (is721(data.collection)) {
+            if (!IERC721(data.collection).isApprovedForAll(address(this), transferManager)) {
+                IERC721(data.collection).setApprovalForAll(transferManager, true);
+            }
+        } else {
+            if (!IERC1155(data.collection).isApprovedForAll(address(this), transferManager)) {
+                IERC1155(data.collection).setApprovalForAll(transferManager, true);
+            }
+        }
+
+        // success
+        if (resp == 1) {
+            // ship
+            ITransferManagerNFT(transferManager).proxyTransfer(
+                data.collection,
+                address(this),
+                data.to,
+                data.tokenId,
+                data.amount
+            );
+        } else {
+            // revert
+            ITransferManagerNFT(transferManager).proxyTransfer(
+                data.collection,
+                address(this),
+                data.from,
+                data.tokenId,
+                data.amount
+            );
+        }
     }
 }

@@ -5,7 +5,6 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC165, IERC2981} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
 import {IRoyaltyFeeManager} from "../interfaces/IRoyaltyFeeManager.sol";
-import {IRoyaltyFeeRegistry} from "../interfaces/IRoyaltyFeeRegistry.sol";
 
 /**
  * @title RoyaltyFeeManager
@@ -15,14 +14,10 @@ contract RoyaltyFeeManager is IRoyaltyFeeManager, Ownable {
     // https://eips.ethereum.org/EIPS/eip-2981
     bytes4 public constant INTERFACE_ID_ERC2981 = 0x2a55205a;
 
-    IRoyaltyFeeRegistry public immutable royaltyFeeRegistry;
-
     /**
      * @notice Constructor
-     * @param _royaltyFeeRegistry address of the RoyaltyFeeRegistry
      */
-    constructor(address _royaltyFeeRegistry) {
-        royaltyFeeRegistry = IRoyaltyFeeRegistry(_royaltyFeeRegistry);
+    constructor() {
     }
 
     /**
@@ -34,17 +29,21 @@ contract RoyaltyFeeManager is IRoyaltyFeeManager, Ownable {
     function calculateRoyaltyFeeAndGetRecipient(
         address collection,
         uint256 tokenId,
-        uint256 amount
+        uint256 amount,
+        bytes memory royaltyInfo
     ) external view override returns (address, uint256) {
         // 1. Check if there is a royalty info in the system
-        (address receiver, uint256 royaltyAmount) = royaltyFeeRegistry.royaltyInfo(collection, amount);
+        (address receiver, uint256 royaltyAmount) = abi.decode(royaltyInfo, (address, uint256));
 
         // 2. If the receiver is address(0), fee is null, check if it supports the ERC2981 interface
-        // if ((receiver == address(0)) || (royaltyAmount == 0)) {
-        //     if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC2981)) {
-        //         (receiver, royaltyAmount) = IERC2981(collection).royaltyInfo(tokenId, amount);
-        //     }
-        // }
+        if ((receiver == address(0)) || (royaltyAmount == 0)) {
+            if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC2981)) {
+                (receiver, royaltyAmount) = IERC2981(collection).royaltyInfo(tokenId, amount);
+            }
+        }
+        else {
+            royaltyAmount = amount * royaltyAmount / 10000;
+        }
         return (receiver, royaltyAmount);
     }
 }

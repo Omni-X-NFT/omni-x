@@ -105,8 +105,7 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   chain.executionManager = await deployContract('ExecutionManager', owner, []) as ExecutionManager
 
   // royalty fee manager
-  const royaltyFeeRegistry = await deployContract('RoyaltyFeeRegistry', owner, [ROYALTY_FEE_LIMIT])
-  chain.royaltyFeeManager = await deployContract('RoyaltyFeeManager', owner, [royaltyFeeRegistry.address]) as RoyaltyFeeManager
+  chain.royaltyFeeManager = await deployContract('RoyaltyFeeManager', owner, []) as RoyaltyFeeManager
 
   // looks rare exchange
   chain.omniXExchange = await deployContract('OmniXExchange', owner, [
@@ -145,16 +144,17 @@ export const linkChains = async (src: Chain, dst: Chain) => {
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.transferManagerGhosts.address, dst.layerZeroEndpoint.address)
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.omniXExchange.address, dst.layerZeroEndpoint.address)
 
-  await src.omni.setTrustedRemote(await dst.chainId, dst.omni.address)
-  await src.onft721.setTrustedRemote(await dst.chainId, dst.onft721.address)
-  await src.ghosts.setTrustedRemote(await dst.chainId, dst.ghosts.address)
-  await src.onft1155.setTrustedRemote(await dst.chainId, dst.onft1155.address)
-  await src.transferManager721.setTrustedRemote(await dst.chainId, dst.transferManager721.address)
-  await src.transferManager1155.setTrustedRemote(await dst.chainId, dst.transferManager1155.address)
-  await src.transferManagerONFT721.setTrustedRemote(await dst.chainId, dst.transferManagerONFT721.address)
-  await src.transferManagerGhosts.setTrustedRemote(await dst.chainId, dst.transferManagerGhosts.address)
-  await src.transferManagerONFT1155.setTrustedRemote(await dst.chainId, dst.transferManagerONFT1155.address)
-  await src.omniXExchange.setTrustedRemote(await dst.chainId, dst.omniXExchange.address)
+  await src.omni.setTrustedRemoteAddress(await dst.chainId, dst.omni.address)
+  await src.onft721.setTrustedRemoteAddress(await dst.chainId, dst.onft721.address)
+  await src.ghosts.setTrustedRemoteAddress(await dst.chainId, dst.ghosts.address)
+  await src.onft1155.setTrustedRemoteAddress(await dst.chainId, dst.onft1155.address)
+  await src.transferManager721.setTrustedRemoteAddress(await dst.chainId, dst.transferManager721.address)
+  await src.transferManager1155.setTrustedRemoteAddress(await dst.chainId, dst.transferManager1155.address)
+  await src.transferManagerONFT721.setTrustedRemoteAddress(await dst.chainId, dst.transferManagerONFT721.address)
+  await src.transferManagerGhosts.setTrustedRemoteAddress(await dst.chainId, dst.transferManagerGhosts.address)
+  await src.transferManagerONFT1155.setTrustedRemoteAddress(await dst.chainId, dst.transferManagerONFT1155.address)
+  await src.omniXExchange.setTrustedRemoteAddress(await dst.chainId, dst.omniXExchange.address)
+  await src.fundManager.setTrustedRemoteAddress(await dst.chainId, dst.fundManager.address)
 }
 
 export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
@@ -164,6 +164,8 @@ export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
   await chain.omniXExchange.updateTransferSelectorNFT(chain.transferSelector.address)
 
   // normal currency and normal nft, mint token#1, #2, #3
+  await chain.nftMock.mint(maker.address)
+  await chain.nftMock.mint(maker.address)
   await chain.nftMock.mint(maker.address)
   await chain.nftMock.mint(maker.address)
   await chain.nftMock.mint(maker.address)

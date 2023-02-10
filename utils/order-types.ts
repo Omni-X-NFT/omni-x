@@ -77,8 +77,9 @@ export class MakerOrder {
     )
   }
 
-  encodeParams (chainId: number) {
-    this.setParams(['uint16'], [chainId])
+  encodeParams (chainId: number, royaltyRecipient: string, royaltyFee: number) {
+    const royaltyInfo = ethers.utils.arrayify(ethers.utils.defaultAbiCoder.encode(['address', 'uint256'], [royaltyRecipient, royaltyFee]))
+    this.setParams(['uint16', 'bytes'], [chainId, royaltyInfo])
   }
 
   async sign (signer: SignerWithAddress) {
