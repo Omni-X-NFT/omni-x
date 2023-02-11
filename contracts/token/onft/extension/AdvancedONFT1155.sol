@@ -31,6 +31,11 @@ contract AdvancedONFT1155 is ONFT1155, ReentrancyGuard {
     bool public _saleStarted;
     bool revealed;
 
+    modifier onlyBeneficiaryAndOwner() {
+        require(msg.sender == beneficiary || msg.sender == owner() , "AdvancedONFT1155Gasless: caller is not the beneficiary");
+        _;
+    }
+
     /// @notice Constructor for the AdvancedONFT1155
     /// @param _layerZeroEndpoint handles message transmission across chains
     /// @param _baseTokenURI the base URI for computing the tokenURI
@@ -86,7 +91,7 @@ contract AdvancedONFT1155 is ONFT1155, ReentrancyGuard {
         price = newPrice;
     }
 
-    function withdraw() public virtual onlyOwner {
+    function withdraw() public virtual onlyBeneficiaryAndOwner {
         require(beneficiary != address(0), "AdvancedONFT1155: Beneficiary not set!");
         uint _balance = address(this).balance;
         // tax: 100% = 10000

@@ -17,7 +17,8 @@ describe('AdvancedONFT1155Gasless: ', function () {
     const baseTokenURI = "https://example.com/api/item/"
     const hiddenTokenURI = "https://example.com/api/item/"
     const tax = 500
-    const numOfIds = 8
+
+
     const maxTokensPerMint = 5
     const ableToMint = 1
     const maxTokenPerId = 5000
@@ -39,7 +40,7 @@ describe('AdvancedONFT1155Gasless: ', function () {
         usdc = await USDC.deploy()
         await usdc.deployed()
 
-        await usdc.mint(ownerAddress, 100000)
+        await usdc.mint(ownerAddress, 100000000)
         lzEndpointMock = await hre.ethers.getContractFactory('LZEndpointMock')
         lzEndpointSrcMock = await lzEndpointMock.deploy(chainIdSrc)
         lzEndpointDstMock = await lzEndpointMock.deploy(chainIdDst)
@@ -48,10 +49,12 @@ describe('AdvancedONFT1155Gasless: ', function () {
 
         const ONFT = await hre.ethers.getContractFactory('contracts/token/onft/extension/AdvancedONFT1155Gasless.sol:AdvancedONFT1155Gasless')
 
-        instance = await ONFT.deploy(lzEndpointDstMock.address, baseTokenURI, hiddenTokenURI, tax, ownerAddress, usdc.address, maxTokensPerMint, ableToMint, maxTokenPerId, numOfIds)
+        instance = await ONFT.deploy(lzEndpointDstMock.address, baseTokenURI, hiddenTokenURI, tax, ownerAddress, usdc.address, maxTokensPerMint, ableToMint, maxTokenPerId)
        
         await instance.deployed()
         await (await instance.connect(owner).setPrice(1000)).wait()
+        await (await instance.connect(owner).flipSaleStarted()).wait()
+        await (await instance.connect(owner).flipPublicSaleStarted()).wait()
         
     })
     it("should mint one ONFT", async function () {
@@ -60,7 +63,7 @@ describe('AdvancedONFT1155Gasless: ', function () {
         await ( await usdc.connect(owner).approve(instance.address, 10000)).wait()
         let balance = await usdc.balanceOf(ownerAddress)
     
-        expect(parseInt(balance)).to.eq(100000)
+        expect(parseInt(balance)).to.eq(100000000)
 
         await instance.publicMint(tokenId, amount)
 
@@ -68,7 +71,7 @@ describe('AdvancedONFT1155Gasless: ', function () {
         let instanceBalance = await usdc.balanceOf(instance.address)
         let ONFTBalance = await instance.balanceOf(ownerAddress, tokenId)
         expect(await parseInt(ONFTBalance)).to.eq(amount)
-        expect(await parseInt(balance)).to.eq(100000-1000)
+        expect(await parseInt(balance)).to.eq(100000000-1000)
         expect(await parseInt(instanceBalance)).to.eq(1000)
 
     })
@@ -78,7 +81,7 @@ describe('AdvancedONFT1155Gasless: ', function () {
         await ( await usdc.connect(owner).approve(instance.address, 10000)).wait()
         let balance = await usdc.balanceOf(ownerAddress)
     
-        expect(parseInt(balance)).to.eq(100000)
+        expect(parseInt(balance)).to.eq(100000000)
        
 
         await instance.publicMint(tokenId, amount)
@@ -87,7 +90,7 @@ describe('AdvancedONFT1155Gasless: ', function () {
         let instanceBalance = await usdc.balanceOf(instance.address)
         let ONFTBalance = await instance.balanceOf(ownerAddress, tokenId)
         expect(await parseInt(ONFTBalance)).to.eq(amount)
-        expect(await parseInt(balance)).to.eq(100000 - (5 * 1000))
+        expect(await parseInt(balance)).to.eq(100000000 - (5 * 1000))
         expect(await parseInt(instanceBalance)).to.eq(1000*5)
 
     })
@@ -96,7 +99,7 @@ describe('AdvancedONFT1155Gasless: ', function () {
         let amount = 1
         await ( await usdc.connect(owner).approve(instance.address, 10000)).wait()
         let balance = await usdc.balanceOf(ownerAddress)
-        expect(parseInt(balance)).to.eq(100000)
+        expect(parseInt(balance)).to.eq(100000000)
         await expect(instance.publicMint(tokenId, amount)).to.be.revertedWith("AdvancedONFT1155Gasless: trying to mint from an invalid chain")
 
     })
@@ -105,9 +108,27 @@ describe('AdvancedONFT1155Gasless: ', function () {
         let amount = 6
         await ( await usdc.connect(owner).approve(instance.address, 10000)).wait()
         let balance = await usdc.balanceOf(ownerAddress)
-        expect(parseInt(balance)).to.eq(100000)
+        expect(parseInt(balance)).to.eq(100000000)
         await expect(instance.publicMint(tokenId, amount)).to.be.revertedWith("AdvancedONFT1155Gasless: trying to mint too many tokens")
 
     })
+    it("should not mint over max supply", async function(){
+        let tokenId = 1
+        let amount = 5
+        let amountMinted = 0
+
+        await ( await usdc.connect(owner).approve(instance.address, 1000*5010)).wait()
+        
+        for (let i = 0; i < 1001; i++) {
+            if (i == 1000) {
+                await expect(instance.publicMint(tokenId, amount)).to.be.revertedWith("AdvancedONFT1155Gasless: token limit exceeded")
+            } else {
+                await (await instance.publicMint(tokenId, amount)).wait()
+                amountMinted = await instance.balanceOf(ownerAddress, tokenId)
+                expect(amountMinted).to.eq((i+1)*amount)
+            }
+        }
+    })
+  
 
 })

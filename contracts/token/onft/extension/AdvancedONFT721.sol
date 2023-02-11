@@ -34,6 +34,12 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
     bool public _saleStarted;
     bool revealed;
 
+
+    modifier onlyBeneficiaryAndOwner() {
+        require(msg.sender == beneficiary || msg.sender == owner() , "AdvancedONFT1155Gasless: caller is not the beneficiary");
+        _;
+    }
+
     /// @notice Constructor for the AdvancedONFT
     /// @param _name the name of the token
     /// @param _symbol the token symbol
@@ -124,7 +130,7 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
         price = newPrice;
     }
 
-    function withdraw() public virtual onlyOwner {
+    function withdraw() public virtual onlyBeneficiaryAndOwner {
         require(beneficiary != address(0), "AdvancedONFT721: Beneficiary not set!");
         uint _balance = address(this).balance;
         // tax: 100% = 10000
