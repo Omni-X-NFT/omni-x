@@ -121,7 +121,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         protocolFeeRecipient = _protocolFeeRecipient;
 
         gasForOmniLzReceive = 700000;
-        gasForOmniLzReceiveResp = 250000;
+        gasForOmniLzReceiveResp = 500000;
     }
 
     /**
