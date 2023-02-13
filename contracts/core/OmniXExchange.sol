@@ -22,7 +22,6 @@ import {IOFT} from "../token/oft/IOFT.sol";
 
 import {OrderTypes} from "../libraries/OrderTypes.sol";
 import {BytesLib} from "../libraries/BytesLib.sol";
-// import "hardhat/console.sol";
 
 /**
  * @title OmniXExchange
@@ -122,7 +121,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         protocolFeeRecipient = _protocolFeeRecipient;
 
         gasForOmniLzReceive = 700000;
-        gasForOmniLzReceiveResp = 250000;
+        gasForOmniLzReceiveResp = 500000;
     }
 
     /**

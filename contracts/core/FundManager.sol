@@ -163,6 +163,10 @@ contract FundManager is IFundManager, Ownable {
                 address(stargatePoolManager) != address(0) &&
                 stargatePoolManager.isSwappable(currency, toChainId)
             ) {
+                if (from == address(this)) {
+                    IERC20(currency).approve(address(stargatePoolManager), amount);
+                }
+
                 stargatePoolManager.swap{value: lzFee}(currency, toChainId, payable(address(omnixExchange)), amount, from, to);
             }
             else {

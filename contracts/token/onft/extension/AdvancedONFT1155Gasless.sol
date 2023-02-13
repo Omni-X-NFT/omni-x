@@ -65,7 +65,7 @@ contract AdvancedONFT1155Gasless is ONFT1155, GelatoRelayContext, ReentrancyGuar
         address _stableToken,
         uint _maxTokensPerMint,
         uint _ableToMint,
-        uint _maxTokenPerID,
+        uint _maxTokenPerID
 
    
     ) ONFT1155(_baseTokenURI, _layerZeroEndpoint) {

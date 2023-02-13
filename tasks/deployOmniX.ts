@@ -16,33 +16,32 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
   const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
   const stargateEndpoint = (STARGATE as any)[network.name]
 
-  // await deployContract(hre, 'StrategyStandardSale', owner, [])
-  // await deployContract(hre, 'StrategyStandardSaleForCollection', owner, [])
+  // // await deployContract(hre, 'StrategyStandardSale', owner, [])
+  // // await deployContract(hre, 'StrategyStandardSaleForCollection', owner, [])
   // await deployContract(hre, 'StrategyStargateSale', owner, [])
   // await deployContract(hre, 'StrategyStargateSaleForCollection', owner, [])
 
   // const currencyManager = await deployContract(hre, 'CurrencyManager', owner, [])
   // const executionManager = await deployContract(hre, 'ExecutionManager', owner, [])
-  // const royaltyFeeRegistry = await deployContract(hre, 'RoyaltyFeeRegistry', owner, [ROYALTY_FEE_LIMIT])
-  // const royaltyFeeManager = await deployContract(hre, 'RoyaltyFeeManager', owner, [royaltyFeeRegistry.address])
+  // const royaltyFeeManager = await deployContract(hre, 'RoyaltyFeeManager', owner, [])
   // const omniXExchange = await deployContract(hre, 'OmniXExchange', owner, [
   //   currencyManager.address,
   //   executionManager.address,
   //   royaltyFeeManager.address,
-  //   ethers.constants.AddressZero,
+  //   getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero,
   //   owner.address,
   //   lzEndpoint
   // ])
 
   // const transferManager721 = await deployContract(hre, 'TransferManagerERC721', owner, [lzEndpoint])
   // const transferManager1155 = await deployContract(hre, 'TransferManagerERC1155', owner, [lzEndpoint])
-  // const transferManagerONFT721 = await deployContract(hre, 'TransferManagerONFT721', owner, [lzEndpoint])
-  // const transferManagerONFT1155 = await deployContract(hre, 'TransferManagerONFT1155', owner, [lzEndpoint])
+  // // const transferManagerONFT721 = await deployContract(hre, 'TransferManagerONFT721', owner, [lzEndpoint])
+  // // const transferManagerONFT1155 = await deployContract(hre, 'TransferManagerONFT1155', owner, [lzEndpoint])
   // const transferSelector = await deployContract(hre, 'TransferSelectorNFT', owner, [
   //   transferManager721.address,
   //   transferManager1155.address,
-  //   transferManagerONFT721.address,
-  //   transferManagerONFT1155.address
+  //   ethers.constants.AddressZero,
+  //   ethers.constants.AddressZero
   // ])
 
   // // await deployContract(hre, 'OFTMock', owner, ['OMNI', 'OMNI', toWei(ethers, 1000), lzEndpoint])
@@ -71,6 +70,7 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
     owner.address,
     lzEndpoint
   ])
+
   const fundManager = await deployContract(hre, 'FundManager', owner, [omniXExchange.address])
   await (await omniXExchange.setFundManager(fundManager.address)).wait()
   await (await omniXExchange.updateTransferSelectorNFT(getContractAddrByName(network.name, 'TransferSelectorNFT'))).wait()
@@ -78,11 +78,6 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
   let stargateRouter = stargateEndpoint?.router
 
   if (stargateRouter) {
-    const poolManager = await deployContract(hre, 'StargatePoolManager', owner, [stargateRouter])
-    if (stargateEndpoint?.routerEth) {
-        await (await poolManager.setStargateRouterEth(stargateEndpoint.routerEth)).wait()
-    }
-
     await (await omniXExchange.setStargatePoolManager(getContractAddrByName(network.name, 'StargatePoolManager'))).wait()
   }
 }
@@ -98,7 +93,7 @@ export const deployGhosts = async (taskArgs: any, hre: any) => {
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
   // testnet: ['fuji', 'mumbai', 'bsc-testnet', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
-  testnet: ['fuji', 'optimism-goerli', 'bsc-testnet']
+  testnet: ['mumbai', 'bsc-testnet', 'fuji', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
 }
 
 export const deployOmnixAll = async function (taskArgs: any) {
