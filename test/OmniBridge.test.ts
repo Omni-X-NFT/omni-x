@@ -13,7 +13,7 @@ describe('OmniBridge', function () {
   let lzEndpointSrcMock: any
   let lzEndpointDstMock: any
   let mockInstance: any
-  let owner: Signer
+  let owner: Signer   
   let ownerAddress: string
 
   const TOKEN_URI = 'https://tokenuri.com'
