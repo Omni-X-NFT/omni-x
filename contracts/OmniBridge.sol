@@ -69,7 +69,7 @@ contract OmniBridge is
         (uint messageFee, ) = lzEndpoint.estimateFees(_dstChainId, address(this), payload, false, _adapterParams);
         require(msg.value >= messageFee, "Insufficient fee amount");
 
-        _lzSend(_dstChainId, payload, payable(msg.sender), address(0x0), _adapterParams);
+        _lzSend(_dstChainId, payload, payable(msg.sender), address(0x0), _adapterParams, msg.value);
     }
 
     function withdraw(address _persistentAddress, uint256 _tokenId)
