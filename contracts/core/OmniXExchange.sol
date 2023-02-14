@@ -120,7 +120,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, ReentrancyGu
         WETH = _WETH;
         protocolFeeRecipient = _protocolFeeRecipient;
 
-        gasForOmniLzReceive = 700000;
+        gasForOmniLzReceive = 900000;
         gasForOmniLzReceiveResp = 500000;
     }
 

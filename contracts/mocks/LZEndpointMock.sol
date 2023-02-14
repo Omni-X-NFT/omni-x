@@ -109,7 +109,7 @@ contract LZEndpointMock is ILayerZeroEndpoint {
     }
 
     // ------------------------------ ILayerZeroEndpoint Functions ------------------------------
-    function send(uint16 _chainId, bytes memory _path, bytes calldata _payload, address payable _refundAddress, address _zroPaymentAddress, bytes memory _adapterParams) external payable override sendNonReentrant {
+    function send(uint16 _chainId, bytes memory _path, bytes calldata _payload, address payable _refundAddress, address _zroPaymentAddress, bytes memory _adapterParams) external payable override {
         require(_path.length == 40, "LayerZeroMock: incorrect remote address size"); // only support evm chains
 
         address dstAddr;
@@ -150,7 +150,7 @@ contract LZEndpointMock is ILayerZeroEndpoint {
         LZEndpointMock(lzEndpoint).receivePayload(mockChainId, srcUaAddress, dstAddr, nonce, extraGas, payload);
     }
 
-    function receivePayload(uint16 _srcChainId, bytes calldata _path, address _dstAddress, uint64 _nonce, uint _gasLimit, bytes calldata _payload) external override receiveNonReentrant {
+    function receivePayload(uint16 _srcChainId, bytes calldata _path, address _dstAddress, uint64 _nonce, uint _gasLimit, bytes calldata _payload) external override {
         StoredPayload storage sp = storedPayload[_srcChainId][_path];
 
         // assert and increment the nonce. no message shuffling
