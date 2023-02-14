@@ -15,7 +15,7 @@ import {
   setupBridge,
   setupChainPath,
   setupPool
-} from './shared'
+} from './TestDependencies'
 import {
   setEthers,
   TakerOrder,

@@ -24,7 +24,7 @@ import {
 } from '../typechain-types'
 import {
   deployContract, getBlockTime, toWei
-} from './shared'
+} from './TestDependencies'
 import {
   setEthers,
   TakerOrder,

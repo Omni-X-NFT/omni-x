@@ -10,7 +10,7 @@ import {
   prepareMaker,
   prepareTaker,
   Chain
-} from './shared'
+} from './TestDependencies'
 import {
   setEthers,
   TakerOrder,

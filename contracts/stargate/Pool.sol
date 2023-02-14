@@ -330,6 +330,7 @@ contract Pool is LPTokenERC20, ReentrancyGuard {
         _safeTransfer(token, _to, amountLD);
         emit SwapRemote(_to, _s.amount.add(_s.eqReward), _s.protocolFee, _s.eqFee);
     }
+    
 
     // Local                                    Remote
     // -------                                  ---------
