@@ -59,6 +59,7 @@ describe('OmniXExchange', () => {
   let maker: SignerWithAddress
   let taker: SignerWithAddress
   let layerZeroEndpoint: LZEndpointMock
+  let royaltyRecipient: SignerWithAddress
 
   const fillMakerOrder = async (
     makeOrder : MakerOrder,
@@ -117,7 +118,7 @@ describe('OmniXExchange', () => {
 
     // royalty fee manager
     const royaltyFeeRegistry = await deployContract('RoyaltyFeeRegistry', owner, [ROYALTY_FEE_LIMIT])
-    royaltyFeeManager = await deployContract('RoyaltyFeeManager', owner, [royaltyFeeRegistry.address]) as RoyaltyFeeManager
+    royaltyFeeManager = await deployContract('RoyaltyFeeManager', owner, []) as RoyaltyFeeManager
 
     // looks rare exchange
     omniXExchange = await deployContract('OmniXExchange', owner, [
@@ -183,7 +184,7 @@ describe('OmniXExchange', () => {
   }
 
   before(async () => {
-    [owner, maker, taker] = await ethers.getSigners()
+    [owner, maker, taker, royaltyRecipient] = await ethers.getSigners()
 
     await deploy()
     await prepare()
@@ -194,11 +195,12 @@ describe('OmniXExchange', () => {
     it('MakerAsk /w TakerBid - Normal Currency /w Normal NFT', async () => {
       const makerAsk: MakerOrder = new MakerOrder(true)
       const takerBid: TakerOrder = new TakerOrder(false)
+      
 
       await fillMakerOrder(makerAsk, 1, erc20Mock.address, nftMock.address, 1, maker.address)
       fillTakerOrder(takerBid, 1, taker.address)
 
-      makerAsk.encodeParams(await maker.getChainId())
+      makerAsk.encodeParams(await maker.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
       takerBid.encodeParams(await taker.getChainId(), erc20Mock.address, nftMock.address, strategy.address, 0)
       await makerAsk.sign(maker)
 
@@ -213,7 +215,7 @@ describe('OmniXExchange', () => {
       await fillMakerOrder(makerAsk, 2, omni.address, nftMock.address, 2, maker.address)
       fillTakerOrder(takerBid, 2, taker.address)
 
-      makerAsk.encodeParams(await maker.getChainId())
+      makerAsk.encodeParams(await maker.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT )
       takerBid.encodeParams(await taker.getChainId(), omni.address, nftMock.address, strategy.address, 0)
       await makerAsk.sign(maker)
       await omniXExchange.connect(taker).matchAskWithTakerBid(0, takerBid, makerAsk)
@@ -228,7 +230,7 @@ describe('OmniXExchange', () => {
       await fillMakerOrder(makerAsk, 1, erc20Mock.address, onft721.address, 3, maker.address)
       fillTakerOrder(takerBid, 1, taker.address)
 
-      makerAsk.encodeParams(await maker.getChainId())
+      makerAsk.encodeParams(await maker.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
       takerBid.encodeParams(await taker.getChainId(), erc20Mock.address, onft721.address, strategy.address, 0)
       await makerAsk.sign(maker)
       await omniXExchange.connect(taker).matchAskWithTakerBid(0, takerBid, makerAsk)
@@ -243,7 +245,7 @@ describe('OmniXExchange', () => {
       await fillMakerOrder(makerAsk, 2, omni.address, onft721.address, 4, maker.address)
       fillTakerOrder(takerBid, 2, taker.address)
 
-      makerAsk.encodeParams(await maker.getChainId())
+      makerAsk.encodeParams(await maker.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
       takerBid.encodeParams(await taker.getChainId(), omni.address, onft721.address, strategy.address, 0)
       await makerAsk.sign(maker)
       await omniXExchange.connect(taker).matchAskWithTakerBid(0, takerBid, makerAsk)
@@ -260,7 +262,7 @@ describe('OmniXExchange', () => {
       await fillMakerOrder(makerBid, 3, omni.address, nftMock.address, 5, taker.address)
       fillTakerOrder(takerAsk, 3, maker.address)
 
-      makerBid.encodeParams(await bidder.getChainId())
+      makerBid.encodeParams(await bidder.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
       takerAsk.encodeParams(await seller.getChainId(), omni.address, nftMock.address, strategy.address, 0)
       await makerBid.sign(bidder)
       await omniXExchange.connect(seller).matchBidWithTakerAsk(0, takerAsk, makerBid)

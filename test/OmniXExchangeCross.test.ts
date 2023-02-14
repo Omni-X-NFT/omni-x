@@ -118,10 +118,10 @@ describe('OmniXExchangeCross', () => {
 
       const destAirdrop = toWei(0.3)
       const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.getLzFeesForTrading(takerBid, makerAsk, destAirdrop)
-      await (await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(destAirdrop, takerBid, makerAsk, {value: omnixFee.add(currencyFee).add(nftFee) })).wait()
+      await (await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(destAirdrop, takerBid, makerAsk, {value: omnixFee.add(currencyFee).add(nftFee), gasLimit: 30000000 })).wait()
   
       expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
-      // expect(await makerChain.omni.balanceOf(maker.address)).to.eq(oldBalance.add(toWei(0.98)))
+      expect(await makerChain.omni.balanceOf(maker.address)).to.eq(oldBalance.add(toWei(0.98)))
     })
 
     // it('MakerAsk /w TakerBid - $OMNI /w ONFT', async () => {
