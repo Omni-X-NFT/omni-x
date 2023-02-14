@@ -15,12 +15,6 @@ dotenv.config()
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
-const accounts = [
-  process.env.PRIVATE_KEY || '',
-  process.env.PRIVATE_KEY1 || '',
-  process.env.PRIVATE_KEY2 || ''
-]
-
 const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
 
@@ -108,8 +102,8 @@ const config: HardhatUserConfig = {
     },
     moonbeam_testnet: {
       url: 'https://rpc.testnet.moonbeam.network',
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    }
   },
 
   gasReporter: {

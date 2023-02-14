@@ -1,6 +1,5 @@
-const { ethers } = require("ethers");
 
 module.exports = [
-    "USDC",
-    "TEST"
+  'USDC',
+  'TEST'
 ]

@@ -1,4 +1,4 @@
-const { ethers } = require("ethers");
+const { ethers } = require('ethers')
 
 module.exports = [
   'Doodle',
@@ -12,4 +12,4 @@ module.exports = [
   ethers.constants.AddressZero,
   1000,
   '0x6EF408ED5660d13303f06f33627e798305638909'
-];
+]

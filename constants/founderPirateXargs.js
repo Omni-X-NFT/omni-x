@@ -1,4 +1,4 @@
-const { ethers } = require("ethers");
+const { ethers } = require('ethers')
 
 module.exports = [
   'FounderPirates',
@@ -11,4 +11,4 @@ module.exports = [
   'https://api.proofofplay.gg/api/metadata/0x687e4d88c45EbA1aefB0Ace6D127D038e7235943/',
   1000,
   '0x6EF408ED5660d13303f06f33627e798305638909'
-];
+]

@@ -1,5 +1,5 @@
 import shell from 'shelljs'
-import { getContractAddrByName, toWei } from './shared'
+import { getContractAddrByName } from './shared'
 import { getDeploymentAddresses } from '../utils/readStatic'
 import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
@@ -48,35 +48,35 @@ export const verifyOmni = async () => {
   // eslint-disable-next-line
   const { ethers, run, network } = hre
   const [owner] = await ethers.getSigners()
-  
+
   const lzEndpoint = ENDPOINTS[network.name]
 
   await run('verify:verify', {
     address: getContractAddrByName(network.name, 'OmniXExchange'),
     constructorArguments: [
-        getContractAddrByName(network.name, 'CurrencyManager'),
-        getContractAddrByName(network.name, 'ExecutionManager'),
-        getContractAddrByName(network.name, 'RoyaltyFeeManager'),
-        getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero,
-        owner.address,
-        lzEndpoint
+      getContractAddrByName(network.name, 'CurrencyManager'),
+      getContractAddrByName(network.name, 'ExecutionManager'),
+      getContractAddrByName(network.name, 'RoyaltyFeeManager'),
+      getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero,
+      owner.address,
+      lzEndpoint
     ],
-    contract: "contracts/core/OmniXExchange.sol:OmniXExchange"
+    contract: 'contracts/core/OmniXExchange.sol:OmniXExchange'
   })
 
   await run('verify:verify', {
     address: getContractAddrByName(network.name, 'FundManager'),
     constructorArguments: [
-        getContractAddrByName(network.name, 'OmniXExchange')
+      getContractAddrByName(network.name, 'OmniXExchange')
     ],
-    contract: "contracts/core/FundManager.sol:FundManager"
+    contract: 'contracts/core/FundManager.sol:FundManager'
   })
 
   const stargateEndpoint = (STARGATE as any)[network.name]
   await run('verify:verify', {
     address: getContractAddrByName(network.name, 'StargatePoolManager'),
     constructorArguments: [stargateEndpoint.router],
-    contract: "contracts/core/StargatePoolManager.sol:StargatePoolManager"
+    contract: 'contracts/core/StargatePoolManager.sol:StargatePoolManager'
   })
 
   await run('verify:verify', {

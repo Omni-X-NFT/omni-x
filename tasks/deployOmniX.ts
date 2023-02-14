@@ -1,10 +1,7 @@
 import {
-  ROYALTY_FEE_LIMIT,
   deployContract,
   toWei,
-  getContractAddrByName,
-  createContractByName,
-  loadAbi
+  getContractAddrByName
 } from './shared'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
@@ -75,7 +72,7 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
   await (await omniXExchange.setFundManager(fundManager.address)).wait()
   await (await omniXExchange.updateTransferSelectorNFT(getContractAddrByName(network.name, 'TransferSelectorNFT'))).wait()
 
-  let stargateRouter = stargateEndpoint?.router
+  const stargateRouter = stargateEndpoint?.router
 
   if (stargateRouter) {
     await (await omniXExchange.setStargatePoolManager(getContractAddrByName(network.name, 'StargatePoolManager'))).wait()

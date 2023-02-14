@@ -10,8 +10,7 @@ import {TransferManagerLzBase} from "./TransferManagerLzBase.sol";
  */
 contract TransferManagerERC721 is TransferManagerLzBase {
     constructor(address _lzEndpoint) 
-        TransferManagerLzBase(_lzEndpoint) {
-    }
+        TransferManagerLzBase(_lzEndpoint) {}
 
     /**
     @dev just transfer the token from maker to taker on maker chain

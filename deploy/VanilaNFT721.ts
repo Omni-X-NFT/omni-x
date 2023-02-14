@@ -6,7 +6,7 @@ import PUDGY_PENGUINS from '../constants/pudgyPenguins.json'
 const ARGS: any = {
   azuki: AZUKI,
   bayc: BAYC,
-  'pudgy-penguins': PUDGY_PENGUINS,
+  'pudgy-penguins': PUDGY_PENGUINS
 }
 // @ts-ignore
 export const deployVanilaNFT = async (contract: string, { deployments, getNamedAccounts }) => {

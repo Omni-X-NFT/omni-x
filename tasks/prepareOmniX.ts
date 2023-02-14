@@ -5,8 +5,7 @@ import {
   getContractAddrByName,
   getPoolId,
   loadAbi,
-  toWei,
-  waitFor
+  toWei
 } from './shared'
 import STARGATE from '../constants/stargate.json'
 import shell from 'shelljs'
@@ -33,7 +32,7 @@ const tx = async (tx1: any) => {
 }
 
 export const prepareOmniX = async (taskArgs: any, hre: any) => {
-  const { ethers, network } = hre
+  const { ethers } = hre
   const [owner] = await ethers.getSigners()
 
   // const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
@@ -122,15 +121,15 @@ export const setupBridge = async (taskArgs: any, hre: any) => {
 
     console.log('--1--', router.address, erc20.address, srcPoolId, dstPoolId, network.name, dstNetwork)
     await (await router.connect(owner).addLiquidity(srcPoolId, toWei(ethers, 100000000000), owner.address)).wait()
-    let quoteData = await router.quoteLayerZeroFee(
-      dstChainId,                 // destination chainId
-      2,                          // function type: see Bridge.sol for all types
-      owner.address,              // destination of tokens
-      "0x",                         // payload, using abi.encode()
+    const quoteData = await router.quoteLayerZeroFee(
+      dstChainId, // destination chainId
+      2, // function type: see Bridge.sol for all types
+      owner.address, // destination of tokens
+      '0x', // payload, using abi.encode()
       ({
-          dstGasForCall: 0,       // extra gas, if calling smart contract,
-          dstNativeAmount: 0,     // amount of dust dropped in destination wallet 
-          dstNativeAddr: "0x" // destination wallet for dust
+        dstGasForCall: 0, // extra gas, if calling smart contract,
+        dstNativeAmount: 0, // amount of dust dropped in destination wallet
+        dstNativeAddr: '0x' // destination wallet for dust
       })
     )
     let credits = quoteData[0] // toWei(ethers, '0.1')

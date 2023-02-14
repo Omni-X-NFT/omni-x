@@ -12,7 +12,6 @@ import {
   TransferManagerERC1155,
   TransferManagerONFT721,
   TransferManagerONFT1155,
-  StrategyStandardSale,
   Nft721Mock,
   ERC20Mock,
   OFTMock,
@@ -31,8 +30,6 @@ import {
   Pool,
   Factory
 } from '../typechain-types'
-
-const ROYALTY_FEE_LIMIT = 500 // 5%
 
 export type Chain = {
   omniXExchange: OmniXExchange
@@ -179,7 +176,7 @@ export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
 
   await chain.erc20Mock.mint(maker.address, toWei(200))
   await chain.omni.transfer(maker.address, toWei(200))
-  await chain.weth.deposit({value: toWei(1)})
+  await chain.weth.deposit({ value: toWei(1) })
 }
 
 export const prepareTaker = async (chain: Chain, taker: SignerWithAddress) => {

@@ -13,7 +13,7 @@ describe('OmniBridge', function () {
   let lzEndpointSrcMock: any
   let lzEndpointDstMock: any
   let mockInstance: any
-  let owner: Signer   
+  let owner: Signer
   let ownerAddress: string
 
   const TOKEN_URI = 'https://tokenuri.com'
@@ -60,10 +60,10 @@ describe('OmniBridge', function () {
     // Calling wrap function in bridge contract
     const adapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 3500000])
 
-    const payload = ethers.utils.solidityPack(['address', 'address', 'string', 'string', 'string', 'uint256'], [mockInstance.address, OmniBridgeSrc.address, "TEST", "TEST", TOKEN_URI, 1])
-    const estimatedFee = await (await lzEndpointSrcMock.estimateFees(chainIdDst, OmniBridgeSrc.address, payload,false, adapterParams))
- 
-    await (await OmniBridgeSrc.connect(owner).wrap(chainIdDst, ownerAddress, mockInstance.address, 0, adapterParams, {value: estimatedFee.toString().replace(/\,/g, '')}))
+    const payload = ethers.utils.solidityPack(['address', 'address', 'string', 'string', 'string', 'uint256'], [mockInstance.address, OmniBridgeSrc.address, 'TEST', 'TEST', TOKEN_URI, 1])
+    const estimatedFee = await (await lzEndpointSrcMock.estimateFees(chainIdDst, OmniBridgeSrc.address, payload, false, adapterParams))
+
+    await (await OmniBridgeSrc.connect(owner).wrap(chainIdDst, ownerAddress, mockInstance.address, 0, adapterParams, { value: estimatedFee.toString().replace(/,/g, '') }))
     expect(await mockInstance.ownerOf(0)).to.eq(OmniBridgeSrc.address)
 
     expect(await OmniBridgeDst.persistentAddresses(mockInstance.address)).to.not.equal(ethers.constants.AddressZero)
@@ -73,8 +73,7 @@ describe('OmniBridge', function () {
     const OmniNFTInstanceDst = await hre.ethers.getContractAt(ERC721PersistentArtifacts.abi, onftAddressDst, owner)
     expect(await OmniNFTInstanceDst.tokenURI(0)).to.eq(TOKEN_URI)
     await OmniNFTInstanceDst.approve(OmniBridgeDst.address, 0)
-    await (await OmniBridgeDst.connect(owner).wrap(chainIdSrc, ownerAddress, onftAddressDst, 0, adapterParams, {value: estimatedFee.toString().replace(/\,/g, '')}))
-
+    await (await OmniBridgeDst.connect(owner).wrap(chainIdSrc, ownerAddress, onftAddressDst, 0, adapterParams, { value: estimatedFee.toString().replace(/,/g, '') }))
 
     // Withdrawing regular NFT item from BridgeSRC contract
     const onftAddressSrc = await OmniBridgeSrc.persistentAddresses(mockInstance.address)

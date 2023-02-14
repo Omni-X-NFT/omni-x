@@ -10,7 +10,6 @@ import {
   prepareMaker,
   prepareTaker,
   Chain,
-  deployContract,
   prepareStargate,
   setupBridge,
   setupChainPath,
@@ -101,7 +100,7 @@ describe('Stargate', () => {
 
       const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.connect(taker).getLzFeesForTrading(takerBid, makerAsk, destAirdrop)
 
-      await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(destAirdrop, takerBid, makerAsk, {value: omnixFee.add(currencyFee).add(nftFee)})
+      await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(destAirdrop, takerBid, makerAsk, { value: omnixFee.add(currencyFee).add(nftFee) })
 
       expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
       expect(await makerChain.erc20Mock.balanceOf(maker.address)).to.eq(makerBalance.add(toWei(0.98)))

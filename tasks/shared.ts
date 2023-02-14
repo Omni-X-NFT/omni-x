@@ -147,7 +147,7 @@ export const loadAbi = (file: string) => {
       const abi = JSON.parse(readFileSync(filePath).toString())
       return abi
     }
-  
+
     throw new Error(`file not exists ${file}`)
   }
 }

@@ -1,4 +1,3 @@
-const { ethers } = require("ethers");
 
 module.exports = [
   'Smolverse',
@@ -7,4 +6,4 @@ module.exports = [
   0,
   0,
   5
-];
+]
