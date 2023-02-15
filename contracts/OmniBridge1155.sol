@@ -32,6 +32,7 @@ contract OmniBridge1155 is
 
     function wrap(
         uint16 _dstChainId,
+        address _toAddress,
         address _erc1155Address,
         uint256 _tokenId,
         uint256 _amount,
@@ -59,13 +60,13 @@ contract OmniBridge1155 is
         }
 
         // encode the payload with the number of tokenAddress, toAddress, tokenId
-        bytes memory payload = abi.encode(erc1155Address, msg.sender, tokenURI, _tokenId, _amount);
+        bytes memory payload = abi.encode(erc1155Address, _toAddress, tokenURI, _tokenId, _amount);
 
         // get the fees we need to pay to LayerZero for message delivery
         (uint messageFee, ) = lzEndpoint.estimateFees(_dstChainId, address(this), payload, false, _adapterParams);
         require(msg.value >= messageFee, "Insufficient fee amount");
 
-        _lzSend(_dstChainId, payload, payable(msg.sender), address(0x0), _adapterParams);
+        _lzSend(_dstChainId, payload, payable(msg.sender), address(0x0), _adapterParams, msg.value);
     }
 
     function withdraw(address _persistentAddress, uint256 _tokenId, uint256 _amount)

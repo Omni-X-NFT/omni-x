@@ -1,4 +1,5 @@
 import { HardhatUserConfig } from 'hardhat/config'
+import '@typechain/hardhat'
 import 'hardhat-contract-sizer'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
@@ -18,18 +19,18 @@ const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
 
   solidity: {
-    version: '0.8.4',
+    version: '0.8.17',
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200
+        runs: 10
       }
     }
   },
 
   namedAccounts: {
     deployer: {
-      default: 0 // wallet address 0, of the mnemonic in .env
+      default: process.env.PRIVATE_KEY || 0 // wallet address 0, of the mnemonic in .env
     }
   },
 
@@ -60,7 +61,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     'bsc-testnet': {
-      url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
+      url: 'https://rpc.ankr.com/bsc_testnet_chapel',
       chainId: 97,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
@@ -70,7 +71,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     mumbai: {
-      url: 'https://polygon-mumbai.g.alchemy.com/v2/PBnAhVXSPI5sRtN4YRc4Xadl6bFpkyFv',
+      url: 'https://rpc.ankr.com/polygon_mumbai',
       chainId: 80001,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
@@ -98,6 +99,10 @@ const config: HardhatUserConfig = {
       url: 'https://rpc.testnet.fantom.network/',
       chainId: 4002,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    moonbeam_testnet: {
+      url: 'https://rpc.testnet.moonbeam.network',
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     }
   },
 
@@ -124,8 +129,8 @@ const config: HardhatUserConfig = {
         network: 'arbitrum-goerli',
         chainId: 421613,
         urls: {
-          apiURL: 'https://goerli-rollup-explorer.arbitrum.io/api',
-          browserURL: 'https://goerli-rollup-explorer.arbitrum.io'
+          apiURL: 'https://api-goerli.arbiscan.io/api',
+          browserURL: 'https://testnet.arbiscan.io/'
         }
       },
       {

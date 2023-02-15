@@ -24,4 +24,5 @@ contract ONFT721Enumerable is ONFT721Core, ERC721Enumerable, IONFT721Enumerable 
     function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual override {
         _safeMint(_toAddress, _tokenId);
     }
+    
 }

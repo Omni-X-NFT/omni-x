@@ -5,10 +5,12 @@ pragma solidity ^0.8.0;
 import "./IONFT721.sol";
 import "./ONFT721Core.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "operator-filter-registry/src/DefaultOperatorFilterer.sol";
+
 
 // NOTE: this ONFT contract has no public minting logic.
 // must implement your own minting logic in child classes
-contract ONFT721 is ONFT721Core, ERC721, IONFT721 {
+contract ONFT721 is ONFT721Core, ERC721, IONFT721, DefaultOperatorFilterer{
     constructor(string memory _name, string memory _symbol, address _lzEndpoint) ERC721(_name, _symbol) ONFT721Core(_lzEndpoint) {}
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ONFT721Core, ERC721, IERC165) returns (bool) {
@@ -23,5 +25,33 @@ contract ONFT721 is ONFT721Core, ERC721, IONFT721 {
 
     function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual override {
         _safeMint(_toAddress, _tokenId);
+    }
+     /**
+     * @dev See {IERC721-setApprovalForAll}.
+     *      In this example the added modifier ensures that the operator is allowed by the OperatorFilterRegistry.
+     */
+  
+    function setApprovalForAll(address operator, bool approved) public override(ERC721, IERC721) onlyAllowedOperatorApproval(operator) {
+        super.setApprovalForAll(operator, approved);
+    }
+
+    function approve(address operator, uint256 tokenId) public override(ERC721, IERC721) onlyAllowedOperatorApproval(operator) {
+        super.approve(operator, tokenId);
+    }
+
+    function transferFrom(address from, address to, uint256 tokenId) public override(ERC721, IERC721) onlyAllowedOperator(from) {
+        super.transferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenId) public override(ERC721, IERC721) onlyAllowedOperator(from) {
+        super.safeTransferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data)
+        public
+        override(ERC721, IERC721)
+        onlyAllowedOperator(from)
+    {
+        super.safeTransferFrom(from, to, tokenId, data);
     }
 }
