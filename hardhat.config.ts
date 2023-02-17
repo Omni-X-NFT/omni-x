@@ -8,6 +8,7 @@ import 'hardhat-deploy'
 import 'hardhat-deploy-ethers'
 import 'solidity-coverage'
 import './tasks'
+import 'xdeployer'
 
 import * as dotenv from 'dotenv'
 dotenv.config()
@@ -118,11 +119,12 @@ const config: HardhatUserConfig = {
       bscTestnet: process.env.BSCSCAN_API_KEY || '',
       polygonMumbai: process.env.POLYGON_API_KEY || '',
       avalancheFujiTestnet: process.env.AVALANCHE_API_KEY || '',
-      arbitrumTestnet: process.env.ARBITRUM_API_KEY || '',
-      optimisticKovan: process.env.OPTIMISTIC_API_KEY || '',
+      // arbitrumTestnet: process.env.ARBITRUM_API_KEY || '',
+      // optimisticKovan: process.env.OPTIMISTIC_API_KEY || '',
       ftmTestnet: process.env.FANTOM_API_KEY || '',
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
-      'optimism-goerli': process.env.OPTIMISTIC_API_KEY || ''
+      'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
+      'moonbeam_testnet': process.env.MOONBEAM_API_KEY || ''
     },
     customChains: [
       {
@@ -131,6 +133,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://api-goerli.arbiscan.io/api',
           browserURL: 'https://testnet.arbiscan.io/'
+        }
+      },
+      {
+        network: 'moonbeam_testnet',
+        chainId: 1287,
+        urls: {
+          apiURL: 'https://api-moonbase.moonscan.io/api',
+          browserURL: 'https://moonbase.moonscan.io'
         }
       },
       {
