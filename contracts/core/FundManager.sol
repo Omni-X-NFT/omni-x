@@ -13,6 +13,7 @@ import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
 import {IFundManager} from "../interfaces/IFundManager.sol";
 import {OmniXExchange} from "./OmniXExchange.sol";
 import {IOFT} from "../token/oft/IOFT.sol";
+import {OrderTypes} from "../libraries/OrderTypes.sol";
 
 import "hardhat/console.sol";
 
@@ -22,29 +23,16 @@ import "hardhat/console.sol";
  */
 contract FundManager is IFundManager, Ownable {
     using SafeERC20 for IERC20;
+    using OrderTypes for OrderTypes.MakerOrder;
+    using OrderTypes for OrderTypes.TakerOrder;
 
+    uint16 public constant DIRECT_TRANSFER = 0;
+    uint16 public constant PROXY_TRANSFER = 1;
+    uint16 public constant REVERT_TRANSFER = 2;
     uint16 private constant LZ_ADAPTER_VERSION = 1;
     uint16 private constant MIN_PERCENTAGE_INCOME = 800;
 
-    struct ProxyData {
-        uint256 lzFee;
-        address strategy;
-        address collection;
-        uint256 tokenId;
-        address currency;
-        address from;
-        address to;
-        uint16 fromChainId;
-        uint16 toChainId;
-        uint256 amount;
-        bytes royaltyInfo;
-
-    }
     // lz chain id => fund manager address
-    mapping (uint16 => address) private _trustedRemoteAddress;
-    // proxyDataId => ProxyData
-    mapping (uint => ProxyData) private _proxyData;
-    uint private _nextProxyDataId;
     uint256 public gasForOmniLzReceive = 350000;
     OmniXExchange public omnixExchange;
 
@@ -78,10 +66,6 @@ contract FundManager is IFundManager, Ownable {
 
     function setGasForOmniLZReceive(uint256 gas) external onlyOwner {
         gasForOmniLzReceive = gas;
-    }
-
-    function setTrustedRemoteAddress(uint16 chainId, address _remoteAddress) external onlyOwner {
-        _trustedRemoteAddress[chainId] = _remoteAddress;
     }
 
     function _safeTransferFrom(address currency, address from, address to, uint amount) private {
@@ -139,7 +123,8 @@ contract FundManager is IFundManager, Ownable {
         uint256 amount,
         uint16 fromChainId,
         uint16 toChainId,
-        uint256 lzFee
+        uint256 lzFee,
+        bytes memory payload
     ) internal {
         ICurrencyManager currencyManager = omnixExchange.currencyManager();
         IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
@@ -163,11 +148,7 @@ contract FundManager is IFundManager, Ownable {
                 address(stargatePoolManager) != address(0) &&
                 stargatePoolManager.isSwappable(currency, toChainId)
             ) {
-                if (from == address(this)) {
-                    IERC20(currency).approve(address(stargatePoolManager), amount);
-                }
-
-                stargatePoolManager.swap{value: lzFee}(currency, toChainId, payable(address(omnixExchange)), amount, from, to);
+                stargatePoolManager.swap{value: lzFee}(currency, toChainId, payable(address(omnixExchange)), amount, from, to, payload);
             }
             else {
                 _safeTransferFrom(currency, from, to, amount);
@@ -190,7 +171,8 @@ contract FundManager is IFundManager, Ownable {
         address to,
         uint256 amount,
         uint16 fromChainId,
-        uint16 toChainId
+        uint16 toChainId,
+        bytes memory payload
     ) public view override returns(uint256) {
         if (currency == address(0)) return 0;
         
@@ -222,7 +204,7 @@ contract FundManager is IFundManager, Ownable {
                     return fee;
                 }
                 else {
-                    (uint256 fee, ) = stargatePoolManager.getSwapFee(toChainId, to);
+                    (uint256 fee, ) = stargatePoolManager.getSwapFee(toChainId, to, payload);
                     return fee;
                 }
             }
@@ -232,51 +214,65 @@ contract FundManager is IFundManager, Ownable {
     }
 
     /**
-     * @notice Transfer fees and funds to royalty recipient, protocol, and seller
-     * @param strategy address of the execution strategy
-     * @param collection non fungible token address for the transfer
-     * @param tokenId tokenId
-     * @param currency currency being used for the purchase (e.g., WETH/USDC)
-     * @param from sender of the funds
-     * @param to seller's recipient
-     * @param amount amount being transferred (in currency)
-     * @param fromChainId ask chain id
+    * @notice omnixexchange approve the fund manager as spender
      */
-    function transferFeesAndFunds(
-        address strategy,
-        address collection,
-        uint256 tokenId,
-        address currency,
-        address from,
-        address to,
-        uint256 amount,
-        uint16 fromChainId,
-        uint16 toChainId,
-        bytes memory royaltyInfo
-    ) external payable override onlyOmnix() {
-        _transferFeesAndFunds(
-            strategy,
-            collection,
-            tokenId,
-            currency,
-            [from, to],
-            [amount, msg.value],
-            [fromChainId, toChainId],
-            royaltyInfo
-        );
+    function approveBy(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external override onlyOmnix() {
+        uint256 price = maker.isOrderAsk ? taker.price : maker.price;
+        (, address takerCurrency,,,) = taker.decodeParams();
+        address currency = maker.isOrderAsk ? takerCurrency : maker.currency;
+
+        IERC20(currency).approve(address(this), price);
     }
 
-    /// @param operators [0]: from, [1]: to
-    /// @param amounts [0]: amount, [1]: msgValue
-    /// @param chainIds [0]: fromChainId, [1]: toChainId
+    /**
+     * @notice Transfer fees and funds to royalty recipient, protocol, and seller
+     * @param taker taker order data
+     * @param maker maker order data
+     * @param transferType one of DIRECT_TRANSFER, PROXY_TRANSFER, REVERT_TRANSFER
+     */
+    function transferFeesAndFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint16 transferType) external payable override onlyOmnix() {
+        uint256 tokenId = taker.tokenId;
+        address from = maker.isOrderAsk ? taker.taker : maker.signer;
+        address to = maker.isOrderAsk ? maker.signer : taker.taker;
+        uint256 price = maker.isOrderAsk ? taker.price : maker.price;
+        (, address takerCurrency, address collection, address strategy,) = taker.decodeParams();
+        address currency = maker.isOrderAsk ? takerCurrency : maker.currency;
+        bytes memory royaltyInfo = maker.getRoyaltyInfo();
+
+        if (transferType == REVERT_TRANSFER) {
+            _safeTransferFrom(currency, address(omnixExchange), from, price);
+        }
+        else {
+            address _from = transferType == DIRECT_TRANSFER ? from : address(omnixExchange);
+            _transferFeesAndFunds(
+                strategy,
+                collection,
+                tokenId,
+                currency,
+                price,
+                _from,
+                to,
+                royaltyInfo
+            );
+        }
+    }
+
+    /// @param strategy fee strategy
+    /// @param collection nft collection for royalty calculation
+    /// @param tokenId nft token id for royalty calculation
+    /// @param currency erc20 token address
+    /// @param amount funds amount to be transferred
+    /// @param from sender
+    /// @param to receiver
+    /// @param royaltyInfo custom royalty data for the collection
     function _transferFeesAndFunds(
         address strategy,
         address collection,
         uint256 tokenId,
         address currency,
-        address[2] memory operators,
-        uint256[2] memory amounts,
-        uint16[2] memory chainIds,
+        uint256 amount,
+        address from,
+        address to,
         bytes memory royaltyInfo
     ) internal {
         address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
@@ -287,13 +283,13 @@ contract FundManager is IFundManager, Ownable {
             uint256 royaltyFeeAmount,
             uint256 finalSellerAmount,
             address royaltyFeeRecipient
-        ) = getFeesAndFunds(strategy, collection, tokenId, amounts[0], royaltyInfo);
+        ) = getFeesAndFunds(strategy, collection, tokenId, amount, royaltyInfo);
 
         // 1. Protocol fee
         {
             // Check if the protocol fee is different than 0 for this strategy
             if ((protocolFeeRecipient != address(0)) && (protocolFeeAmount != 0)) {
-                _safeTransferFrom(currency, operators[0], protocolFeeRecipient, protocolFeeAmount);
+                _safeTransferFrom(currency, from, protocolFeeRecipient, protocolFeeAmount);
             }
         }
 
@@ -301,55 +297,37 @@ contract FundManager is IFundManager, Ownable {
         {
             // Check if there is a royalty fee and that it is different to 0
             if ((royaltyFeeRecipient != address(0)) && (royaltyFeeAmount != 0)) {
-                _safeTransferFrom(currency, operators[0], royaltyFeeRecipient, royaltyFeeAmount);
+                _safeTransferFrom(currency, from, royaltyFeeRecipient, royaltyFeeAmount);
                 emit RoyaltyPayment(collection, tokenId, royaltyFeeRecipient, currency, royaltyFeeAmount);
             }
         }
 
-        require((finalSellerAmount * 10000) >= (MIN_PERCENTAGE_INCOME * amounts[0]), "Fees: Higher than expected");
+        require((finalSellerAmount * 10000) >= (MIN_PERCENTAGE_INCOME * amount), "Fees: Higher than expected");
 
         // 3. Transfer final amount (post-fees) to seller
         {
-            transferCurrency(
-                currency,
-                operators[0],
-                operators[1],
-                finalSellerAmount,
-                chainIds[0],
-                chainIds[1],
-                amounts[1]
-            );
+            _safeTransferFrom(currency, from, to, finalSellerAmount);
         }
     }
 
     /**
      * @notice Transfer fees and funds to royalty recipient, protocol, and seller
-     * @param strategy address of the execution strategy
-     * @param collection non fungible token address for the transfer
-     * @param tokenId tokenId
-     * @param to seller's recipient
-     * @param amount amount being transferred (in currency)
+     * @param taker taker order data
+     * @param maker maker order data
      */
-    function transferFeesAndFundsWithWETH(
-        address strategy,
-        address collection,
-        uint256 tokenId,
-        address from,
-        address to,
-        uint256 amount,
-        uint16 fromChainId,
-        uint16 toChainId,
-        bytes memory royaltyInfo
-    ) external payable override onlyOmnix() {
+    function transferFeesAndFundsWithWETH(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external payable override onlyOmnix() {
+        (uint16 takerChainId,, address collection, address strategy,) = taker.decodeParams();
+        (uint16 makerChainId) = maker.decodeParams();
+        bytes memory royaltyInfo = maker.getRoyaltyInfo();
         _transferFeesAndFundsWithWETH(
             strategy,
             collection,
-            tokenId,
-            from,
-            to,
-            amount,
-            fromChainId,
-            toChainId,
+            taker.tokenId,
+            taker.taker,
+            maker.signer,
+            taker.price,
+            takerChainId,
+            makerChainId,
             msg.value,
             royaltyInfo
         );
@@ -418,82 +396,30 @@ contract FundManager is IFundManager, Ownable {
         }
     }
 
-    /// @param addresses [0]: currency, [1]: strategy, [2]: collection
-    function proxyTransfer(
-        bytes memory royaltyInfo,
-        uint256 amount,
-        uint256 tokenId,
-        address[2] memory operators,
-        address[3] memory addresses,
-        uint16[2] memory chainIds
-    ) public payable override returns (uint) {
-        // if currency is native token, currency is 0x0
-        ++_nextProxyDataId;
-        _proxyData[_nextProxyDataId] = ProxyData(
+    /**
+     * @notice Transfer funds to omnixexchange
+     * @param taker taker order data
+     * @param maker maker order data
+     */
+    function transferProxyFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external payable override onlyOmnix() {
+        address from = maker.isOrderAsk ? taker.taker : maker.signer;
+        uint256 price = maker.isOrderAsk ? taker.price : maker.price;
+        uint16 makerChainId = maker.decodeParams();
+        (uint16 takerChainId, address takerCurrency,,,) = taker.decodeParams();
+        address currency = maker.isOrderAsk ? takerCurrency : maker.currency;
+        uint16 fromChainId = maker.isOrderAsk ? takerChainId : makerChainId;
+        uint16 toChainId = maker.isOrderAsk ? makerChainId : takerChainId;
+        bytes memory payload = abi.encode(taker, maker);
+
+        transferCurrency(
+            currency,
+            from,
+            address(omnixExchange),
+            price,
+            fromChainId,
+            toChainId,
             msg.value,
-            addresses[1],
-            addresses[2],
-            tokenId,
-            addresses[0],
-            operators[0],
-            operators[1],
-            chainIds[0],
-            chainIds[1],
-            amount,
-            royaltyInfo
+            payload
         );
-
-        if (addresses[0] != omnixExchange.WETH()) {
-            IERC20(addresses[0]).safeTransferFrom(operators[0], address(this), amount);
-        }
-
-        return _nextProxyDataId;
-    }
-
-    function processFunds(uint proxyDataId, uint8 resp) external override onlyOmnix() {
-        require (_proxyData[proxyDataId].currency != address(0), "proxy funds: invalid data id");
-
-        ProxyData storage data = _proxyData[proxyDataId];
-
-        if (data.currency == omnixExchange.WETH()) {
-            // success
-            if (resp == 1) {
-                // ship funds
-                _transferFeesAndFundsWithWETH(
-                    data.strategy,
-                    data.collection,
-                    data.tokenId,
-                    address(this),
-                    data.to,
-                    data.amount,
-                    data.fromChainId,
-                    data.toChainId,
-                    data.lzFee,
-                    data.royaltyInfo
-                );
-            } else {
-                // revert funds
-                payable(data.from).transfer(data.amount);
-            }
-        } else {
-            // success
-            if (resp == 1) {
-                // ship funds
-                _transferFeesAndFunds(
-                    data.strategy,
-                    data.collection,
-                    data.tokenId,
-                    data.currency,
-                    [address(this), data.to],
-                    [data.amount, data.lzFee],
-                    [data.fromChainId, data.toChainId],
-                    data.royaltyInfo
-                );
-            } else {
-                // revert funds
-                _safeTransferFrom(data.currency, address(this), data.from, data.amount);
-            }
-        }
-        
     }
 }

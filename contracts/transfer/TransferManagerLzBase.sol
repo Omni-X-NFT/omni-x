@@ -27,7 +27,7 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
     /**
     * @notice set gas for onft destination layerzero receive
     */
-    function setGasForOmniLZReceive(uint256 gas) external onlyOwner {
+    function setGasForOnftLzReceive(uint256 gas) external onlyOwner {
         gasForOnftLzReceive = gas;
     }
 
@@ -60,16 +60,6 @@ abstract contract TransferManagerLzBase is ITransferManagerNFT, NonblockingLzApp
                 _crossSendToDst(collectionFrom, collectionTo, from, to, tokenId, amount, toChainId);
             }
         }
-    }
-
-    function proxyTransfer(
-        address collection,
-        address from,
-        address to,
-        uint256 tokenId,
-        uint256 amount
-    ) external override {
-        _normalTransfer(collection, from, to, tokenId, amount);
     }
 
     /**

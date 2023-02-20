@@ -11,7 +11,8 @@ interface IStargatePoolManager {
     
     function getSwapFee(
         uint16 dstChainId,
-        address to
+        address to,
+        bytes memory payload
     ) external view returns (uint256, uint256);
 
     function swap(
@@ -20,7 +21,8 @@ interface IStargatePoolManager {
         address payable refundAddress,
         uint256 amount,
         address from,
-        address to
+        address to,
+        bytes memory payload
     ) external payable;
 
     function getSwapFeeETH(

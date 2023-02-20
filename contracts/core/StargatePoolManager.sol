@@ -16,6 +16,7 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
   mapping (address => mapping (uint16 => PoolID)) public poolIds;
   IStargateRouter public stargateRouter;
   IStargateRouterETH public stargateRouterEth;
+  uint256 public gasForSgReceive = 350000;
 
   constructor(address stargateRouter_) {
     stargateRouter = IStargateRouter(stargateRouter_);
@@ -27,6 +28,10 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
 
   function setStargateRouterEth(address stargateRouterEth_) external onlyOwner {
     stargateRouterEth = IStargateRouterETH(stargateRouterEth_);
+  }
+
+  function setGasForSgReceive(uint256 gas) external onlyOwner {
+    gasForSgReceive = gas;
   }
 
   /**
@@ -73,10 +78,10 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     */
   function getSwapFee(
     uint16 dstChainId,
-    address to
+    address to,
+    bytes memory payload
   ) public view override returns (uint256, uint256) {
-    IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(0, 0, "0x");
-    bytes memory payload = bytes("");
+    IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(gasForSgReceive, 0, "0x");
     bytes memory toAddress = abi.encodePacked(to);
 
     (uint256 fee, uint256 lzFee) = stargateRouter.quoteLayerZeroFee(
@@ -103,10 +108,10 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     address payable refundAddress,
     uint256 amount,
     address from,
-    address to
+    address to,
+    bytes memory payload
   ) external payable override {
-    IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(0, 0, "0x");
-    bytes memory payload = bytes("");
+    IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(gasForSgReceive, 0, "0x");
     bytes memory toAddress = abi.encodePacked(to);
     PoolID memory poolId = getPoolId(token, dstChainId);
 
@@ -135,7 +140,7 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     uint16 dstChainId,
     address to
   ) public view override returns (uint256, uint256) {
-    return getSwapFee(dstChainId, to);
+    return getSwapFee(dstChainId, to, bytes(""));
   }
 
   /**

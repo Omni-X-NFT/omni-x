@@ -124,7 +124,8 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   chain.fundManager = await deployContract('FundManager', owner, [chain.omniXExchange.address]) as FundManager
   chain.chainId = chainId
 
-  await chain.omniXExchange.setFundManager(chain.fundManager.address)
+  await (await chain.omniXExchange.setFundManager(chain.fundManager.address)).wait()
+  await (await chain.omniXExchange.setGasForLzReceive(900000)).wait();
 
   return chain
 }
@@ -151,7 +152,6 @@ export const linkChains = async (src: Chain, dst: Chain) => {
   await src.transferManagerGhosts.setTrustedRemoteAddress(await dst.chainId, dst.transferManagerGhosts.address)
   await src.transferManagerONFT1155.setTrustedRemoteAddress(await dst.chainId, dst.transferManagerONFT1155.address)
   await src.omniXExchange.setTrustedRemoteAddress(await dst.chainId, dst.omniXExchange.address)
-  await src.fundManager.setTrustedRemoteAddress(await dst.chainId, dst.fundManager.address)
 }
 
 export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {

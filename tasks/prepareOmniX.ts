@@ -47,7 +47,7 @@ export const prepareOmniX = async (taskArgs: any, hre: any) => {
   // // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSaleForCollection')))
 
   const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
-  await tx(await omniXExchange.setGasForOmniLZReceive(1000000, 700000))
+  await tx(await omniXExchange.setGasForLzReceive(350000))
 }
 
 const packTrustedRemote = (hre: any, srcNetwork: string, dstNetwork: string, contractName: string) => {

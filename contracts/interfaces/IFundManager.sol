@@ -10,6 +10,7 @@ import {IExecutionStrategy} from "../interfaces/IExecutionStrategy.sol";
 import {IRoyaltyFeeManager} from "../interfaces/IRoyaltyFeeManager.sol";
 import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
 import {IOFT} from "../token/oft/IOFT.sol";
+import {OrderTypes} from "../libraries/OrderTypes.sol";
 
 interface IFundManager {
     function getFeesAndFunds(
@@ -32,42 +33,12 @@ interface IFundManager {
         address to,
         uint256 amount,
         uint16 fromChainId,
-        uint16 toChainId
+        uint16 toChainId,
+        bytes memory payload
     ) external view returns(uint256);
 
-    function transferFeesAndFunds(
-        address strategy,
-        address collection,
-        uint256 tokenId,
-        address currency,
-        address from,
-        address to,
-        uint256 amount,
-        uint16 fromChainId,
-        uint16 toChainId,
-        bytes memory royaltyInfo
-    ) external payable;
-
-    function transferFeesAndFundsWithWETH(
-        address strategy,
-        address collection,
-        uint256 tokenId,
-        address from,
-        address to,
-        uint256 amount,
-        uint16 fromChainId,
-        uint16 toChainId,
-        bytes memory royaltyInfo
-    ) external payable;
-
-    function processFunds(uint proxyDataId, uint8 resp) external;
-
-    function proxyTransfer(
-        bytes memory royaltyInfo,
-        uint256 amount,
-        uint256 tokenId,
-        address[2] memory operators,
-        address[3] memory addresses,
-        uint16[2] memory chainIds
-    ) external payable returns (uint);
+    function approveBy(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external;
+    function transferFeesAndFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint16 transferType) external payable;
+    function transferFeesAndFundsWithWETH(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external payable;
+    function transferProxyFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external payable;
 }

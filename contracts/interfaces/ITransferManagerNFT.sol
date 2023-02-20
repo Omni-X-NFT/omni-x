@@ -13,14 +13,6 @@ interface ITransferManagerNFT {
         uint16 toChainId
     ) external payable;
 
-    function proxyTransfer(
-        address collection,
-        address from,
-        address to,
-        uint256 tokenId,
-        uint256 amount
-    ) external;
-
     function estimateSendFee(
         address collectionFrom,
         address collectionTo,
