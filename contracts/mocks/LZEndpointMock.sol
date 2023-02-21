@@ -6,7 +6,6 @@ pragma abicoder v2;
 import "../interfaces/ILayerZeroReceiver.sol";
 import "../interfaces/ILayerZeroEndpoint.sol";
 import "../libraries/LzLib.sol";
-import "hardhat/console.sol";
 
 /*
 like a real LayerZero endpoint but can be mocked, which handle message transmission, verification, and receipt.
@@ -112,15 +111,12 @@ contract LZEndpointMock is ILayerZeroEndpoint {
 
     // ------------------------------ ILayerZeroEndpoint Functions ------------------------------
     function send(uint16 _chainId, bytes memory _path, bytes calldata _payload, address payable _refundAddress, address _zroPaymentAddress, bytes memory _adapterParams) external payable override {
-console.log("L#1");
         require(_path.length == 40, "LayerZeroMock: incorrect remote address size"); // only support evm chains
-console.log("L#2");
 
         address dstAddr;
         assembly {
             dstAddr := mload(add(_path, 20))
         }
-console.log("L#3");
 
         address lzEndpoint = lzEndpointLookup[dstAddr];
         require(lzEndpoint != address(0), "LayerZeroMock: destination LayerZero Endpoint not found");
@@ -131,7 +127,6 @@ console.log("L#3");
         require(msg.value >= nativeFee, "LayerZeroMock: not enough native for fees");
 
         uint64 nonce = ++outboundNonce[_chainId][msg.sender];
-console.log("L#5");
 
         // refund if they send too much
         uint amount = msg.value - nativeFee;
@@ -143,7 +138,6 @@ console.log("L#5");
         // Mock the process of receiving msg on dst chain
         // Mock the relayer paying the dstNativeAddr the amount of extra native token
         (, uint extraGas, uint dstNativeAmt, address payable dstNativeAddr) = LzLib.decodeAdapterParams(adapterParams);
-console.log("L#6");
 
         if (dstNativeAmt > 0) {
             (bool success, ) = dstNativeAddr.call{value: dstNativeAmt}("");
@@ -155,8 +149,6 @@ console.log("L#6");
         bytes memory srcUaAddress = abi.encodePacked(msg.sender, dstAddr); // cast this address to bytes
         bytes memory payload = _payload;
         LZEndpointMock(lzEndpoint).receivePayload(mockChainId, srcUaAddress, dstAddr, nonce, extraGas, payload);
-console.log("L#7");
-
     }
 
     function receivePayload(uint16 _srcChainId, bytes calldata _path, address _dstAddress, uint64 _nonce, uint _gasLimit, bytes calldata _payload) external override {
