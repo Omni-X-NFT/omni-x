@@ -96,14 +96,14 @@ describe('Stargate', () => {
       await takerChain.erc20Mock.connect(taker).approve(takerChain.fundManager.address, price)
       await takerChain.erc20Mock.connect(taker).approve(takerChain.stargatePoolManager.address, price)
 
-      const destAirdrop = toWei(0.3)
+      const destAirdrop = 0
 
       const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.connect(taker).getLzFeesForTrading(takerBid, makerAsk, destAirdrop)
 
       await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(destAirdrop, takerBid, makerAsk, { value: omnixFee.add(currencyFee).add(nftFee) })
 
       expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
-      expect(await makerChain.erc20Mock.balanceOf(maker.address)).to.eq(makerBalance.add(toWei(0.98)))
+      expect(await makerChain.erc20Mock.balanceOf(maker.address)).to.eq(makerBalance.add(ethers.utils.parseUnits('0.98', 6)))
     })
   })
 })
