@@ -178,22 +178,29 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
                 makerChainId,
                 payload
             );
+            uint256 omnixFee = 0;
             // on this taker chain, no NFT transfer fee
             // on the maker chain, there is transfer fee if using TransferManagerONFT
             // uint256 nftFee = 0;
 
-            return (uint256(0), currencyFee, uint256(0));
+            if (address(stargatePoolManager) == address(0) ||
+                !stargatePoolManager.isSwappable(currency, makerChainId)) {
+                // if the currency is not swappable, then we send cross message vis lz.
+                (omnixFee,, ) = _getCrossMessageFeedPayload(destAirdrop, taker, maker);
+            }
+
+            return (omnixFee, currencyFee, uint256(0));
         }
         else {
             uint256 nftFee = _lzFeeTransferNFT(
                 collection,
                 maker.collection,
-                maker.signer,
                 taker.taker,
+                maker.signer,
                 taker.tokenId,
                 maker.amount,
-                makerChainId,
-                takerChainId
+                takerChainId,
+                makerChainId
             );
 
             (uint256 omnixFee,, ) = _getCrossMessageFeedPayload(destAirdrop, taker, maker);
@@ -246,10 +253,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
                 this._transferNFTLz(takerBid, makerAsk, 0);
             }
             else {
+                // we believe stargate native swap 100%.
+                _sendCrossMessage(takerBid, makerAsk, 0);
                 // cross funds to maker chain's omnixexchange.
                 fundManager.transferFeesAndFundsWithWETH{value: currencyFee + takerBid.price}(takerBid, makerAsk);
-                // we believe stargate native swap 100%.
-                this._transferNFTLz(takerBid, makerAsk, 0);
             }
         }
 
@@ -304,17 +311,14 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
 
             if (makerChainId == takerChainId) {
                 // direct transfer funds
-                fundManager.transferFeesAndFunds(takerBid, makerAsk, 0);
+                fundManager.transferFeesAndFunds(takerBid, makerAsk);
                 this._transferNFTLz(takerBid, makerAsk, 0);
             }
             else {
-                if (currencyFee == 0) {
+                if (omnixFee != 0) {
                     // currency is not swappable so cross message to send nft and funds instantly
-                    console.log("-1-");
                     _sendCrossMessage(takerBid, makerAsk, 0);
-                    console.log("-2-");
-                    fundManager.transferFeesAndFunds(takerBid, makerAsk, 0);
-                    console.log("-3-");
+                    fundManager.transferFeesAndFunds{value: currencyFee}(takerBid, makerAsk);
                 }
                 else {
                     // cross funds to maker chain's omnixexchange.
@@ -365,7 +369,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         _canExecuteTakerAsk(takerAsk, makerBid);
 
         (uint16 toChainId) = makerBid.decodeParams();
-        (uint16 fromChainId,,,,) = takerAsk.decodeParams();
+        (uint16 fromChainId, address currency,,,) = takerAsk.decodeParams();
 
         {
             // currency fee is zero
@@ -374,11 +378,11 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
 
             if (fromChainId == toChainId) {
                 // direct transfer funds
-                fundManager.transferFeesAndFunds(takerAsk, makerBid, 0);
+                fundManager.transferFeesAndFunds(takerAsk, makerBid);
                 this._transferNFTLz(takerAsk, makerBid, 0);
             }
             else {
-                if (destAirdrop == 0) {
+                if (destAirdrop == 0 || currencyManager.isOmniCurrency(currency)) {
                     // currency is not swappable, so transfer nft first and then send cross message to make funds
                     this._transferNFTLz(takerAsk, makerBid, 0);
                     _sendCrossMessage(takerAsk, makerBid, destAirdrop);
@@ -443,11 +447,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         (uint16 makerChainId) = maker.decodeParams();
 
         require(trustedRemoteLookup[makerChainId].length != 0, "LzSend: dest chain is not trusted.");
-console.log("#1#");        
+
         (uint256 messageFee, bytes memory payload, bytes memory adapterParams) = _getCrossMessageFeedPayload(destAirdrop, taker, maker);
-console.log("#2#", address(lzEndpoint));
         lzEndpoint.send{value: messageFee}(makerChainId, trustedRemoteLookup[makerChainId], payload, payable(msg.sender), address(0), adapterParams);
-console.log("#3#", messageFee);        
     }
 
     /**
@@ -560,23 +562,33 @@ console.log("#3#", messageFee);
 
         (uint16 makerChainId) = maker.decodeParams();
         (uint16 takerChainId,, address takerCollection,,) = taker.decodeParams();
-        address collectionFrom = maker.isOrderAsk ? takerCollection : maker.collection;
-        address collectionTo = maker.isOrderAsk ? maker.collection : takerCollection;
-        address from = maker.isOrderAsk ? maker.signer : taker.taker;
-        address to = maker.isOrderAsk ? taker.taker : maker.signer;
         uint256 _fee = nftFee;
 
-        _transferNFT(
-            collectionFrom,
-            collectionTo,
-            from,
-            to,
-            taker.tokenId,
-            maker.amount,
-            takerChainId,
-            makerChainId,
-            _fee
-        );
+        if (maker.isOrderAsk) {
+            _transferNFT(
+                maker.collection,
+                takerCollection,
+                maker.signer,
+                taker.taker,
+                taker.tokenId,
+                maker.amount,
+                makerChainId,
+                takerChainId,
+                _fee
+            );
+        } else {
+            _transferNFT(
+                takerCollection,
+                maker.collection,
+                taker.taker,
+                maker.signer,
+                taker.tokenId,
+                maker.amount,
+                takerChainId,
+                makerChainId,
+                _fee
+            );
+        }
     }
 
     function _lzFeeTransferNFT(
@@ -639,11 +651,9 @@ console.log("#3#", messageFee);
             OrderTypes.TakerOrder,
             OrderTypes.MakerOrder
         ));
-        console.log("--1-", lzMessage);
+
         if (lzMessage == LZ_MESSAGE_ORDER_ASK) {
-            console.log("--2-");
             this._transferNFTLz(taker, maker, 0);
-            console.log("--3-");
         }
         else if (lzMessage == LZ_MESSAGE_ORDER_BID) {
             // cross funds to taker's chain and it will forward to sgReceive callback.
@@ -658,8 +668,8 @@ console.log("#3#", messageFee);
                 abi.encode(taker, maker)    // payload
             );
 
-            if (currencyFee == 0) {
-                fundManager.transferFeesAndFunds(taker, maker, 0);
+            if (currencyFee == 0 || currencyManager.isOmniCurrency(maker.currency)) {
+                fundManager.transferFeesAndFunds(taker, maker);
             }
             else {
                 fundManager.transferProxyFunds{value: currencyFee}(taker, maker);
@@ -676,7 +686,7 @@ console.log("#3#", messageFee);
         bytes memory _payload
     ) external override {
         if (_payload.length == 0) return;
-console.log("---1-");
+
         (
             OrderTypes.TakerOrder memory taker,
             OrderTypes.MakerOrder memory maker
@@ -684,21 +694,31 @@ console.log("---1-");
             OrderTypes.TakerOrder,
             OrderTypes.MakerOrder
         ));
-console.log("---2-");
+
         // transfer nft from seller to buyer.
         // if isOrderAsk is true, maker is seller, taker is buyer. this is running on maker chain.
         // if isOrderAsk is false, taker is seller, maker is buyer. this is running on taker chain.
         try this._transferNFTLz(taker, maker, 0) {
             // funds from omnixexchange to seller
-            fundManager.approveBy(taker, maker);
-            fundManager.transferFeesAndFunds(taker, maker, 1);
+            if (maker.isOrderAsk) {
+                IERC20(maker.currency).approve(address(fundManager), maker.price);
+            } else {
+                (, address takerCurrency,,,) = taker.decodeParams();
+                IERC20(takerCurrency).approve(address(fundManager), taker.price);
+            }
 
-        } catch {
+            fundManager.processFeesAndFunds(taker, maker, 1);
+
+        } catch (bytes memory reason) {
             // revert funds
-            fundManager.approveBy(taker, maker);
-            fundManager.transferFeesAndFunds(taker, maker, 2);
+            if (maker.isOrderAsk) {
+                IERC20(maker.currency).approve(address(fundManager), maker.price);
+            } else {
+                (, address takerCurrency,,,) = taker.decodeParams();
+                IERC20(takerCurrency).approve(address(fundManager), taker.price);
+            }
+            fundManager.processFeesAndFunds(taker, maker, 2);
         }
-console.log("---3-");        
     }
 
     receive() external payable {

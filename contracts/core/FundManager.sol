@@ -14,8 +14,7 @@ import {IFundManager} from "../interfaces/IFundManager.sol";
 import {OmniXExchange} from "./OmniXExchange.sol";
 import {IOFT} from "../token/oft/IOFT.sol";
 import {OrderTypes} from "../libraries/OrderTypes.sol";
-
-import "hardhat/console.sol";
+import {BytesLib} from "../libraries/BytesLib.sol";
 
 /**
  * @title FundManager
@@ -25,6 +24,7 @@ contract FundManager is IFundManager, Ownable {
     using SafeERC20 for IERC20;
     using OrderTypes for OrderTypes.MakerOrder;
     using OrderTypes for OrderTypes.TakerOrder;
+    using BytesLib for bytes;
 
     uint16 public constant DIRECT_TRANSFER = 0;
     uint16 public constant PROXY_TRANSFER = 1;
@@ -214,46 +214,69 @@ contract FundManager is IFundManager, Ownable {
     }
 
     /**
-    * @notice omnixexchange approve the fund manager as spender
-     */
-    function approveBy(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external override onlyOmnix() {
-        uint256 price = maker.isOrderAsk ? taker.price : maker.price;
-        (, address takerCurrency,,,) = taker.decodeParams();
-        address currency = maker.isOrderAsk ? takerCurrency : maker.currency;
-
-        IERC20(currency).approve(address(this), price);
-    }
-
-    /**
      * @notice Transfer fees and funds to royalty recipient, protocol, and seller
      * @param taker taker order data
      * @param maker maker order data
-     * @param transferType one of DIRECT_TRANSFER, PROXY_TRANSFER, REVERT_TRANSFER
      */
-    function transferFeesAndFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint16 transferType) external payable override onlyOmnix() {
-        uint256 tokenId = taker.tokenId;
-        address from = maker.isOrderAsk ? taker.taker : maker.signer;
-        address to = maker.isOrderAsk ? maker.signer : taker.taker;
-        uint256 price = maker.isOrderAsk ? taker.price : maker.price;
-        (, address takerCurrency, address collection, address strategy,) = taker.decodeParams();
-        address currency = maker.isOrderAsk ? takerCurrency : maker.currency;
+    function transferFeesAndFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external payable override onlyOmnix() {
         bytes memory royaltyInfo = maker.getRoyaltyInfo();
 
-        if (transferType == REVERT_TRANSFER) {
-            _safeTransferFrom(currency, address(omnixExchange), from, price);
-        }
-        else {
-            address _from = transferType == DIRECT_TRANSFER ? from : address(omnixExchange);
-            _transferFeesAndFunds(
-                strategy,
-                collection,
-                tokenId,
-                currency,
-                price,
-                _from,
-                to,
-                royaltyInfo
-            );
+        if (maker.isOrderAsk) {
+            (uint16 takerChainId, address takerCurrency, address takerCollection, address takerStrategy,) = taker.decodeParams();
+            (uint16 makerChainId) = maker.decodeParams();
+
+            uint256 finalAmount = 
+                _transferFeesAndFunds(
+                    takerStrategy,
+                    takerCollection,
+                    taker.tokenId,
+                    takerCurrency,
+                    taker.price,
+                    taker.taker,
+                    maker.signer,
+                    royaltyInfo
+                );
+
+            if (finalAmount > 0) {
+                transferCurrency(
+                    takerCurrency,
+                    taker.taker,
+                    maker.signer,
+                    finalAmount,
+                    takerChainId,
+                    makerChainId,
+                    msg.value,
+                    bytes("")
+                );
+            }
+        } else {
+            (uint16 takerChainId,,,,) = taker.decodeParams();
+            (uint16 makerChainId) = maker.decodeParams();
+
+            uint256 finalAmount = 
+                _transferFeesAndFunds(
+                    maker.strategy,
+                    maker.collection,
+                    taker.tokenId,
+                    maker.currency,
+                    taker.price,
+                    maker.signer,
+                    taker.taker,
+                    royaltyInfo
+                );
+
+            if (finalAmount > 0) {
+                transferCurrency(
+                    maker.currency,
+                    maker.signer,
+                    taker.taker,
+                    finalAmount,
+                    makerChainId,
+                    takerChainId,
+                    msg.value,
+                    bytes("")
+                );
+            }
         }
     }
 
@@ -274,7 +297,7 @@ contract FundManager is IFundManager, Ownable {
         address from,
         address to,
         bytes memory royaltyInfo
-    ) internal {
+    ) internal returns (uint256) {
         address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
 
         // Initialize the final amount that is transferred to seller
@@ -306,8 +329,15 @@ contract FundManager is IFundManager, Ownable {
 
         // 3. Transfer final amount (post-fees) to seller
         {
-            _safeTransferFrom(currency, from, to, finalSellerAmount);
+            ICurrencyManager currencyManager = omnixExchange.currencyManager();
+            if (!currencyManager.isOmniCurrency(currency) || msg.value == 0) {
+                _safeTransferFrom(currency, from, to, finalSellerAmount);
+            }
+            else {
+                return finalSellerAmount;
+            }
         }
+        return 0;
     }
 
     /**
@@ -402,24 +432,81 @@ contract FundManager is IFundManager, Ownable {
      * @param maker maker order data
      */
     function transferProxyFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external payable override onlyOmnix() {
-        address from = maker.isOrderAsk ? taker.taker : maker.signer;
-        uint256 price = maker.isOrderAsk ? taker.price : maker.price;
         uint16 makerChainId = maker.decodeParams();
         (uint16 takerChainId, address takerCurrency,,,) = taker.decodeParams();
-        address currency = maker.isOrderAsk ? takerCurrency : maker.currency;
-        uint16 fromChainId = maker.isOrderAsk ? takerChainId : makerChainId;
-        uint16 toChainId = maker.isOrderAsk ? makerChainId : takerChainId;
         bytes memory payload = abi.encode(taker, maker);
 
-        transferCurrency(
-            currency,
-            from,
-            address(omnixExchange),
-            price,
-            fromChainId,
-            toChainId,
-            msg.value,
-            payload
-        );
+        if (maker.isOrderAsk) {
+            transferCurrency(
+                takerCurrency,
+                taker.taker,
+                omnixExchange.getTrustedRemoteAddress(makerChainId).toAddress(0),
+                taker.price,
+                takerChainId,
+                makerChainId,
+                msg.value,
+                payload
+            );
+        } else {
+            transferCurrency(
+                maker.currency,
+                maker.signer,
+                omnixExchange.getTrustedRemoteAddress(takerChainId).toAddress(0),
+                maker.price,
+                makerChainId,
+                takerChainId,
+                msg.value,
+                payload
+            );
+        }
+    }
+
+    /**
+     * @notice Transfer fees and funds to royalty recipient, protocol, and seller
+     * @param taker taker order data
+     * @param maker maker order data
+     * @param transferType one of PROXY_TRANSFER, REVERT_TRANSFER
+     * @dev this function is called on seller side. refer OmniXExchange.sgReceive
+     */
+    function processFeesAndFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint16 transferType) external override onlyOmnix() {
+        // Assumed funds already been arrived at OmniXExchange on seller's chain.
+        // if isOrderAsk is true, maker is seller.
+        // otherwise, taker is seller.
+        (, address takerCurrency, address takerCollection, address takerStrategy,) = taker.decodeParams();
+        bytes memory royaltyInfo = maker.getRoyaltyInfo();
+
+        if (transferType == REVERT_TRANSFER) {
+            if (maker.isOrderAsk) {
+                // refund to buyer
+                _safeTransferFrom(maker.currency, address(omnixExchange), taker.taker, maker.price);
+            } else {
+                _safeTransferFrom(takerCurrency, address(omnixExchange), maker.signer, taker.price);
+            }
+        }
+        else {
+            if (maker.isOrderAsk) {
+                _transferFeesAndFunds(
+                    maker.strategy,
+                    maker.collection,
+                    taker.tokenId,
+                    maker.currency,
+                    maker.price,
+                    address(omnixExchange),
+                    maker.signer,
+                    royaltyInfo
+                );
+            } else {
+                _transferFeesAndFunds(
+                    takerStrategy,
+                    takerCollection,
+                    taker.tokenId,
+                    takerCurrency,
+                    taker.price,
+                    address(omnixExchange),
+                    taker.taker,
+                    royaltyInfo
+                );
+            }
+        }
     }
 }

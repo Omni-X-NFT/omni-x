@@ -37,8 +37,8 @@ interface IFundManager {
         bytes memory payload
     ) external view returns(uint256);
 
-    function approveBy(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external;
-    function transferFeesAndFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint16 transferType) external payable;
+    function transferFeesAndFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external payable;
     function transferFeesAndFundsWithWETH(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external payable;
     function transferProxyFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external payable;
+    function processFeesAndFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint16 transferType) external;
 }

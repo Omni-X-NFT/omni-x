@@ -125,7 +125,7 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   chain.chainId = chainId
 
   await (await chain.omniXExchange.setFundManager(chain.fundManager.address)).wait()
-  await (await chain.omniXExchange.setGasForLzReceive(900000)).wait();
+  await (await chain.omniXExchange.setGasForLzReceive(350000)).wait();
 
   return chain
 }
