@@ -19,22 +19,12 @@ contract TransferSelectorNFT is ITransferSelectorNFT, Ownable {
     bytes4 public constant INTERFACE_ID_ERC721 = 0x80ac58cd;
     // ERC1155 interfaceID
     bytes4 public constant INTERFACE_ID_ERC1155 = 0xd9b67a26;
-    // ERC721 interfaceID
-    bytes4 public constant INTERFACE_ID_ONFT721 = 0x7bb0080b;
-    // ERC1155 interfaceID
-    bytes4 public constant INTERFACE_ID_ONFT1155 = 0x33577776;
 
     // Address of the transfer manager contract for ERC721 tokens
     address public immutable TRANSFER_MANAGER_ERC721;
 
     // Address of the transfer manager contract for ERC1155 tokens
     address public immutable TRANSFER_MANAGER_ERC1155;
-
-    // Address of the transfer manager contract for ERC721 tokens
-    address public immutable TRANSFER_MANAGER_ONFT721;
-
-    // Address of the transfer manager contract for ERC1155 tokens
-    address public immutable TRANSFER_MANAGER_ONFT1155;
 
     // Map collection address to transfer manager address
     mapping(address => address) public transferManagerSelectorForCollection;
@@ -46,19 +36,13 @@ contract TransferSelectorNFT is ITransferSelectorNFT, Ownable {
      * @notice Constructor
      * @param _transferManagerERC721 address of the ERC721 transfer manager
      * @param _transferManagerERC1155 address of the ERC1155 transfer manager
-     * @param _transferManagerONFT721 address of the ONFT721 transfer manager
-     * @param _transferManagerONFT1155 address of the ONFT1155 transfer manager
      */
     constructor(
         address _transferManagerERC721,
-        address _transferManagerERC1155,
-        address _transferManagerONFT721,
-        address _transferManagerONFT1155
+        address _transferManagerERC1155
     ) {
         TRANSFER_MANAGER_ERC721 = _transferManagerERC721;
         TRANSFER_MANAGER_ERC1155 = _transferManagerERC1155;
-        TRANSFER_MANAGER_ONFT721 = _transferManagerONFT721;
-        TRANSFER_MANAGER_ONFT1155 = _transferManagerONFT1155;
     }
 
     /**
@@ -101,16 +85,6 @@ contract TransferSelectorNFT is ITransferSelectorNFT, Ownable {
         transferManager = transferManagerSelectorForCollection[collection];
 
         if (transferManager == address(0)) {
-            // if (IERC165(collection).supportsInterface(INTERFACE_ID_ONFT721)) {
-            //     transferManager = TRANSFER_MANAGER_ONFT721;
-            // } else if (IERC165(collection).supportsInterface(INTERFACE_ID_ONFT1155)) {
-            //     transferManager = TRANSFER_MANAGER_ONFT1155;
-            // } else if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC721)) {
-            //     transferManager = TRANSFER_MANAGER_ERC721;
-            // } else if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC1155)) {
-            //     transferManager = TRANSFER_MANAGER_ERC1155;
-            // }
-
             if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC721)) {
                 transferManager = TRANSFER_MANAGER_ERC721;
             } else if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC1155)) {
