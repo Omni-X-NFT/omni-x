@@ -8,6 +8,7 @@ import {EIP712} from "@openzeppelin/contracts/utils/cryptography/draft-EIP712.so
 
 // OmniX interfaces
 import {IStargateReceiver} from "../interfaces/IStargateReceiver.sol";
+import {IOmniReceiver} from "../interfaces/IOmniReceiver.sol";
 import {ICurrencyManager} from "../interfaces/ICurrencyManager.sol";
 import {IExecutionManager} from "../interfaces/IExecutionManager.sol";
 import {IExecutionStrategy} from "../interfaces/IExecutionStrategy.sol";
@@ -29,7 +30,7 @@ import "hardhat/console.sol";
  * @title OmniXExchange
  * @notice It is the core contract of the OmniX exchange.
  */
-contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateReceiver, ReentrancyGuard {
+contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateReceiver, IOmniReceiver, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using OrderTypes for OrderTypes.MakerOrder;
     using OrderTypes for OrderTypes.TakerOrder;
@@ -180,14 +181,14 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
                 makerChainId,
                 sgPayload
             );
+
             uint256 omnixFee = 0;
             // on this taker chain, no NFT transfer fee
             // on the maker chain, there is transfer fee if using TransferManagerONFT
             // uint256 nftFee = 0;
 
-            if (address(stargatePoolManager) == address(0) ||
-                !stargatePoolManager.isSwappable(currency, makerChainId)) {
-                // if the currency is not swappable, then we send cross message vis lz.
+            if (currencyFee == 0) {
+                // if the currency is not stargate swappable or not omni, then we send cross message vis lz.
                 (omnixFee,, ) = _getLzPayload(destAirdrop, taker, maker);
             }
 
@@ -309,7 +310,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
             }
             else {
                 if (omnixFee != 0) {
-                    // currency is not swappable so cross message to send nft and funds instantly
+                    // currency is not swappable or omni so cross message to send nft and funds instantly
                     _sendCrossMessage(takerBid, makerAsk, 0);
                     fundManager.transferFeesAndFunds(takerStrategy, takerCurrency, takerBid.price, takerBid.taker, makerAsk.signer, makerAsk.getRoyaltyInfo());
                 }
@@ -377,7 +378,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
             (uint256 omnixFee, , uint256 nftFee) = getLzFeesForTrading(takerAsk, makerBid, destAirdrop);
             require (omnixFee + nftFee <= msg.value, "Order: Insufficient value");
 
-            (, address currency, address takerCollection,,) = takerAsk.decodeParams();
+            (,, address takerCollection,,) = takerAsk.decodeParams();
 
             if (fromChainId == toChainId) {
                 // direct transfer funds
@@ -385,8 +386,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
                 _transferNFT(takerCollection, takerAsk.taker, makerBid.signer, takerAsk.tokenId, makerBid.amount);
             }
             else {
-                if (destAirdrop == 0 || currencyManager.isOmniCurrency(currency)) {
-                    // currency is not swappable, so transfer nft first and then send cross message to make funds
+                if (destAirdrop == 0) {
+                    // destAirdrop is same with currency fee on destination chain.
+                    // destAirdrop is 0 means currency is not stargate swappable or omni.
+                    // currency is not swappable or omni, so transfer nft first and then send cross message to make funds
                     _transferNFT(takerCollection, takerAsk.taker, makerBid.signer, takerAsk.tokenId, makerBid.amount);
                     _sendCrossMessage(takerAsk, makerBid, destAirdrop);
                 }
@@ -418,6 +421,12 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         );
     }
 
+    /**
+    * @notice get stargate payload
+    * @param takerBid taker bid
+    * @param makerAsk maker ask
+    * @dev this function is used only for makerAskWithTakerBid
+     */
     function _getSgPayload(OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk)
         internal pure returns (bytes memory)
     {
@@ -435,6 +444,12 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         return payload;
     }
 
+    /**
+    * @notice get layer zero payload
+    * @param destAirdrop airdrop amount on destination chain
+    * @param taker taker bid
+    * @param maker maker ask
+     */
     function _getLzPayload(uint destAirdrop, OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker)
         internal view returns (uint256, bytes memory, bytes memory)
     {
@@ -486,6 +501,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         return (messageFee, payload, adapterParams);
     }
 
+    /**
+    * @notice send cross message to destnation OmniXExchange
+     */
     function _sendCrossMessage(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint destAirdrop)
         internal
     {
@@ -594,7 +612,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
     }
 
     /**
-     * @notice transfer NFT
+     * @notice transfer NFT which is called on tokenReceived callback.
+     * @dev should be external because being used with try/catch
      */
     function _transferNFTLz(address collection, address from, address to, uint tokenId, uint amount) external {
         require (msg.sender == address(this), "_transferNFTLz: invalid caller");
@@ -641,6 +660,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
 
         if (lzMessage == LZ_MESSAGE_ORDER_ASK) {
             // on maker chain (seller)
+            // trading for normal currency or eth, we don't have receiver callback
+            // so assumed fundarized already, here just transfer the nft.
             (, address collection, address from, address to, uint tokenId, uint amount) = 
                 abi.decode(_payload, (uint8, address, address, address, uint, uint));
 
@@ -687,11 +708,14 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
 
             if (currencyFee == 0) {
                 // on maker chain (buyer)
+                // if currencyFee is 0, already tranferred NFT.
+                // thus here just transfer funds and fees.
                 fundManager.transferFeesAndFunds(makerParty.strategy, makerParty.currency, price, makerParty.party, takerParty.party, royaltyInfo);
             }
             else {
                 // on maker chain (buyer)
-                // payload - seller's chain info as well
+                // sgPayload - seller's chain info as well
+                // swap or bridge funds to taker chain(seller). go though sgReceive or omniReceive
                 fundManager.transferProxyFunds{value: currencyFee}(
                     makerParty.currency,
                     makerParty.party,
@@ -704,16 +728,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         }
     }
 
-    function sgReceive(
-        uint16 ,              // the remote chainId sending the tokens
-        bytes memory,        // the remote Bridge address
-        uint256,                  
-        address,                  // the token contract on the local chain
-        uint256 _price,                // the qty of local _token contract tokens  
-        bytes memory _payload
-    ) external override {
-        if (_payload.length == 0) return;
-
+    function _tokenReceived(uint256 _price, bytes memory _payload) internal {
         (
             address collection,
             address seller,
@@ -756,9 +771,41 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         }
     }
 
+    /**
+    * @notice stargate swap receive callback
+    */
+    function sgReceive(
+        uint16 ,                // the remote chainId sending the tokens
+        bytes memory,           // the remote Bridge address
+        uint256,                  
+        address,                // the token contract on the local chain
+        uint256 _price,         // the qty of local _token contract tokens  
+        bytes memory _payload
+    ) external override {
+        if (_payload.length == 0) return;
+
+        _tokenReceived(_price, _payload);
+    }
+
+    /**
+    * @notice omni token bridge receive callback
+    */
+    function omniReceive(
+        uint16 ,                // the remote chainId sending the tokens
+        bytes memory,           // the remote Bridge address
+        uint256,                  
+        uint256 _price,         // the qty of local _token contract tokens  
+        bytes memory _payload
+    ) external override {
+        if (_payload.length == 0) return;
+
+        _tokenReceived(_price, _payload);
+    }
+
     receive() external payable {
         // nothing to do
     }
+
     function withdraw() external onlyOwner {
         payable(owner()).transfer(address(this).balance);
     }
