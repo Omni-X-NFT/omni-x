@@ -15,8 +15,6 @@ import {OrderTypes} from "../libraries/OrderTypes.sol";
 interface IFundManager {
     function getFeesAndFunds(
         address strategy,
-        address collection,
-        uint256 tokenId,
         uint256 amount,
         bytes memory royaltyInfo
     ) external view returns(uint256, uint256, uint256, address);
@@ -37,8 +35,8 @@ interface IFundManager {
         bytes memory payload
     ) external view returns(uint256);
 
-    function transferFeesAndFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external payable;
+    function transferFeesAndFunds(address strategy, address currency, uint price, address from, address to, bytes memory royaltyInfo) external payable;
     function transferFeesAndFundsWithWETH(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external payable;
-    function transferProxyFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external payable;
-    function processFeesAndFunds(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker, uint16 transferType) external;
+    function transferProxyFunds(address currency, address from, uint price, uint16 fromChainId, uint16 toChainId, bytes memory payload) external payable;
+    function processFeesAndFunds(address currency, address seller, address buyer, address strategy, uint price, bytes memory royaltyInfo, uint16 transferType) external;
 }

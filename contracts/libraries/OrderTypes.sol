@@ -37,6 +37,13 @@ library OrderTypes {
         bytes params; // other params (e.g. chainId)
     }
 
+    struct PartyData {
+        address currency;   // currency
+        address strategy;   // strategy
+        address party;      // party address. seller or buyer address.
+        uint16 chainId;     // lz chain id
+    }
+
     function hash(MakerOrder memory makerOrder) internal pure returns (bytes32) {
         bytes memory structHash = abi.encode(
             MAKER_ORDER_HASH,
