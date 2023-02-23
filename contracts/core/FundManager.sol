@@ -211,15 +211,8 @@ contract FundManager is IFundManager, Ownable {
                 address(stargatePoolManager) != address(0) && 
                 stargatePoolManager.isSwappable(currency, toChainId)
             ) {
-                address WETH = omnixExchange.WETH();
-                if (currency == WETH) {
-                    (uint256 fee, ) = stargatePoolManager.getSwapFeeETH(toChainId, to);
-                    return fee;
-                }
-                else {
-                    (uint256 fee, ) = stargatePoolManager.getSwapFee(toChainId, to, payload);
-                    return fee;
-                }
+                (uint256 fee, ) = stargatePoolManager.getSwapFee(toChainId, to, payload);
+                return fee;
             }
         }
 

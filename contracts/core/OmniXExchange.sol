@@ -123,7 +123,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         WETH = _WETH;
         protocolFeeRecipient = _protocolFeeRecipient;
 
-        gasForLzReceive = 350000;
+        gasForLzReceive = 600000;
     }
 
     /**
@@ -258,7 +258,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
                     // cross funds to maker chain's omnixexchange.
                     // once sgReceive received, actual trading will be made.
                     bytes memory sgPayload = _getSgPayload(takerBid, makerAsk);
-                    fundManager.transferProxyFunds{value: currencyFee}(
+                    fundManager.transferProxyFunds{value: currencyFee + takerBid.price}(
                         currency,
                         takerBid.taker,
                         takerBid.price,
@@ -773,16 +773,25 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         uint price = _price;
         try this._transferNFTLz(collection, seller, buyer, tokenId, amount) {
             // funds from omnixexchange to seller
-            IERC20(currency).approve(address(fundManager), price);
 
-            fundManager.processFeesAndFunds(currency, buyer, seller, strategy, price, royaltyInfo, 1);
+            if (currency == WETH) {
+                fundManager.transferFeesAndFundsWithWETH{value: price}(strategy, seller, price, royaltyInfo);
+            } else {
+                IERC20(currency).approve(address(fundManager), price);
+
+                fundManager.processFeesAndFunds(currency, buyer, seller, strategy, price, royaltyInfo, 1);
+            }
 
             emit SentFunds(seller, buyer, price, currency);
 
         } catch (bytes memory reason) {
             // revert funds
-            IERC20(currency).approve(address(fundManager), price);
-            fundManager.processFeesAndFunds(currency, buyer, seller, strategy, price, royaltyInfo, 2);
+            if (currency == WETH) {
+                payable(buyer).transfer(price);
+            } else {
+                IERC20(currency).approve(address(fundManager), price);
+                fundManager.processFeesAndFunds(currency, buyer, seller, strategy, price, royaltyInfo, 2);
+            }
 
             emit RevertFunds(seller, buyer, price, currency, reason);
         }
