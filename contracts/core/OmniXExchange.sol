@@ -242,14 +242,31 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
             require(totalValue <= msg.value, "Order: Msg.value too high");
             
             if (makerChainId == takerChainId) {
-                fundManager.transferFeesAndFundsWithWETH(takerBid, makerAsk);
+                (,,,address strategy,) = takerBid.decodeParams();
+
+                fundManager.transferFeesAndFundsWithWETH{value: takerBid.price}(strategy, makerAsk.signer, takerBid.price, makerAsk.getRoyaltyInfo());
                 _transferNFT(makerAsk.collection, makerAsk.signer, takerBid.taker, takerBid.tokenId, makerAsk.amount);
             }
             else {
-                // we completely believe stargate native swap is 100% finality.
-                _sendCrossMessage(takerBid, makerAsk, 0);
-                // cross funds to maker chain's omnixexchange.
-                fundManager.transferFeesAndFundsWithWETH{value: currencyFee + takerBid.price}(takerBid, makerAsk);
+                if (omnixFee != 0) {
+                    (,,,address strategy,) = takerBid.decodeParams();
+                    // currency is not swappable or omni so cross message to send nft and funds instantly
+                    _sendCrossMessage(takerBid, makerAsk, 0);
+                    fundManager.transferFeesAndFundsWithWETH{value: takerBid.price}(strategy, makerAsk.signer, takerBid.price, makerAsk.getRoyaltyInfo());
+                }
+                else {
+                    // cross funds to maker chain's omnixexchange.
+                    // once sgReceive received, actual trading will be made.
+                    bytes memory sgPayload = _getSgPayload(takerBid, makerAsk);
+                    fundManager.transferProxyFunds{value: currencyFee}(
+                        currency,
+                        takerBid.taker,
+                        takerBid.price,
+                        takerChainId,
+                        makerChainId,
+                        sgPayload
+                    );
+                }
             }
         }
 

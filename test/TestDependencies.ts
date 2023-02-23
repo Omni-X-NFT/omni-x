@@ -198,7 +198,7 @@ export const prepareStargate = async (chain: Chain, poolId: number, owner: Signe
     'SSS')
 
   // set stargate pool manager to omniXExchange
-  chain.stargatePoolManager = await deployContract('StargatePoolManager', owner, [stargateRouter.address]) as StargatePoolManager
+  chain.stargatePoolManager = await deployContract('StargatePoolManager', owner, [stargateRouter.address, ethers.constants.AddressZero]) as StargatePoolManager
   await chain.omniXExchange.setStargatePoolManager(chain.stargatePoolManager.address)
 
   // save stargate router address

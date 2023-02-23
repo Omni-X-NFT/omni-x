@@ -34,7 +34,8 @@ interface IStargatePoolManager {
         uint16 dstChainId,
         address payable refundAddress,
         uint256 amount,
-        address to
+        address to,
+        bytes memory payload
     ) external payable;
 
     function setPoolId(address token, uint16 dstChainId, uint256 srcPoolId, uint256 dstPoolId) external;

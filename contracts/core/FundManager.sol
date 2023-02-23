@@ -147,6 +147,28 @@ contract FundManager is IFundManager, Ownable {
         }
     }
 
+    function transferEth(
+        address from,
+        address to,
+        uint256 amount,
+        uint16 fromChainId,
+        uint16 toChainId,
+        uint256 lzFee,
+        bytes memory payload
+    ) internal {
+        IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
+        if (
+            fromChainId != toChainId && 
+            address(stargatePoolManager) != address(0) &&
+            stargatePoolManager.isSwappable(omnixExchange.WETH(), toChainId)
+        ) {
+            stargatePoolManager.swapETH{value: lzFee + amount}(toChainId, payable(from), amount, to, payload);
+        }
+        else {
+            payable(to).transfer(amount);
+        }
+    }
+
     /**
      * @notice Calculate protocol fee for an execution strategy
      * @param executionStrategy strategy
@@ -274,33 +296,25 @@ contract FundManager is IFundManager, Ownable {
 
     /**
      * @notice Transfer fees and funds to royalty recipient, protocol, and seller
-     * @param taker taker order data
-     * @param maker maker order data
      */
-    function transferFeesAndFundsWithWETH(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external payable override onlyOmnix() {
-        (uint16 takerChainId,,, address strategy,) = taker.decodeParams();
-        (uint16 makerChainId) = maker.decodeParams();
-        bytes memory royaltyInfo = maker.getRoyaltyInfo();
+    function transferFeesAndFundsWithWETH(
+        address strategy,
+        address to,
+        uint price,
+        bytes memory royaltyInfo
+    ) external payable override onlyOmnix() {
         _transferFeesAndFundsWithWETH(
             strategy,
-            taker.taker,
-            maker.signer,
-            taker.price,
-            takerChainId,
-            makerChainId,
-            msg.value,
+            to,
+            price,
             royaltyInfo
         );
     }
 
     function _transferFeesAndFundsWithWETH(
         address strategy,
-        address from,
         address to,
         uint256 amount,
-        uint16 fromChainId,
-        uint16 toChainId,
-        uint256 msgValue,
         bytes memory royaltyInfo
     ) private {
         address protocolFeeRecipient = omnixExchange.protocolFeeRecipient();
@@ -334,24 +348,7 @@ contract FundManager is IFundManager, Ownable {
         require((finalSellerAmount * 10000) >= (MIN_PERCENTAGE_INCOME * amount), "Fees: Higher than expected");
 
         // 3. Transfer final amount (post-fees) to seller
-        address fromAddr = from;
-        address toAddr = to;
-        if (toAddr != address(0)) {
-            IStargatePoolManager stargatePoolManager = omnixExchange.stargatePoolManager();
-
-            if (
-                fromChainId != toChainId && 
-                address(stargatePoolManager) != address(0) &&
-                stargatePoolManager.isSwappable(omnixExchange.WETH(), toChainId)
-            ) {
-                // msv.value = amount + swap fee
-                uint256 lzFee = msgValue - amount + finalSellerAmount;
-                stargatePoolManager.swapETH{value: lzFee}(toChainId, payable(fromAddr), finalSellerAmount, toAddr);
-            }
-            else {
-                payable(toAddr).transfer(finalSellerAmount);
-            }
-        }
+        payable(to).transfer(finalSellerAmount);
     }
 
     /**
@@ -365,16 +362,29 @@ contract FundManager is IFundManager, Ownable {
         uint16 toChainId,
         bytes memory payload
     ) external payable override onlyOmnix() {
-        transferCurrency(
-            currency,
-            from,
-            omnixExchange.getTrustedRemoteAddress(toChainId).toAddress(0),
-            price,
-            fromChainId,
-            toChainId,
-            msg.value,
-            payload
-        );
+        if (currency == omnixExchange.WETH()) {
+            transferEth(
+                from,
+                omnixExchange.getTrustedRemoteAddress(toChainId).toAddress(0),
+                price,
+                fromChainId,
+                toChainId,
+                msg.value - price,
+                payload
+            );
+        }
+        else {
+            transferCurrency(
+                currency,
+                from,
+                omnixExchange.getTrustedRemoteAddress(toChainId).toAddress(0),
+                price,
+                fromChainId,
+                toChainId,
+                msg.value,
+                payload
+            );
+        }
     }
 
     /**

@@ -35,19 +35,19 @@ export const prepareOmniX = async (taskArgs: any, hre: any) => {
   const { ethers, network } = hre
   const [owner] = await ethers.getSigners()
 
-  const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
-  const executionManager = createContractByName(hre, 'ExecutionManager', ExecutionManagerAbi().abi, owner)
+  // const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
+  // const executionManager = createContractByName(hre, 'ExecutionManager', ExecutionManagerAbi().abi, owner)
 
-  await tx(await currencyManager.addCurrency(getContractAddrByName(network.name, 'OFTMock')))
-  await tx(await currencyManager.addCurrency(getContractAddrByName(network.name, 'USDC')))
-  if (getContractAddrByName(network.name, 'SGETH')) {
-    await tx(await currencyManager.addCurrency(getContractAddrByName(network.name, 'SGETH')))
-  }
-  await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSale')))
-  await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSaleForCollection')))
+  // await tx(await currencyManager.addCurrency(getContractAddrByName(network.name, 'OFTMock')))
+  // await tx(await currencyManager.addCurrency(getContractAddrByName(network.name, 'USDC')))
+  // if (getContractAddrByName(network.name, 'SGETH')) {
+  //   await tx(await currencyManager.addCurrency(getContractAddrByName(network.name, 'SGETH')))
+  // }
+  // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSale')))
+  // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSaleForCollection')))
 
-  // const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
-  // await tx(await omniXExchange.setGasForLzReceive(600000))
+  const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
+  await tx(await omniXExchange.setGasForLzReceive(600000))
 }
 
 const packTrustedRemote = (hre: any, srcNetwork: string, dstNetwork: string, contractName: string) => {
@@ -65,8 +65,8 @@ export const linkOmniX = async (taskArgs: any, hre: any) => {
   const srcNetwork = network.name
   const dstChainId = getChainId(dstNetwork)
 
-  const omni = createContractByName(hre, 'OFTMock', OFTMockAbi().abi, owner)
-  await tx(await omni.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'OFTMock')))
+  // const omni = createContractByName(hre, 'OFTMock', OFTMockAbi().abi, owner)
+  // await tx(await omni.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'OFTMock')))
 
   const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
   await tx(await omniXExchange.setTrustedRemote(dstChainId, packTrustedRemote(hre, srcNetwork, dstNetwork, 'OmniXExchange')))
@@ -135,8 +135,8 @@ export const setupBridge = async (taskArgs: any, hre: any) => {
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
-  // testnet: ['bsc-testnet', 'fuji', 'mumbai', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
-  testnet: ['arbitrum-goerli',  'fantom-testnet']
+  // testnet: ['bsc-testnet', 'fuji', 'goerli', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'mumbai']
+  testnet: ['bsc-testnet', 'fuji', 'goerli', 'arbitrum-goerli', 'fantom-testnet']
 }
 
 export const prepareOmnixAll = async function (taskArgs: any) {

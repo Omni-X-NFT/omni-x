@@ -75,17 +75,7 @@ export const verifyOmni = async () => {
   const stargateEndpoint = (STARGATE as any)[network.name]
   await run('verify:verify', {
     address: getContractAddrByName(network.name, 'StargatePoolManager'),
-    constructorArguments: [stargateEndpoint.router],
+    constructorArguments: [stargateEndpoint.router, getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero],
     contract: 'contracts/core/StargatePoolManager.sol:StargatePoolManager'
-  })
-
-  await run('verify:verify', {
-    address: getContractAddrByName(network.name, 'StrategyStargateSale'),
-    constructorArguments: []
-  })
-
-  await run('verify:verify', {
-    address: getContractAddrByName(network.name, 'StrategyStargateSaleForCollection'),
-    constructorArguments: []
   })
 }

@@ -10,7 +10,6 @@ import {IExecutionStrategy} from "../interfaces/IExecutionStrategy.sol";
 import {IRoyaltyFeeManager} from "../interfaces/IRoyaltyFeeManager.sol";
 import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
 import {IOFT} from "../token/oft/IOFT.sol";
-import {OrderTypes} from "../libraries/OrderTypes.sol";
 
 interface IFundManager {
     function getFeesAndFunds(
@@ -36,7 +35,7 @@ interface IFundManager {
     ) external view returns(uint256);
 
     function transferFeesAndFunds(address strategy, address currency, uint price, address from, address to, bytes memory royaltyInfo) external payable;
-    function transferFeesAndFundsWithWETH(OrderTypes.TakerOrder calldata taker, OrderTypes.MakerOrder calldata maker) external payable;
+    function transferFeesAndFundsWithWETH(address strategy, address to, uint price, bytes memory royaltyInfo) external payable;
     function transferProxyFunds(address currency, address from, uint price, uint16 fromChainId, uint16 toChainId, bytes memory payload) external payable;
     function processFeesAndFunds(address currency, address seller, address buyer, address strategy, uint price, bytes memory royaltyInfo, uint16 transferType) external;
 }
