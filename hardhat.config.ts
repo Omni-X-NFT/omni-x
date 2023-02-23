@@ -96,7 +96,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     'fantom-testnet': {
-      url: 'https://rpc.testnet.fantom.network/',
+      url: 'https://rpc.ankr.com/fantom_testnet',
       chainId: 4002,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },

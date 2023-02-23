@@ -13,8 +13,6 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
   const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
   const stargateEndpoint = (STARGATE as any)[network.name]
 
-  // await deployContract(hre, 'StrategyStandardSale', owner, [])
-  // await deployContract(hre, 'StrategyStandardSaleForCollection', owner, [])
   await deployContract(hre, 'StrategyStargateSale', owner, [])
   await deployContract(hre, 'StrategyStargateSaleForCollection', owner, [])
 
@@ -30,18 +28,14 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
     lzEndpoint
   ])
 
-  const transferManager721 = await deployContract(hre, 'TransferManagerERC721', owner, [lzEndpoint])
-  const transferManager1155 = await deployContract(hre, 'TransferManagerERC1155', owner, [lzEndpoint])
-  // const transferManagerONFT721 = await deployContract(hre, 'TransferManagerONFT721', owner, [lzEndpoint])
-  // const transferManagerONFT1155 = await deployContract(hre, 'TransferManagerONFT1155', owner, [lzEndpoint])
+  const transferManager721 = await deployContract(hre, 'TransferManagerERC721', owner, [])
+  const transferManager1155 = await deployContract(hre, 'TransferManagerERC1155', owner, [])
   const transferSelector = await deployContract(hre, 'TransferSelectorNFT', owner, [
     transferManager721.address,
-    transferManager1155.address,
-    ethers.constants.AddressZero,
-    ethers.constants.AddressZero
+    transferManager1155.address
   ])
 
-  // await deployContract(hre, 'OFTMock', owner, ['OMNI', 'OMNI', toWei(ethers, 1000), lzEndpoint])
+  await deployContract(hre, 'OFTMock', owner, ['OMNI', 'OMNI', toWei(ethers, 1000), lzEndpoint])
 
   await (await omniXExchange.updateTransferSelectorNFT(transferSelector.address)).wait()
 
@@ -56,6 +50,7 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
     if (stargateEndpoint?.routerEth) {
         await (await poolManager.setStargateRouterEth(stargateEndpoint.routerEth)).wait()
     }
+
     await (await omniXExchange.setStargatePoolManager(poolManager.address)).wait()
   }
 }
