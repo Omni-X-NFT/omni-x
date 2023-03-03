@@ -20,8 +20,7 @@ const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom'],
-  // testnet: ['goerli', 'bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'moonbeam_testnet', 'mumbai', 'fantom-testnet']
-  testnet: ['bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'moonbeam_testnet', 'mumbai', 'goerli', 'fantom-testnet']
+  testnet: ['bsc-testnet', 'fuji', 'optimism-goerli', 'moonbeam_testnet', 'goerli', 'fantom-testnet', 'mumbai', 'arbitrum-goerli']
 }
 
 const CONTRACT_NAMES: any = {
@@ -44,7 +43,7 @@ export const setupMiladyArgs = async function (taskArgs: any, hre: any) {
   const contractInstance = await hre.ethers.getContractAt(contractName, contractAddr, deployer)
 
   try {
-    await (await contractInstance.initialize()).wait()
+    // await (await contractInstance.initialize()).wait()
     await (await contractInstance.flipPublicSaleStarted()).wait()
     await (await contractInstance.flipSaleStarted()).wait()
     await (await contractInstance.flipRevealed()).wait()
@@ -74,7 +73,7 @@ export const setupDoodleArgs = async function (taskArgs: any, hre: any) {
   const contractInstance = await hre.ethers.getContractAt(contractName, contractAddr, deployer)
 
   try {
-    await (await contractInstance.initialize()).wait()
+    // await (await contractInstance.initialize()).wait()
     await (await contractInstance.setLzEndpoint(lzEndpointAddress)).wait()
     await (await contractInstance.setStableToken(stableAddr)).wait()
     await (await contractInstance.flipRevealed()).wait()
@@ -109,9 +108,7 @@ export const setupONFTArgs = async function (taskArgs: any, hre: any) {
   const contractInstance = await hre.ethers.getContractAt(contractName, contractAddr, deployer)
 
   try {
-    console.log('-initialize-')
     await (await contractInstance.initialize()).wait()
-    console.log('-lzendpoint-')
     await (await contractInstance.setLzEndpoint(lzEndpointAddress)).wait()
 
     if (args) {

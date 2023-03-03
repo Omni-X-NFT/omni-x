@@ -33,7 +33,6 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
     bool public _saleStarted;
     bool revealed;
 
-
     modifier onlyBeneficiaryAndOwner() {
         require(msg.sender == beneficiary || msg.sender == owner() , "AdvancedONFT1155Gasless: caller is not the beneficiary");
         _;

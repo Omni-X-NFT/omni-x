@@ -10,7 +10,7 @@ import 'solidity-coverage'
 import 'xdeployer'
 import './tasks'
 import 'xdeployer'
-import '@nomicfoundation/hardhat-foundry';
+// import '@nomicfoundation/hardhat-foundry';
 
 import * as dotenv from 'dotenv'
 import { ethers } from 'hardhat'
@@ -129,6 +129,7 @@ const config: HardhatUserConfig = {
       moonbeam: process.env.MOONBEAM_API_KEY || '', // Moonbeam Moonscan API Key
       moonriver: process.env.MOONBEAM_API_KEY || '', // Moonriver Moonscan API Key
       moonbaseAlpha: process.env.MOONBEAM_API_KEY || '', // Moonbeam Moonscan API Key
+      'moonbeam_testnet': process.env.MOONBEAM_API_KEY || '', // Moonbeam Moonscan API Key
     },
     customChains: [
       {
@@ -168,27 +169,27 @@ const config: HardhatUserConfig = {
   xdeploy: {
     contract: 'AdvancedONFT721',
     constructorArgsPath: 'constants/tinyDinosXargs.js',
-    salt: 'OMNIXV1',
+    salt: 'OMNIXV2',
     signer: process.env.PRIVATE_KEY,
     networks: [
-      'goerli',
-      'bscTestnet',
-      'fuji',
-      'mumbai',
+      // 'goerli',
+      // 'bscTestnet',
+      // 'fuji',
       'arbitrumTestnet',
-      'optimismTestnet',
-      'moonbaseAlpha',
-      'fantomTestnet',
+      // 'optimismTestnet',
+      // 'moonbaseAlpha',
+      // 'fantomTestnet',
+      // 'mumbai',
     ],
     rpcUrls: [
-      'https://rpc.ankr.com/eth_goerli',
-      'https://rpc.ankr.com/bsc_testnet_chapel',
-      'https://api.avax-test.network/ext/bc/C/rpc',
-      'https://rpc.ankr.com/polygon_mumbai',
-      'https://convincing-clean-reel.arbitrum-goerli.discover.quiknode.pro/a7679fef301ca865c612a70bf2c98bc17c37135f/',
-      'https://rpc.ankr.com/optimism_testnet',
-      'https://rpc.testnet.moonbeam.network',
-      'https://rpc.testnet.fantom.network/',
+      // 'https://rpc.ankr.com/eth_goerli',
+      // 'https://rpc.ankr.com/bsc_testnet_chapel',
+      // 'https://api.avax-test.network/ext/bc/C/rpc',
+      'https://arb-goerli.g.alchemy.com/v2/cUs6IPnXdgY8QwtBt_KEJrcc4-2bjKOZ',
+      // 'https://rpc.ankr.com/optimism_testnet',
+      // 'https://rpc.testnet.moonbeam.network',
+      // 'https://rpc.ankr.com/fantom_testnet',
+      // 'https://rpc.ankr.com/polygon_mumbai',
     ],
     gasLimit: 7 * 10 ** 6
   }
