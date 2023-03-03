@@ -7,6 +7,8 @@ import { setAllTrustedRemote } from './setAllTrustedRemote'
 import { checkNonce } from './checkNonce'
 import { deployAll } from './deploy'
 import { migrate } from './migrate'
+import { deployAdvancedONFT721, deployAllAdvancedONFT721 } from './deployAdvancedONFT721'
+// import { deployAdvancedONFT721GaslessClaim, deployAllAdvancedONFT721GaslessClaim } from './deployAdvancedONFT721GaslessClaim'
 
 task(
   'setTrustedRemote',
@@ -77,3 +79,18 @@ task(
   'migrate',
   'update or check configuration of omnixexchange contracts'
 ).setAction(migrate)
+
+task('deployAdvancedONFT721', 'deployAdvancedONFT721')
+  .setAction(deployAdvancedONFT721)
+
+task('deployAllAdvancedONFT721', 'deployAllAdvancedONFT721')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(deployAllAdvancedONFT721)
+
+
+// task('deployAdvancedONFT721GaslessClaim', 'deployAdvancedONFT721GaslessClaim')
+//   .setAction(deployAdvancedONFT721GaslessClaim)
+
+// task('deployAllAdvancedONFT721GaslessClaim', 'deployAllAdvancedONFT721GaslessClaim')
+//   .addParam('e', 'testnet or mainnet')
+//   .setAction(deployAllAdvancedONFT721GaslessClaim)
