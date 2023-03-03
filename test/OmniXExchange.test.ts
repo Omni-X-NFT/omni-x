@@ -205,6 +205,7 @@ describe('OmniXExchange', () => {
 
       await omniXExchange.connect(taker).matchAskWithTakerBid(0, takerBid, makerAsk)
       expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+      expect(await erc20Mock.balanceOf(taker.address)).to.be.eq(toWei(99))
     })
 
     it('MakerAsk /w TakerBid - $OMNI /w Normal NFT', async () => {

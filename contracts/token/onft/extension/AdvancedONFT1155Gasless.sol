@@ -23,8 +23,6 @@ contract AdvancedONFT1155Gasless is ONFT1155, GelatoRelayContext, ReentrancyGuar
     uint public price = 0;
     
 
-    // royalty fee in basis points (i.e. 100% = 10000, 1% = 100)
-    uint royaltyBasisPoints = 500;
     // address for withdrawing money and receiving royalties, separate from owner
     address payable beneficiary;
     // address for tax recipient;
@@ -88,41 +86,41 @@ contract AdvancedONFT1155Gasless is ONFT1155, GelatoRelayContext, ReentrancyGuar
     function setTaxRecipient(address payable _taxRecipient) external onlyOwner {
         taxRecipient = _taxRecipient;
     }
-    function mint(uint _tokenId, uint _amount, bytes32[] calldata _merkleProof) external {
-        require(_saleStarted == true, "AdvancedONFT1155Gasless: Sale has not started yet!");
-        require(_tokenId == ableToMint, "AdvancedONFT1155Gasless: trying to mint from an invalid chain");
-        require(_amount <= maxTokensPerMint, "AdvancedONFT1155Gasless: trying to mint too many tokens");
-        require(totalSupply(_tokenId) + _amount <= maxTokenPerID , "AdvancedONFT1155Gasless: token limit exceeded");
-        require(_tokenId != 0, "AdvancedONFT1155Gasless: Invalid token ID");
-        require(price > 0, "AdvancedONFT1155Gasless: you need to set stable price");
-        require(address(stableToken) != address(0), "AdvancedONFT1155Gasless: not support stable token");
+    // function mint(uint _tokenId, uint _amount, bytes32[] calldata _merkleProof) external {
+    //     require(_saleStarted == true, "AdvancedONFT1155Gasless: Sale has not started yet!");
+    //     require(_tokenId == ableToMint, "AdvancedONFT1155Gasless: trying to mint from an invalid chain");
+    //     require(_amount <= maxTokensPerMint, "AdvancedONFT1155Gasless: trying to mint too many tokens");
+    //     require(totalSupply(_tokenId) + _amount <= maxTokenPerID , "AdvancedONFT1155Gasless: token limit exceeded");
+    //     require(_tokenId != 0, "AdvancedONFT1155Gasless: Invalid token ID");
+    //     require(price > 0, "AdvancedONFT1155Gasless: you need to set stable price");
+    //     require(address(stableToken) != address(0), "AdvancedONFT1155Gasless: not support stable token");
      
 
-        bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(_msgSender())));
-        require(isWL == true, "AdvancedONFT1155Gasless: Invalid Merkle Proof");
+    //     bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(_msgSender())));
+    //     require(isWL == true, "AdvancedONFT1155Gasless: Invalid Merkle Proof");
 
-        stableToken.safeTransferFrom(msg.sender, address(this), price * _amount);
+    //     stableToken.safeTransferFrom(msg.sender, address(this), price * _amount);
 
-        _mint(msg.sender, _tokenId, _amount, bytes(""));
-    }
+    //     _mint(msg.sender, _tokenId, _amount, bytes(""));
+    // }
 
-    /// @notice Mint your ONFTs
-    function publicMint(uint _tokenId, uint _amount) external {
+    // /// @notice Mint your ONFTs
+    // function publicMint(uint _tokenId, uint _amount) external {
         
-        require(_publicSaleStarted == true, "AdvancedONFT1155: Public sale has not started yet!");
-        require(_saleStarted == true, "AdvancedONFT1155: Sale has not started yet!");
-        require(_tokenId == ableToMint, "AdvancedONFT1155Gasless: trying to mint from an invalid chain");
-        require(_amount <= maxTokensPerMint, "AdvancedONFT1155Gasless: trying to mint too many tokens");
-        require(totalSupply(_tokenId)+ _amount <= maxTokenPerID, "AdvancedONFT1155Gasless: token limit exceeded");
-        require(_tokenId != 0, "AdvancedONFT1155Gasless: Invalid token ID");
-        require(price > 0, "AdvancedONFT1155Gasless: you need to set stable price");
-        require(address(stableToken) != address(0), "ONFT721Gasless: not support stable token");
+    //     require(_publicSaleStarted == true, "AdvancedONFT1155: Public sale has not started yet!");
+    //     require(_saleStarted == true, "AdvancedONFT1155: Sale has not started yet!");
+    //     require(_tokenId == ableToMint, "AdvancedONFT1155Gasless: trying to mint from an invalid chain");
+    //     require(_amount <= maxTokensPerMint, "AdvancedONFT1155Gasless: trying to mint too many tokens");
+    //     require(totalSupply(_tokenId)+ _amount <= maxTokenPerID, "AdvancedONFT1155Gasless: token limit exceeded");
+    //     require(_tokenId != 0, "AdvancedONFT1155Gasless: Invalid token ID");
+    //     require(price > 0, "AdvancedONFT1155Gasless: you need to set stable price");
+    //     require(address(stableToken) != address(0), "ONFT721Gasless: not support stable token");
 
-        stableToken.safeTransferFrom(msg.sender, address(this), price * _amount);
+    //     stableToken.safeTransferFrom(msg.sender, address(this), price * _amount);
 
-        _mint(msg.sender, _tokenId, _amount, bytes(""));
+    //     _mint(msg.sender, _tokenId, _amount, bytes(""));
        
-    }
+    // }
      function mintGasless(uint _tokenId, uint _amount, bytes32[] calldata _merkleProof, address _minter) external onlyGelatoRelay {
         require(_saleStarted == true, "AdvancedONFT1155Gasless: Sale has not started yet!");
         require(_publicSaleStarted == true, "AdvancedONFT1155: Public sale has not started yet!");
@@ -184,21 +182,12 @@ contract AdvancedONFT1155Gasless is ONFT1155, GelatoRelayContext, ReentrancyGuar
         require(payable(taxRecipient).send(_taxFee));
     }
 
-    function royaltyInfo(uint, uint salePrice) external view returns (address receiver, uint royaltyAmount) {
-        receiver = beneficiary;
-        royaltyAmount = (salePrice * royaltyBasisPoints) / 10000;
-    }
-
     function setContractURI(string memory _contractURI) public onlyOwner {
         contractURI = _contractURI;
     }
 
     function setBaseURI(string memory baseUri) public onlyOwner {
         _setURI(baseUri);
-    }
-
-    function setRoyaltyFee(uint _royaltyBasisPoints) external onlyOwner {
-        royaltyBasisPoints = _royaltyBasisPoints;
     }
 
     function setBeneficiary(address payable _beneficiary) external onlyOwner {
