@@ -43,6 +43,7 @@ npx hardhat verifyAll --e testnet --tags Doodle --addr [deployed_address]
 ```
 
 ## Tiny Din0s
+npx hardhat verifyAll --e testnet --tags ONFT --addr [deployed_address]
 npx hardhat setupAllArgs --tag ONFT --e testnet --addr [deployed_address]
 npx hardhat setAllXTrustedRemote --tag ONFT --e testnet --addr [deployed_address]
 
@@ -55,7 +56,11 @@ npx hardhat setAllXTrustedRemote --tag ONFT --e testnet --addr [deployed_address
 0x29146F23C966fdb26bEa075F6093928C56A8f531
 
 ## Founder Pirates
-0xf4151134C5897C71F0C16D7AD76927c660F78c33
+0xc7Ebe9524960B24Da1E17F0Bc3280E9bDB8697E0
+
+npx hardhat verifyAll --e testnet --tags ONFT --addr [deployed_address]
+npx hardhat setupAllArgs --tag ONFT --e testnet --addr [deployed_address]
+npx hardhat setAllXTrustedRemote --tag ONFT --e testnet --addr [deployed_address]
 # How to verify
 - npx hardhat verifyOmniX --network fuji
 - npx hardhat verifyOmniX --network bsct

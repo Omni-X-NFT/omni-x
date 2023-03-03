@@ -168,28 +168,28 @@ const config: HardhatUserConfig = {
 
   xdeploy: {
     contract: 'AdvancedONFT721',
-    constructorArgsPath: 'constants/tinyDinosXargs.js',
-    salt: 'OMNIXV2',
+    constructorArgsPath: 'constants/founderPirateXargs.js',
+    salt: 'OMNIXV3',
     signer: process.env.PRIVATE_KEY,
     networks: [
       // 'goerli',
       // 'bscTestnet',
       // 'fuji',
       'arbitrumTestnet',
-      // 'optimismTestnet',
       // 'moonbaseAlpha',
       // 'fantomTestnet',
       // 'mumbai',
+      // 'optimismTestnet',
     ],
     rpcUrls: [
       // 'https://rpc.ankr.com/eth_goerli',
       // 'https://rpc.ankr.com/bsc_testnet_chapel',
       // 'https://api.avax-test.network/ext/bc/C/rpc',
       'https://arb-goerli.g.alchemy.com/v2/cUs6IPnXdgY8QwtBt_KEJrcc4-2bjKOZ',
-      // 'https://rpc.ankr.com/optimism_testnet',
       // 'https://rpc.testnet.moonbeam.network',
       // 'https://rpc.ankr.com/fantom_testnet',
       // 'https://rpc.ankr.com/polygon_mumbai',
+      // 'https://goerli.optimism.io/',
     ],
     gasLimit: 7 * 10 ** 6
   }

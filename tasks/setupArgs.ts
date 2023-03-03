@@ -114,6 +114,7 @@ export const setupONFTArgs = async function (taskArgs: any, hre: any) {
     if (args) {
       await (await contractInstance.flipPublicSaleStarted()).wait()
       await (await contractInstance.flipSaleStarted()).wait()
+      await (await contractInstance.flipRevealed()).wait()
       await (await contractInstance.setMintRange(args.startMintId, args.endMintId, args.maxTokensPerMint)).wait()
   
       await (await contractInstance.setPrice(args.price)).wait()
