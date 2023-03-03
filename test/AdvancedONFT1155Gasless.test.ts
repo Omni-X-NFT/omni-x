@@ -2,6 +2,7 @@ import hre from 'hardhat'
 import { Signer } from 'ethers'
 import { expect } from 'chai'
 
+// Must un-comment regular mint and regular public mint on AdvancedONFT1155 for these tests to pass
 describe('AdvancedONFT1155Gasless: ', function () {
   let owner: Signer, ownerAddress: string, instance: any, usdc: any
   let lzEndpointMock: any

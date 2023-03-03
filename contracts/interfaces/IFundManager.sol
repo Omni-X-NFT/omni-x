@@ -14,8 +14,6 @@ import {IOFT} from "../token/oft/IOFT.sol";
 interface IFundManager {
     function getFeesAndFunds(
         address strategy,
-        address collection,
-        uint256 tokenId,
         uint256 amount,
         bytes memory royaltyInfo
     ) external view returns(uint256, uint256, uint256, address);
@@ -32,42 +30,12 @@ interface IFundManager {
         address to,
         uint256 amount,
         uint16 fromChainId,
-        uint16 toChainId
+        uint16 toChainId,
+        bytes memory payload
     ) external view returns(uint256);
 
-    function transferFeesAndFunds(
-        address strategy,
-        address collection,
-        uint256 tokenId,
-        address currency,
-        address from,
-        address to,
-        uint256 amount,
-        uint16 fromChainId,
-        uint16 toChainId,
-        bytes memory royaltyInfo
-    ) external payable;
-
-    function transferFeesAndFundsWithWETH(
-        address strategy,
-        address collection,
-        uint256 tokenId,
-        address from,
-        address to,
-        uint256 amount,
-        uint16 fromChainId,
-        uint16 toChainId,
-        bytes memory royaltyInfo
-    ) external payable;
-
-    function processFunds(uint proxyDataId, uint8 resp) external;
-
-    function proxyTransfer(
-        bytes memory royaltyInfo,
-        uint256 amount,
-        uint256 tokenId,
-        address[2] memory operators,
-        address[3] memory addresses,
-        uint16[2] memory chainIds
-    ) external payable returns (uint);
+    function transferFeesAndFunds(address strategy, address currency, uint price, address from, address to, bytes memory royaltyInfo) external payable;
+    function transferFeesAndFundsWithWETH(address strategy, address to, uint price, bytes memory royaltyInfo) external payable;
+    function transferProxyFunds(address currency, address from, uint price, uint16 fromChainId, uint16 toChainId, bytes memory payload) external payable;
+    function processFeesAndFunds(address currency, address seller, address buyer, address strategy, uint price, bytes memory royaltyInfo, uint16 transferType) external;
 }

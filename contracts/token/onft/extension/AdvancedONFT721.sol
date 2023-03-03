@@ -17,8 +17,7 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
     uint public maxMintId;
     uint public maxTokensPerMint;
 
-    // royalty fee in basis points (i.e. 100% = 10000, 1% = 100)
-    uint royaltyBasisPoints = 500;
+
     // address for withdrawing money and receiving royalties, separate from owner
     address payable beneficiary;
     // address for tax recipient;
@@ -139,21 +138,12 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
         require(payable(taxRecipient).send(_taxFee));
     }
 
-    function royaltyInfo(uint, uint salePrice) external view returns (address receiver, uint royaltyAmount) {
-        receiver = beneficiary;
-        royaltyAmount = (salePrice * royaltyBasisPoints) / 10000;
-    }
-
     function setContractURI(string memory _contractURI) public onlyOwner {
         contractURI = _contractURI;
     }
 
     function setBaseURI(string memory uri) public onlyOwner {
         baseURI = uri;
-    }
-
-    function setRoyaltyFee(uint _royaltyBasisPoints) external onlyOwner {
-        royaltyBasisPoints = _royaltyBasisPoints;
     }
 
     function setBeneficiary(address payable _beneficiary) external onlyOwner {

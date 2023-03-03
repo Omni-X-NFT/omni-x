@@ -9,6 +9,8 @@ import 'hardhat-deploy-ethers'
 import 'solidity-coverage'
 import 'xdeployer'
 import './tasks'
+import 'xdeployer'
+import '@nomicfoundation/hardhat-foundry';
 
 import * as dotenv from 'dotenv'
 import { ethers } from 'hardhat'
@@ -25,7 +27,7 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 10
+        runs: 5
       }
     }
   },
@@ -98,7 +100,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     'fantom-testnet': {
-      url: 'https://rpc.testnet.fantom.network/',
+      url: 'https://rpc.ankr.com/fantom_testnet',
       chainId: 4002,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
@@ -135,6 +137,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://api-goerli.arbiscan.io/api',
           browserURL: 'https://testnet.arbiscan.io/'
+        }
+      },
+      {
+        network: 'moonbeam_testnet',
+        chainId: 1287,
+        urls: {
+          apiURL: 'https://api-moonbase.moonscan.io/api',
+          browserURL: 'https://moonbase.moonscan.io'
         }
       },
       {

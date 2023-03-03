@@ -10,6 +10,7 @@ import AZUKI from '../constants/azuki.json'
 import BAYC from '../constants/bayc.json'
 import PUDGY_PENGUINS from '../constants/pudgyPenguins.json'
 import { ethers } from 'ethers'
+// import GREG_ARGS from '../constants/metroverseArgs.json'
 
 type ENDPOINT_TYPE = {
   [key: string]: string
@@ -53,7 +54,6 @@ const CONTRACTS: any = {
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom'],
   testnet: ['goerli', 'bsc-testnet', 'fuji', 'mumbai', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet']
-  // testnet: ['goerli']
 }
 
 export const verifyAll = async function (taskArgs: any, hre: any) {
@@ -139,17 +139,7 @@ export const verifyOmni = async () => {
   const stargateEndpoint = (STARGATE as any)[network.name]
   await run('verify:verify', {
     address: getContractAddrByName(network.name, 'StargatePoolManager'),
-    constructorArguments: [stargateEndpoint.router],
+    constructorArguments: [stargateEndpoint.router, getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero],
     contract: 'contracts/core/StargatePoolManager.sol:StargatePoolManager'
-  })
-
-  await run('verify:verify', {
-    address: getContractAddrByName(network.name, 'StrategyStargateSale'),
-    constructorArguments: []
-  })
-
-  await run('verify:verify', {
-    address: getContractAddrByName(network.name, 'StrategyStargateSaleForCollection'),
-    constructorArguments: []
   })
 }

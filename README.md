@@ -56,8 +56,8 @@ npx hardhat setupAllArgs --tag ONFT --e testnet --addr [deployed_address]
 ## Founder Pirates
 0xf4151134C5897C71F0C16D7AD76927c660F78c33
 # How to verify
-- npx hardhat verifyOmni --network fuji
-- npx hardhat verifyOmni --network bsct
+- npx hardhat verifyOmniX --network fuji
+- npx hardhat verifyOmniX --network bsct
 
 # How to deploy and test with OFT && Ghosts
  *Caution* 
