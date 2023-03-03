@@ -16,7 +16,6 @@ contract ProxyONFT721 is ONFT721Core, IERC721Receiver {
         require(_proxyToken.supportsInterface(type(IERC721).interfaceId), "ProxyONFT721: invalid ERC721 token");
         token = IERC721(_proxyToken);
     }
-
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return interfaceId == type(IERC721Receiver).interfaceId || super.supportsInterface(interfaceId);
     }

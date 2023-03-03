@@ -41,6 +41,11 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
 
     IERC20 public stableToken;
 
+    modifier onlyBeneficiaryAndOwner() {
+        require(msg.sender == beneficiary || msg.sender == owner() , "AdvancedONFT1155Gasless: caller is not the beneficiary");
+        _;
+    }
+
     /// @notice Constructor for the AdvancedONFT
     /// @param _name the name of the token
     /// @param _symbol the token symbol
@@ -172,13 +177,7 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         price = newPrice;
     }
 
-    function withdrawNative() public virtual onlyOwner {
-        uint _balance = address(this).balance;
-        // tax: 100% = 10000
-        require(payable(msg.sender).send(_balance));
-    }
-
-    function withdraw() public virtual onlyOwner {
+    function withdraw() public virtual onlyBeneficiaryAndOwner {
         require(beneficiary != address(0), "AdvancedONFT721: Beneficiary not set!");
 
         uint _balance = stableToken.balanceOf(address(this));

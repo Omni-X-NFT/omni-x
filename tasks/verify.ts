@@ -1,6 +1,8 @@
 import shell from 'shelljs'
+import { getContractAddrByName } from './shared'
 import { getDeploymentAddresses } from '../utils/readStatic'
 import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
+import STARGATE from '../constants/stargate.json'
 import GREG_ARGS from '../constants/gregArgs.json'
 import KANPA_ARGS from '../constants/kanpaiPandas.json'
 import STABLE_COINS from '../constants/usd.json'
@@ -104,4 +106,50 @@ export const verifyVanila = async function (taskArgs: any, hre: any) {
     console.log(checkWireUpCommand)
     shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
   }
+}
+export const verifyOmni = async () => {
+  // @ts-ignore
+  // eslint-disable-next-line
+  const { ethers, run, network } = hre
+  const [owner] = await ethers.getSigners()
+
+  const lzEndpoint = ENDPOINTS[network.name]
+
+  await run('verify:verify', {
+    address: getContractAddrByName(network.name, 'OmniXExchange'),
+    constructorArguments: [
+      getContractAddrByName(network.name, 'CurrencyManager'),
+      getContractAddrByName(network.name, 'ExecutionManager'),
+      getContractAddrByName(network.name, 'RoyaltyFeeManager'),
+      getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero,
+      owner.address,
+      lzEndpoint
+    ],
+    contract: 'contracts/core/OmniXExchange.sol:OmniXExchange'
+  })
+
+  await run('verify:verify', {
+    address: getContractAddrByName(network.name, 'FundManager'),
+    constructorArguments: [
+      getContractAddrByName(network.name, 'OmniXExchange')
+    ],
+    contract: 'contracts/core/FundManager.sol:FundManager'
+  })
+
+  const stargateEndpoint = (STARGATE as any)[network.name]
+  await run('verify:verify', {
+    address: getContractAddrByName(network.name, 'StargatePoolManager'),
+    constructorArguments: [stargateEndpoint.router],
+    contract: 'contracts/core/StargatePoolManager.sol:StargatePoolManager'
+  })
+
+  await run('verify:verify', {
+    address: getContractAddrByName(network.name, 'StrategyStargateSale'),
+    constructorArguments: []
+  })
+
+  await run('verify:verify', {
+    address: getContractAddrByName(network.name, 'StrategyStargateSaleForCollection'),
+    constructorArguments: []
+  })
 }

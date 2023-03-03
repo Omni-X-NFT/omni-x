@@ -1,4 +1,5 @@
 import { HardhatUserConfig } from 'hardhat/config'
+import '@typechain/hardhat'
 import 'hardhat-contract-sizer'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
@@ -20,18 +21,18 @@ const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
 
   solidity: {
-    version: '0.8.4',
+    version: '0.8.17',
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200
+        runs: 10
       }
     }
   },
 
   namedAccounts: {
     deployer: {
-      default: 0 // wallet address 0, of the mnemonic in .env
+      default: process.env.PRIVATE_KEY || 0 // wallet address 0, of the mnemonic in .env
     }
   },
 
@@ -103,9 +104,8 @@ const config: HardhatUserConfig = {
     },
     moonbeam_testnet: {
       url: 'https://rpc.testnet.moonbeam.network',
-      accounts:
-          process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    }
   },
 
   gasReporter: {

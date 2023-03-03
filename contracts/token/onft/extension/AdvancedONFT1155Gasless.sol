@@ -3,10 +3,10 @@ pragma solidity ^0.8;
 
 import "../ONFT1155.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import { GelatoRelayContext } from "@gelatonetwork/relay-context/contracts/GelatoRelayContext.sol";
 
 /// @title Interface of the AdvancedONFT1155Gasless standard
@@ -18,14 +18,14 @@ contract AdvancedONFT1155Gasless is ONFT1155, GelatoRelayContext, ReentrancyGuar
 
     uint public tax = 1000; // 100% = 10000
     uint public price = 0;
-
+    
     // royalty fee in basis points (i.e. 100% = 10000, 1% = 100)
     uint royaltyBasisPoints = 500;
     // address for withdrawing money and receiving royalties, separate from owner
     address payable beneficiary;
     // address for tax recipient;
     address payable taxRecipient;
-    // Merkle Root for WL implementation
+    //Merkle Root for WL implementation
     bytes32 public merkleRoot;
 
     string public contractURI;
@@ -36,6 +36,15 @@ contract AdvancedONFT1155Gasless is ONFT1155, GelatoRelayContext, ReentrancyGuar
     bool revealed;
 
     IERC20 public stableToken;
+    uint public maxTokensPerMint;
+    uint public maxTokenPerID;
+    
+    uint public ableToMint;
+
+    modifier onlyBeneficiaryAndOwner() {
+        require(msg.sender == beneficiary || msg.sender == owner() , "AdvancedONFT1155Gasless: caller is not the beneficiary");
+        _;
+    }
 
     /// @notice Constructor for the AdvancedONFT1155Gasless
     /// @param _layerZeroEndpoint handles message transmission across chains
@@ -46,12 +55,20 @@ contract AdvancedONFT1155Gasless is ONFT1155, GelatoRelayContext, ReentrancyGuar
         string memory _baseTokenURI,
         string memory _hiddenURI,
         uint _tax,
-        address _taxRecipient
+        address _taxRecipient,
+        address _stableToken,
+        uint _maxTokensPerMint,
+        uint _ableToMint,
+        uint _maxTokenPerID
     ) ONFT1155(_baseTokenURI, _layerZeroEndpoint) {
         beneficiary = payable(msg.sender);
         hiddenMetadataURI = _hiddenURI;
         tax = _tax;
         taxRecipient = payable(_taxRecipient);
+        stableToken = IERC20(_stableToken);
+        maxTokensPerMint = _maxTokensPerMint;
+        maxTokenPerID = _maxTokenPerID;
+        ableToMint = _ableToMint;
     }
 
     function setTax(uint _tax) external onlyOwner {
@@ -62,25 +79,15 @@ contract AdvancedONFT1155Gasless is ONFT1155, GelatoRelayContext, ReentrancyGuar
         taxRecipient = _taxRecipient;
     }
 
-    /// @notice Mint your ONFTs
-    function publicMint(uint _tokenId, uint _amount) external {
-        require(_publicSaleStarted == true, "AdvancedONFT1155Gasless: Public sale has not started yet!");
-        require(_saleStarted == true, "AdvancedONFT1155Gasless: Sale has not started yet!");
-        require(_tokenId != 0, "AdvancedONFT1155Gasless: Cannot invalid token id!");
-        require(price > 0, "AdvancedONFT1155Gasless: you need to set stable price");
-        require(address(stableToken) != address(0), "ONFT721Gasless: not support stable token");
-
-        stableToken.safeTransferFrom(msg.sender, address(this), price * _amount);
-
-        _mint(msg.sender, _tokenId, _amount, bytes(""));
-    }
-
-    /// @notice Mint your ONFTs, whitelisted addresses only
     function mint(uint _tokenId, uint _amount, bytes32[] calldata _merkleProof) external {
         require(_saleStarted == true, "AdvancedONFT1155Gasless: Sale has not started yet!");
-        require(_tokenId != 0, "AdvancedONFT1155Gasless: Cannot mint 0 tokens!");
+        require(_tokenId == ableToMint, "AdvancedONFT1155Gasless: trying to mint from an invalid chain");
+        require(_amount <= maxTokensPerMint, "AdvancedONFT1155Gasless: trying to mint too many tokens");
+        require(totalSupply(_tokenId) + _amount <= maxTokenPerID , "AdvancedONFT1155Gasless: token limit exceeded");
+        require(_tokenId != 0, "AdvancedONFT1155Gasless: Invalid token ID");
         require(price > 0, "AdvancedONFT1155Gasless: you need to set stable price");
         require(address(stableToken) != address(0), "AdvancedONFT1155Gasless: not support stable token");
+     
 
         bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(_msgSender())));
         require(isWL == true, "AdvancedONFT1155Gasless: Invalid Merkle Proof");
@@ -91,12 +98,36 @@ contract AdvancedONFT1155Gasless is ONFT1155, GelatoRelayContext, ReentrancyGuar
     }
 
     /// @notice Mint your ONFTs
-    function publicMintGasless(uint _tokenId, uint _amount, address _minter) external onlyGelatoRelay {
-        require(_publicSaleStarted == true, "AdvancedONFT1155Gasless: Public sale has not started yet!");
-        require(_saleStarted == true, "AdvancedONFT1155Gasless: Sale has not started yet!");
-        require(_tokenId != 0, "AdvancedONFT1155Gasless: Cannot invalid token id!");
+    function publicMint(uint _tokenId, uint _amount) external {
+        
+        require(_publicSaleStarted == true, "AdvancedONFT1155: Public sale has not started yet!");
+        require(_saleStarted == true, "AdvancedONFT1155: Sale has not started yet!");
+        require(_tokenId == ableToMint, "AdvancedONFT1155Gasless: trying to mint from an invalid chain");
+        require(_amount <= maxTokensPerMint, "AdvancedONFT1155Gasless: trying to mint too many tokens");
+        require(totalSupply(_tokenId)+ _amount <= maxTokenPerID, "AdvancedONFT1155Gasless: token limit exceeded");
+        require(_tokenId != 0, "AdvancedONFT1155Gasless: Invalid token ID");
         require(price > 0, "AdvancedONFT1155Gasless: you need to set stable price");
-        require(address(stableToken) != address(0), "AdvancedONFT1155Gasless: not support stable token");
+        require(address(stableToken) != address(0), "ONFT721Gasless: not support stable token");
+
+        stableToken.safeTransferFrom(msg.sender, address(this), price * _amount);
+
+        _mint(msg.sender, _tokenId, _amount, bytes(""));
+       
+    }
+
+    function mintGasless(uint _tokenId, uint _amount, bytes32[] calldata _merkleProof, address _minter) external onlyGelatoRelay {
+        require(_saleStarted == true, "AdvancedONFT1155Gasless: Sale has not started yet!");
+        require(_publicSaleStarted == true, "AdvancedONFT1155: Public sale has not started yet!");
+        require(_saleStarted == true, "AdvancedONFT1155: Sale has not started yet!");
+        require(_tokenId == ableToMint, "AdvancedONFT1155Gasless: trying to mint from an invalid chain");
+        require(_amount <= maxTokensPerMint, "AdvancedONFT1155Gasless: trying to mint too many tokens at once");
+        require(totalSupply(_tokenId)+ _amount <= maxTokenPerID, "AdvancedONFT1155Gasless: token limit exceeded");
+        require(_tokenId != 0 , "AdvancedONFT1155Gasless: Invalid token ID");
+        require(price > 0, "AdvancedONFT1155Gasless: you need to set stable price");
+        require(address(stableToken) != address(0), "ONFT721Gasless: not support stable token");
+
+        bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(_msgSender())));
+        require(isWL == true, "AdvancedONFT1155Gasless: Invalid Merkle Proof");
         
         _transferRelayFee();
 
@@ -105,15 +136,17 @@ contract AdvancedONFT1155Gasless is ONFT1155, GelatoRelayContext, ReentrancyGuar
         _mint(_minter, _tokenId, _amount, bytes(""));
     }
 
-    /// @notice Mint your ONFTs, whitelisted addresses only
-    function mintGasless(uint _tokenId, uint _amount, bytes32[] calldata _merkleProof, address _minter) external onlyGelatoRelay {
-        require(_saleStarted == true, "AdvancedONFT1155Gasless: Sale has not started yet!");
-        require(_tokenId != 0, "AdvancedONFT1155Gasless: Cannot mint 0 tokens!");
+    /// @notice Mint your ONFTs
+    function publicMintGasless(uint _tokenId, uint _amount, address _minter) external onlyGelatoRelay {
+    
+        require(_tokenId == ableToMint, "AdvancedONFT1155Gasless: trying to mint from an invalid chain");
+        require(_amount <= maxTokensPerMint, "AdvancedONFT1155Gasless: trying to mint too many tokens");
+        require(totalSupply(_tokenId)+ _amount <= maxTokenPerID, "AdvancedONFT1155Gasless: token limit exceeded");
+
+        require(_tokenId != 0 , "AdvancedONFT1155Gasless: Invalid token ID");
+
         require(price > 0, "AdvancedONFT1155Gasless: you need to set stable price");
         require(address(stableToken) != address(0), "ONFT721Gasless: not support stable token");
-
-        bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(_msgSender())));
-        require(isWL == true, "AdvancedONFT1155Gasless: Invalid Merkle Proof");
         
         _transferRelayFee();
 
@@ -130,8 +163,8 @@ contract AdvancedONFT1155Gasless is ONFT1155, GelatoRelayContext, ReentrancyGuar
         price = newPrice;
     }
 
-    function withdraw() public virtual onlyOwner {
-        require(beneficiary != address(0), "AdvancedONFT1155Gasless: Beneficiary not set!");
+    function withdraw() public virtual onlyBeneficiaryAndOwner {
+        require(beneficiary != address(0), "A9");
         uint _balance = address(this).balance;
         // tax: 100% = 10000
         uint _taxFee = _balance * tax / 10000;

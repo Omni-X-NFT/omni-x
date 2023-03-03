@@ -11,4 +11,4 @@ module.exports = [
   'https://nfts.artgobblers.com/api/gobblers/',
   1000,
   '0x6EF408ED5660d13303f06f33627e798305638909'
-];
+]
