@@ -48,10 +48,6 @@ npx hardhat setupAllArgs --tag ONFT --e testnet --addr [deployed_address]
 npx hardhat setAllXTrustedRemote --tag ONFT --e testnet --addr [deployed_address]
 
 0x57Ed8cca698f69089E7F1134A585835f52D63980
-
-## Art Gobblers
-0x24E0af430B323E8917BA67bee94527f6C16b1AA0
-
 ## Metroverse
 0x8514B548892e1fdC536779a6ba82B84e36294AE4
 
@@ -65,6 +61,13 @@ npx hardhat setAllXTrustedRemote --tag ONFT --e testnet --addr [deployed_address
 npx hardhat verifyAll --e testnet --tags Pirates --addr [deployed_address]
 npx hardhat setupAllArgs --tag ONFT --e testnet --addr [deployed_address]
 npx hardhat setAllXTrustedRemote --tag ONFT --e testnet --addr [deployed_address]
+
+## Omni Element
+0x912849780A3D82F46B4617c4886069C869D0fF04
+
+npx hardhat verifyAll --e testnet --tags Claim --addr [deployed_address]
+npx hardhat setupAllArgs --tag Claim --e testnet --addr [deployed_address]
+npx hardhat setAllXTrustedRemote --tag Claim --e testnet --addr [deployed_address]
 # How to verify
 - npx hardhat verifyOmniX --network fuji
 - npx hardhat verifyOmniX --network bsct

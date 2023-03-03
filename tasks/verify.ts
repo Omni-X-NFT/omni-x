@@ -22,6 +22,7 @@ const METROVERSE_ARGS = require('../constants/metroverseXargs.js')
 const ARTGOBBLER_ARGS = require('../constants/artGobblerXargs.js')
 const TINYDINOS_ARGS = require('../constants/tinyDinosXargs.js')
 const PIRATES_ARGS = require('../constants/founderPirateXargs.js')
+const CLAIM_ARGS = require('../constants/omniElementXargs.js')
 const ENDPOINTS: ENDPOINT_TYPE = LZ_ENDPOINTS
 const stableCoins: ENDPOINT_TYPE = STABLE_COINS
 const ARGS: any = {
@@ -36,6 +37,7 @@ const ARGS: any = {
   'azuki': AZUKI,
   'bayc': BAYC,
   'pudgy-penguins': PUDGY_PENGUINS,
+  'Claim': CLAIM_ARGS,
 }
 const CONTRACTS: any = {
   'KanpaiPandas': 'contracts/token/onft/extension/AdvancedONFT721.sol:AdvancedONFT721',
@@ -49,6 +51,7 @@ const CONTRACTS: any = {
   'pudgy-penguins': 'contracts/token/ERC721Vanila.sol:ERC721Vanila',
   'Milady': 'contracts/token/onft/extension/AdvancedONFT721Gasless.sol:AdvancedONFT721Gasless',
   'Doodle': 'contracts/token/onft/extension/AdvancedONFT721GaslessClaim.sol:AdvancedONFT721GaslessClaim',
+  'Claim': 'contracts/token/onft/extension/AdvancedONFT721GaslessClaim.sol:AdvancedONFT721GaslessClaim',
 }
 
 const environments: any = {

@@ -4,7 +4,7 @@ import { deployGhosts, deployOmniX, deployOmnixAll } from './deployOmniX'
 import { linkOmniX, linkOmnixAll, prepareOmniX, prepareOmnixAll, prepareStargate, setupBridge } from './prepareOmniX'
 import { verifyOmni, verifyVanila, verifyAll } from './verify'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
-import { setupMiladyArgs, setupDoodleArgs, setXTrustedRemote, setAllXTrustedRemote, setupAllArgs, setupONFTArgs } from './setupArgs'
+import { setupMiladyArgs, setupClaimArgs, setXTrustedRemote, setAllXTrustedRemote, setupAllArgs, setupONFTArgs } from './setupArgs'
 import { deployAll } from './deploy'
 import { checkNonce } from './checkNonce'
 import { migrate } from './migrate'
@@ -71,12 +71,12 @@ task(
   .addParam('addr', 'Contract address xdeployed')
 
 task(
-  'setupDoodleArgs',
-  'setup doodle args',
-  setupDoodleArgs
+  'setupClaimArgs',
+  'setup omni element args',
+  setupClaimArgs
 ).addParam('tag', 'testnet or mainnet')
   .addParam('addr', 'Contract address xdeployed')
-  
+
 task(
   'setupONFTArgs',
   'setup onft args',
