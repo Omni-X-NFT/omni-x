@@ -53,12 +53,16 @@ npx hardhat setAllXTrustedRemote --tag ONFT --e testnet --addr [deployed_address
 0x24E0af430B323E8917BA67bee94527f6C16b1AA0
 
 ## Metroverse
-0x29146F23C966fdb26bEa075F6093928C56A8f531
+0x8514B548892e1fdC536779a6ba82B84e36294AE4
+
+npx hardhat verifyAll --e testnet --tags Metroverse --addr [deployed_address]
+npx hardhat setupAllArgs --tag ONFT --e testnet --addr [deployed_address]
+npx hardhat setAllXTrustedRemote --tag ONFT --e testnet --addr [deployed_address]
 
 ## Founder Pirates
 0xc7Ebe9524960B24Da1E17F0Bc3280E9bDB8697E0
 
-npx hardhat verifyAll --e testnet --tags ONFT --addr [deployed_address]
+npx hardhat verifyAll --e testnet --tags Pirates --addr [deployed_address]
 npx hardhat setupAllArgs --tag ONFT --e testnet --addr [deployed_address]
 npx hardhat setAllXTrustedRemote --tag ONFT --e testnet --addr [deployed_address]
 # How to verify

@@ -10,5 +10,5 @@ module.exports = [
   'https://s3.us-east-2.amazonaws.com/data.metroverse.com/metadata/block/',
   'https://s3.us-east-2.amazonaws.com/data.metroverse.com/metadata/block/',
   1000,
-  '0x6EF408ED5660d13303f06f33627e798305638909'
+  '0x3380dD11aA71529bE7a7bbC6d45D441524718Ed8'
 ]
