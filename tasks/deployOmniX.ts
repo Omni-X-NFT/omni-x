@@ -4,9 +4,6 @@ import {
   getContractAddrByName,
   createContractByName,
   loadAbi
-  getContractAddrByName,
-  createContractByName,
-  loadAbi
 } from './shared'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
@@ -83,10 +80,23 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
   //   await (await omniXExchange.setStargatePoolManager(poolManager.address)).wait()
   // }
 
-  const OmniXExchangeAbi = loadAbi('../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json')
-  const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
-  const fundManager = await deployContract(hre, 'FundManager', owner, [omniXExchange.address])
-  await (await omniXExchange.setFundManager(fundManager.address)).wait()
+  // const OmniXExchangeAbi = loadAbi('../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json')
+  // const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
+  // const fundManager = await deployContract(hre, 'FundManager', owner, [omniXExchange.address])
+  // await (await omniXExchange.setFundManager(fundManager.address)).wait()
+
+  const omniXExchange = await deployContract(hre, 'OmniXExchange', owner, [
+    getContractAddrByName(network.name, 'CurrencyManager'),
+    getContractAddrByName(network.name, 'ExecutionManager'),
+    getContractAddrByName(network.name, 'RoyaltyFeeManager'),
+    getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero,
+    owner.address,
+    lzEndpoint
+  ])
+
+  await (await omniXExchange.updateTransferSelectorNFT(getContractAddrByName(network.name, 'TransferSelectorNFT'))).wait()
+  await (await omniXExchange.setFundManager(getContractAddrByName(network.name, 'FundManager'))).wait()
+  await (await omniXExchange.setStargatePoolManager(getContractAddrByName(network.name, 'StargatePoolManager'))).wait()
 }
 
 export const deployGhosts = async (taskArgs: any, hre: any) => {

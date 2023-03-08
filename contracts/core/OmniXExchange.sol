@@ -258,7 +258,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
                     // cross funds to maker chain's omnixexchange.
                     // once sgReceive received, actual trading will be made.
                     bytes memory sgPayload = _getSgPayload(takerBid, makerAsk);
-                    fundManager.transferProxyFunds{value: currencyFee}(
+                    fundManager.transferProxyFunds{value: currencyFee + takerBid.price}(
                         currency,
                         takerBid.taker,
                         takerBid.price,
