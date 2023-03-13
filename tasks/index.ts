@@ -9,6 +9,9 @@ import { deployAll } from './deploy'
 import { migrate } from './migrate'
 import { deployAdvancedONFT721, deployAllAdvancedONFT721 } from './deployAdvancedONFT721'
 import { prepareAdvancedONFT, prepareAllAdvancedONFT } from './prepareAdvancedONFT'
+import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './deployAdvancedONFT721Gasless'
+import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
+
 
 task(
   'setTrustedRemote',
@@ -95,3 +98,17 @@ task('prepareAdvancedONFT', 'prepareAdvancedONFT')
 task('prepareAllAdvancedONFT', 'prepareAllAdvancedONFT')
   .addParam('e', 'testnet or mainnet')
   .setAction(prepareAllAdvancedONFT)
+
+task('deployAdvancedONFT721Gasless', 'deployAdvancedONFT721Gasless')
+  .setAction(deployAdvancedONFT721Gasless)
+
+task('deployAllAdvancedONFT721Gasless', 'deployAllAdvancedONFT721Gasless')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(deployAllAdvancedONFT721Gasless)
+
+task('prepareAdvancedONFTGasless', 'prepareAdvancedONFTGasless')
+  .setAction(prepareAdvancedONFTGasless)
+
+task('prepareAllAdvancedONFTGasless', 'prepareAllAdvancedONFTGasless')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(prepareAllAdvancedONFTGasless)
