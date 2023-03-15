@@ -62,14 +62,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
     mapping(address => mapping(uint16 => mapping(uint256 => bool))) private _isUserOrderNonceExecutedOrCancelled;
 
     event CancelAllOrders(address indexed user, uint16 chainId, uint256 newMinNonce);
-    event NewCurrencyManager(address indexed currencyManager);
-    event NewExecutionManager(address indexed executionManager);
     event NewProtocolFeeRecipient(address indexed protocolFeeRecipient);
-    event NewRoyaltyFeeManager(address indexed royaltyFeeManager);
     event SentFunds(address indexed seller, address indexed buyer, uint price, address currency);
     event RevertFunds(address indexed seller, address indexed buyer, uint price, address currency, bytes reason);
-    event NewTransferSelectorNFT(address indexed transferSelectorNFT);
-
     event UpdatedProtocolDependentContract(bytes32 contractName, address indexed contractAddress);
 
     event TakerAsk(
