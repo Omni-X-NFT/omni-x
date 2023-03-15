@@ -12,4 +12,7 @@ contract ERC20Mock is LPTokenERC20
   function mint(address to, uint256 amount) external {
     _mint(to, amount);
   }
+  function burn(address from, uint256 amount) external {
+    _burn(from, amount);
+  }
 }

@@ -70,6 +70,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
     event RevertFunds(address indexed seller, address indexed buyer, uint price, address currency, bytes reason);
     event NewTransferSelectorNFT(address indexed transferSelectorNFT);
 
+    event UpdatedProtocolDependentContract(bytes32 contractName, address indexed contractAddress);
+
     event TakerAsk(
         bytes32 orderHash, // bid hash of the maker order
         uint256 orderNonce, // user order nonce
@@ -126,19 +128,34 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         gasForLzReceive = 600000;
     }
 
-    /**
-    * @notice set stargate pool manager
-    */
-    function setStargatePoolManager(address manager) external onlyOwner {
-        stargatePoolManager = IStargatePoolManager(manager);
-    }
+
 
     /**
-    * @notice set fund manager
+        * @notice Updates protocol depended contract (CurrencyManager, StargatePoolManager, ExecutionManager, RoyalFeeManager, TransferSelectorNFT)
+        * @param name contract name
+        * @param contractAddress new contract address
     */
-    function setFundManager(address manager) external onlyOwner {
-        fundManager = IFundManager(manager);
+
+
+    function updateProtocolDependentContract(bytes32 name, address contractAddress) external onlyOwner {
+        if (name == "StargatePoolManager") {
+            stargatePoolManager = IStargatePoolManager(contractAddress);
+        } else if (name == "CurrencyManager") {
+            currencyManager = ICurrencyManager(contractAddress);
+        } else if (name == "ExecutionManager") {
+            executionManager = IExecutionManager(contractAddress);
+        } else if (name == "RoyaltyFeeManager") {
+            royaltyFeeManager = IRoyaltyFeeManager(contractAddress);
+        } else if (name == "TransferSelectorNFT") {
+            transferSelectorNFT = ITransferSelectorNFT(contractAddress);
+        } else if (name == "FundManager") {
+            fundManager = IFundManager(contractAddress);
+        } else {
+            revert("Invalid contract name");
+        }
+        emit UpdatedProtocolDependentContract(name, contractAddress);
     }
+
 
     /**
     * @notice set gas for omni destination layerzero receive
@@ -532,23 +549,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         lzEndpoint.send{value: messageFee}(makerChainId, trustedRemoteLookup[makerChainId], payload, payable(msg.sender), address(0), adapterParams);
     }
 
-    /**
-     * @notice Update currency manager
-     * @param _currencyManager new currency manager address
-     */
-    function updateCurrencyManager(address _currencyManager) external onlyOwner {
-        currencyManager = ICurrencyManager(_currencyManager);
-        emit NewCurrencyManager(_currencyManager);
-    }
 
-    /**
-     * @notice Update execution manager
-     * @param _executionManager new execution manager address
-     */
-    function updateExecutionManager(address _executionManager) external onlyOwner {
-        executionManager = IExecutionManager(_executionManager);
-        emit NewExecutionManager(_executionManager);
-    }
+
 
     /**
      * @notice Update protocol fee and recipient
@@ -559,23 +561,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         emit NewProtocolFeeRecipient(_protocolFeeRecipient);
     }
 
-    /**
-     * @notice Update royalty fee manager
-     * @param _royaltyFeeManager new fee manager address
-     */
-    function updateRoyaltyFeeManager(address _royaltyFeeManager) external onlyOwner {
-        royaltyFeeManager = IRoyaltyFeeManager(_royaltyFeeManager);
-        emit NewRoyaltyFeeManager(_royaltyFeeManager);
-    }
+ 
 
-    /**
-     * @notice Update transfer selector NFT
-     * @param _transferSelectorNFT new transfer selector address
-     */
-    function updateTransferSelectorNFT(address _transferSelectorNFT) external onlyOwner {
-        transferSelectorNFT = ITransferSelectorNFT(_transferSelectorNFT);
-        emit NewTransferSelectorNFT(_transferSelectorNFT);
-    }
 
     /**
      * @notice Check whether user order nonce is executed or cancelled
