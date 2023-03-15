@@ -115,7 +115,7 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   chain.fundManager = await deployContract('FundManager', owner, [chain.omniXExchange.address]) as FundManager
   chain.chainId = chainId
 
-  await (await chain.omniXExchange.setFundManager(chain.fundManager.address)).wait()
+  await (await chain.omniXExchange.updateProtocolDependentContract(ethers.utils.formatBytes32String('FundManager'), chain.fundManager.address)).wait()
   await (await chain.omniXExchange.setGasForLzReceive(350000)).wait();
 
   return chain
@@ -141,7 +141,8 @@ export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
   await chain.executionManager.addStrategy(chain.strategy.address)
   await chain.currencyManager.addCurrency(chain.erc20Mock.address)
   await chain.currencyManager.addCurrency(chain.omni.address)
-  await chain.omniXExchange.updateTransferSelectorNFT(chain.transferSelector.address)
+
+  await chain.omniXExchange.updateProtocolDependentContract(ethers.utils.formatBytes32String('TransferSelectorNFT'), chain.transferSelector.address)
 
   // normal currency and normal nft, mint token#1, #2, #3
   await chain.nftMock.mint(maker.address)
@@ -167,7 +168,9 @@ export const prepareTaker = async (chain: Chain, taker: SignerWithAddress) => {
 
   await chain.currencyManager.addCurrency(chain.erc20Mock.address)
   await chain.currencyManager.addCurrency(chain.omni.address)
-  await chain.omniXExchange.updateTransferSelectorNFT(chain.transferSelector.address)
+  await chain.omniXExchange.updateProtocolDependentContract(ethers.utils.formatBytes32String('TransferSelectorNFT'), chain.transferSelector.address)
+
+
 
   // normal currency and normal nft, mint token#1, #2, #3
   await chain.erc20Mock.mint(taker.address, toWei(200))
@@ -199,7 +202,8 @@ export const prepareStargate = async (chain: Chain, poolId: number, owner: Signe
 
   // set stargate pool manager to omniXExchange
   chain.stargatePoolManager = await deployContract('StargatePoolManager', owner, [stargateRouter.address, ethers.constants.AddressZero]) as StargatePoolManager
-  await chain.omniXExchange.setStargatePoolManager(chain.stargatePoolManager.address)
+  
+  await chain.omniXExchange.updateProtocolDependentContract(ethers.utils.formatBytes32String('StargatePoolManager'), chain.stargatePoolManager.address)
 
   // save stargate router address
   chain.stargateRouter = stargateRouter
