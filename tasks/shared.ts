@@ -125,7 +125,6 @@ export const fillMakerOrder = async (
   makeOrder.nonce = nonce
   makeOrder.startTime = startTime
   makeOrder.endTime = makeOrder.startTime + 3600 * 30
-  makeOrder.minPercentageToAsk = 900
   makeOrder.signer = maker
 }
 export const fillTakerOrder = (

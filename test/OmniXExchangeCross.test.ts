@@ -77,7 +77,7 @@ describe('OmniXExchangeCross', () => {
       await makerChain.nftMock.connect(maker).approve(makerChain.transferManager721.address, tokenId)
       await takerChain.erc20Mock.connect(taker).approve(takerChain.fundManager.address, price)
 
-      const destAirdrop = toWei(0.3)
+      const destAirdrop = 0
       const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.connect(taker).getLzFeesForTrading(takerBid, makerAsk, destAirdrop)
 
       const tx = await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(destAirdrop, takerBid, makerAsk, { value: omnixFee.add(currencyFee).add(nftFee) })
@@ -116,7 +116,7 @@ describe('OmniXExchangeCross', () => {
 
       const oldBalance = await makerChain.omni.balanceOf(maker.address)
 
-      const destAirdrop = toWei(0.3)
+      const destAirdrop = 0
       const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.getLzFeesForTrading(takerBid, makerAsk, destAirdrop)
       await (await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(destAirdrop, takerBid, makerAsk, { value: omnixFee.add(currencyFee).add(nftFee), gasLimit: 30000000 })).wait()
 
@@ -154,7 +154,14 @@ describe('OmniXExchangeCross', () => {
       await makerChain.erc20Mock.connect(maker).approve(makerChain.fundManager.address, price)
 
       const oldBalance = await makerChain.erc20Mock.balanceOf(taker.address)
-      const destAirdrop = toWei(0.3)
+      const destAirdrop = await makerChain.fundManager.lzFeeTransferCurrency(
+        makerChain.erc20Mock.address,
+        makerBid.signer,
+        takerAsk.price,
+        makerChain.chainId,
+        takerChain.chainId,
+        "0x"
+      );
       const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.getLzFeesForTrading(takerAsk, makerBid, destAirdrop)
       await takerChain.omniXExchange.connect(taker).matchBidWithTakerAsk(destAirdrop, takerAsk, makerBid, { value: omnixFee.add(currencyFee).add(nftFee) })
 
@@ -189,7 +196,7 @@ describe('OmniXExchangeCross', () => {
 
       await makerChain.nftMock.connect(maker).approve(makerChain.transferManager721.address, tokenId)
 
-      const destAirdrop = toWei(0.3)
+      const destAirdrop = 0
       const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.connect(taker).getLzFeesForTrading(takerBid, makerAsk, destAirdrop)
 
       await takerChain.omniXExchange.connect(taker).matchAskWithTakerBidUsingETHAndWETH(destAirdrop, takerBid, makerAsk, { value: omnixFee.add(currencyFee).add(nftFee).add(price) })
@@ -225,13 +232,7 @@ describe('OmniXExchangeCross', () => {
       await makerChain.nftMock.connect(maker).approve(makerChain.transferManager721.address, tokenId)
       await takerChain.erc20Mock.connect(taker).approve(takerChain.fundManager.address, price)
 
-      const [destAirdrop] = await makerChain.layerZeroEndpoint.estimateFees(
-        takerChain.chainId,
-        makerChain.omniXExchange.address,
-        ethers.utils.defaultAbiCoder.encode(['uint8', 'uint256', 'uint8'], [0, 0, 0]),
-        false,
-        ethers.utils.solidityPack(['uint16', 'uint256', 'uint256', 'address'], [2, 250000, 0, takerChain.omniXExchange.address])
-      )
+      const destAirdrop = 0
       const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.connect(taker).getLzFeesForTrading(takerBid, makerAsk, destAirdrop)
 
       const tx = await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(destAirdrop, takerBid, makerAsk, { value: omnixFee.add(currencyFee).add(nftFee) })

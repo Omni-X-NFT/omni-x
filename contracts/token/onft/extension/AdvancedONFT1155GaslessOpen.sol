@@ -18,8 +18,6 @@ contract AdvancedONFT1155GaslessOpen is ONFT1155, GelatoRelayContext, Reentrancy
     uint public tax = 1000; // 100% = 10000
     uint public price = 0;
 
-    // royalty fee in basis points (i.e. 100% = 10000, 1% = 100)
-    uint royaltyBasisPoints = 500;
     // address for withdrawing money and receiving royalties, separate from owner
     address payable beneficiary;
     // address for tax recipient;
@@ -105,21 +103,12 @@ contract AdvancedONFT1155GaslessOpen is ONFT1155, GelatoRelayContext, Reentrancy
         require(payable(taxRecipient).send(_taxFee));
     }
 
-    function royaltyInfo(uint, uint salePrice) external view returns (address receiver, uint royaltyAmount) {
-        receiver = beneficiary;
-        royaltyAmount = (salePrice * royaltyBasisPoints) / 10000;
-    }
-
     function setContractURI(string memory _contractURI) public onlyOwner {
         contractURI = _contractURI;
     }
 
     function setBaseURI(string memory baseUri) public onlyOwner {
         _setURI(baseUri);
-    }
-
-    function setRoyaltyFee(uint _royaltyBasisPoints) external onlyOwner {
-        royaltyBasisPoints = _royaltyBasisPoints;
     }
 
     function setBeneficiary(address payable _beneficiary) external onlyOwner {

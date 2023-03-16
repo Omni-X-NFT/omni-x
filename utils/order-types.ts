@@ -22,7 +22,6 @@ const MAKE_ORDER_SIGN_TYPES = {
     { name: 'nonce', type: 'uint256' },
     { name: 'startTime', type: 'uint256' },
     { name: 'endTime', type: 'uint256' },
-    { name: 'minPercentageToAsk', type: 'uint256' },
     { name: 'params', type: 'bytes' }
   ]
 }
@@ -48,7 +47,6 @@ export class MakerOrder {
   nonce: BigNumberish = 0
   startTime: BigNumberish = 0
   endTime: BigNumberish = 0
-  minPercentageToAsk: BigNumberish = 0
   params: BytesLike = []
   signature: string = ''
 

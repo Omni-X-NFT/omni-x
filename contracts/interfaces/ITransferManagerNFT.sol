@@ -3,32 +3,10 @@ pragma solidity ^0.8.0;
 
 interface ITransferManagerNFT {
     function transferNFT(
-        address collectionFrom,
-        address collectionTo,
-        address from,
-        address to,
-        uint256 tokenId,
-        uint256 amount,
-        uint16 fromChainId,
-        uint16 toChainId
-    ) external payable;
-
-    function proxyTransfer(
         address collection,
         address from,
         address to,
         uint256 tokenId,
         uint256 amount
     ) external;
-
-    function estimateSendFee(
-        address collectionFrom,
-        address collectionTo,
-        address from,
-        address to,
-        uint256 tokenId,
-        uint256 amount,
-        uint16 fromChainId,
-        uint16 toChainId
-    ) external view returns (uint nativeFee, uint zroFee);
 }

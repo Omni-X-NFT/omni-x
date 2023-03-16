@@ -22,8 +22,6 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
     uint public maxMintId;
     uint public maxTokensPerMint;
 
-    // royalty fee in basis points (i.e. 100% = 10000, 1% = 100)
-    uint royaltyBasisPoints = 500;
     // address for withdrawing money and receiving royalties, separate from owner
     address payable beneficiary;
     // address for tax recipient;
@@ -121,21 +119,6 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         _mintTokens(minter, _nbTokens);
     }
 
-    /// @notice mint with stable coin
-    function publicMint(uint _nbTokens) external {
-        require(_publicSaleStarted == true, "ONFT721Gasless: Public sale has not started yet!");
-        require(_saleStarted == true, "ONFT721Gasless: Sale has not started yet!");
-        require(_nbTokens != 0, "ONFT721Gasless: Cannot mint 0 tokens!");
-        require(_nbTokens <= maxTokensPerMint, "ONFT721Gasless: You cannot mint more than maxTokensPerMint tokens at once!");
-        require(nextMintId + _nbTokens <= maxMintId, "ONFT721Gasless: max mint limit reached");
-        require(price > 0, "ONFT721Gasless: you need to set stable price");
-        require(address(stableToken) != address(0), "ONFT721Gasless: not support stable mint");
-
-        stableToken.safeTransferFrom(msg.sender, address(this), price * _nbTokens);
-
-        //using a local variable, _mint and ++X pattern to save gas
-        _mintTokens(msg.sender, _nbTokens);
-    }
 
     /// @notice Gasless Mint your ONFTs, whitelisted addresses only
     function mintGasless(uint _nbTokens, address minter, bytes32[] calldata _merkleProof) external onlyGelatoRelay {
@@ -144,7 +127,7 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         require(_nbTokens <= maxTokensPerMint, "ONFT721Gasless: You cannot mint more than maxTokensPerMint tokens at once!");
         require(nextMintId + _nbTokens <= maxMintId, "ONFT721Gasless: max mint limit reached");
 
-        bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(minter)));
+        bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(minter, _nbTokens)));
         require(isWL == true, "ONFT721Gasless: Invalid Merkle Proof");
 
         _transferRelayFee();
@@ -154,20 +137,6 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         _mintTokens(minter, _nbTokens);
     }
 
-    /// @notice Mint your ONFTs, whitelisted addresses only
-    function mint(uint _nbTokens, bytes32[] calldata _merkleProof) external {
-        require(_saleStarted == true, "ONFT721Gasless: Sale has not started yet!");
-        require(_nbTokens != 0, "ONFT721Gasless: Cannot mint 0 tokens!");
-        require(_nbTokens <= maxTokensPerMint, "ONFT721Gasless: You cannot mint more than maxTokensPerMint tokens at once!");
-        require(nextMintId + _nbTokens <= maxMintId, "ONFT721Gasless: max mint limit reached");
-
-        bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(_msgSender())));
-        require(isWL == true, "ONFT721Gasless: Invalid Merkle Proof");
-
-        stableToken.safeTransferFrom(msg.sender, address(this), price * _nbTokens);
-
-        _mintTokens(msg.sender, _nbTokens);
-    }
 
     function setMerkleRoot(bytes32 _merkleRoot) external onlyOwner {
         merkleRoot = _merkleRoot;
@@ -189,21 +158,12 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         stableToken.safeTransfer(beneficiary, _balance - _taxFee);
     }
 
-    function royaltyInfo(uint, uint salePrice) external view returns (address receiver, uint royaltyAmount) {
-        receiver = beneficiary;
-        royaltyAmount = (salePrice * royaltyBasisPoints) / 10000;
-    }
-
     function setContractURI(string memory _contractURI) public onlyOwner {
         contractURI = _contractURI;
     }
 
     function setBaseURI(string memory uri) public onlyOwner {
         baseURI = uri;
-    }
-
-    function setRoyaltyFee(uint _royaltyBasisPoints) external onlyOwner {
-        royaltyBasisPoints = _royaltyBasisPoints;
     }
 
     function setBeneficiary(address payable _beneficiary) external onlyOwner {
