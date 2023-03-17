@@ -3,7 +3,7 @@ import { getContractAddrByName } from './shared'
 import { getDeploymentAddresses } from '../utils/readStatic'
 import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
-import GREG_ARGS from '../constants/gregArgs.json'
+import GREG_ARGS from '../constants/omniElementArgs.json'
 import KANPA_ARGS from '../constants/kanpaiPandas.json'
 import STABLE_COINS from '../constants/usd.json'
 import AZUKI from '../constants/azuki.json'
@@ -74,7 +74,6 @@ export const verifyAll = async function (taskArgs: any, hre: any) {
       const aonftArgs = Array.isArray(ARGS[taskArgs.tags]) ? ARGS[taskArgs.tags] : ARGS[taskArgs.tags][network]
       const address = taskArgs.addr || getDeploymentAddresses(network)[taskArgs.tags]
       const endpointAddr = ENDPOINTS[network]
-      const stableAddr = stableCoins[network] || ethers.constants.AddressZero
       const contractPath = CONTRACTS[taskArgs.tags]
 
       if (address) {
@@ -83,7 +82,8 @@ export const verifyAll = async function (taskArgs: any, hre: any) {
           checkWireUpCommand = `npx hardhat verify --contract "${contractPath}" --network ${network} ${address} ${aonftArgs.map(a => `\"${a}\"`).join(' ')}`
         }
         else {
-          checkWireUpCommand = `npx hardhat verify --contract "${contractPath}" --network ${network} ${address} "${aonftArgs.name}" ${aonftArgs.symbol} ${endpointAddr} ${aonftArgs.startMintId} ${aonftArgs.endMintId} ${aonftArgs.maxTokensPerMint} "${aonftArgs.baseTokenURI}" "${aonftArgs.hiddenURI}" ${stableAddr}`
+          // checkWireUpCommand = `npx hardhat verify --contract "${contractPath}" --network ${network} ${address} "${aonftArgs.name}" ${aonftArgs.symbol} ${endpointAddr} ${aonftArgs.startMintId} ${aonftArgs.endMintId} ${aonftArgs.maxTokensPerMint} "${aonftArgs.baseTokenURI}" "${aonftArgs.hiddenURI}" ${stableAddr}`
+          checkWireUpCommand = `npx hardhat verify --network ${network} ${address} "${aonftArgs.name}" "${aonftArgs.symbol}" ${endpointAddr} ${aonftArgs.startMintId} ${aonftArgs.endMintId} ${aonftArgs.maxTokensPerMint} "${aonftArgs.baseTokenURI}" "${aonftArgs.hiddenURI}" ${aonftArgs.stableCoin} ${aonftArgs.tax} ${aonftArgs.taxRecipient}`
         }
 
         console.log(checkWireUpCommand)
