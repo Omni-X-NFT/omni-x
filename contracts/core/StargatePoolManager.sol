@@ -4,29 +4,31 @@ pragma solidity ^0.8.0;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IStargateRouter} from "../interfaces/IStargateRouter.sol";
-import {IStargateRouterETH} from "../interfaces/IStargateRouterETH.sol";
 import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
-import "hardhat/console.sol";
+import {IStargateEthVault} from "../interfaces/IStargateEthVault.sol";
 
 contract StargatePoolManager is IStargatePoolManager, Ownable {
   uint8 internal constant TYPE_SWAP_REMOTE = 1;   // from Bridge.sol
   uint256 internal constant MIN_AMOUNT_LD = 1e4;  // the min amount you would accept on the destination when swapping using stargate
 
+  address public immutable stargateEthVault;
   // IERC20 => dst chain id => pool id
   mapping (address => mapping (uint16 => PoolID)) public poolIds;
   IStargateRouter public stargateRouter;
-  IStargateRouterETH public stargateRouterEth;
+  uint256 public gasForSgReceive = 350000;
+  uint16 public ETH_POOL_ID = 13;
 
-  constructor(address stargateRouter_) {
+  constructor(address stargateRouter_, address stargateEthVault_) {
     stargateRouter = IStargateRouter(stargateRouter_);
+    stargateEthVault = stargateEthVault_;
   }
 
   function setStargateRouter(address stargateRouter_) external onlyOwner {
     stargateRouter = IStargateRouter(stargateRouter_);
   }
 
-  function setStargateRouterEth(address stargateRouterEth_) external onlyOwner {
-    stargateRouterEth = IStargateRouterETH(stargateRouterEth_);
+  function setGasForSgReceive(uint256 gas) external onlyOwner {
+    gasForSgReceive = gas;
   }
 
   /**
@@ -73,10 +75,10 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     */
   function getSwapFee(
     uint16 dstChainId,
-    address to
+    address to,
+    bytes memory payload
   ) public view override returns (uint256, uint256) {
-    IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(0, 0, "0x");
-    bytes memory payload = bytes("");
+    IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(gasForSgReceive, 0, "0x");
     bytes memory toAddress = abi.encodePacked(to);
 
     (uint256 fee, uint256 lzFee) = stargateRouter.quoteLayerZeroFee(
@@ -103,10 +105,10 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     address payable refundAddress,
     uint256 amount,
     address from,
-    address to
+    address to,
+    bytes memory payload
   ) external payable override {
-    IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(0, 0, "0x");
-    bytes memory payload = bytes("");
+    IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(gasForSgReceive, 0, "0x");
     bytes memory toAddress = abi.encodePacked(to);
     PoolID memory poolId = getPoolId(token, dstChainId);
 
@@ -135,7 +137,7 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     uint16 dstChainId,
     address to
   ) public view override returns (uint256, uint256) {
-    return getSwapFee(dstChainId, to);
+    return getSwapFee(dstChainId, to, bytes(""));
   }
 
   /**
@@ -149,18 +151,33 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     uint16 dstChainId,
     address payable refundAddress,
     uint256 amount,
-    address to
+    address to,
+    bytes memory payload
   ) external payable override {
-    require (address(stargateRouterEth) != address(0), "invalid router eth");
+    require (address(stargateEthVault) != address(0), "invalid router eth");
+    require(msg.value > amount, "Stargate: msg.value must be > _amountLD");
     
     bytes memory toAddress = abi.encodePacked(to);
 
-    stargateRouterEth.swapETH{value: msg.value}(
-      dstChainId,
-      refundAddress,
-      toAddress,
-      amount,
-      MIN_AMOUNT_LD
+    // wrap the ETH into WETH
+    IStargateEthVault(stargateEthVault).deposit{value: amount}();
+    IStargateEthVault(stargateEthVault).approve(address(stargateRouter), amount);
+
+    // messageFee is the remainder of the msg.value after wrap
+    uint256 messageFee = msg.value - amount;
+    IStargateRouter.lzTxObj memory lzTxParams = IStargateRouter.lzTxObj(gasForSgReceive, 0, "0x");
+
+    // compose a stargate swap() using the WETH that was just wrapped
+    stargateRouter.swap{value: messageFee}(
+        dstChainId, // destination Stargate chainId
+        ETH_POOL_ID, // WETH Stargate poolId on source
+        ETH_POOL_ID, // WETH Stargate poolId on destination
+        refundAddress, // message refund address if overpaid
+        amount, // the amount in Local Decimals to swap()
+        MIN_AMOUNT_LD, // the minimum amount swap()er would allow to get out (ie: slippage)
+        lzTxParams,
+        toAddress, // address on destination to send to
+        payload // empty payload, since sending to EOA
     );
   }
 }

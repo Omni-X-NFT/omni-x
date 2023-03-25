@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./IONFT1155Core.sol";
-import "../../lzApp/NonblockingLzApp.sol";
+import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 
 
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";

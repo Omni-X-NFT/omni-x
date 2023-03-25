@@ -12,7 +12,7 @@ contract OFTMock is OFT {
         _mint(msg.sender, _cap);
     }
 
-    function mint() external {
-        _mint(msg.sender, 10000 * 1e18);
+    function mint(uint amount) external {
+        _mint(msg.sender, amount);
     }
 }

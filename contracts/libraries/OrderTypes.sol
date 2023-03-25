@@ -10,9 +10,9 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol
 library OrderTypes {
     using ECDSA for bytes32;
 
-    // keccak256("MakerOrder(bool isOrderAsk,address signer,address collection,uint256 price,uint256 tokenId,uint256 amount,address strategy,address currency,uint256 nonce,uint256 startTime,uint256 endTime,uint256 minPercentageToAsk,bytes params)")
+    // keccak256("MakerOrder(bool isOrderAsk,address signer,address collection,uint256 price,uint256 tokenId,uint256 amount,address strategy,address currency,uint256 nonce,uint256 startTime,uint256 endTime,bytes params)")
     // you can generate keccak256 on this link https://keccak-256.cloxy.net/
-    bytes32 internal constant MAKER_ORDER_HASH = 0x40261ade532fa1d2c7293df30aaadb9b3c616fae525a0b56d3d411c841a85028;
+    bytes32 internal constant MAKER_ORDER_HASH = 0x5ecbfd19307447ee7e4f336494603909c6ececa499f9a16b338a0639daa8ea2f;
     struct MakerOrder {
         bool isOrderAsk; // true --> ask / false --> bid
         address signer; // signer of the maker order
@@ -25,7 +25,6 @@ library OrderTypes {
         uint256 nonce; // order nonce (must be unique unless new maker order is meant to override existing one e.g., lower ask price)
         uint256 startTime; // startTime in timestamp
         uint256 endTime; // endTime in timestamp
-        uint256 minPercentageToAsk; // slippage protection (9000 --> 90% of the final price must return to ask)
         bytes params; // additional parameters: chainId
         bytes signature; // signature
     }
@@ -35,8 +34,14 @@ library OrderTypes {
         address taker; // msg.sender
         uint256 price; // final price for the purchase
         uint256 tokenId;
-        uint256 minPercentageToAsk; // // slippage protection (9000 --> 90% of the final price must return to ask)
         bytes params; // other params (e.g. chainId)
+    }
+
+    struct PartyData {
+        address currency;   // currency
+        address strategy;   // strategy
+        address party;      // party address. seller or buyer address.
+        uint16 chainId;     // lz chain id
     }
 
     function hash(MakerOrder memory makerOrder) internal pure returns (bytes32) {
@@ -53,7 +58,6 @@ library OrderTypes {
             makerOrder.nonce,
             makerOrder.startTime,
             makerOrder.endTime,
-            makerOrder.minPercentageToAsk,
             keccak256(makerOrder.params)
         );
         return keccak256(structHash);

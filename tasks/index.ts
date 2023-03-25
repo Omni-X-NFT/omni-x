@@ -7,6 +7,11 @@ import { setAllTrustedRemote } from './setAllTrustedRemote'
 import { checkNonce } from './checkNonce'
 import { deployAll } from './deploy'
 import { migrate } from './migrate'
+import { deployAdvancedONFT721, deployAllAdvancedONFT721 } from './deployAdvancedONFT721'
+import { prepareAdvancedONFT, prepareAllAdvancedONFT } from './prepareAdvancedONFT'
+import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './deployAdvancedONFT721Gasless'
+import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
+
 
 task(
   'setTrustedRemote',
@@ -77,3 +82,33 @@ task(
   'migrate',
   'update or check configuration of omnixexchange contracts'
 ).setAction(migrate)
+
+task('deployAdvancedONFT721', 'deployAdvancedONFT721')
+  .setAction(deployAdvancedONFT721)
+
+task('deployAllAdvancedONFT721', 'deployAllAdvancedONFT721')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(deployAllAdvancedONFT721)
+
+task('prepareAdvancedONFT', 'prepareAdvancedONFT')
+  .addParam('start', 'starting mint Id')
+  .addParam('end', 'ending mint Id')
+  .setAction(prepareAdvancedONFT)
+
+task('prepareAllAdvancedONFT', 'prepareAllAdvancedONFT')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(prepareAllAdvancedONFT)
+
+task('deployAdvancedONFT721Gasless', 'deployAdvancedONFT721Gasless')
+  .setAction(deployAdvancedONFT721Gasless)
+
+task('deployAllAdvancedONFT721Gasless', 'deployAllAdvancedONFT721Gasless')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(deployAllAdvancedONFT721Gasless)
+
+task('prepareAdvancedONFTGasless', 'prepareAdvancedONFTGasless')
+  .setAction(prepareAdvancedONFTGasless)
+
+task('prepareAllAdvancedONFTGasless', 'prepareAllAdvancedONFTGasless')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(prepareAllAdvancedONFTGasless)
