@@ -11,6 +11,9 @@ import { deployAdvancedONFT721, deployAllAdvancedONFT721 } from './deployAdvance
 import { prepareAdvancedONFT, prepareAllAdvancedONFT } from './prepareAdvancedONFT'
 import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './deployAdvancedONFT721Gasless'
 import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
+import { Snapshot, MerkleGen } from './snapshot'
+import { mintGasless721 } from './mintGasless'
+
 
 
 task(
@@ -91,8 +94,6 @@ task('deployAllAdvancedONFT721', 'deployAllAdvancedONFT721')
   .setAction(deployAllAdvancedONFT721)
 
 task('prepareAdvancedONFT', 'prepareAdvancedONFT')
-  .addParam('start', 'starting mint Id')
-  .addParam('end', 'ending mint Id')
   .setAction(prepareAdvancedONFT)
 
 task('prepareAllAdvancedONFT', 'prepareAllAdvancedONFT')
@@ -112,3 +113,15 @@ task('prepareAdvancedONFTGasless', 'prepareAdvancedONFTGasless')
 task('prepareAllAdvancedONFTGasless', 'prepareAllAdvancedONFTGasless')
   .addParam('e', 'testnet or mainnet')
   .setAction(prepareAllAdvancedONFTGasless)
+
+task('snapshot', 'snapshot greg holders')
+  .setAction(Snapshot)
+
+task('merkle', 'generate merkle tree')
+  .addParam('adr', 'address to generate proof for')
+  .addParam('amt', 'amount of tokens')
+  .setAction(MerkleGen)
+task('mintGasless721', 'mintGasless721')
+  .addParam('adr', 'address to mint to')
+  .addParam('amt', 'amount of tokens')
+  .setAction(mintGasless721)
