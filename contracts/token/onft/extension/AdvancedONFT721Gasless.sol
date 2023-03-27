@@ -121,13 +121,13 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
 
 
     /// @notice Gasless Mint your ONFTs, whitelisted addresses only
-    function mintGasless(uint _nbTokens, address minter, bytes32[] calldata _merkleProof) external onlyGelatoRelay {
+    function mintGasless(uint _nbTokens, address minter, bytes32[] calldata _merkleProof, uint wlTokenCount) external onlyGelatoRelay {
         require(_saleStarted == true, "ONFT721Gasless: Sale has not started yet!");
         require(_nbTokens != 0, "ONFT721Gasless: Cannot mint 0 tokens!");
         require(_nbTokens <= maxTokensPerMint, "ONFT721Gasless: You cannot mint more than maxTokensPerMint tokens at once!");
         require(nextMintId + _nbTokens <= maxMintId, "ONFT721Gasless: max mint limit reached");
 
-        bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(minter, _nbTokens)));
+        bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(minter, wlTokenCount)));
         require(isWL == true, "ONFT721Gasless: Invalid Merkle Proof");
 
         _transferRelayFee();

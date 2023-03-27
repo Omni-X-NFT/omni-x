@@ -11,7 +11,7 @@ import { deployAdvancedONFT721, deployAllAdvancedONFT721 } from './deployAdvance
 import { prepareAdvancedONFT, prepareAllAdvancedONFT } from './prepareAdvancedONFT'
 import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './deployAdvancedONFT721Gasless'
 import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
-import { Snapshot, MerkleGen } from './snapshot'
+import { MerkleGen } from './snapshot'
 import { mintGasless721 } from './mintGasless'
 
 
@@ -114,14 +114,10 @@ task('prepareAllAdvancedONFTGasless', 'prepareAllAdvancedONFTGasless')
   .addParam('e', 'testnet or mainnet')
   .setAction(prepareAllAdvancedONFTGasless)
 
-task('snapshot', 'snapshot greg holders')
-  .setAction(Snapshot)
-
 task('merkle', 'generate merkle tree')
-  .addParam('adr', 'address to generate proof for')
-  .addParam('amt', 'amount of tokens')
   .setAction(MerkleGen)
 task('mintGasless721', 'mintGasless721')
   .addParam('adr', 'address to mint to')
   .addParam('amt', 'amount of tokens')
+  .addParam('gregs', 'amount of gregs for address')
   .setAction(mintGasless721)
