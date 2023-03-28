@@ -31,7 +31,7 @@ contract AdvancedONFT1155 is ONFT1155, ReentrancyGuard {
     bool revealed;
 
     modifier onlyBeneficiaryAndOwner() {
-        require(msg.sender == beneficiary || msg.sender == owner() , "AdvancedONFT1155Gasless: caller is not the beneficiary");
+        require(msg.sender == beneficiary || msg.sender == owner() , "AdvancedONFT1155: caller is not the beneficiary");
         _;
     }
 

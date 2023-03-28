@@ -26,7 +26,7 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
     address payable beneficiary;
     // address for tax recipient;
     address payable taxRecipient;
-    // Merkle Root for WL implementation
+    // Merkle Root for WL implementations
     bytes32 public merkleRoot;
 
     string public contractURI;
@@ -37,10 +37,12 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
     bool public _saleStarted;
     bool revealed;
 
+    mapping(address => uint16) private _whitelistMintCount;
+
     IERC20 public stableToken;
 
     modifier onlyBeneficiaryAndOwner() {
-        require(msg.sender == beneficiary || msg.sender == owner() , "AdvancedONFT1155Gasless: caller is not the beneficiary");
+        require(msg.sender == beneficiary || msg.sender == owner() , "AdvancedONFT721Gasless: caller is not the beneficiary");
         _;
     }
 
@@ -65,7 +67,7 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         address _stableToken,
         uint _tax,
         address _taxRecipient
-    ) ONFT721(_name, _symbol, _layerZeroEndpoint) {
+    ) ONFT721(_name, _symbol, _layerZeroEndpoint, 200000) {
         nextMintId = _startMintId;
         maxMintId = _endMintId;
         maxTokensPerMint = _maxTokensPerMint;
@@ -126,8 +128,10 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         require(_nbTokens != 0, "ONFT721Gasless: Cannot mint 0 tokens!");
         require(_nbTokens <= maxTokensPerMint, "ONFT721Gasless: You cannot mint more than maxTokensPerMint tokens at once!");
         require(nextMintId + _nbTokens <= maxMintId, "ONFT721Gasless: max mint limit reached");
+        require(_whitelistMintCount[minter] + _nbTokens <= wlTokenCount, "ONFT721Gasless: cannot mint more than your whitelisted amount");
 
         bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(minter, wlTokenCount)));
+
         require(isWL == true, "ONFT721Gasless: Invalid Merkle Proof");
 
         _transferRelayFee();
@@ -135,6 +139,7 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
         
         _mintTokens(minter, _nbTokens);
+        _whitelistMintCount[minter] += uint16(_nbTokens);
     }
 
 
