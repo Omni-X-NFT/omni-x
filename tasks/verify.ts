@@ -13,7 +13,7 @@ const ENDPOINTS: ENDPOINT_TYPE = LZ_ENDPOINTS
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom'],
-  testnet: ['arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet']
+  testnet: ['arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'bsc-testnet', 'mumbai', 'goerli', 'fuji']
 }
 
 export const verifyAll = async function (taskArgs: any, hre: any) {

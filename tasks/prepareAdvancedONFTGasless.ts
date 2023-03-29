@@ -26,6 +26,9 @@ export const prepareAdvancedONFTGasless = async function (taskArgs: any, hre: an
   if (network.name === 'arbitrum-goerli') {
     await tx(await advancedONFT721Gasless.setMerkleRoot(args.merkleRoot))
   }
+  if (network.name === 'goerli') {
+    await tx(await advancedONFT721Gasless.flipLinearPriceIncreaseActive())
+  }
 }
 
 export const prepareAllAdvancedONFTGasless = async function (taskArgs: any) {

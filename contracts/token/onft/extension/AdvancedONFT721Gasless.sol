@@ -22,6 +22,7 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
     uint public maxMintId;
     uint public maxTokensPerMint;
 
+
     // address for withdrawing money and receiving royalties, separate from owner
     address payable beneficiary;
     // address for tax recipient;
@@ -36,6 +37,7 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
     bool public _publicSaleStarted;
     bool public _saleStarted;
     bool revealed;
+    bool private _linearPriceIncreaseActive;
 
     mapping(address => uint16) private _whitelistMintCount;
 
@@ -116,7 +118,12 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
 
         _transferRelayFee();
 
-        stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
+             
+        if ((_nbTokens < (maxTokensPerMint / 2)) && (_linearPriceIncreaseActive == true)) {
+            stableToken.safeTransferFrom(minter, address(this), price);
+        } else {
+            stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
+        }
 
         _mintTokens(minter, _nbTokens);
     }
@@ -135,8 +142,12 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         require(isWL == true, "ONFT721Gasless: Invalid Merkle Proof");
 
         _transferRelayFee();
-
-        stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
+        
+        if ((_nbTokens < (maxTokensPerMint / 2)) && (_linearPriceIncreaseActive == true)) {
+            stableToken.safeTransferFrom(minter, address(this), price);
+        } else {
+            stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
+        }
         
         _mintTokens(minter, _nbTokens);
         _whitelistMintCount[minter] += uint16(_nbTokens);
@@ -193,6 +204,10 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
 
     function flipPublicSaleStarted() external onlyOwner {
         _publicSaleStarted = !_publicSaleStarted;
+    }
+
+    function flipLinearPriceIncreaseActive() external onlyOwner {
+        _linearPriceIncreaseActive = !_linearPriceIncreaseActive;
     }
 
     // The following functions are overrides required by Solidity.

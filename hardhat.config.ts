@@ -25,7 +25,7 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 5
+        runs: 10
       }
     }
   },
@@ -93,7 +93,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     'optimism-goerli': {
-      url: 'https://goerli.optimism.io/',
+      url: 'https://opt-goerli.g.alchemy.com/v2/BdL0X7f83cuTrDqocNxWZY8Cmr-__tv7',
       chainId: 420,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
@@ -105,7 +105,7 @@ const config: HardhatUserConfig = {
     moonbeam_testnet: {
       url: 'https://rpc.testnet.moonbeam.network',
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
-    }
+    } 
   },
 
   gasReporter: {
