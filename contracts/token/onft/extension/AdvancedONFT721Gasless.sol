@@ -119,12 +119,12 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         _transferRelayFee();
 
              
-        if ((_nbTokens < (maxTokensPerMint / 2)) && (_linearPriceIncreaseActive == true)) {
-            stableToken.safeTransferFrom(minter, address(this), price);
+        if ((_nbTokens < 4) && (_linearPriceIncreaseActive == true)) {
+            stableToken.safeTransferFrom(minter, address(this), price * 3);
         } else {
             stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
         }
-
+ 
         _mintTokens(minter, _nbTokens);
     }
 
@@ -143,8 +143,8 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
 
         _transferRelayFee();
         
-        if ((_nbTokens < (maxTokensPerMint / 2)) && (_linearPriceIncreaseActive == true)) {
-            stableToken.safeTransferFrom(minter, address(this), price);
+        if ((_nbTokens < 4) && (_linearPriceIncreaseActive == true)) {
+            stableToken.safeTransferFrom(minter, address(this), price * 3);
         } else {
             stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
         }

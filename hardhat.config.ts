@@ -52,6 +52,51 @@ const config: HardhatUserConfig = {
       chainId: 43114,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
+    bsc: {
+      url: 'https://rpc.ankr.com/bsc',
+      chainId: 56,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    polygon: {
+      url: 'https://polygon.llamarpc.com',
+      chainId: 137,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    fantom: {
+      url: 'https://rpc.fantom.network',
+      chainId: 250,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    moonbeam: {
+      url: 'https://rpc.api.moonbeam.network',
+      chainId: 1287,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    arbitrum: {
+      url: 'https://rpc.ankr.com/arbitrum',
+      chainId: 42161,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    optimism: {
+      url: 'https://mainnet.optimism.io',
+      chainId: 10,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    metis: {
+      url: 'https://andromeda.metis.io/?owner=1088',
+      chainId: 76,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    zksync: {
+      url: 'https://mainnet.era.zksync.io',
+      chainId: 1,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    klaytn: {
+      url: 'https://public-node-api.klaytnapi.com/v1/cypress',
+      chainId: 8217,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
     rinkeby: {
       url: 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
       chainId: 4,
@@ -105,7 +150,7 @@ const config: HardhatUserConfig = {
     moonbeam_testnet: {
       url: 'https://rpc.testnet.moonbeam.network',
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
-    } 
+    }
   },
 
   gasReporter: {

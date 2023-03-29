@@ -16,6 +16,7 @@ import { mintGasless721 } from './mintGasless'
 import { sendBatch721 } from './sendBatch721'
 import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
+import { Snapshot } from './takeSnapshot'
 
 
 
@@ -137,3 +138,7 @@ task('set721Config', 'set layer zero config for ONFT721')
 task('setAll721Config', 'sets layer zero config on all chain for ONF721')
   .addParam('e', 'testnet or mainnet')
   .setAction(setAll721Config)
+
+task('snapshot', 'take snapshot')
+  .setAction(Snapshot)
+  

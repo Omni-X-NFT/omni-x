@@ -1,6 +1,6 @@
 import * as CHAIN_ID from '../constants/chainIds.json'
 import { loadAbi, createContractByName } from './shared'
-import omniElementArgs from '../constants/omniElementArgs.json'
+import omniElementArgs from '../constants/omniElementMainnetArgs.json'
 
 type CHAINIDTYPE = {
   [key: string]: number
@@ -21,14 +21,14 @@ export const set721Config = async function (taskArgs: any, hre: any) {
   const advancedONFT721Gasless = createContractByName(hre, 'AdvancedONFT721Gasless', AdvancedONFT721GaslessAbi().abi, owner)
 
   try {
-    // await tx(await advancedONFT721Gasless.setDstChainIdToBatchLimit(dstChainId, args.batchLimit))
-     await tx(await advancedONFT721Gasless.setDstChainIdToTransferGas(dstChainId, args.transferGas))
-    // await tx(await advancedONFT721Gasless.setMinDstGas(dstChainId, 1, args.minDstGas))
+    await tx(await advancedONFT721Gasless.setDstChainIdToBatchLimit(dstChainId, args.batchLimit))
+    await tx(await advancedONFT721Gasless.setDstChainIdToTransferGas(dstChainId, args.transferGas))
+    await tx(await advancedONFT721Gasless.setMinDstGas(dstChainId, 1, args.minDstGas))
     // await tx(await advancedONFT721Gasless.setMinGasToTransferAndStore(200000))
     console.log(`${hre.network.name}`)
     console.log(`✅ set batch limit for (${dstChainId}) to ${args.batchLimit} `)
-   // console.log(`✅ set transfer gas for (${dstChainId}) to ${args.transferGas} `)
-    // console.log(`✅ set min dst gas for (${dstChainId}) to ${args.minDstGas} `)
+    console.log(`✅ set transfer gas for (${dstChainId}) to ${args.transferGas} `)
+    console.log(`✅ set min dst gas for (${dstChainId}) to ${args.minDstGas} `)
 
   } catch (e: any) {
     console.log(e)
