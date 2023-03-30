@@ -173,6 +173,7 @@ const config: HardhatUserConfig = {
       'moonbeam_testnet': process.env.MOONBEAM_API_KEY || '',
       metis: process.env.METIS_API_KEY || '',
       zksync: process.env.ZKSYNC_API_KEY || '',
+      klaytn: process.env.KLAYTN_API_KEY || ''
     },
     customChains: [
       {
