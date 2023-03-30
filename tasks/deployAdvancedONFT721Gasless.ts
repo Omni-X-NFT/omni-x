@@ -5,7 +5,7 @@ import { deployContract } from './shared'
 import omniElementArgs from '../constants/omniElementMainnetArgs.json'
 
 const environments: any = {
-  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis'],
+  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis', 'zksync'],
   testnet: ['goerli', 'bsc-testnet', 'mumbai', 'arbitrum-goerli', 'moonbeam_testnet', 'fantom-testnet', 'optimism-goerli', 'fuji']
 }
 

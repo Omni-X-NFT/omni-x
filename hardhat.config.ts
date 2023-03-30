@@ -89,7 +89,7 @@ const config: HardhatUserConfig = {
     },
     zksync: {
       url: 'https://mainnet.era.zksync.io',
-      chainId: 1,
+      chainId: 324,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     klaytn: {
@@ -171,7 +171,8 @@ const config: HardhatUserConfig = {
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
       'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
       'moonbeam_testnet': process.env.MOONBEAM_API_KEY || '',
-      metis: process.env.METIS_API_KEY || ''
+      metis: process.env.METIS_API_KEY || '',
+      zksync: process.env.ZKSYNC_API_KEY || '',
     },
     customChains: [
       {
