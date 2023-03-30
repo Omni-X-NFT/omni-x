@@ -59,7 +59,7 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
         string memory _hiddenURI,
         uint _tax,
         address _taxRecipient
-    ) ONFT721(_name, _symbol, _layerZeroEndpoint, 30000) {
+    ) ONFT721(_name, _symbol, _layerZeroEndpoint, 200000) {
         nextMintId = _startMintId;
         maxMintId = _endMintId;
         maxTokensPerMint = _maxTokensPerMint;
