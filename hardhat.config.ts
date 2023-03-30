@@ -84,7 +84,7 @@ const config: HardhatUserConfig = {
     },
     metis: {
       url: 'https://andromeda.metis.io/?owner=1088',
-      chainId: 76,
+      chainId: 1088,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     zksync: {

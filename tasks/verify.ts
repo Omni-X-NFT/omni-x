@@ -3,7 +3,7 @@ import { getContractAddrByName } from './shared'
 import { getDeploymentAddresses } from '../utils/readStatic'
 import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
-import GREG_ARGS from '../constants/omniElementArgs.json'
+import GREG_ARGS from '../constants/omniElementMainnetArgs.json'
 
 type ENDPOINT_TYPE = {
   [key: string]: string
