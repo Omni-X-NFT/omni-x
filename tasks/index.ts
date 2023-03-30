@@ -11,6 +11,13 @@ import { deployAdvancedONFT721, deployAllAdvancedONFT721 } from './deployAdvance
 import { prepareAdvancedONFT, prepareAllAdvancedONFT } from './prepareAdvancedONFT'
 import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './deployAdvancedONFT721Gasless'
 import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
+import { MerkleGen } from './merkle'
+import { mintGasless721 } from './mintGasless'
+import { sendBatch721 } from './sendBatch721'
+import { set721Config } from './set721Config'
+import { setAll721Config } from './setAll721Config'
+import { Snapshot } from './takeSnapshot'
+
 
 
 task(
@@ -91,8 +98,6 @@ task('deployAllAdvancedONFT721', 'deployAllAdvancedONFT721')
   .setAction(deployAllAdvancedONFT721)
 
 task('prepareAdvancedONFT', 'prepareAdvancedONFT')
-  .addParam('start', 'starting mint Id')
-  .addParam('end', 'ending mint Id')
   .setAction(prepareAdvancedONFT)
 
 task('prepareAllAdvancedONFT', 'prepareAllAdvancedONFT')
@@ -112,3 +117,28 @@ task('prepareAdvancedONFTGasless', 'prepareAdvancedONFTGasless')
 task('prepareAllAdvancedONFTGasless', 'prepareAllAdvancedONFTGasless')
   .addParam('e', 'testnet or mainnet')
   .setAction(prepareAllAdvancedONFTGasless)
+
+task('merkle', 'generate merkle tree')
+  .addParam('adr' , 'minter address')
+  .addParam('amt', 'amount of wl token')
+  .setAction(MerkleGen)
+task('mintGasless721', 'mintGasless721')
+  .addParam('adr', 'address to mint to')
+  .addParam('amt', 'amount of tokens')
+  .addParam('gregs', 'amount of gregs for address')
+  .setAction(mintGasless721)
+
+task('sendBatch721', 'sendBatch721')
+  .setAction(sendBatch721)
+
+task('set721Config', 'set layer zero config for ONFT721')
+  .addParam('target', 'target dst network')
+  .setAction(set721Config)
+
+task('setAll721Config', 'sets layer zero config on all chain for ONF721')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(setAll721Config)
+
+task('snapshot', 'take snapshot')
+  .setAction(Snapshot)
+  

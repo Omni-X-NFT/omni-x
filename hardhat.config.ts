@@ -25,7 +25,7 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 5
+        runs: 10
       }
     }
   },
@@ -50,6 +50,51 @@ const config: HardhatUserConfig = {
     avalanche: {
       url: 'https://api.avax.network/ext/bc/C/rpc',
       chainId: 43114,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    bsc: {
+      url: 'https://rpc.ankr.com/bsc',
+      chainId: 56,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    polygon: {
+      url: 'https://polygon.llamarpc.com',
+      chainId: 137,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    fantom: {
+      url: 'https://rpc.fantom.network',
+      chainId: 250,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    moonbeam: {
+      url: 'https://rpc.api.moonbeam.network',
+      chainId: 1287,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    arbitrum: {
+      url: 'https://rpc.ankr.com/arbitrum',
+      chainId: 42161,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    optimism: {
+      url: 'https://mainnet.optimism.io',
+      chainId: 10,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    metis: {
+      url: 'https://andromeda.metis.io/?owner=1088',
+      chainId: 76,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    zksync: {
+      url: 'https://mainnet.era.zksync.io',
+      chainId: 1,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    klaytn: {
+      url: 'https://public-node-api.klaytnapi.com/v1/cypress',
+      chainId: 8217,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     rinkeby: {
@@ -93,7 +138,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     'optimism-goerli': {
-      url: 'https://goerli.optimism.io/',
+      url: 'https://opt-goerli.g.alchemy.com/v2/BdL0X7f83cuTrDqocNxWZY8Cmr-__tv7',
       chainId: 420,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },

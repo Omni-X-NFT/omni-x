@@ -22,11 +22,12 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
     uint public maxMintId;
     uint public maxTokensPerMint;
 
+
     // address for withdrawing money and receiving royalties, separate from owner
     address payable beneficiary;
     // address for tax recipient;
     address payable taxRecipient;
-    // Merkle Root for WL implementation
+    // Merkle Root for WL implementations
     bytes32 public merkleRoot;
 
     string public contractURI;
@@ -36,11 +37,14 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
     bool public _publicSaleStarted;
     bool public _saleStarted;
     bool revealed;
+    bool private _linearPriceIncreaseActive;
+
+    mapping(address => uint16) private _whitelistMintCount;
 
     IERC20 public stableToken;
 
     modifier onlyBeneficiaryAndOwner() {
-        require(msg.sender == beneficiary || msg.sender == owner() , "AdvancedONFT1155Gasless: caller is not the beneficiary");
+        require(msg.sender == beneficiary || msg.sender == owner() , "AdvancedONFT721Gasless: caller is not the beneficiary");
         _;
     }
 
@@ -65,7 +69,7 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
         address _stableToken,
         uint _tax,
         address _taxRecipient
-    ) ONFT721(_name, _symbol, _layerZeroEndpoint) {
+    ) ONFT721(_name, _symbol, _layerZeroEndpoint, 200000) {
         nextMintId = _startMintId;
         maxMintId = _endMintId;
         maxTokensPerMint = _maxTokensPerMint;
@@ -114,27 +118,39 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
 
         _transferRelayFee();
 
-        stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
-
+             
+        if ((_nbTokens < 4) && (_linearPriceIncreaseActive == true)) {
+            stableToken.safeTransferFrom(minter, address(this), price * 3);
+        } else {
+            stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
+        }
+ 
         _mintTokens(minter, _nbTokens);
     }
 
 
     /// @notice Gasless Mint your ONFTs, whitelisted addresses only
-    function mintGasless(uint _nbTokens, address minter, bytes32[] calldata _merkleProof) external onlyGelatoRelay {
+    function mintGasless(uint _nbTokens, address minter, bytes32[] calldata _merkleProof, uint wlTokenCount) external onlyGelatoRelay {
         require(_saleStarted == true, "ONFT721Gasless: Sale has not started yet!");
         require(_nbTokens != 0, "ONFT721Gasless: Cannot mint 0 tokens!");
         require(_nbTokens <= maxTokensPerMint, "ONFT721Gasless: You cannot mint more than maxTokensPerMint tokens at once!");
         require(nextMintId + _nbTokens <= maxMintId, "ONFT721Gasless: max mint limit reached");
+        require(_whitelistMintCount[minter] + _nbTokens <= wlTokenCount, "ONFT721Gasless: cannot mint more than your whitelisted amount");
 
-        bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(minter, _nbTokens)));
+        bool isWL = MerkleProof.verify(_merkleProof, merkleRoot, keccak256(abi.encodePacked(minter, wlTokenCount)));
+
         require(isWL == true, "ONFT721Gasless: Invalid Merkle Proof");
 
         _transferRelayFee();
-
-        stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
+        
+        if ((_nbTokens < 4) && (_linearPriceIncreaseActive == true)) {
+            stableToken.safeTransferFrom(minter, address(this), price * 3);
+        } else {
+            stableToken.safeTransferFrom(minter, address(this), price * _nbTokens);
+        }
         
         _mintTokens(minter, _nbTokens);
+        _whitelistMintCount[minter] += uint16(_nbTokens);
     }
 
 
@@ -188,6 +204,10 @@ contract AdvancedONFT721Gasless is ONFT721, GelatoRelayContext, ReentrancyGuard 
 
     function flipPublicSaleStarted() external onlyOwner {
         _publicSaleStarted = !_publicSaleStarted;
+    }
+
+    function flipLinearPriceIncreaseActive() external onlyOwner {
+        _linearPriceIncreaseActive = !_linearPriceIncreaseActive;
     }
 
     // The following functions are overrides required by Solidity.

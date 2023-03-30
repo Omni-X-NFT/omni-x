@@ -10,8 +10,6 @@ import {
   TransferSelectorNFT,
   TransferManagerERC721,
   TransferManagerERC1155,
-  TransferManagerONFT721,
-  TransferManagerONFT1155,
   StrategyStandardSale,
   Nft721Mock,
   ERC20Mock,
@@ -43,8 +41,6 @@ describe('OmniXExchange', () => {
   let currencyManager: CurrencyManager
   let executionManager: ExecutionManager
   let transferSelector: TransferSelectorNFT
-  let transferManagerONFT721: TransferManagerONFT721
-  let transferManagerONFT1155: TransferManagerONFT1155
   let transferManager721: TransferManagerERC721
   let transferManager1155: TransferManagerERC1155
   let royaltyFeeManager: RoyaltyFeeManager
@@ -78,7 +74,6 @@ describe('OmniXExchange', () => {
     makeOrder.nonce = nonce
     makeOrder.startTime = await getBlockTime()
     makeOrder.endTime = makeOrder.startTime + 3600 * 30
-    makeOrder.minPercentageToAsk = 900
     makeOrder.signer = signer
   }
   const fillTakerOrder = (
@@ -131,11 +126,10 @@ describe('OmniXExchange', () => {
     ]) as OmniXExchange
 
     // transfer selector
-    transferManager721 = await deployContract('TransferManagerERC721', owner, [layerZeroEndpoint.address]) as TransferManagerERC721
-    transferManager1155 = await deployContract('TransferManagerERC1155', owner, [layerZeroEndpoint.address]) as TransferManagerERC1155
-    transferManagerONFT721 = await deployContract('TransferManagerONFT721', owner, [layerZeroEndpoint.address]) as TransferManagerONFT721
-    transferManagerONFT1155 = await deployContract('TransferManagerONFT1155', owner, [layerZeroEndpoint.address]) as TransferManagerONFT1155
-    transferSelector = await deployContract('TransferSelectorNFT', owner, [transferManager721.address, transferManager1155.address, transferManagerONFT721.address, transferManagerONFT1155.address]) as TransferSelectorNFT
+    transferManager721 = await deployContract('TransferManagerERC721', owner, []) as TransferManagerERC721
+    transferManager1155 = await deployContract('TransferManagerERC1155', owner, []) as TransferManagerERC1155
+
+    transferSelector = await deployContract('TransferSelectorNFT', owner, [transferManager721.address, transferManager1155.address]) as TransferSelectorNFT
     fundManager = await deployContract('FundManager', owner, [omniXExchange.address]) as FundManager
 
     await omniXExchange.setFundManager(fundManager.address)
@@ -147,8 +141,6 @@ describe('OmniXExchange', () => {
     await currencyManager.addCurrency(erc20Mock.address)
     await currencyManager.addCurrency(omni.address)
 
-    await transferSelector.addCollectionTransferManager(onft721.address, transferManagerONFT721.address)
-    await transferSelector.addCollectionTransferManager(onft1155.address, transferManagerONFT1155.address)
     await omniXExchange.updateTransferSelectorNFT(transferSelector.address)
 
     // normal currency and normal nft, mint token#1, #2, #3
@@ -179,8 +171,10 @@ describe('OmniXExchange', () => {
     await erc20Mock.connect(taker).approve(fundManager.address, toWei(100))
     await omni.connect(taker).approve(fundManager.address, toWei(100))
 
-    await onft721.connect(maker).approve(transferManagerONFT721.address, 1)
-    await onft721.connect(maker).approve(transferManagerONFT721.address, 2)
+    onft721.connect(maker).approve(transferManager721.address, 1)
+    onft721.connect(maker).approve(transferManager721.address, 2)
+
+
   }
 
   before(async () => {

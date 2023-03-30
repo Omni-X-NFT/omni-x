@@ -9,7 +9,7 @@ import "hardhat/console.sol";
 contract GhostsMock is ONFT721, IGhosts {
     uint gasForDestinationLzReceive = 350000;
 
-    constructor(string memory _name, string memory _symbol, address _layerZeroEndpoint) ONFT721(_name, _symbol, _layerZeroEndpoint) {}
+    constructor(string memory _name, string memory _symbol, address _layerZeroEndpoint) ONFT721(_name, _symbol, _layerZeroEndpoint, 30000) {}
 
     function mint(uint8 _newId) external override payable {
         _safeMint(msg.sender, _newId);
