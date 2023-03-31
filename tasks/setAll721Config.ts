@@ -14,7 +14,7 @@ export const setAll721Config = async function (taskArgs: any, hre: any) {
     await Promise.all(
       networks.map(async (network: string) => {
         networks.map(async (target: string) => {
-          if (network !== target) {
+          if (network !== target && network !== 'ethereum') {
             const checkWireUpCommand = `npx hardhat --network ${network} set721Config --target ${target}`
             shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
           }
