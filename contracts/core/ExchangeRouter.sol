@@ -121,7 +121,7 @@ contract ExchangeRouter is IExchangeRouter, NonblockingLzApp, ReentrancyGuard {
     /**
      *  cross exchange execution using stargate
      */
-    function executeWithCross()
+    function executeWithCross(ExecutionInfo[] calldata executionInfos)
         external
         payable
         nonReentrant
@@ -162,29 +162,5 @@ contract ExchangeRouter is IExchangeRouter, NonblockingLzApp, ReentrancyGuard {
         }
 
         amount = abi.decode(result, (uint256));
-    }
-    
-    function matchAskWithTakerBidUsingETHAndWETH(
-        uint destAirdrop,
-        OrderTypes.TakerOrder calldata takerBid,
-        OrderTypes.MakerOrder calldata makerAsk
-    ) external payable nonReentrant {
-
-    }
-
-    function matchAskWithTakerBid(uint destAirdrop, OrderTypes.TakerOrder calldata takerBid, OrderTypes.MakerOrder calldata makerAsk)
-        external
-        payable
-        nonReentrant
-    {
-        
-    }
-
-    function matchBidWithTakerAsk(uint destAirdrop, OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid)
-        external
-        payable
-        nonReentrant
-    {
-        
     }
 }
