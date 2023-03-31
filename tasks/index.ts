@@ -16,7 +16,7 @@ import { mintGasless721 } from './mintGasless'
 import { sendBatch721 } from './sendBatch721'
 import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
-import { Snapshot } from './takeSnapshot'
+import { Snapshot, snap, convertFormat } from './takeSnapshot'
 
 
 
@@ -141,4 +141,10 @@ task('setAll721Config', 'sets layer zero config on all chain for ONF721')
 
 task('snapshot', 'take snapshot')
   .setAction(Snapshot)
+task('snap', 'take snapshot')
+  .addParam('api', 'nft api provider')
+  .addParam('target', 'target colleection')
+  .setAction(snap)
+task('convertFormat', 'convertFormat')
+  .setAction(convertFormat)
   
