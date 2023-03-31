@@ -14,7 +14,7 @@ export const setAllTrustedRemote = async function (taskArgs: any, hre: any) {
   await Promise.all(
     networks.map(async (network: string) => {
       networks.map(async (target: string) => {
-        if (network !== target) {
+        if (network !== target && network === 'optimism') {
           const checkWireUpCommand = `npx hardhat --network ${network} setTrustedRemote --target ${target} --contract ${taskArgs.contract}`
           shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
         }
