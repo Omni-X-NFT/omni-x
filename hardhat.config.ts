@@ -43,57 +43,57 @@ const config: HardhatUserConfig = {
       }
     },
     ethereum: {
-      url: 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
+      url: process.env.ETH_RPC !== undefined ? process.env.ETH_RPC : 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
       chainId: 1,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     avalanche: {
-      url: 'https://api.avax.network/ext/bc/C/rpc',
+      url: process.env.AVALACNHE_RPC !== undefined ? process.env.AVALANCHE_RPC : 'https://api.avax.network/ext/bc/C/rpc',
       chainId: 43114,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     bsc: {
-      url: 'https://rpc.ankr.com/bsc',
+      url: process.env.BSC_RPC !== undefined ? process.env.BSC_RPC : 'https://rpc.ankr.com/bsc',
       chainId: 56,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     polygon: {
-      url: 'https://polygon.llamarpc.com',
+      url: process.env.POLYGON_RPC !== undefined ? process.env.POLYGON_RPC : 'https://polygon.llamarpc.com',
       chainId: 137,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     fantom: {
-      url: 'https://rpc.fantom.network',
+      url: process.env.FANTOM_RPC !== undefined ? process.env.FANTOM_RPC : 'https://rpc.fantom.network',
       chainId: 250,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     moonbeam: {
-      url: 'https://rpc.api.moonbeam.network',
+      url: process.env.MOONBEAM_RPC !== undefined ? process.env.MOONBEAM_RPC : 'https://rpc.api.moonbeam.network',
       chainId: 1287,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     arbitrum: {
-      url: 'https://rpc.ankr.com/arbitrum',
+      url: process.env.ARB_RPC !== undefined ? process.env.ARB_RPC :'https://rpc.ankr.com/arbitrum',
       chainId: 42161,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     optimism: {
-      url: 'https://mainnet.optimism.io',
+      url: process.env.OP_RPC !== undefined ? process.env.OP_RPC : 'https://mainnet.optimism.io',
       chainId: 10,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     metis: {
-      url: 'https://andromeda.metis.io/?owner=1088',
+      url: process.env.METIS_RPC !== undefined ? process.env.METIS_RPC : 'https://andromeda.metis.io/?owner=1088',
       chainId: 1088,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     zksync: {
-      url: 'https://mainnet.era.zksync.io',
+      url: process.env.ZK_RPC !== undefined ? process.env.ZK_RPC : 'https://mainnet.era.zksync.io',
       chainId: 324,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     klaytn: {
-      url: 'https://public-node-api.klaytnapi.com/v1/cypress',
+      url: process.env.KLAYTN_RPC !== undefined ? process.env.KLAYTN_RPC : 'https://public-node-api.klaytnapi.com/v1/cypress',
       chainId: 8217,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
