@@ -19,7 +19,7 @@ export const mintGasless721 = async function (taskArgs: any, hre: any) {
   const proof = tree.getHexProof(leaf)
 
   const advancedONFT721Gasless = createContractByName(hre, 'AdvancedONFT721Gasless', AdvancedONFT721GaslessAbi().abi, owner)
-  const { data } = await advancedONFT721Gasless.populateTransaction.publicMintGasless(taskArgs.amt, taskArgs.adr)
+  const { data } = await advancedONFT721Gasless.populateTransaction.mintGasless(taskArgs.amt, taskArgs.adr, proof, taskArgs.gregs)
   const request: CallWithSyncFeeRequest = {
     chainId: network.config.chainId,
     target: advancedONFT721Gasless.address,

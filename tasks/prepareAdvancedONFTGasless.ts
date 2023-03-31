@@ -21,14 +21,14 @@ export const prepareAdvancedONFTGasless = async function (taskArgs: any, hre: an
 
   const advancedONFT721Gasless = createContractByName(hre, 'AdvancedONFT721Gasless', AdvancedONFT721GaslessAbi().abi, owner)
   // await tx(await advancedONFT721Gasless.flipPublicSaleStarted())
-  await tx(await advancedONFT721Gasless.setPrice(args.price))
+  // await tx(await advancedONFT721Gasless.setPrice(args.price))
   // await tx(await advancedONFT721Gasless.flipSaleStarted())
-  // if (network.name === 'arbitrum') {
-  //   await tx(await advancedONFT721Gasless.setMerkleRoot(args.merkleRoot))
-  // }
-  if (network.name === 'ethereum') {
-    await tx(await advancedONFT721Gasless.flipLinearPriceIncreaseActive())
+  if (network.name === 'arbitrum') {
+    await tx(await advancedONFT721Gasless.setMerkleRoot(args.merkleRoot))
   }
+  // if (network.name === 'ethereum') {
+  //   await tx(await advancedONFT721Gasless.flipLinearPriceIncreaseActive())
+  // }
 }
 
 export const prepareAllAdvancedONFTGasless = async function (taskArgs: any) {
