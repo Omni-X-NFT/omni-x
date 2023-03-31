@@ -7,6 +7,7 @@ import { Network, Alchemy } from "alchemy-sdk";
 import fs from 'fs'
 
 
+
 // const getHolders = async (network: string, owners: any) => {
 //   const contractAddress = GregAddresses['arbitrum']
   
@@ -352,8 +353,49 @@ export const convertFormat = async (taskArgs: any, hre: any) => {
             count: jsonData[item].count
         })
     }
-    console.log(newData)
+
 
     await fs.promises.writeFile("constants/largeElementsSnapshot.json", JSON.stringify(newData, null, 2))
 }
 
+export const addSTG = async(taskArgs: any, hre: any) => {
+    const oldData = await fs.promises.readFile("constants/largeElementsSnapshot.json", "utf8")
+    const jsonOldData = JSON.parse(oldData)
+    const newData = await fs.promises.readFile("constants/finalAddresses.json", "utf8")
+    const jsonNewData = JSON.parse(newData)
+   const finalData = []
+
+
+
+
+   const convertedData: any = {}
+   for (const item of jsonOldData) {
+       convertedData[item.address] = {count: item.count}
+   }
+  
+    for (const i of jsonNewData){
+            if (convertedData[i.Address] !== undefined) {
+                if (convertedData[i.Address].count < 10) {
+
+                    convertedData[i.Address].count += 1
+                    }
+            } else {
+                convertedData[i.Address] = {
+                count: 1
+            }
+        }
+    }
+
+    
+
+
+   for (const item in convertedData) {
+       finalData.push({
+           address: item,
+           count: convertedData[item].count
+       })
+   }
+
+   await fs.promises.writeFile("constants/largeElementsSnapshot.json", JSON.stringify(finalData, null, 2))
+ 
+}

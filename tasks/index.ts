@@ -16,7 +16,7 @@ import { mintGasless721 } from './mintGasless'
 import { sendBatch721 } from './sendBatch721'
 import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
-import { Snapshot, snap, convertFormat } from './takeSnapshot'
+import { Snapshot, snap, convertFormat, addSTG } from './takeSnapshot'
 
 
 
@@ -147,4 +147,6 @@ task('snap', 'take snapshot')
   .setAction(snap)
 task('convertFormat', 'convertFormat')
   .setAction(convertFormat)
+task('addSTG', 'add stargate')
+  .setAction(addSTG)
   
