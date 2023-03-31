@@ -10,7 +10,7 @@ const tx = async (tx1: any) => {
 }
 
 const environments: any = {
-  mainnet: ['ethereum', 'bsc', 'polygon', 'arbitrum', 'moonbeam'],
+  mainnet: ['ethereum', 'bsc', 'polygon', 'moonbeam'],
   testnet: ['goerli', 'bsc-testnet', 'mumbai', 'arbitrum-goerli', 'moonbeam_testnet']
 }
 
