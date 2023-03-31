@@ -361,11 +361,11 @@ export const convertFormat = async (taskArgs: any, hre: any) => {
 export const addSTG = async(taskArgs: any, hre: any) => {
     const oldData = await fs.promises.readFile("constants/largeElementsSnapshot.json", "utf8")
     const jsonOldData = JSON.parse(oldData)
-    const newData = await fs.promises.readFile("constants/finalAddresses.json", "utf8")
+    const newData = await fs.promises.readFile("constants/AscsendSnapshot.json", "utf8")
     const jsonNewData = JSON.parse(newData)
    const finalData = []
 
-
+    
 
 
    const convertedData: any = {}
@@ -395,7 +395,7 @@ export const addSTG = async(taskArgs: any, hre: any) => {
            count: convertedData[item].count
        })
    }
-
+  
    await fs.promises.writeFile("constants/largeElementsSnapshot.json", JSON.stringify(finalData, null, 2))
  
 }

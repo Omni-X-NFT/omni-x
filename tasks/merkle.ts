@@ -1,7 +1,7 @@
 
 import { MerkleTree } from 'merkletreejs'
 import keccak256 from 'keccak256'
-import snapshotData from '../constants/GregArbitrumSnapshot.json'
+import snapshotData from '../constants/largeElementsSnapshot.json'
 
 export const MerkleGen = async function (taskArgs: any, hre: any) {
   const { ethers } = hre
@@ -11,5 +11,5 @@ export const MerkleGen = async function (taskArgs: any, hre: any) {
   console.log('Merkle Root:', root.toString())
   const leaf = keccak256(ethers.utils.solidityPack(['address', 'uint256'], [taskArgs.adr, taskArgs.amt]))
   const proof = tree.getHexProof(leaf)
-  console.log('Proof:', proof.toString())
+  console.log('Proof:', proof)
 }
