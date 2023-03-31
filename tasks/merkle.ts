@@ -1,7 +1,7 @@
 
 import { MerkleTree } from 'merkletreejs'
 import keccak256 from 'keccak256'
-import snapshotData from '../constants/largeElementsSnapshot.json'
+import snapshotData from '../constants/GregArbitrumSnapshot.json'
 
 export const MerkleGen = async function (taskArgs: any, hre: any) {
   const { ethers } = hre
