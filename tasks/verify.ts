@@ -3,7 +3,7 @@ import { getContractAddrByName } from './shared'
 import { getDeploymentAddresses } from '../utils/readStatic'
 import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
-import GREG_ARGS from '../constants/omniElementArgs.json'
+import GREG_ARGS from '../constants/omniElementMainnetArgs.json'
 
 type ENDPOINT_TYPE = {
   [key: string]: string
@@ -12,7 +12,7 @@ type ENDPOINT_TYPE = {
 const ENDPOINTS: ENDPOINT_TYPE = LZ_ENDPOINTS
 
 const environments: any = {
-  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis', 'zksync'],
+  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis'],
   testnet: ['arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'bsc-testnet', 'mumbai', 'goerli', 'fuji']
 }
 

@@ -10,7 +10,7 @@ const tx = async (tx1: any) => {
 }
 
 const environments: any = {
-  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis', 'zksync'],
+  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis'],
   testnet: ['goerli', 'bsc-testnet', 'mumbai', 'arbitrum-goerli', 'moonbeam_testnet']
 }
 
@@ -23,9 +23,9 @@ export const prepareAdvancedONFTGasless = async function (taskArgs: any, hre: an
   // await tx(await advancedONFT721Gasless.flipPublicSaleStarted())
   await tx(await advancedONFT721Gasless.setPrice(args.price))
   // await tx(await advancedONFT721Gasless.flipSaleStarted())
-  if (network.name === 'arbitrum') {
-    await tx(await advancedONFT721Gasless.setMerkleRoot(args.merkleRoot))
-  }
+  // if (network.name === 'arbitrum') {
+  //   await tx(await advancedONFT721Gasless.setMerkleRoot(args.merkleRoot))
+  // }
   if (network.name === 'ethereum') {
     await tx(await advancedONFT721Gasless.flipLinearPriceIncreaseActive())
   }

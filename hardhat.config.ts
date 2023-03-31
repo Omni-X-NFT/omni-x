@@ -9,7 +9,7 @@ import 'hardhat-deploy-ethers'
 import 'solidity-coverage'
 import './tasks'
 import 'xdeployer'
-import '@nomicfoundation/hardhat-foundry';
+import '@nomicfoundation/hardhat-foundry'
 
 import * as dotenv from 'dotenv'
 dotenv.config()
@@ -69,22 +69,22 @@ const config: HardhatUserConfig = {
     },
     moonbeam: {
       url: 'https://rpc.api.moonbeam.network',
-      chainId: 1287,
+      chainId: 1284,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     arbitrum: {
-      url: 'https://rpc.ankr.com/arbitrum',
+      url: process.env.ARBITRUM_RPC_KEY || 'https://rpc.ankr.com/arbitrum',
       chainId: 42161,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     optimism: {
-      url: 'https://mainnet.optimism.io',
+      url: process.env.OPTIMISM_RPC_KEY || 'https://mainnet.optimism.io',
       chainId: 10,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     metis: {
       url: 'https://andromeda.metis.io/?owner=1088',
-      chainId: 76,
+      chainId: 1088,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     zksync: {
@@ -161,19 +161,27 @@ const config: HardhatUserConfig = {
   // https://hardhat.org/plugins/nomiclabs-hardhat-etherscan#multiple-api-keys-and-alternative-block-explorers
   etherscan: {
     apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY || '',
       goerli: process.env.ETHERSCAN_API_KEY || '',
+      bsc: process.env.BSCSCAN_API_KEY || '',
       bscTestnet: process.env.BSCSCAN_API_KEY || '',
+      polygon: process.env.POLYGON_API_KEY || '',
       polygonMumbai: process.env.POLYGON_API_KEY || '',
       avalancheFujiTestnet: process.env.AVALANCHE_API_KEY || '',
+      avalanche: process.env.AVALANCHE_API_KEY || '',
       // arbitrumTestnet: process.env.ARBITRUM_API_KEY || '',
       // optimisticKovan: process.env.OPTIMISTIC_API_KEY || '',
+      opera: process.env.FANTOM_API_KEY || '',
       ftmTestnet: process.env.FANTOM_API_KEY || '',
+      arbitrumOne: process.env.ARBITRUM_API_KEY || '',
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
-      'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
-      'moonbeam_testnet': process.env.MOONBEAM_API_KEY || '',
-      metis: process.env.METIS_API_KEY || '',
-      zksync: process.env.ZKSYNC_API_KEY || '',
-      klaytn: process.env.KLAYTN_API_KEY || ''
+      optimisticEthereum: process.env.OPTIMISTIC_API_KEY || '',
+      optimisticGoerli: process.env.OPTIMISTIC_API_KEY || '',
+      moonbeam: process.env.MOONBEAM_API_KEY || '',
+      moonbaseAlpha: process.env.MOONBEAM_API_KEY || ''
+      // metis: process.env.METIS_API_KEY || ''
+      // zksync: process.env.ZKSYNC_API_KEY || '',
+      // klaytn: process.env.KLAYTN_API_KEY || ''
     },
     customChains: [
       {
