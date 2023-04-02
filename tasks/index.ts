@@ -16,7 +16,8 @@ import { mintGasless721 } from './mintGasless'
 import { sendBatch721 } from './sendBatch721'
 import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
-import { Snapshot, snap, convertFormat, addSTG } from './takeSnapshot'
+import { Snapshot, snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
+import { analyzeStuckTx } from './analyzeStuckTx'
 
 
 
@@ -119,7 +120,7 @@ task('prepareAllAdvancedONFTGasless', 'prepareAllAdvancedONFTGasless')
   .setAction(prepareAllAdvancedONFTGasless)
 
 task('merkle', 'generate merkle tree')
-  .addParam('adr' , 'minter address')
+  .addParam('adr', 'minter address')
   .addParam('amt', 'amount of wl token')
   .setAction(MerkleGen)
 task('mintGasless721', 'mintGasless721')
@@ -149,4 +150,9 @@ task('convertFormat', 'convertFormat')
   .setAction(convertFormat)
 task('addSTG', 'add stargate')
   .setAction(addSTG)
-  
+task('analyzeStuckTx', 'analyze stuck transaction lz')
+  .addParam('adr', 'address of contract')
+  .addParam('topic', 'event topic')
+  .setAction(analyzeStuckTx)
+task('changeAmounts', 'change amount of wl')
+  .setAction(changeAmounts)

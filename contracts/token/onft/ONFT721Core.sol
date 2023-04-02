@@ -57,7 +57,7 @@ abstract contract ONFT721Core is NonblockingLzApp, ERC165, IONFT721Core {
         for (uint i = 0; i < _tokenIds.length; i++) {
             _debitFrom(_from, _dstChainId, _toAddress, _tokenIds[i]);
         }
-
+        
         bytes memory payload = abi.encode(_toAddress, _tokenIds);
 
         _checkGasLimit(_dstChainId, FUNCTION_TYPE_SEND, _adapterParams, dstChainIdToTransferGas[_dstChainId] * _tokenIds.length);

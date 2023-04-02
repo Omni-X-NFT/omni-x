@@ -359,35 +359,31 @@ export const convertFormat = async (taskArgs: any, hre: any) => {
 }
 
 export const addSTG = async(taskArgs: any, hre: any) => {
-    const oldData = await fs.promises.readFile("constants/largeElementsSnapshot.json", "utf8")
+    const oldData = await fs.promises.readFile("constants/GregArbitrumSnapshot.json", "utf8")
     const jsonOldData = JSON.parse(oldData)
-    const newData = await fs.promises.readFile("constants/AscsendSnapshot.json", "utf8")
+    const newData = await fs.promises.readFile("constants/newWlArb.json", "utf8")
     const jsonNewData = JSON.parse(newData)
    const finalData = []
 
     
-
+    console.log(jsonOldData.length)
 
    const convertedData: any = {}
    for (const item of jsonOldData) {
        convertedData[item.address] = {count: item.count}
    }
+
   
     for (const i of jsonNewData){
-            if (convertedData[i.Address] !== undefined) {
-                if (convertedData[i.Address].count < 10) {
 
-                    convertedData[i.Address].count += 1
-                    }
+            if (convertedData[i['0x4589994C63fa61510f00466e09E67Ed69Bb9B30a']] !== undefined) {
+                
             } else {
-                convertedData[i.Address] = {
+                convertedData[i['0x4589994C63fa61510f00466e09E67Ed69Bb9B30a']] = {
                 count: 1
             }
         }
     }
-
-    
-
 
    for (const item in convertedData) {
        finalData.push({
@@ -395,7 +391,24 @@ export const addSTG = async(taskArgs: any, hre: any) => {
            count: convertedData[item].count
        })
    }
-  
-   await fs.promises.writeFile("constants/largeElementsSnapshot.json", JSON.stringify(finalData, null, 2))
+  console.log(finalData.length)
+  console.log(finalData)
+  await fs.promises.writeFile("constants/GregArbitrumSnpashot.json", JSON.stringify(finalData, null, 2))
  
+}
+
+
+export const changeAmounts = async(taskArgs: any, hre: any) => {
+    const data = await fs.promises.readFile("constants/largeElementsSnapshot.json", "utf8")
+    const jsonData = JSON.parse(data)
+    let count = 0
+    for (const item of jsonData) {
+        if (item.count < 3) {
+            item.count = 3
+            count += 1
+        }
+    }
+
+    await fs.promises.writeFile("constants/largeElementsSnapshot.json", JSON.stringify(jsonData, null, 2))
+
 }
