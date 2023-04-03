@@ -7,12 +7,13 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {NonblockingLzApp} from "../lzApp/NonblockingLzApp.sol";
 import {IExchangeRouter} from "../interfaces/IExchangeRouter.sol";
 import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
+import {IStargateReceiver} from "../interfaces/IStargateReceiver.sol";
 
 /**
  * @title ExchangeRouter
  * @notice Exchange the reservoir orders by using this contract.
  */
-contract ExchangeRouter is IExchangeRouter, NonblockingLzApp, ReentrancyGuard {
+contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp, ReentrancyGuard {
     using Address for address;
 
     struct ExecutionInfo {
@@ -162,5 +163,26 @@ contract ExchangeRouter is IExchangeRouter, NonblockingLzApp, ReentrancyGuard {
         }
 
         amount = abi.decode(result, (uint256));
+    }
+
+    /**
+     * @notice message listener from LayerZero endpoint
+     * @param _payload message data
+     * @dev no need to change this function
+     */
+    function _nonblockingLzReceive(uint16, bytes memory, uint64, bytes memory _payload) internal virtual override {
+    }
+
+    /**
+    * @notice stargate swap receive callback
+    */
+    function sgReceive(
+        uint16 ,                // the remote chainId sending the tokens
+        bytes memory,           // the remote Bridge address
+        uint256,                  
+        address,                // the token contract on the local chain
+        uint256 _price,         // the qty of local _token contract tokens  
+        bytes memory _payload
+    ) external override {
     }
 }

@@ -1,13 +1,23 @@
 {
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  },
   "compilerOptions": {
-    "target": "es2018",
+    "target": "es2019",
     "module": "commonjs",
     "strict": true,
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "outDir": "dist",
     "declaration": true,
     "resolveJsonModule": true,
+    "composite": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@reservoir0x/*": ["./lib/reservoirprotocol/packages/*"]
+    }
   },
-  "include": ["./scripts", "./test", "./utils", "./typechain", "tasks/*.ts"],
+  "include": ["./scripts", "./test", "./utils", "./typechain", "tasks/*.ts", "./lib/reservoirprotocol/packages/sdk/src", "./lib/reservoirprotocol/packages/contracts/test"],
   "files": ["./hardhat.config.ts"]
 }

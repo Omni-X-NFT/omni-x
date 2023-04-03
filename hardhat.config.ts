@@ -9,7 +9,7 @@ import 'hardhat-deploy-ethers'
 import 'solidity-coverage'
 import './tasks'
 import 'xdeployer'
-import '@nomicfoundation/hardhat-foundry';
+// import '@nomicfoundation/hardhat-foundry';
 
 import * as dotenv from 'dotenv'
 dotenv.config()
@@ -23,9 +23,10 @@ const config: HardhatUserConfig = {
   solidity: {
     version: '0.8.17',
     settings: {
+      viaIR: true,
       optimizer: {
         enabled: true,
-        runs: 5
+        runs: 200
       }
     }
   },
