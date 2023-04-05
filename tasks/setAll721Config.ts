@@ -12,7 +12,7 @@ export const setAll721Config = async function (taskArgs: any, hre: any) {
     if (!taskArgs.e || networks.length === 0) {
       console.log(`Invalid environment argument: ${taskArgs.e}`)
     }
-  
+
     await Promise.all(
       networks.map(async (network: string) => {
         networks.map(async (target: string) => {
