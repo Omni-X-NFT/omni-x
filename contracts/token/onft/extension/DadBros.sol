@@ -19,7 +19,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
 
     uint public tax = 1000; // 100% = 10000
     IERC20 public stableToken;
-    uint256 public constant ETH_TO_RAD_CONSTANT = 0.000001 ether;
+    uint256 public constant ETH_TO_RAD_DIVISOR = 10000;
 
     uint16 public nextMintId;
 
@@ -35,11 +35,12 @@ contract DadBros is  ONFT721, ReentrancyGuard {
    
 
     uint128 public constant MIN_PUBLIC_PRICE = 0.04 ether;
-    uint128 public constant MAX_PUBLIC_PRICE = 0.1 ether;
-    uint128 public constant MIN_FREE_PRICE = 0.04 ether;
-    uint128 public constant MAX_FREE_PRICE = 0.1 ether;
+    uint128 public constant MAX_PUBLIC_PRICE = 2 ether;
+    uint128 public constant MIN_FRIENDS_PRICE = 0.02 ether;
+    uint128 public constant MAX_FRIENDS_PRICE = 2 ether;
 
-    uint128 public constant PRICE_DECAY_AND_DELTA = 1e18 + 1e17;
+    uint128 public constant PRICE_DELTA = 0.01e18;
+    uint128 public constant PRICE_DECAY= 0.01e18;
 
 
 
@@ -53,11 +54,11 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     /*//////////////////////////////////////////////////////////////
                              MINTING STATE
     //////////////////////////////////////////////////////////////*/
-    uint128 public spotPriceFree;
-    uint256 public startTimeFree;
-    uint256 public lastUpdate;
     uint128 public spotPriceFriends;
-    uint256 public startTimeFriends;
+    uint128 public spotPricePublic;
+    uint256 public lastUpdateFriends;
+    uint256 public lastUpdatePublic;
+
 
 
     address payable beneficiary;
@@ -137,14 +138,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
                 require(isWl == true, "DadBros: Invalid Merkle Proof");
             }
 
-            curve = RadLinearCurve.RadCurve({
-                lastUpdate: lastUpdate,
-                spotPrice: spotPriceFree,
-                priceDelta: PRICE_DECAY_AND_DELTA,
-                priceDecay: PRICE_DECAY_AND_DELTA,
-                maxPrice: MAX_FREE_PRICE,
-                minPrice: MIN_FREE_PRICE
-            });
+            
         } else if (mintType == MINT_FRIENDS_ID) {
             require(minted[mintType][msg.sender] + _nbTokens <= wlAllocationAmt, "DadBros: Max tokens per address reached");
             require(_nbTokens <= MAX_TOKENS_PER_MINT_FRIENDS, "DadBros: Max tokens per mint reached");
@@ -156,21 +150,21 @@ contract DadBros is  ONFT721, ReentrancyGuard {
             }
 
             curve = RadLinearCurve.RadCurve({
-                lastUpdate: lastUpdate,
+                lastUpdate: lastUpdateFriends,
                 spotPrice: spotPriceFriends,
-                priceDelta: PRICE_DECAY_AND_DELTA,
-                priceDecay: PRICE_DECAY_AND_DELTA,
-                maxPrice: MAX_PUBLIC_PRICE,
-                minPrice: MIN_PUBLIC_PRICE
+                priceDelta: PRICE_DELTA,
+                priceDecay: PRICE_DECAY,
+                maxPrice: MAX_FRIENDS_PRICE,
+                minPrice: MIN_FRIENDS_PRICE
         });
         } else if (mintType == MINT_PUBLIC_ID) {
             require(_nbTokens <= MAX_TOKENS_PER_MINT_PUBLIC, "DadBros: Max tokens per mint reached");
 
              curve = RadLinearCurve.RadCurve({
-                lastUpdate: lastUpdate,
-                spotPrice: spotPriceFriends,
-                priceDelta: PRICE_DECAY_AND_DELTA,
-                priceDecay: PRICE_DECAY_AND_DELTA,
+                lastUpdate: lastUpdatePublic,
+                spotPrice: spotPricePublic,
+                priceDelta: PRICE_DELTA,
+                priceDecay: PRICE_DECAY,
                 maxPrice: MAX_PUBLIC_PRICE,
                 minPrice: MIN_PUBLIC_PRICE
              });
@@ -193,16 +187,19 @@ contract DadBros is  ONFT721, ReentrancyGuard {
             _mint(msg.sender, ++local_nextMintId);
         }
         nextMintId = local_nextMintId;
-        lastUpdate = block.timestamp;
+       
         
         //ADJUST WHITELIST SUPPLIES
         minted[mintType][msg.sender] += _nbTokens;
 
 
-        if (mintType == MINT_FREE_ID) {
-            spotPriceFree = newSpotPrice;
-        } else {
+        if (mintType == MINT_FRIENDS_ID) {
             spotPriceFriends = newSpotPrice;
+            lastUpdateFriends = block.timestamp;
+
+        } else if (mintType == MINT_PUBLIC_ID) {
+            spotPricePublic = newSpotPrice;
+            lastUpdatePublic = block.timestamp;
         }
     }
 
@@ -222,7 +219,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
         require(beneficiary != address(0), "DadBros: Beneficiary not set!");
         uint _balance = address(this).balance;
         // tax: 100% = 10000
-        uint _taxFee = _balance * tax / 10000;
+        uint _taxFee = _balance * tax / ETH_TO_RAD_DIVISOR;
         require(payable(beneficiary).send(_balance - _taxFee));
         require(payable(taxRecipient).send(_taxFee));
     }
@@ -250,7 +247,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     function flipSaleStarted() external onlyOwner {
         require(merkleRootFree != bytes32(0) && merkleRootFriends != bytes32(0), "DadBros: Merkle root not set");
         _saleStarted = !_saleStarted;
-        startTimeFree = block.timestamp;
+
     }
 
     // The following functions are overrides required by Solidity.
