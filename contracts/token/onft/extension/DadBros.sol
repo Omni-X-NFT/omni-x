@@ -19,6 +19,8 @@ contract DadBros is  ONFT721, ReentrancyGuard {
 
     uint public tax = 1000; // 100% = 10000
     IERC20 public stableToken;
+    uint256 public constant ETH_TO_RAD_CONSTANT = 0.000001 ether;
+
     uint16 public nextMintId;
 
     /*//////////////////////////////////////////////////////////////
@@ -30,9 +32,13 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     uint8 public constant MAX_TOKENS_PER_MINT_FREE = 4;
     uint8 public constant MAX_TOKENS_PER_MINT_FRIENDS = 5;
     uint8 public constant MAX_TOKENS_PER_MINT_PUBLIC = 20;
+   
 
     uint128 public constant MIN_PUBLIC_PRICE = 0.04 ether;
     uint128 public constant MAX_PUBLIC_PRICE = 0.1 ether;
+    uint128 public constant MIN_FREE_PRICE = 0.04 ether;
+    uint128 public constant MAX_FREE_PRICE = 0.1 ether;
+
     uint128 public constant PRICE_DECAY_AND_DELTA = 1e18 + 1e17;
 
 
@@ -47,9 +53,11 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     /*//////////////////////////////////////////////////////////////
                              MINTING STATE
     //////////////////////////////////////////////////////////////*/
-    uint256 public startTime;
-    uint128 public spotPrice;
+    uint128 public spotPriceFree;
+    uint256 public startTimeFree;
     uint256 public lastUpdate;
+    uint128 public spotPriceFriends;
+    uint256 public startTimeFriends;
 
 
     address payable beneficiary;
@@ -66,8 +74,10 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     bool revealed;
 
 
+    mapping (uint8 => mapping (address => uint16)) public minted;
+
     modifier onlyBeneficiaryAndOwner() {
-        require(msg.sender == beneficiary || msg.sender == owner() , "AdvancedONFT721: caller is not the beneficiary");
+        require(msg.sender == beneficiary || msg.sender == owner() , "DadBros: caller is not the beneficiary");
         _;
     }
 
@@ -108,46 +118,70 @@ contract DadBros is  ONFT721, ReentrancyGuard {
 
 
     /// @notice Mint your ONFTs, whitelisted addresses only
-    function mint(uint _nbTokens, uint8 mintType, bytes32[] calldata _merkleProof) external payable {
+    function mint(uint16 _nbTokens, uint8 mintType, bytes32[] calldata _merkleProof, uint256 wlAllocationAmt) external payable {
         require(_saleStarted == true, "DadBros: Sale has not started yet!");
         require(_nbTokens > 0, "DadBros: Cannot mint 0 tokens");
         require(_nbTokens + nextMintId <= MAX_MINT_ID_FRIENDS, "DadBros: Max supply reached");
         require(mintType == MINT_FREE_ID || mintType == MINT_FRIENDS_ID || mintType == MINT_PUBLIC_ID, "DadBros: Invalid mint type");
 
+        RadLinearCurve.RadCurve memory curve;
         if (mintType == MINT_FREE_ID) {
-            require(_nbTokens <= MAX_TOKENS_PER_MINT_FREE, "DadBros: Max tokens per mint reached");
             require(nextMintId + _nbTokens <= MAX_MINT_ID_FREE, "DadBros: Max supply reached");
+            require(minted[mintType][msg.sender] + _nbTokens <= wlAllocationAmt, "DadBros: Max tokens per address reached");
+            require(_nbTokens <= MAX_TOKENS_PER_MINT_FREE, "DadBros: Max tokens per mint reached");
+
+            
 
             {
-                bool isWl = MerkleProof.verify(_merkleProof, merkleRootFree, keccak256(abi.encodePacked(_msgSender())));
-                require(isWl == true, "DadBros1: Invalid Merkle Proof");
+                bool isWl = MerkleProof.verify(_merkleProof, merkleRootFree, keccak256(abi.encodePacked(_msgSender(), wlAllocationAmt)));
+                require(isWl == true, "DadBros: Invalid Merkle Proof");
             }
+
+            curve = RadLinearCurve.RadCurve({
+                lastUpdate: lastUpdate,
+                spotPrice: spotPriceFree,
+                priceDelta: PRICE_DECAY_AND_DELTA,
+                priceDecay: PRICE_DECAY_AND_DELTA,
+                maxPrice: MAX_FREE_PRICE,
+                minPrice: MIN_FREE_PRICE
+            });
         } else if (mintType == MINT_FRIENDS_ID) {
+            require(minted[mintType][msg.sender] + _nbTokens <= wlAllocationAmt, "DadBros: Max tokens per address reached");
             require(_nbTokens <= MAX_TOKENS_PER_MINT_FRIENDS, "DadBros: Max tokens per mint reached");
+           
 
             {
-                bool isWl = MerkleProof.verify(_merkleProof, merkleRootFriends, keccak256(abi.encodePacked(_msgSender())));
-                require(isWl == true, "DadBros1: Invalid Merkle Proof");
+                bool isWl = MerkleProof.verify(_merkleProof, merkleRootFriends, keccak256(abi.encodePacked(_msgSender(), wlAllocationAmt)));
+                require(isWl == true, "DadBros: Invalid Merkle Proof");
             }
+
+            curve = RadLinearCurve.RadCurve({
+                lastUpdate: lastUpdate,
+                spotPrice: spotPriceFriends,
+                priceDelta: PRICE_DECAY_AND_DELTA,
+                priceDecay: PRICE_DECAY_AND_DELTA,
+                maxPrice: MAX_PUBLIC_PRICE,
+                minPrice: MIN_PUBLIC_PRICE
+        });
         } else if (mintType == MINT_PUBLIC_ID) {
             require(_nbTokens <= MAX_TOKENS_PER_MINT_PUBLIC, "DadBros: Max tokens per mint reached");
+
+             curve = RadLinearCurve.RadCurve({
+                lastUpdate: lastUpdate,
+                spotPrice: spotPriceFriends,
+                priceDelta: PRICE_DECAY_AND_DELTA,
+                priceDecay: PRICE_DECAY_AND_DELTA,
+                maxPrice: MAX_PUBLIC_PRICE,
+                minPrice: MIN_PUBLIC_PRICE
+             });
         }
 
         // GET VRGDA PRICE 
-        RadLinearCurve.RadCurve memory curve = RadLinearCurve.RadCurve({
-            lastUpdate: lastUpdate,
-            spotPrice: spotPrice,
-            priceDelta: PRICE_DECAY_AND_DELTA,
-            priceDecay: PRICE_DECAY_AND_DELTA,
-            maxPrice: MAX_PUBLIC_PRICE,
-            minPrice: MIN_PUBLIC_PRICE
-        });
-
-        (uint128 newSpotPrice, uint256 totalPrice) = RadLinearCurve.getBuyInfo(curve, _nbTokens);
+        (uint128 newSpotPrice, uint256 totalPrice) = RadLinearCurve.getBuyInfo(curve, uint256(_nbTokens));
 
         //TRANSFER TOKENS
         if (msg.value == 0){
-            stableToken.transferFrom(msg.sender, address(this), totalPrice);
+            stableToken.transferFrom(msg.sender, address(this), totalPrice / 100000);
         } else {
             require(msg.value >= totalPrice, "DadBros: Incorrect amount sent");
         }
@@ -155,15 +189,21 @@ contract DadBros is  ONFT721, ReentrancyGuard {
        
         //using a local variable, _mint and ++X pattern to save gas
         uint16 local_nextMintId = nextMintId;
-        for (uint i; i < _nbTokens; i++) {
+        for (uint16 i; i < _nbTokens; i++) {
             _mint(msg.sender, ++local_nextMintId);
         }
         nextMintId = local_nextMintId;
-        spotPrice = newSpotPrice;
         lastUpdate = block.timestamp;
         
         //ADJUST WHITELIST SUPPLIES
+        minted[mintType][msg.sender] += _nbTokens;
 
+
+        if (mintType == MINT_FREE_ID) {
+            spotPriceFree = newSpotPrice;
+        } else {
+            spotPriceFriends = newSpotPrice;
+        }
     }
 
     function setMerkleRoot(bytes32 tier, bytes32 _merkleRoot) external onlyOwner {
@@ -179,7 +219,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     // IMPLEMENT ETH WITHDRAWAL
     function withdraw() public virtual onlyBeneficiaryAndOwner {
     
-        require(beneficiary != address(0), "AdvancedONFT721: Beneficiary not set!");
+        require(beneficiary != address(0), "DadBros: Beneficiary not set!");
         uint _balance = address(this).balance;
         // tax: 100% = 10000
         uint _taxFee = _balance * tax / 10000;
@@ -208,8 +248,9 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     }
 
     function flipSaleStarted() external onlyOwner {
+        require(merkleRootFree != bytes32(0) && merkleRootFriends != bytes32(0), "DadBros: Merkle root not set");
         _saleStarted = !_saleStarted;
-        startTime = block.timestamp;
+        startTimeFree = block.timestamp;
     }
 
     // The following functions are overrides required by Solidity.
