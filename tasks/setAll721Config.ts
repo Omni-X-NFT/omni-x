@@ -2,7 +2,8 @@ import shell from 'shelljs'
 
 const environments: any = {
   // redo polygon,
-  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis'],
+  // mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis'],
+  mainnet: ['polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis'],
   testnet: ['goerli', 'bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'mumbai']
 }
 
