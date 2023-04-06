@@ -19,8 +19,6 @@ library RadLinearCurve {
         uint128 priceDelta;
         /// @notice Daily price decay rate for radbro (1e18+1e16 == 1% decay) per day.
         uint128 priceDecay;
-        /// @notice max price for minting radbros (in $RAD).
-        uint128 maxPrice;
         /// @notice min price for minting radbros (in $RAD).
         uint128 minPrice;
     }
@@ -49,9 +47,7 @@ library RadLinearCurve {
 
         if (newSpotPrice_ < curve.minPrice) {
             newSpotPrice_ = curve.minPrice;
-        } else if (newSpotPrice_ > curve.maxPrice) {
-            newSpotPrice_ = curve.maxPrice;
-        }
+        } 
 
         // For an exponential curve, the spot price is multiplied by delta for each item bought
         require(newSpotPrice_ <= type(uint128).max, "SPOT_PRICE_OVERFLOW");

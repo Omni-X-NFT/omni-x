@@ -4,7 +4,7 @@ pragma solidity ^0.8;
 import "../ONFT721.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
 import "../../../libraries/LinearCurve.sol";
 import {toDaysWadUnsafe} from "solmate/src/utils/SignedWadMath.sol";
 
@@ -14,12 +14,10 @@ import {toDaysWadUnsafe} from "solmate/src/utils/SignedWadMath.sol";
 contract DadBros is  ONFT721, ReentrancyGuard {
     using Strings for uint;
     using RadLinearCurve for RadLinearCurve.RadCurve;
-    using SafeERC20 for IERC20;
 
 
     uint public tax = 1000; // 100% = 10000
-    IERC20 public stableToken;
-    uint256 public constant ETH_TO_RAD_DIVISOR = 10000;
+
 
     uint16 public nextMintId;
 
@@ -28,21 +26,22 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     //////////////////////////////////////////////////////////////*/
 
     uint16 public constant MAX_MINT_ID_FREE = 700;
-    uint16 public constant MAX_MINT_ID_FRIENDS = 3000;
+    uint16 public constant MAX_MINT_ID_TOTAL = 3000;
+    uint16 public constant MAX_MINT_ID_FRIENDS = 2300;
     uint8 public constant MAX_TOKENS_PER_MINT_FREE = 4;
     uint8 public constant MAX_TOKENS_PER_MINT_FRIENDS = 5;
     uint8 public constant MAX_TOKENS_PER_MINT_PUBLIC = 20;
    
 
-    uint128 public constant MIN_PUBLIC_PRICE = 0.04 ether;
-    uint128 public constant MAX_PUBLIC_PRICE = 2 ether;
-    uint128 public constant MIN_FRIENDS_PRICE = 0.02 ether;
-    uint128 public constant MAX_FRIENDS_PRICE = 2 ether;
+    uint128 public constant MIN_PUBLIC_PRICE = 0.02 ether;
+    uint128 public constant MIN_FRIENDS_PRICE = 0.01 ether;
+
 
     uint128 public constant PRICE_DELTA = 0.01e18;
     uint128 public constant PRICE_DECAY= 0.01e18;
 
-
+    uint16 public friendsAndPublicSupply;
+    uint16 public freeSupply;
 
    /*//////////////////////////////////////////////////////////////
                             MINT TYPES
@@ -95,8 +94,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
         string memory _baseTokenURI,
         string memory _hiddenURI,
         uint _tax,
-        address _taxRecipient,
-        address _stableToken
+        address _taxRecipient
     ) 
     ONFT721(_name, _symbol, _layerZeroEndpoint, 200000) 
     {
@@ -105,7 +103,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
         hiddenMetadataURI = _hiddenURI;
         tax = _tax;
         taxRecipient = payable(_taxRecipient);
-        stableToken = IERC20(_stableToken);
+
     }
 
     function setTax(uint _tax) external onlyOwner {
@@ -122,85 +120,102 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     function mint(uint16 _nbTokens, uint8 mintType, bytes32[] calldata _merkleProof, uint256 wlAllocationAmt) external payable {
         require(_saleStarted == true, "DadBros: Sale has not started yet!");
         require(_nbTokens > 0, "DadBros: Cannot mint 0 tokens");
-        require(_nbTokens + nextMintId <= MAX_MINT_ID_FRIENDS, "DadBros: Max supply reached");
+        require(_nbTokens + nextMintId <= MAX_MINT_ID_TOTAL, "DadBros: Max supply reached");
         require(mintType == MINT_FREE_ID || mintType == MINT_FRIENDS_ID || mintType == MINT_PUBLIC_ID, "DadBros: Invalid mint type");
+        uint currMinted = minted[mintType][msg.sender];
 
-        RadLinearCurve.RadCurve memory curve;
+        uint128 newSpotPrice;
+        uint256 totalPrice;
+
         if (mintType == MINT_FREE_ID) {
-            require(nextMintId + _nbTokens <= MAX_MINT_ID_FREE, "DadBros: Max supply reached");
-            require(minted[mintType][msg.sender] + _nbTokens <= wlAllocationAmt, "DadBros: Max tokens per address reached");
-            require(_nbTokens <= MAX_TOKENS_PER_MINT_FREE, "DadBros: Max tokens per mint reached");
-
             
-
+            require(freeSupply + _nbTokens <= MAX_MINT_ID_FREE, "DadBros: Max supply reached");
+            require(currMinted + _nbTokens <= wlAllocationAmt, "DadBros: Max tokens per address reached");
+            require(_nbTokens <= MAX_TOKENS_PER_MINT_FREE, "DadBros: Max tokens per mint reached");
             {
                 bool isWl = MerkleProof.verify(_merkleProof, merkleRootFree, keccak256(abi.encodePacked(_msgSender(), wlAllocationAmt)));
                 require(isWl == true, "DadBros: Invalid Merkle Proof");
             }
 
-            
         } else if (mintType == MINT_FRIENDS_ID) {
-            require(minted[mintType][msg.sender] + _nbTokens <= wlAllocationAmt, "DadBros: Max tokens per address reached");
+            require(currMinted + _nbTokens <= wlAllocationAmt, "DadBros: Max tokens per address reached");
+            require(friendsAndPublicSupply + _nbTokens <= MAX_MINT_ID_FRIENDS, "DadBros: Max supply reached");
             require(_nbTokens <= MAX_TOKENS_PER_MINT_FRIENDS, "DadBros: Max tokens per mint reached");
-           
-
             {
                 bool isWl = MerkleProof.verify(_merkleProof, merkleRootFriends, keccak256(abi.encodePacked(_msgSender(), wlAllocationAmt)));
                 require(isWl == true, "DadBros: Invalid Merkle Proof");
             }
 
+            (newSpotPrice, totalPrice) = getPriceInfo(MINT_FRIENDS_ID, _nbTokens);
+            require(msg.value >= totalPrice, "DadBros: Not enough ETH");
+
+            
+
+        } else if (mintType == MINT_PUBLIC_ID) {
+            require(_nbTokens <= MAX_TOKENS_PER_MINT_PUBLIC, "DadBros: Max tokens per mint reached");
+            require(friendsAndPublicSupply + _nbTokens <= MAX_MINT_ID_FRIENDS, "DadBros: Max supply reached");
+
+
+            (newSpotPrice, totalPrice) = getPriceInfo(MINT_PUBLIC_ID, _nbTokens);
+        
+            require(msg.value >= totalPrice, "DadBros: Not enough ETH");
+            
+
+        }
+
+        uint16 localNextMintId = nextMintId;
+        for (uint16 i; i < _nbTokens; i++) {
+            _mint(msg.sender, ++localNextMintId);
+        }
+        nextMintId = localNextMintId;
+
+        minted[mintType][msg.sender] += _nbTokens;
+
+        if (mintType == MINT_FRIENDS_ID) {
+            spotPriceFriends = newSpotPrice;
+            lastUpdateFriends = block.timestamp;
+            friendsAndPublicSupply += _nbTokens;
+        } else if (mintType == MINT_PUBLIC_ID) {
+            spotPricePublic = newSpotPrice;
+            lastUpdatePublic = block.timestamp;
+            friendsAndPublicSupply += _nbTokens;
+        } else {
+            freeSupply += _nbTokens;
+        }
+        
+
+    
+    }
+
+    function getPriceInfo(uint8 mintType, uint16 amount) public view returns (uint128, uint256) {
+        RadLinearCurve.RadCurve memory curve;
+        if (mintType == MINT_FRIENDS_ID) {
             curve = RadLinearCurve.RadCurve({
                 lastUpdate: lastUpdateFriends,
                 spotPrice: spotPriceFriends,
                 priceDelta: PRICE_DELTA,
                 priceDecay: PRICE_DECAY,
-                maxPrice: MAX_FRIENDS_PRICE,
                 minPrice: MIN_FRIENDS_PRICE
-        });
+            });
         } else if (mintType == MINT_PUBLIC_ID) {
-            require(_nbTokens <= MAX_TOKENS_PER_MINT_PUBLIC, "DadBros: Max tokens per mint reached");
-
-             curve = RadLinearCurve.RadCurve({
+            curve = RadLinearCurve.RadCurve({
                 lastUpdate: lastUpdatePublic,
                 spotPrice: spotPricePublic,
                 priceDelta: PRICE_DELTA,
                 priceDecay: PRICE_DECAY,
-                maxPrice: MAX_PUBLIC_PRICE,
                 minPrice: MIN_PUBLIC_PRICE
-             });
+            });
         }
 
-        // GET VRGDA PRICE 
-        (uint128 newSpotPrice, uint256 totalPrice) = RadLinearCurve.getBuyInfo(curve, uint256(_nbTokens));
-
-        //TRANSFER TOKENS
-        if (msg.value == 0){
-            stableToken.transferFrom(msg.sender, address(this), totalPrice / 100000);
-        } else {
-            require(msg.value >= totalPrice, "DadBros: Incorrect amount sent");
+        (uint128 newSpotPrice, uint256 totalPrice) =  RadLinearCurve.getBuyInfo(curve, uint256(amount));
+        if (mintType == MINT_PUBLIC_ID && amount >= 5) {
+            if (amount == 20){
+                amount = 19;
+            }
+            totalPrice = totalPrice - ((totalPrice * (amount / uint16(5) ) ) / 10);
         }
+        return (newSpotPrice, totalPrice);
 
-       
-        //using a local variable, _mint and ++X pattern to save gas
-        uint16 local_nextMintId = nextMintId;
-        for (uint16 i; i < _nbTokens; i++) {
-            _mint(msg.sender, ++local_nextMintId);
-        }
-        nextMintId = local_nextMintId;
-       
-        
-        //ADJUST WHITELIST SUPPLIES
-        minted[mintType][msg.sender] += _nbTokens;
-
-
-        if (mintType == MINT_FRIENDS_ID) {
-            spotPriceFriends = newSpotPrice;
-            lastUpdateFriends = block.timestamp;
-
-        } else if (mintType == MINT_PUBLIC_ID) {
-            spotPricePublic = newSpotPrice;
-            lastUpdatePublic = block.timestamp;
-        }
     }
 
     function setMerkleRoot(bytes32 tier, bytes32 _merkleRoot) external onlyOwner {
@@ -209,19 +224,6 @@ contract DadBros is  ONFT721, ReentrancyGuard {
         } else if (tier == "friends") {
             merkleRootFriends = _merkleRoot;
         }
-    }
-     function setStableToken(address _stableToken) external onlyOwner {
-        stableToken = IERC20(_stableToken);
-    }
-    // IMPLEMENT ETH WITHDRAWAL
-    function withdraw() public virtual onlyBeneficiaryAndOwner {
-    
-        require(beneficiary != address(0), "DadBros: Beneficiary not set!");
-        uint _balance = address(this).balance;
-        // tax: 100% = 10000
-        uint _taxFee = _balance * tax / ETH_TO_RAD_DIVISOR;
-        require(payable(beneficiary).send(_balance - _taxFee));
-        require(payable(taxRecipient).send(_taxFee));
     }
 
     function setContractURI(string memory _contractURI) public onlyOwner {
@@ -253,6 +255,15 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     // The following functions are overrides required by Solidity.
     function _baseURI() internal view override returns (string memory) {
         return baseURI;
+    }
+
+    function withdraw() public virtual onlyBeneficiaryAndOwner {
+        require(beneficiary != address(0), "DadBros: Beneficiary not set!");
+        uint _balance = address(this).balance;
+        // tax: 100% = 10000
+        uint _taxFee = _balance * tax / 10000;
+        require(payable(beneficiary).send(_balance - _taxFee));
+        require(payable(taxRecipient).send(_taxFee));
     }
 
     function tokenURI(uint tokenId) public view override(ERC721) returns (string memory) {
