@@ -16,8 +16,10 @@ import { mintGasless721 } from './mintGasless'
 import { sendBatch721 } from './sendBatch721'
 import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
-import { Snapshot, snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
+import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
 import { analyzeStuckTx } from './analyzeStuckTx'
+import { deployDadBro, deployAllDadBros } from './deployDadBros'
+import { prepareDadBro } from './prepareDadBro'
 
 
 
@@ -139,9 +141,6 @@ task('set721Config', 'set layer zero config for ONFT721')
 task('setAll721Config', 'sets layer zero config on all chain for ONF721')
   .addParam('e', 'testnet or mainnet')
   .setAction(setAll721Config)
-
-task('snapshot', 'take snapshot')
-  .setAction(Snapshot)
 task('snap', 'take snapshot')
   .addParam('api', 'nft api provider')
   .addParam('target', 'target colleection')
@@ -156,3 +155,11 @@ task('analyzeStuckTx', 'analyze stuck transaction lz')
   .setAction(analyzeStuckTx)
 task('changeAmounts', 'change amount of wl')
   .setAction(changeAmounts)
+task('deployDadBro', 'deploy DadBros')
+  .setAction(deployDadBro)
+task('deployAllDadBros', 'deployAllDadBros')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(deployAllDadBros)
+task('prepareDadBro', 'prepare dad bros')
+  .setAction(prepareDadBro)
+

@@ -36,6 +36,8 @@ contract VRGDATest is Test {
     }
 
     function testPricingPublic() public {
+        vm.warp(dadBros.lastUpdatePublic() + 100);
+
 
         (uint128 newSpotPrice, uint256 totalPrice) = dadBros.getPriceInfo(3, 1);
         console.logString("Minting 1 token 10 times");
@@ -52,7 +54,7 @@ contract VRGDATest is Test {
         assertEq(dadBros.balanceOf(owner), 10);
         console.logString("-----------------");
         console.logString("Minting 1 token after some time");
-        vm.warp(dadBros.lastUpdatePublic() + 9 days);
+        vm.warp(dadBros.lastUpdatePublic() + 14400);
         vm.startPrank(owner);
         (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
         console.logString("Total price of next token");

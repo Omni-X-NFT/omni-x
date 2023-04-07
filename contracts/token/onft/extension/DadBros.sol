@@ -5,7 +5,7 @@ import "../ONFT721.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
-import "../../../libraries/LinearCurve.sol";
+import "../../../libraries/OmniLinearCurve.sol";
 import {toDaysWadUnsafe} from "solmate/src/utils/SignedWadMath.sol";
 
 /// @title Interface of the AdvancedONFT standard
@@ -13,7 +13,7 @@ import {toDaysWadUnsafe} from "solmate/src/utils/SignedWadMath.sol";
 /// @notice this implementation supports: batch mint, payable public and private mint, reveal of metadata and EIP-2981 on-chain royalties
 contract DadBros is  ONFT721, ReentrancyGuard {
     using Strings for uint;
-    using RadLinearCurve for RadLinearCurve.RadCurve;
+    using OmniLinearCurve for OmniLinearCurve.OmniCurve;
 
 
     uint public tax = 1000; // 100% = 10000
@@ -33,12 +33,15 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     uint8 public constant MAX_TOKENS_PER_MINT_PUBLIC = 20;
    
 
-    uint128 public constant MIN_PUBLIC_PRICE = 0.02 ether;
-    uint128 public constant MIN_FRIENDS_PRICE = 0.01 ether;
+    uint128 public constant MIN_PUBLIC_PRICE = 0.01 ether;
+    uint128 public constant MIN_FRIENDS_PRICE = 0.005 ether;
 
 
-    uint128 public constant PRICE_DELTA = 0.01e18;
-    uint128 public constant PRICE_DECAY= 0.01e18;
+    uint128 public constant PRICE_DELTA_PUBLIC = 0.0005e18;
+    uint128 public constant PRICE_DECAY_PUBLIC= 0.0005e18;
+    uint128 public constant PRICE_DELTA_FRIENDS = 0.002e18;
+    uint128 public constant PRICE_DECAY_FRIENDS= 0.001e18;
+
 
     uint16 public friendsAndPublicSupply;
     uint16 public freeSupply;
@@ -53,8 +56,8 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     /*//////////////////////////////////////////////////////////////
                              MINTING STATE
     //////////////////////////////////////////////////////////////*/
-    uint128 public spotPriceFriends;
-    uint128 public spotPricePublic;
+    uint128 public spotPriceFriends = 0.01 ether;
+    uint128 public spotPricePublic = 0.02 ether;
     uint256 public lastUpdateFriends;
     uint256 public lastUpdatePublic;
 
@@ -98,6 +101,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     ) 
     ONFT721(_name, _symbol, _layerZeroEndpoint, 200000) 
     {
+
         beneficiary = payable(msg.sender);
         baseURI = _baseTokenURI;
         hiddenMetadataURI = _hiddenURI;
@@ -149,8 +153,6 @@ contract DadBros is  ONFT721, ReentrancyGuard {
             (newSpotPrice, totalPrice) = getPriceInfo(MINT_FRIENDS_ID, _nbTokens);
             require(msg.value >= totalPrice, "DadBros: Not enough ETH");
 
-            
-
         } else if (mintType == MINT_PUBLIC_ID) {
             require(_nbTokens <= MAX_TOKENS_PER_MINT_PUBLIC, "DadBros: Max tokens per mint reached");
             require(friendsAndPublicSupply + _nbTokens <= MAX_MINT_ID_FRIENDS, "DadBros: Max supply reached");
@@ -160,7 +162,6 @@ contract DadBros is  ONFT721, ReentrancyGuard {
         
             require(msg.value >= totalPrice, "DadBros: Not enough ETH");
             
-
         }
 
         uint16 localNextMintId = nextMintId;
@@ -182,32 +183,30 @@ contract DadBros is  ONFT721, ReentrancyGuard {
         } else {
             freeSupply += _nbTokens;
         }
-        
-
     
     }
 
     function getPriceInfo(uint8 mintType, uint16 amount) public view returns (uint128, uint256) {
-        RadLinearCurve.RadCurve memory curve;
+        OmniLinearCurve.OmniCurve memory curve;
         if (mintType == MINT_FRIENDS_ID) {
-            curve = RadLinearCurve.RadCurve({
+            curve = OmniLinearCurve.OmniCurve({
                 lastUpdate: lastUpdateFriends,
                 spotPrice: spotPriceFriends,
-                priceDelta: PRICE_DELTA,
-                priceDecay: PRICE_DECAY,
+                priceDelta: PRICE_DELTA_FRIENDS,
+                priceDecay: PRICE_DECAY_FRIENDS,
                 minPrice: MIN_FRIENDS_PRICE
             });
         } else if (mintType == MINT_PUBLIC_ID) {
-            curve = RadLinearCurve.RadCurve({
+            curve = OmniLinearCurve.OmniCurve({
                 lastUpdate: lastUpdatePublic,
                 spotPrice: spotPricePublic,
-                priceDelta: PRICE_DELTA,
-                priceDecay: PRICE_DECAY,
+                priceDelta: PRICE_DELTA_PUBLIC,
+                priceDecay: PRICE_DECAY_PUBLIC,
                 minPrice: MIN_PUBLIC_PRICE
             });
         }
 
-        (uint128 newSpotPrice, uint256 totalPrice) =  RadLinearCurve.getBuyInfo(curve, uint256(amount));
+        (uint128 newSpotPrice, uint256 totalPrice) =  OmniLinearCurve.getBuyInfo(curve, uint256(amount));
         if (mintType == MINT_PUBLIC_ID && amount >= 5) {
             if (amount == 20){
                 amount = 19;

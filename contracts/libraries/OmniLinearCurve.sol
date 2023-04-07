@@ -5,21 +5,21 @@ pragma solidity >=0.8.0;
 
 import { FixedPointMathLib } from "solmate/src/utils/FixedPointMathLib.sol";
 
-/// @dev Radbro Webring V2 employs a VRGDA style bonding curve. Modified version of https://www.paradigm.xyz/2022/08/vrgda
-library RadLinearCurve {
+
+library OmniLinearCurve {
     using FixedPointMathLib for uint256;
 
-    /// @notice A struct representing the state of a $RAD bonding curve.
-    struct RadCurve {
+
+    struct OmniCurve {
         /// @notice last time the curve price was updated (resets decay).
         uint256 lastUpdate;
-        /// @notice The current spot price for minting radbros (in $RAD).
+        /// @notice The current spot price for minting.
         uint128 spotPrice;
-        /// @notice Price increase for radbro (e.g.: 1e18+1e16 == 0.01 increase) on every mint.
+        /// @notice Price increase (e.g.: 1e18+1e16 == 0.01 increase) on every mint.
         uint128 priceDelta;
-        /// @notice Daily price decay rate for radbro (1e18+1e16 == 1% decay) per day.
+        /// @notice Daily price decay rate (1e18+1e16 == 1% decay) per day.
         uint128 priceDecay;
-        /// @notice min price for minting radbros (in $RAD).
+        /// @notice min price for minting radbros.
         uint128 minPrice;
     }
 
@@ -27,16 +27,16 @@ library RadLinearCurve {
     /// @param curve the bonding curve state
     /// @param numItems the number of items to purchase
     /// @return newSpotPrice the new spot price after the purchase
-    /// @return inputValue the amount of $RAD to send to purchase the items
+    /// @return inputValue the amount of ETH to send to purchase the items
     function getBuyInfo(
-        RadCurve memory curve,
+        OmniCurve memory curve,
         uint256 numItems
     ) internal view returns (uint128 newSpotPrice, uint256 inputValue) {
         if (curve.priceDelta == 0) {
             return (curve.spotPrice, curve.spotPrice * numItems);
         }
 
-        uint256 decay = (curve.priceDecay * (block.timestamp - curve.lastUpdate)) / 1 days;
+        uint256 decay = (curve.priceDecay * (block.timestamp - curve.lastUpdate)) / 14400;
 
         // For a linear curve, the spot price increases by delta for each item bought, and decreases for each day since the last update.
         uint256 newSpotPrice_ = curve.spotPrice + curve.priceDelta * numItems;
