@@ -25,8 +25,13 @@ import {
   WETH9,
   Router,
   Pool,
-  Factory
+  Factory,
+  Seaport,
+  SeaportModule,
+  ExchangeRouter
 } from '../typechain-types'
+import { SeaportListing } from '@reservoir0x/contracts/test/router/v6/helpers/seaport'
+import * as Sdk from "@reservoir0x/sdk/src";
 
 export type Chain = {
   omniXExchange: OmniXExchange
@@ -53,6 +58,10 @@ export type Chain = {
 
   stargatePool: Pool
   stargateFactory: Factory
+
+  seaport: Seaport
+  router: ExchangeRouter
+  seaportModule: Contract
 }
 
 export const toWei = (amount: number | string): BigNumber => {
@@ -118,6 +127,13 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   await (await chain.omniXExchange.setFundManager(chain.fundManager.address)).wait()
   await (await chain.omniXExchange.setGasForLzReceive(350000)).wait();
 
+  const conduitsController = await deployContract('ConduitController', owner, [])
+  chain.seaport = await deployContract('Seaport', owner, [conduitsController.address]) as Seaport
+
+  chain.router = await deployContract("ExchangeRouter", owner, [chain.layerZeroEndpoint.address]) as ExchangeRouter;
+  chain.seaportModule = await deployContract("SeaportModule", owner, [owner.address, chain.router.address]) as SeaportModule;
+  await (await chain.seaportModule.setExchange(chain.seaport.address)).wait();
+
   return chain
 }
 
@@ -144,12 +160,12 @@ export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
   await chain.omniXExchange.updateTransferSelectorNFT(chain.transferSelector.address)
 
   // normal currency and normal nft, mint token#1, #2, #3
-  await chain.nftMock.mint(maker.address)
-  await chain.nftMock.mint(maker.address)
-  await chain.nftMock.mint(maker.address)
-  await chain.nftMock.mint(maker.address)
-  await chain.nftMock.mint(maker.address)
-  await chain.nftMock.mint(maker.address)
+  await chain.nftMock.mintTo(maker.address)
+  await chain.nftMock.mintTo(maker.address)
+  await chain.nftMock.mintTo(maker.address)
+  await chain.nftMock.mintTo(maker.address)
+  await chain.nftMock.mintTo(maker.address)
+  await chain.nftMock.mintTo(maker.address)
 
   await chain.onft721.mint(maker.address, 1)
   await chain.onft721.mint(maker.address, 2)
@@ -173,8 +189,8 @@ export const prepareTaker = async (chain: Chain, taker: SignerWithAddress) => {
   await chain.erc20Mock.mint(taker.address, toWei(200))
   await chain.omni.transfer(taker.address, toWei(200))
 
-  await chain.nftMock.mint(taker.address)
-  await chain.nftMock.mint(taker.address)
+  await chain.nftMock.mintTo(taker.address)
+  await chain.nftMock.mintTo(taker.address)
 
   await chain.onft721.mint(taker.address, 10001)
   await chain.onft721.mint(taker.address, 10002)
@@ -231,3 +247,43 @@ export const setupPool = async (chain: Chain, dstChainId: number, srcPoolId: num
 
   await stargateRouter.sendCredits(dstChainId, srcPoolId, dstPoolId, owner.address, { value: toWei(3) })
 }
+
+export const setupSeaportListings = async (listings: SeaportListing[], chain: Chain) => {
+  const chainId = chain.chainId;
+
+  for (const listing of listings) {
+    const { seller, nft, paymentToken, price } = listing;
+
+    // Approve the exchange contract
+    if (nft.kind === "erc721") {
+      await nft.contract.connect(seller).mint(nft.id);
+      await nft.contract
+        .connect(seller)
+        .setApprovalForAll(chain.seaport.address, true);
+    } else {
+      await nft.contract.connect(seller).mintMany(nft.id, nft.amount ?? 1);
+      await nft.contract
+        .connect(seller)
+        .setApprovalForAll(chain.seaport.address, true);
+    }
+
+    // Build and sign the order
+    const builder = new Sdk.Seaport.Builders.SingleToken(chainId);
+    const order = builder.build({
+      side: "sell",
+      tokenKind: nft.kind,
+      offerer: seller.address,
+      contract: nft.contract.address,
+      tokenId: nft.id,
+      amount: nft.amount ?? 1,
+      paymentToken: paymentToken ?? chain.erc20Mock.address,
+      price,
+      counter: 0,
+      startTime: await getBlockTime(),
+      endTime: (await getBlockTime()) + 60,
+    });
+    await order.sign(seller);
+
+    listing.order = order;
+  }
+};

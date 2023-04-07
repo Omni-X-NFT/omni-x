@@ -143,9 +143,9 @@ describe('OmniXExchange', () => {
     await omniXExchange.updateTransferSelectorNFT(transferSelector.address)
 
     // normal currency and normal nft, mint token#1, #2, #3
-    await nftMock.mint(maker.address)
-    await nftMock.mint(maker.address)
-    await nftMock.mint(maker.address)
+    await nftMock.mintTo(maker.address)
+    await nftMock.mintTo(maker.address)
+    await nftMock.mintTo(maker.address)
     await erc20Mock.mint(taker.address, toWei(100))
     await erc20Mock.mint(maker.address, toWei(100))
 

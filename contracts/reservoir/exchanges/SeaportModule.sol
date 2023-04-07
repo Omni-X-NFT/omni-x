@@ -23,8 +23,7 @@ contract SeaportModule is BaseExchangeModule {
 
     // --- Fields ---
 
-    ISeaport public constant EXCHANGE =
-        ISeaport(0x00000000006c3852cbEf3e08E8dF289169EdE581);
+    ISeaport public EXCHANGE;
 
     // --- Constructor ---
 
@@ -37,6 +36,10 @@ contract SeaportModule is BaseExchangeModule {
 
     receive() external payable {}
 
+
+    function setExchange(address _exchange) onlyOwner external {
+        EXCHANGE = ISeaport(_exchange);
+    }
     // --- Single ETH listing ---
 
     function acceptETHListing(
