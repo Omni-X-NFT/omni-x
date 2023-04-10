@@ -54,6 +54,7 @@ export type Chain = {
   layerZeroEndpoint: LZEndpointMock
   stargateRouter: IStargateRouter
   stargateBridge: Bridge
+  lzChainId: number   // lz chain id
   chainId: number
 
   stargatePool: Pool
@@ -78,10 +79,10 @@ export const getBlockTime = async () => {
   return (await waffle.provider.getBlock('latest')).timestamp
 }
 
-export const deploy = async (owner: SignerWithAddress, chainId: number) => {
+export const deploy = async (owner: SignerWithAddress, lzChainId: number) => {
   const chain: any = {}
   // layerzero endpoint
-  chain.layerZeroEndpoint = await deployContract('LZEndpointMock', owner, [chainId]) as LZEndpointMock
+  chain.layerZeroEndpoint = await deployContract('LZEndpointMock', owner, [lzChainId]) as LZEndpointMock
   // normal currency
   chain.erc20Mock = await deployContract('ERC20Mock', owner, []) as ERC20Mock
   chain.weth = await deployContract('WETH9', owner, []) as WETH9
@@ -122,7 +123,8 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   chain.transferManager1155 = await deployContract('TransferManagerERC1155', owner, []) as TransferManagerERC1155
   chain.transferSelector = await deployContract('TransferSelectorNFT', owner, [chain.transferManager721.address, chain.transferManager1155.address]) as TransferSelectorNFT
   chain.fundManager = await deployContract('FundManager', owner, [chain.omniXExchange.address]) as FundManager
-  chain.chainId = chainId
+  chain.lzChainId = lzChainId
+  chain.chainId = await owner.getChainId()
 
   await (await chain.omniXExchange.setFundManager(chain.fundManager.address)).wait()
   await (await chain.omniXExchange.setGasForLzReceive(350000)).wait();
@@ -146,11 +148,11 @@ export const linkChains = async (src: Chain, dst: Chain) => {
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.transferManager1155.address, dst.layerZeroEndpoint.address)
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.omniXExchange.address, dst.layerZeroEndpoint.address)
 
-  await src.omni.setTrustedRemoteAddress(await dst.chainId, dst.omni.address)
-  await src.onft721.setTrustedRemoteAddress(await dst.chainId, dst.onft721.address)
-  await src.ghosts.setTrustedRemoteAddress(await dst.chainId, dst.ghosts.address)
-  await src.onft1155.setTrustedRemoteAddress(await dst.chainId, dst.onft1155.address)
-  await src.omniXExchange.setTrustedRemoteAddress(await dst.chainId, dst.omniXExchange.address)
+  await src.omni.setTrustedRemoteAddress(await dst.lzChainId, dst.omni.address)
+  await src.onft721.setTrustedRemoteAddress(await dst.lzChainId, dst.onft721.address)
+  await src.ghosts.setTrustedRemoteAddress(await dst.lzChainId, dst.ghosts.address)
+  await src.onft1155.setTrustedRemoteAddress(await dst.lzChainId, dst.onft1155.address)
+  await src.omniXExchange.setTrustedRemoteAddress(await dst.lzChainId, dst.omniXExchange.address)
 }
 
 export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
@@ -234,9 +236,9 @@ export const setupChainPath = async (chain: Chain, dstChainId: number, srcPoolId
 
 export const setupBridge = async (src: Chain, dst: Chain) => {
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.stargateBridge.address, dst.layerZeroEndpoint.address)
-  await src.stargateBridge.setBridge(dst.chainId, ethers.utils.solidityPack(['address', 'address'], [dst.stargateBridge.address, src.stargateBridge.address]))
-  await src.stargateBridge.setGasAmount(dst.chainId, 1, 350000)
-  await src.stargateBridge.setGasAmount(dst.chainId, 2, 350000)
+  await src.stargateBridge.setBridge(dst.lzChainId, ethers.utils.solidityPack(['address', 'address'], [dst.stargateBridge.address, src.stargateBridge.address]))
+  await src.stargateBridge.setGasAmount(dst.lzChainId, 1, 350000)
+  await src.stargateBridge.setGasAmount(dst.lzChainId, 2, 350000)
 }
 
 export const setupPool = async (chain: Chain, dstChainId: number, srcPoolId: number, dstPoolId: number, owner: SignerWithAddress) => {
@@ -282,7 +284,7 @@ export const setupSeaportListings = async (listings: SeaportListing[], chain: Ch
       startTime: await getBlockTime(),
       endTime: (await getBlockTime()) + 60,
     });
-    await order.sign(seller);
+    await order.signWithAddress(seller, chain.seaport.address);
 
     listing.order = order;
   }

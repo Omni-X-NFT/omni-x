@@ -23,7 +23,8 @@ import {
   setupBridge,
   setupChainPath,
   setupPool,
-  setupSeaportListings
+  setupSeaportListings,
+  toWei
 } from "./TestDependencies";
 
 chai.use(solidity)
@@ -54,6 +55,9 @@ describe("[ExchangeRouter] Seaport listings", () => {
     await prepareMaker(makerChain, alice)
     await prepareTaker(takerChain, carol)
 
+    // for same chain trading, need to send the funds to carol.
+    await makerChain.erc20Mock.mint(carol.address, toWei(100));
+
     await prepareStargate(makerChain, SRC_POOL_ID, deployer)
     await prepareStargate(takerChain, DST_POOL_ID, deployer)
 
@@ -80,8 +84,6 @@ describe("[ExchangeRouter] Seaport listings", () => {
   const testAcceptListings = async (
     // Whether to revert or not in case of any failures
     revertIfIncomplete: boolean,
-    // Whether to cancel some orders in order to trigger partial filling
-    partial: boolean,
     // Number of listings to fill
     listingsCount: number
   ) => {
@@ -106,11 +108,10 @@ describe("[ExchangeRouter] Seaport listings", () => {
         },
         paymentToken,
         price: parsePrice(getRandomFloat(0.0001, 2).toFixed(6), true),
-        isCancelled: partial && getRandomBoolean(),
+        isCancelled: false,
       });
     }
 
-    console.log('---before setup linsting')
     await setupSeaportListings(listings, makerChain);
 
     // Prepare executions
@@ -118,98 +119,58 @@ describe("[ExchangeRouter] Seaport listings", () => {
       listings.map(({ price }) => price).reduce((a, b) => bn(a).add(b), bn(0))
     );
 
-    console.log('---before executions')
-
     const executions: ExecutionInfo[] = [
-      // 2. Fill listings
-      listingsCount > 1
-        ? {
-            module: makerChain.seaportModule.address,
-            data: makerChain.seaportModule.interface.encodeFunctionData(
-              'acceptERC20Listings',
-              [
-                listings.map((listing) => {
-                  const order = {
-                    parameters: {
-                      ...listing.order!.params,
-                      totalOriginalConsiderationItems:
-                        listing.order!.params.consideration.length,
-                    },
-                    numerator: 1,
-                    denominator: 1,
-                    signature: listing.order!.params.signature,
-                    extraData: "0x",
-                  };
+      // transfer funds from buyer to seaport module
+      {
+        module: makerChain.erc20Mock.address,
+        data: makerChain.erc20Mock.interface.encodeFunctionData(
+          'transferFrom',
+          [
+            carol.address,
+            makerChain.seaportModule.address,
+            listings[0].price
+          ]
+        ),
+        value: 0
+      },
 
-                  return order;
-                }),
-                {
-                  fillTo: carol.address,
-                  refundTo: carol.address,
-                  revertIfIncomplete,
-                  amount: totalPrice,
-                  // Only relevant when filling USDC listings
-                  token: paymentToken,
-                },
-                [],
-              ]
-            ),
-            value: 0,
-          }
-        : {
-            module: makerChain.seaportModule.address,
-            data: makerChain.seaportModule.interface.encodeFunctionData(
-              'acceptERC20Listing',
-              [
-                ...listings.map((listing) => ({
-                  parameters: {
-                    ...listing.order!.params,
-                    totalOriginalConsiderationItems:
-                      listing.order!.params.consideration.length,
-                  },
-                  numerator: 1,
-                  denominator: 1,
-                  signature: listing.order!.params.signature,
-                  extraData: "0x",
-                })),
-                {
-                  fillTo: carol.address,
-                  refundTo: carol.address,
-                  revertIfIncomplete,
-                  amount: totalPrice,
-                  // Only relevant when filling USDC listings
-                  token: paymentToken,
-                },
-                [],
-              ]
-            ),
-            value: 0
-          },
+      // accept erc20 listing
+      {
+        module: makerChain.seaportModule.address,
+        data: makerChain.seaportModule.interface.encodeFunctionData(
+          'acceptERC20Listing',
+          [
+            ...listings.map((listing) => ({
+              parameters: {
+                ...listing.order!.params,
+                totalOriginalConsiderationItems:
+                  listing.order!.params.consideration.length,
+              },
+              numerator: 1,
+              denominator: 1,
+              signature: listing.order!.params.signature,
+              extraData: "0x",
+            })),
+            {
+              fillTo: carol.address,
+              refundTo: carol.address,
+              revertIfIncomplete,
+              amount: totalPrice,
+              // Only relevant when filling USDC listings
+              token: paymentToken,
+            },
+            [],
+          ]
+        ),
+        value: 0
+      },
     ];
 
-    // Checks
-    console.log('---before execute', listings, executions)
-
-    // If the `revertIfIncomplete` option is enabled and we have any
-    // orders that are not fillable, the whole transaction should be
-    // reverted
-    if (
-      partial &&
-      revertIfIncomplete &&
-      listings.some(({ isCancelled }) => isCancelled)
-    ) {
-      await expect(
-        makerChain.router.connect(carol).execute(executions, {
-          value: executions
-            .map(({ value }) => value)
-            .reduce((a, b) => bn(a).add(b), bn(0)),
-        })
-      ).to.be.revertedWith(
-        "reverted with custom error 'UnsuccessfulExecution()'"
-      );
-
-      return;
-    }
+    // Approve
+    // seller approve seaport exchange for all nfts.
+    await (await makerChain.nftMock.connect(alice).setApprovalForAll(makerChain.seaport.address, true)).wait();
+    // seller approve router for usdc transfer.
+    await (await makerChain.erc20Mock.connect(carol).approve(makerChain.router.address, listings[0].price)).wait();
 
     // Fetch pre-state
 
@@ -223,11 +184,9 @@ describe("[ExchangeRouter] Seaport listings", () => {
         .reduce((a, b) => bn(a).add(b), bn(0)),
     });
 
-    // Fetch post-state
+    // // Fetch post-state
 
     const balancesAfter = await getBalances(makerChain);
-
-    // Checks
 
     // Alice got the payment
     expect(balancesAfter.alice.sub(balancesBefore.alice)).to.eq(
@@ -277,8 +236,8 @@ describe("[ExchangeRouter] Seaport listings", () => {
     expect(balancesAfter.seaportModule).to.eq(0);
   };
 
-  it("Fill listing with USDC", async () => {
-    await testAcceptListings(true, false, 1);
+  it("Listing/Sell with USDC - Same Chain", async () => {
+    await testAcceptListings(true, 1);
   });
 
 });

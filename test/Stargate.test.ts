@@ -86,8 +86,8 @@ describe('Stargate', () => {
       )
       fillTakerOrder(takerBid, taker.address, tokenId, price)
 
-      makerAsk.encodeParams(makerChain.chainId, ethers.constants.AddressZero, 0)
-      takerBid.encodeParams(takerChain.chainId, takerChain.erc20Mock.address, takerChain.nftMock.address, takerChain.strategy.address, 112)
+      makerAsk.encodeParams(makerChain.lzChainId, ethers.constants.AddressZero, 0)
+      takerBid.encodeParams(takerChain.lzChainId, takerChain.erc20Mock.address, takerChain.nftMock.address, takerChain.strategy.address, 112)
       await makerAsk.sign(maker)
 
       const makerBalance = await makerChain.erc20Mock.balanceOf(maker.address)
