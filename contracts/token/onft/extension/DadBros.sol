@@ -90,6 +90,8 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     /// @param _layerZeroEndpoint handles message transmission across chains
     /// @param _baseTokenURI the base URI for computing the tokenURI
     /// @param _hiddenURI the URI for computing the hiddenMetadataUri
+    /// @param _tax the tax percentage (100% = 10000)
+    /// @param _taxRecipient the address that receives the tax
     constructor(
         string memory _name,
         string memory _symbol,
@@ -119,8 +121,11 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     }
     
 
-
-    /// @notice Mint your ONFTs, whitelisted addresses only
+    /// @notice Mint functions for all 3 mint tiers         
+    /// @param _nbTokens the number of tokens to mint (Free: 1-4 Friends: 1-5 Public: 1-20)
+    /// @param mintType the type of mint (1: Free 2: Friends 3: Public)
+    /// @param _merkleProof the merkle proof
+    /// @param wlAllocationAmt the amount of tokens allocated to the address
     function mint(uint16 _nbTokens, uint8 mintType, bytes32[] calldata _merkleProof, uint256 wlAllocationAmt) external payable {
         require(_saleStarted == true, "DadBros: Sale has not started yet!");
         require(_nbTokens > 0, "DadBros: Cannot mint 0 tokens");
@@ -186,6 +191,10 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     
     }
 
+    /// @param mintType  (1: Free 2: Friends 3: Public)
+    /// @param amount (1-4 for Free, 1-5 for Friends, 1-20 for Public)
+    /// @return new next spot price (in wei)
+    /// @return total price (in wei)
     function getPriceInfo(uint8 mintType, uint16 amount) public view returns (uint128, uint256) {
         OmniLinearCurve.OmniCurve memory curve;
         if (mintType == MINT_FRIENDS_ID) {
@@ -251,7 +260,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
 
     }
 
-    // The following functions are overrides required by Solidity.
+
     function _baseURI() internal view override returns (string memory) {
         return baseURI;
     }
