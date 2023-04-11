@@ -102,7 +102,7 @@ export const tokenSnap = async (taskArgs: any, hre: any) => {
     try {
         let firstResponse: any = await Moralis.EvmApi.nft.getNFTOwners({
           address: contractAddress,
-          chain: EvmChain.POLYGON,
+          chain: EvmChain.ETHEREUM,
           limit: 100
         })
         firstResponse = firstResponse.toJSON()
@@ -123,7 +123,7 @@ export const tokenSnap = async (taskArgs: any, hre: any) => {
          
          let response: any = await Moralis.EvmApi.nft.getNFTOwners({
              address: contractAddress,
-             chain: EvmChain.POLYGON,
+             chain: EvmChain.ETHEREUM,
              disableTotal: false,
              limit: 100,
              cursor: dataCursor
@@ -142,7 +142,7 @@ export const tokenSnap = async (taskArgs: any, hre: any) => {
          dataCursor = response.cursor
      } while (dataCursor !== null && dataCursor !== '')
   
-     const data = await fs.promises.readFile('constants/largeSnapshot2.json', 'utf8')
+     const data = await fs.promises.readFile('constants/DadBrosFriendsSnapshot.json', 'utf8')
      const jsonData = JSON.parse(data)
      for (const item in owners) {
      if (jsonData[item] !== undefined) {
@@ -158,7 +158,7 @@ export const tokenSnap = async (taskArgs: any, hre: any) => {
  
      if (Object.keys(jsonData).length > 0) {
          // Convert the array back to JSON format
-         await fs.promises.writeFile('constants/largeSnapshot2.json', JSON.stringify(jsonData, null, 2))
+         await fs.promises.writeFile('constants/DadBrosFriendsSnapshot.json', JSON.stringify(jsonData, null, 2))
      }
          
  
@@ -170,8 +170,8 @@ export const tokenSnap = async (taskArgs: any, hre: any) => {
    }
     } else if (taskArgs.api === 'alchemy') {
         const settings = {
-            apiKey: process.env.ALCHEMY_OP, // Replace with your Alchemy API Key.
-            network: Network.OPT_MAINNET, // Replace with your network.
+            apiKey: process.env.ALCHEMY_ETH, // Replace with your Alchemy API Key.
+            network: Network.ETH_MAINNET // Replace with your network.
           }
           
           const alchemy = new Alchemy(settings)
@@ -181,7 +181,7 @@ export const tokenSnap = async (taskArgs: any, hre: any) => {
             console.log(uniqOwners.length)
             console.log(uniqOwners)
      
-            const data = await fs.promises.readFile('constants/largeSnapshot2.json', 'utf8')
+            const data = await fs.promises.readFile('constants/DadBrosFriendsSnapshot.json', 'utf8')
             const jsonData = JSON.parse(data)
             
             for (const item of uniqOwners) {
@@ -201,7 +201,7 @@ export const tokenSnap = async (taskArgs: any, hre: any) => {
         
             if (Object.keys(jsonData).length > 0) {
                 // Convert the array back to JSON format
-                await fs.promises.writeFile('constants/largeSnapshot2.json', JSON.stringify(jsonData, null, 2))
+                await fs.promises.writeFile('constants/DadBrosFriendsSnapshot.json', JSON.stringify(jsonData, null, 2))
             }
             console.log('✅ Snapshot saved')
             
@@ -227,7 +227,7 @@ export const snap = async (taskArgs: any, hre: any) => {
       try {
           let firstResponse: any = await Moralis.EvmApi.nft.getNFTOwners({
             address: contractAddress,
-            chain: EvmChain.POLYGON,
+            chain: EvmChain.AVALANCHE,
             limit: 100
           })
           firstResponse = firstResponse.toJSON()
@@ -248,7 +248,7 @@ export const snap = async (taskArgs: any, hre: any) => {
            
            let response: any = await Moralis.EvmApi.nft.getNFTOwners({
                address: contractAddress,
-               chain: EvmChain.POLYGON,
+               chain: EvmChain.AVALANCHE,
                disableTotal: false,
                limit: 100,
                cursor: dataCursor
@@ -267,23 +267,20 @@ export const snap = async (taskArgs: any, hre: any) => {
            dataCursor = response.cursor
        } while (dataCursor !== null && dataCursor !== '')
     
-       const data = await fs.promises.readFile('constants/largeSnapshot2.json', 'utf8')
+       const data = await fs.promises.readFile('constants/DadBrosFriendsSnapshot.json', 'utf8')
        const jsonData = JSON.parse(data)
        for (const item in owners) {
        if (jsonData[item] !== undefined) {
-          if (jsonData[item].count < 10) {
-              jsonData[item].count += 1
-          }
        } else {
            jsonData[item] = {
-               count: 1
+               count: 5
            }
        }
        }
    
        if (Object.keys(jsonData).length > 0) {
            // Convert the array back to JSON format
-           await fs.promises.writeFile('constants/largeSnapshot2.json', JSON.stringify(jsonData, null, 2))
+           await fs.promises.writeFile('constants/DadBrosFriendsSnapshot.json', JSON.stringify(jsonData, null, 2))
        }
            
    
@@ -295,8 +292,8 @@ export const snap = async (taskArgs: any, hre: any) => {
      }
       } else if (taskArgs.api === 'alchemy') {
           const settings = {
-              apiKey: process.env.ALCHEMY_OP, // Replace with your Alchemy API Key.
-              network: Network.OPT_MAINNET, // Replace with your network.
+              apiKey: process.env.ALCHEMY_MATIC, // Replace with your Alchemy API Key.
+              network: Network.MATIC_MAINNET // Replace with your network.
             }
             
             const alchemy = new Alchemy(settings)
@@ -306,17 +303,15 @@ export const snap = async (taskArgs: any, hre: any) => {
               console.log(uniqOwners.length)
               console.log(uniqOwners)
        
-              const data = await fs.promises.readFile('constants/largeSnapshot2.json', 'utf8')
+              const data = await fs.promises.readFile('constants/DadBrosFriendsSnapshot.json', 'utf8')
               const jsonData = JSON.parse(data)
               
               for (const item of uniqOwners) {
                   if (jsonData[item as string] !== undefined) {
-                      if (jsonData[item as string].count < 10) {
-                          jsonData[item as string].count += 1
-                      }
+                      
                   } else {
                       jsonData[item as string] = {
-                          count: 1
+                          count: 5
                       }
                   }
               }
@@ -326,7 +321,7 @@ export const snap = async (taskArgs: any, hre: any) => {
           
               if (Object.keys(jsonData).length > 0) {
                   // Convert the array back to JSON format
-                  await fs.promises.writeFile('constants/largeSnapshot2.json', JSON.stringify(jsonData, null, 2))
+                  await fs.promises.writeFile('constants/DadBrosFriendsSnapshot.json', JSON.stringify(jsonData, null, 2))
               }
               console.log('✅ Snapshot saved')
               
@@ -342,7 +337,7 @@ export const snap = async (taskArgs: any, hre: any) => {
   }
 
 export const convertFormat = async (taskArgs: any, hre: any) => {
-    const data = await fs.promises.readFile("constants/largeSnapshot2.json", "utf8")
+    const data = await fs.promises.readFile("constants/DadBrosFriendsSnapshot.json", "utf8")
     const jsonData = JSON.parse(data)
 
     const newData:any = []
@@ -355,7 +350,7 @@ export const convertFormat = async (taskArgs: any, hre: any) => {
     }
 
 
-    await fs.promises.writeFile("constants/largeElementsSnapshot.json", JSON.stringify(newData, null, 2))
+    await fs.promises.writeFile("constants/DadBrosFriendsFinalSnapshot.json", JSON.stringify(newData, null, 2))
 }
 
 export const addSTG = async(taskArgs: any, hre: any) => {

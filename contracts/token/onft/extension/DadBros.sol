@@ -58,8 +58,8 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     //////////////////////////////////////////////////////////////*/
     uint128 public spotPriceFriends = 0.01 ether;
     uint128 public spotPricePublic = 0.02 ether;
-    uint256 public lastUpdateFriends;
-    uint256 public lastUpdatePublic;
+    uint256 public lastUpdateFriends = 0;
+    uint256 public lastUpdatePublic = 0;
 
 
 
@@ -69,7 +69,6 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     bytes32 public merkleRootFree;
     bytes32 public merkleRootFriends;
 
-    string public contractURI;
     string private baseURI;
     string private hiddenMetadataURI;
 
@@ -198,8 +197,9 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     function getPriceInfo(uint8 mintType, uint16 amount) public view returns (uint128, uint256) {
         OmniLinearCurve.OmniCurve memory curve;
         if (mintType == MINT_FRIENDS_ID) {
+            
             curve = OmniLinearCurve.OmniCurve({
-                lastUpdate: lastUpdateFriends,
+                lastUpdate: lastUpdateFriends == 0 ? block.timestamp - 14400 : lastUpdateFriends,
                 spotPrice: spotPriceFriends,
                 priceDelta: PRICE_DELTA_FRIENDS,
                 priceDecay: PRICE_DECAY_FRIENDS,
@@ -207,7 +207,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
             });
         } else if (mintType == MINT_PUBLIC_ID) {
             curve = OmniLinearCurve.OmniCurve({
-                lastUpdate: lastUpdatePublic,
+                lastUpdate: lastUpdatePublic == 0 ? block.timestamp - 14400 : lastUpdatePublic,
                 spotPrice: spotPricePublic,
                 priceDelta: PRICE_DELTA_PUBLIC,
                 priceDecay: PRICE_DECAY_PUBLIC,
@@ -226,7 +226,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
 
     }
 
-    function setMerkleRoot(bytes32 tier, bytes32 _merkleRoot) external onlyOwner {
+    function setMerkleRoot(bytes32 tier, bytes32 _merkleRoot) external onlyBeneficiaryAndOwner {
         if (tier == "free") {
             merkleRootFree = _merkleRoot;
         } else if (tier == "friends") {
@@ -234,11 +234,8 @@ contract DadBros is  ONFT721, ReentrancyGuard {
         }
     }
 
-    function setContractURI(string memory _contractURI) public onlyOwner {
-        contractURI = _contractURI;
-    }
 
-    function setBaseURI(string memory uri) public onlyOwner {
+    function setBaseURI(string memory uri) public onlyBeneficiaryAndOwner {
         baseURI = uri;
     }
 
@@ -246,18 +243,17 @@ contract DadBros is  ONFT721, ReentrancyGuard {
         beneficiary = _beneficiary;
     }
 
-    function setHiddenMetadataUri(string memory _hiddenMetadataUri) external onlyOwner {
+    function setHiddenMetadataUri(string memory _hiddenMetadataUri) external onlyBeneficiaryAndOwner {
         hiddenMetadataURI = _hiddenMetadataUri;
     }
 
-    function flipRevealed() external onlyOwner {
+    function flipRevealed() external onlyBeneficiaryAndOwner {
         revealed = !revealed;
     }
 
-    function flipSaleStarted() external onlyOwner {
+    function flipSaleStarted() external onlyBeneficiaryAndOwner {
         require(merkleRootFree != bytes32(0) && merkleRootFriends != bytes32(0), "DadBros: Merkle root not set");
         _saleStarted = !_saleStarted;
-
     }
 
 

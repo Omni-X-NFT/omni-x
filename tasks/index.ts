@@ -141,25 +141,33 @@ task('set721Config', 'set layer zero config for ONFT721')
 task('setAll721Config', 'sets layer zero config on all chain for ONF721')
   .addParam('e', 'testnet or mainnet')
   .setAction(setAll721Config)
+
 task('snap', 'take snapshot')
   .addParam('api', 'nft api provider')
   .addParam('target', 'target colleection')
   .setAction(snap)
+
 task('convertFormat', 'convertFormat')
   .setAction(convertFormat)
+
 task('addSTG', 'add stargate')
   .setAction(addSTG)
+
 task('analyzeStuckTx', 'analyze stuck transaction lz')
   .addParam('adr', 'address of contract')
   .addParam('topic', 'event topic')
   .setAction(analyzeStuckTx)
+
 task('changeAmounts', 'change amount of wl')
   .setAction(changeAmounts)
+
 task('deployDadBro', 'deploy DadBros')
   .setAction(deployDadBro)
+
 task('deployAllDadBros', 'deployAllDadBros')
   .addParam('e', 'testnet or mainnet')
   .setAction(deployAllDadBros)
+
 task('prepareDadBro', 'prepare dad bros')
   .setAction(prepareDadBro)
 
