@@ -56,8 +56,8 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     /*//////////////////////////////////////////////////////////////
                              MINTING STATE
     //////////////////////////////////////////////////////////////*/
-    uint128 public spotPriceFriends = 0.01 ether;
-    uint128 public spotPricePublic = 0.02 ether;
+    uint128 public spotPriceFriends = 0.0095 ether;
+    uint128 public spotPricePublic = 0.0195 ether;
     uint256 public lastUpdateFriends = 0;
     uint256 public lastUpdatePublic = 0;
 
@@ -199,7 +199,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
         if (mintType == MINT_FRIENDS_ID) {
             
             curve = OmniLinearCurve.OmniCurve({
-                lastUpdate: lastUpdateFriends == 0 ? block.timestamp - 14400 : lastUpdateFriends,
+                lastUpdate: lastUpdateFriends == 0 ? block.timestamp : lastUpdateFriends,
                 spotPrice: spotPriceFriends,
                 priceDelta: PRICE_DELTA_FRIENDS,
                 priceDecay: PRICE_DECAY_FRIENDS,
@@ -207,7 +207,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
             });
         } else if (mintType == MINT_PUBLIC_ID) {
             curve = OmniLinearCurve.OmniCurve({
-                lastUpdate: lastUpdatePublic == 0 ? block.timestamp - 14400 : lastUpdatePublic,
+                lastUpdate: lastUpdatePublic == 0 ? block.timestamp : lastUpdatePublic,
                 spotPrice: spotPricePublic,
                 priceDelta: PRICE_DELTA_PUBLIC,
                 priceDecay: PRICE_DECAY_PUBLIC,

@@ -26,7 +26,7 @@ contract VRGDATest is Test {
         owner = makeAddr("owner");
         vm.startPrank(owner);
         dadBros = new DadBros(NAME, SYMBOL, layerZeroEndpoint, TOKEN_URI, TOKEN_URI, 500, owner);
-        vm.deal(owner, 100 ether);
+        vm.deal(owner, 100  0 ether);
         dadBros.setMerkleRoot(bytes32("free"), bytes32("0x64ca47771b3"));
         dadBros.setMerkleRoot(bytes32("friends"), bytes32("0x64ca47771b3"));
         dadBros.flipSaleStarted();
@@ -35,60 +35,311 @@ contract VRGDATest is Test {
         
     }
 
-    function testPricingPublic() public {
-        vm.warp(block.timestamp + 1 days);
+    // function testPricingPublic() public {
 
 
-        (uint128 newSpotPrice, uint256 totalPrice) = dadBros.getPriceInfo(3, 1);
-        console.logUint(totalPrice);
-        console.logUint(newSpotPrice);
 
-        console.logString("Minting 1 token 10 times");
-        for (uint i = 0; i < 10; i++) {
-            vm.startPrank(owner);
-            (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
-            console.logString("Total price of next token");
-            console.logUint(totalPrice);
-            dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 1);
-            vm.stopPrank();
+    //     (uint128 newSpotPrice, uint256 totalPrice) = dadBros.getPriceInfo(3, 20);
+    //     console.logUint(totalPrice);
+    //     console.logUint(newSpotPrice);
+
+    //     console.logString("Minting 1 token 10 times");
+    //     for (uint i = 0; i < 10; i++) {
+    //         vm.startPrank(owner);
+    //         (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+    //         console.logString("Total price of next token");
+    //         console.logUint(totalPrice);
+    //         dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 1);
+    //         vm.stopPrank();
             
-        }
+    //     }
 
-        assertEq(dadBros.balanceOf(owner), 10);
-        console.logString("-----------------");
-        console.logString("Minting 1 token after some time");
-        vm.warp(dadBros.lastUpdatePublic() + 1 days);
-        vm.startPrank(owner);
-        (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
-        console.logString("Total price of next token");
-        console.logUint(totalPrice);
-        dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 1);
-        vm.stopPrank();
+    //     assertEq(dadBros.balanceOf(owner), 10);
+    //     console.logString("-----------------");
+    //     console.logString("Minting 1 token after some time");
+    //     vm.warp(dadBros.lastUpdatePublic() + 1 days);
+    //     vm.startPrank(owner);
+    //     (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+    //     console.logString("Total price of next token");
+    //     console.logUint(totalPrice);
+    //     dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 1);
+    //     vm.stopPrank();
 
    
 
-        console.logString("-----------------");
-        console.logString("Minting 10 tokens 1 time");
+    //     console.logString("-----------------");
+    //     console.logString("Minting 10 tokens 1 time");
 
-        vm.startPrank(owner);
-        (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 10);
-        console.logString("Total price of next 10 tokens");
-        console.logUint(totalPrice);
-        dadBros.mint{value: totalPrice }(10, 3, merkleRoots, 1);
-        vm.stopPrank();
+    //     vm.startPrank(owner);
+    //     (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 10);
+    //     console.logString("Total price of next 10 tokens");
+    //     console.logUint(totalPrice);
+    //     dadBros.mint{value: totalPrice }(10, 3, merkleRoots, 1);
+    //     vm.stopPrank();
      
-        assertEq(dadBros.balanceOf(owner), 21);
+    //     assertEq(dadBros.balanceOf(owner), 21);
 
-        vm.startPrank(owner);
-        (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+    //     vm.startPrank(owner);
+    //     (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+    //     console.logString("Total price of next token");
+    //     console.logUint(totalPrice);
+    //     dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 1);
+    //     vm.stopPrank();
+
+    //     assertEq(dadBros.balanceOf(owner), 22);
+
+    // }
+       function testPricingPublic100() public {
+
+
+        uint128 newSpotPrice;
+        uint256 totalPrice;
+
+
+
+        for (uint i = 0; i < 100; i++) {
+            vm.startPrank(owner);
+            (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+            dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 0);
+            vm.warp(dadBros.lastUpdatePublic() + 144);
+            vm.stopPrank();
+        }
+        
+        console.logString("-----------------");
+        console.logString("100 tokens over 4 hours");
         console.logString("Total price of next token");
-        console.logUint(totalPrice);
-        dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 1);
-        vm.stopPrank();
+        console.logUint(newSpotPrice);
 
-        assertEq(dadBros.balanceOf(owner), 22);
+        assertEq(dadBros.balanceOf(owner), 100);
+       
 
     }
+    function testPricingPublic200() public {
+
+
+        uint128 newSpotPrice;
+        uint256 totalPrice;
+
+
+
+        for (uint i = 0; i < 200; i++) {
+            vm.startPrank(owner);
+            (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+            dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 0);
+            vm.warp(dadBros.lastUpdatePublic() + 72);
+            vm.stopPrank();
+        }
+        
+        console.logString("-----------------");
+        console.logString("200 tokens over 4 hours");
+        console.logString("Total price of next token");
+        console.logUint(newSpotPrice);
+
+        assertEq(dadBros.balanceOf(owner), 200);
+       
+
+    }
+    function testPricingPublic300() public {
+
+
+        uint128 newSpotPrice;
+        uint256 totalPrice;
+
+
+
+        for (uint i = 0; i < 300; i++) {
+            vm.startPrank(owner);
+            (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+            dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 0);
+            vm.warp(dadBros.lastUpdatePublic() + 48);
+            vm.stopPrank();
+        }
+        
+        console.logString("-----------------");
+        console.logString("300 tokens over 4 hours");
+        console.logString("Total price of next token");
+        console.logUint(newSpotPrice);
+
+        assertEq(dadBros.balanceOf(owner), 300);
+       
+
+    }
+    function testPricingPublic400() public {
+
+
+        uint128 newSpotPrice;
+        uint256 totalPrice;
+
+
+
+        for (uint i = 0; i < 400; i++) {
+            vm.startPrank(owner);
+            (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+            dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 0);
+            vm.warp(dadBros.lastUpdatePublic() + 36);
+            vm.stopPrank();
+        }
+        
+        console.logString("-----------------");
+        console.logString("400 tokens over 4 hours");
+        console.logString("Total price of next token");
+        console.logUint(newSpotPrice);
+
+        assertEq(dadBros.balanceOf(owner), 400);
+       
+
+    }
+    function testPricingPublic500() public {
+
+
+        uint128 newSpotPrice;
+        uint256 totalPrice;
+
+
+
+        for (uint i = 0; i < 500; i++) {
+            vm.startPrank(owner);
+            (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+            dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 0);
+            vm.warp(dadBros.lastUpdatePublic() + 29);
+            vm.stopPrank();
+        }
+        
+        console.logString("-----------------");
+        console.logString("500 tokens over 4 hours");
+        console.logString("Total price of next token");
+        console.logUint(newSpotPrice);
+
+        assertEq(dadBros.balanceOf(owner), 500);
+       
+
+    }
+    function testPricingPublic600() public {
+
+
+        uint128 newSpotPrice;
+        uint256 totalPrice;
+
+
+
+        for (uint i = 0; i < 600; i++) {
+            vm.startPrank(owner);
+            (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+            dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 0);
+            vm.warp(dadBros.lastUpdatePublic() + 24);
+            vm.stopPrank();
+        }
+        
+        console.logString("-----------------");
+        console.logString("600 tokens over 4 hours");
+        console.logString("Total price of next token");
+        console.logUint(newSpotPrice);
+
+        assertEq(dadBros.balanceOf(owner), 600);
+       
+
+    }
+    function testPricingPublic700() public {
+
+
+        uint128 newSpotPrice;
+        uint256 totalPrice;
+
+
+
+        for (uint i = 0; i < 700; i++) {
+            vm.startPrank(owner);
+            (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+            dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 0);
+            vm.warp(dadBros.lastUpdatePublic() + 21);
+            vm.stopPrank();
+        }
+        
+        console.logString("-----------------");
+        console.logString("700 tokens over 4 hours");
+        console.logString("Total price of next token");
+        console.logUint(newSpotPrice);
+
+        assertEq(dadBros.balanceOf(owner), 700);
+       
+
+    }
+    function testPricingPublic800() public {
+
+
+        uint128 newSpotPrice;
+        uint256 totalPrice;
+
+
+
+        for (uint i = 0; i < 800; i++) {
+            vm.startPrank(owner);
+            (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+            dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 0);
+            vm.warp(dadBros.lastUpdatePublic() + 18);
+            vm.stopPrank();
+        }
+        
+        console.logString("-----------------");
+        console.logString("800 tokens over 4 hours");
+        console.logString("Total price of next token");
+        console.logUint(newSpotPrice);
+
+        assertEq(dadBros.balanceOf(owner), 800);
+       
+
+    }
+    function testPricingPublic900() public {
+
+
+        uint128 newSpotPrice;
+        uint256 totalPrice;
+
+
+
+        for (uint i = 0; i < 900; i++) {
+            vm.startPrank(owner);
+            (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+            dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 0);
+            vm.warp(dadBros.lastUpdatePublic() + 16);
+            vm.stopPrank();
+        }
+        
+        console.logString("-----------------");
+        console.logString("900 tokens over 4 hours");
+        console.logString("Total price of next token");
+        console.logUint(newSpotPrice);
+
+        assertEq(dadBros.balanceOf(owner), 900);
+       
+
+    }
+    function testPricingPublic1000() public {
+
+
+        uint128 newSpotPrice;
+        uint256 totalPrice;
+
+
+
+        for (uint i = 0; i < 1000; i++) {
+            vm.startPrank(owner);
+            (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+            dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 0);
+            vm.warp(dadBros.lastUpdatePublic() + 14);
+            vm.stopPrank();
+        }
+        
+        console.logString("-----------------");
+        console.logString("1000 tokens over 4 hours");
+        console.logString("Total price of next token");
+        console.logUint(newSpotPrice);
+
+        assertEq(dadBros.balanceOf(owner), 1000);
+       
+
+    }
+
 
 
 
