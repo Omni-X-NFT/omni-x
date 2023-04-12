@@ -28,6 +28,16 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
         uint256 threshold;  // minimum hold balance amount
     }
 
+    struct CrossExchangeInfo {
+        uint16 fromChainId;     // layer zero chain id
+        uint16 toChainId;       // layer zero chain id
+        uint256 amount;         // currency amount to be swapped
+        address from;           // buyer
+        address to;             // exchange router address on destination chain
+        address currency;       // currency address
+        bool isNative;          // is native eth trading?
+    }
+
     error UnsuccessfulExecution();
     error UnsuccessfulPayment();
 
@@ -120,18 +130,80 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
     }
 
     /**
-     *  cross exchange execution using stargate
+    * @notice get stargate payload
+    * @param executionInfos execution infos
+    * @dev this function is used only for makerAskWithTakerBid
      */
-    function executeWithCross(ExecutionInfo[] calldata executionInfos)
+    function _getSgPayload(ExecutionInfo[] calldata executionInfos)
+        internal pure returns (bytes memory)
+    {
+        bytes memory payload = abi.encode(
+            executionInfos
+        );
+
+        return payload;
+    }
+
+    /**
+     * @notice get layerzero fees for matching a takerBid with a makerAsk
+     * @param executionInfos taker bid order
+     * @param crossInfo maker ask order
+     * @return (omnixFee, fundManagerFee, nftTransferManagerFee)
+     */
+    function getLzFeesForTrading(ExecutionInfo[] calldata executionInfos, CrossExchangeInfo calldata crossInfo)
+        public
+        view
+        returns (uint256)
+    {
+        if (crossInfo.fromChainId == crossInfo.toChainId) return 0;
+        if (address(stargatePoolManager) == address(0)) return 0;
+        if (!stargatePoolManager.isSwappable(crossInfo.currency, crossInfo.toChainId)) return 0;
+
+        bytes memory payload = _getSgPayload(executionInfos);
+        (uint256 fee, ) = stargatePoolManager.getSwapFee(crossInfo.toChainId, crossInfo.to, payload);
+
+        return fee;
+    }
+
+    /**
+     * cross exchange execution using stargate
+     * @param executionInfos execution infos
+     * @param crossInfo infos to execute the cross exchange.
+     */
+    function executeWithCross(ExecutionInfo[] calldata executionInfos, CrossExchangeInfo calldata crossInfo)
         external
         payable
         nonReentrant
         refundETH
     {
+        require (crossInfo.fromChainId != crossInfo.toChainId, "ExchangeRouter: chain ids should be different");
+        require (address(stargatePoolManager) != address(0), "ExechangeRouter: stargate pool manager is null");
+        require (stargatePoolManager.isSwappable(crossInfo.currency, crossInfo.toChainId), "ExechangeRouter: currency is not swappable");
 
+        bytes memory payload = _getSgPayload(executionInfos);
+
+        if (crossInfo.isNative) {
+            stargatePoolManager.swap{value: msg.value}(
+                crossInfo.currency,
+                crossInfo.toChainId,
+                payable(msg.sender),
+                crossInfo.amount,
+                crossInfo.from,
+                crossInfo.to,
+                payload
+            );
+        } else {
+            stargatePoolManager.swapETH{value: msg.value}(
+                crossInfo.toChainId,
+                payable(msg.sender),
+                crossInfo.amount,
+                crossInfo.to,
+                payload
+            );
+        }
     }
 
-    function _executeInternal(ExecutionInfo calldata executionInfo) internal {
+    function _executeInternal(ExecutionInfo memory executionInfo) internal {
         address module = executionInfo.module;
 
         // Ensure the target is a contract
@@ -184,5 +256,15 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
         uint256 _price,         // the qty of local _token contract tokens  
         bytes memory _payload
     ) external override {
+        ExecutionInfo[] memory executionInfos = abi.decode(_payload, (ExecutionInfo[]));
+        
+        uint256 length = executionInfos.length;
+        for (uint256 i = 0; i < length; ) {
+            _executeInternal(executionInfos[i]);
+
+            unchecked {
+                ++i;
+            }
+        }
     }
 }
