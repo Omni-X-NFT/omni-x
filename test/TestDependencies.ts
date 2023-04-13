@@ -135,7 +135,7 @@ export const deploy = async (owner: SignerWithAddress, lzChainId: number) => {
   chain.router = await deployContract("ExchangeRouter", owner, [chain.layerZeroEndpoint.address]) as ExchangeRouter;
   chain.seaportModule = await deployContract("SeaportModule", owner, [owner.address, chain.router.address]) as SeaportModule;
   await (await chain.seaportModule.setExchange(chain.seaport.address)).wait();
-
+  await (await chain.router.setSeaportModule(chain.seaportModule.address)).wait();
   return chain
 }
 
@@ -222,6 +222,9 @@ export const prepareStargate = async (chain: Chain, poolId: number, owner: Signe
   // save stargate router address
   chain.stargateRouter = stargateRouter
   chain.stargateBridge = stargateBridge
+
+  
+  await (await chain.router.setStargatePoolManager(chain.stargatePoolManager.address)).wait();
 }
 
 export const setupChainPath = async (chain: Chain, dstChainId: number, srcPoolId: number, dstPoolId: number, owner: SignerWithAddress) => {

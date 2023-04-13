@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {NonblockingLzApp} from "../lzApp/NonblockingLzApp.sol";
 import {IExchangeRouter} from "../interfaces/IExchangeRouter.sol";
 import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
@@ -54,6 +55,8 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
     }
 
     IStargatePoolManager public stargatePoolManager;
+    address public seaportModule;
+    address public WETH;
 
     /**
      * receive fallback
@@ -70,6 +73,14 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
     */
     function setStargatePoolManager(address manager) external onlyOwner {
         stargatePoolManager = IStargatePoolManager(manager);
+    }
+
+    function setSeaportModule(address module) external onlyOwner {
+        seaportModule = module;
+    }
+
+    function setWETH(address weth) external onlyOwner {
+        WETH = weth;
     }
 
     /**
@@ -182,7 +193,7 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
 
         bytes memory payload = _getSgPayload(executionInfos);
 
-        if (crossInfo.isNative) {
+        if (!crossInfo.isNative) {
             stargatePoolManager.swap{value: msg.value}(
                 crossInfo.currency,
                 crossInfo.toChainId,
@@ -252,16 +263,22 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
         uint16 ,                // the remote chainId sending the tokens
         bytes memory,           // the remote Bridge address
         uint256,                  
-        address,                // the token contract on the local chain
+        address token,                // the token contract on the local chain
         uint256 _price,         // the qty of local _token contract tokens  
         bytes memory _payload
     ) external override {
         ExecutionInfo[] memory executionInfos = abi.decode(_payload, (ExecutionInfo[]));
         
-        uint256 length = executionInfos.length;
-        for (uint256 i = 0; i < length; ) {
-            _executeInternal(executionInfos[i]);
+        // transfer funds to seaport module
+        if (token == address(0) || token == WETH) {
+            payable(seaportModule).transfer(_price);
+        } else {
+            IERC20(token).transfer(seaportModule, _price);
+        }
 
+        uint256 length = executionInfos.length;
+        for (uint256 i = 0; i < length; ) {    
+            _executeInternal(executionInfos[i]);
             unchecked {
                 ++i;
             }

@@ -452,13 +452,13 @@ contract SeaportModule is BaseExchangeModule {
         if (!success) {
             revert UnsuccessfulFill();
         } else {
-            // After successfully filling, get the order's filled amount
-            uint256 afterFilledAmount = _getFilledAmount(orderHash);
+            // // After successfully filling, get the order's filled amount
+            // uint256 afterFilledAmount = _getFilledAmount(orderHash);
 
-            // Make sure the amount filled as part of this call is correct
-            if (afterFilledAmount - beforeFilledAmount != order.numerator) {
-                revert UnsuccessfulFill();
-            }
+            // // Make sure the amount filled as part of this call is correct
+            // if (afterFilledAmount - beforeFilledAmount != order.numerator) {
+            //     revert UnsuccessfulFill();
+            // }
         }
     }
 

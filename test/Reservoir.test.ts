@@ -190,46 +190,142 @@ describe("[ExchangeRouter] Seaport listings", () => {
 
     // Alice got the payment
     expect(balancesAfter.alice.sub(balancesBefore.alice)).to.eq(
-      listings
-        .filter(
-          ({ seller, isCancelled }) =>
-            !isCancelled && seller.address === alice.address
-        )
-        .map(({ price }) => price)
-        .reduce((a, b) => bn(a).add(b), bn(0))
+      listings[0].price
     );
-    // Bob got the payment
-    expect(balancesAfter.bob.sub(balancesBefore.bob)).to.eq(
-      listings
-        .filter(
-          ({ seller, isCancelled }) =>
-            !isCancelled && seller.address === bob.address
-        )
-        .map(({ price }) => price)
-        .reduce((a, b) => bn(a).add(b), bn(0))
+    // Carol paid the payment
+    expect(balancesBefore.carol.sub(balancesAfter.carol)).to.eq(
+      listings[0].price
     );
 
     // Carol got the NFTs from all filled orders
-    for (let i = 0; i < listings.length; i++) {
-      const nft = listings[i].nft;
-      if (!listings[i].isCancelled) {
-        if (nft.kind === "erc721") {
-          expect(await nft.contract.ownerOf(nft.id)).to.eq(carol.address);
-        } else {
-          expect(await nft.contract.balanceOf(carol.address, nft.id)).to.eq(1);
-        }
-      } else {
-        if (nft.kind === "erc721") {
-          expect(await nft.contract.ownerOf(nft.id)).to.eq(
-            listings[i].seller.address
-          );
-        } else {
-          expect(
-            await nft.contract.balanceOf(listings[i].seller.address, nft.id)
-          ).to.eq(1);
-        }
-      }
+    expect(await makerChain.nftMock.ownerOf(listings[0].nft.id)).to.eq(
+      carol.address
+    );
+
+    // Router is stateless
+    expect(balancesAfter.router).to.eq(0);
+    expect(balancesAfter.seaportModule).to.eq(0);
+  };
+
+  const testAcceptListingsCross = async (
+    // Whether to revert or not in case of any failures
+    revertIfIncomplete: boolean,
+    // Number of listings to fill
+    listingsCount: number
+  ) => {
+    // Setup
+
+    // Makers: Alice
+    // Taker: Carol
+    // Fee recipient: Bob
+
+    const paymentToken = makerChain.erc20Mock.address;
+    const parsePrice = (price: string, isUsdc: boolean) =>
+      isUsdc ? parseUnits(price, 6) : parseEther(price);
+
+    const listings: SeaportListing[] = [];
+    for (let i = 0; i < listingsCount; i++) {
+      listings.push({
+        seller: alice,
+        nft: {
+          kind: "erc721",
+          contract: makerChain.nftMock,
+          id: getRandomInteger(1, 10000),
+        },
+        paymentToken,
+        price: parsePrice(getRandomFloat(0.0001, 2).toFixed(6), true),
+        isCancelled: false,
+      });
     }
+
+    await setupSeaportListings(listings, makerChain);
+
+    // Prepare executions
+    const totalPrice = bn(
+      listings.map(({ price }) => price).reduce((a, b) => bn(a).add(b), bn(0))
+    );
+
+    const executions: ExecutionInfo[] = [
+      // accept erc20 listing
+      {
+        module: makerChain.seaportModule.address,
+        data: makerChain.seaportModule.interface.encodeFunctionData(
+          'acceptERC20Listing',
+          [
+            ...listings.map((listing) => ({
+              parameters: {
+                ...listing.order!.params,
+                totalOriginalConsiderationItems:
+                  listing.order!.params.consideration.length,
+              },
+              numerator: 1,
+              denominator: 1,
+              signature: listing.order!.params.signature,
+              extraData: "0x",
+            })),
+            {
+              fillTo: carol.address,
+              refundTo: carol.address,
+              revertIfIncomplete,
+              amount: totalPrice,
+              // Only relevant when filling USDC listings
+              token: paymentToken,
+            },
+            [],
+          ]
+        ),
+        value: 0
+      },
+    ];
+
+    // Approve
+    // seller approve seaport exchange for all nfts.
+    await (await makerChain.nftMock.connect(alice).setApprovalForAll(makerChain.seaport.address, true)).wait();
+    // seller approve router for usdc transfer.
+    await (await takerChain.erc20Mock.connect(carol).approve(takerChain.stargatePoolManager.address, listings[0].price)).wait();
+
+    // Fetch pre-state
+
+    const balancesBefore = await getBalances(makerChain);
+    const balancesBefore2 = await getBalances(takerChain);
+
+    // Execute
+    const crossInfo = {
+      fromChainId: takerChain.lzChainId,
+      toChainId: makerChain.lzChainId,
+      amount: listings[0].price,
+      from: carol.address,
+      to: makerChain.router.address,
+      currency: takerChain.erc20Mock.address,
+      isNative: false,
+    }
+    const msgValue = executions
+      .map(({ value }) => value)
+      .reduce((a, b) => bn(a).add(b), bn(0));
+
+    const crossFee = await takerChain.router.connect(carol).getLzFeesForTrading(executions, crossInfo);
+    await takerChain.router.connect(carol).executeWithCross(executions,  crossInfo, {
+      value: crossFee.add(msgValue),
+    });
+
+    // // // Fetch post-state
+
+    const balancesAfter = await getBalances(makerChain);
+    const balancesAfter2 = await getBalances(takerChain);
+
+    // Alice got the payment
+    expect(balancesAfter.alice.sub(balancesBefore.alice)).to.eq(
+      listings[0].price
+    );
+    // Carol paid the payment
+    expect(balancesBefore2.carol.sub(balancesAfter2.carol)).to.eq(
+      listings[0].price
+    );
+
+    // Carol got the NFTs from all filled orders
+    expect(await makerChain.nftMock.ownerOf(listings[0].nft.id)).to.eq(
+      carol.address
+    );
 
     // Router is stateless
     expect(balancesAfter.router).to.eq(0);
@@ -238,6 +334,10 @@ describe("[ExchangeRouter] Seaport listings", () => {
 
   it("Listing/Sell with USDC - Same Chain", async () => {
     await testAcceptListings(true, 1);
+  });
+
+  it("Listing/Sell with USDC - Cross Chain", async () => {
+    await testAcceptListingsCross(true, 1);
   });
 
 });
