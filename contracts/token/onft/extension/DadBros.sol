@@ -73,7 +73,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     string private hiddenMetadataURI;
 
     bool public _saleStarted;
-    bool revealed;
+    bool public revealed;
 
 
     mapping (uint8 => mapping (address => uint16)) public minted;
@@ -195,6 +195,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     /// @return new next spot price (in wei)
     /// @return total price (in wei)
     function getPriceInfo(uint8 mintType, uint16 amount) public view returns (uint128, uint256) {
+        require(mintType == MINT_FRIENDS_ID || mintType == MINT_PUBLIC_ID, "DadBros: Invalid mint type");
         OmniLinearCurve.OmniCurve memory curve;
         if (mintType == MINT_FRIENDS_ID) {
             
