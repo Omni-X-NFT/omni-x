@@ -36,7 +36,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     uint128 public constant MIN_PUBLIC_PRICE = 0.01 ether;
     uint128 public constant MIN_FRIENDS_PRICE = 0.005 ether;
 
-
+   
     uint128 public constant PRICE_DELTA_PUBLIC = 0.0001e18;
     uint128 public constant PRICE_DECAY_PUBLIC= 0.00009e18;
     uint128 public constant PRICE_DELTA_FRIENDS = 0.00015e18;
@@ -56,7 +56,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     /*//////////////////////////////////////////////////////////////
                              MINTING STATE
     //////////////////////////////////////////////////////////////*/
-    uint128 public spotPriceFriends = 0.000995 ether;
+    uint128 public spotPriceFriends = 0.00995 ether;
     uint128 public spotPricePublic = 0.0199 ether;
     uint256 public lastUpdateFriends = 0;
     uint256 public lastUpdatePublic = 0;
