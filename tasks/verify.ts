@@ -12,7 +12,7 @@ type ENDPOINT_TYPE = {
 const ENDPOINTS: ENDPOINT_TYPE = LZ_ENDPOINTS
 
 const environments: any = {
-  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis'],
+  mainnet: ['ethereum'],
   testnet: ['goerli']
 }
 
@@ -25,7 +25,6 @@ export const verifyAll = async function (taskArgs: any, hre: any) {
   if (!taskArgs.tags) {
     console.log(`Invalid tags name: ${taskArgs.tags}`)
   }
-
   await Promise.all(
     networks.map(async (network: string) => {
       // @ts-ignore

@@ -37,10 +37,10 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     uint128 public constant MIN_FRIENDS_PRICE = 0.005 ether;
 
 
-    uint128 public constant PRICE_DELTA_PUBLIC = 0.0005e18;
-    uint128 public constant PRICE_DECAY_PUBLIC= 0.0005e18;
-    uint128 public constant PRICE_DELTA_FRIENDS = 0.002e18;
-    uint128 public constant PRICE_DECAY_FRIENDS= 0.001e18;
+    uint128 public constant PRICE_DELTA_PUBLIC = 0.0001e18;
+    uint128 public constant PRICE_DECAY_PUBLIC= 0.00009e18;
+    uint128 public constant PRICE_DELTA_FRIENDS = 0.00015e18;
+    uint128 public constant PRICE_DECAY_FRIENDS= 0.00009e18;
 
 
     uint16 public friendsAndPublicSupply;
@@ -56,8 +56,8 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     /*//////////////////////////////////////////////////////////////
                              MINTING STATE
     //////////////////////////////////////////////////////////////*/
-    uint128 public spotPriceFriends = 0.0095 ether;
-    uint128 public spotPricePublic = 0.0195 ether;
+    uint128 public spotPriceFriends = 0.000995 ether;
+    uint128 public spotPricePublic = 0.0199 ether;
     uint256 public lastUpdateFriends = 0;
     uint256 public lastUpdatePublic = 0;
 
@@ -220,7 +220,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
         if (mintType == MINT_PUBLIC_ID && amount >= 5) {
             if (amount == 20){
                 amount = 19;
-            }
+            }   
             totalPrice = totalPrice - ((totalPrice * (amount / uint16(5) ) ) / 10);
         }
         return (newSpotPrice, totalPrice);
@@ -268,7 +268,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
         // tax: 100% = 10000
         uint _taxFee = _balance * tax / 10000;
         require(payable(beneficiary).send(_balance - _taxFee));
-        require(payable(taxRecipient).send(_taxFee));
+        require(payable(taxRecipient).send(_taxFee));   
     }
 
     function tokenURI(uint tokenId) public view override(ERC721) returns (string memory) {

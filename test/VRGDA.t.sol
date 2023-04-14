@@ -26,7 +26,7 @@ contract VRGDATest is Test {
         owner = makeAddr("owner");
         vm.startPrank(owner);
         dadBros = new DadBros(NAME, SYMBOL, layerZeroEndpoint, TOKEN_URI, TOKEN_URI, 500, owner);
-        vm.deal(owner, 100  0 ether);
+        vm.deal(owner, 1000 ether);
         dadBros.setMerkleRoot(bytes32("free"), bytes32("0x64ca47771b3"));
         dadBros.setMerkleRoot(bytes32("friends"), bytes32("0x64ca47771b3"));
         dadBros.flipSaleStarted();
@@ -90,11 +90,18 @@ contract VRGDATest is Test {
 
     // }
        function testPricingPublic100() public {
+        
 
 
         uint128 newSpotPrice;
         uint256 totalPrice;
-
+        vm.startPrank(owner);
+        (newSpotPrice, totalPrice) = dadBros.getPriceInfo(3, 1);
+        dadBros.mint{value: totalPrice }(1, 3, merkleRoots, 0);
+        vm.warp(dadBros.lastUpdatePublic() + 144);
+        vm.stopPrank();
+        console.logString('first mint');
+        console.logUint(totalPrice);
 
 
         for (uint i = 0; i < 100; i++) {
@@ -110,7 +117,7 @@ contract VRGDATest is Test {
         console.logString("Total price of next token");
         console.logUint(newSpotPrice);
 
-        assertEq(dadBros.balanceOf(owner), 100);
+        assertEq(dadBros.balanceOf(owner), 101);
        
 
     }

@@ -5,7 +5,7 @@ import { deployContract } from './shared'
 import DadBroArgs from '../constants/DadBroArgs.json'
 
 const environments: any = {
-  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis', 'zksync'],
+  mainnet: ['ethereum'],
   testnet: ['goerli']
 }
 
