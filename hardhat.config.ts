@@ -68,7 +68,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     moonbeam: {
-      url: process.env.MOONBEAM_RPC_KEY !== undefined ? process.env.MOONBEAM_RPC_KEY : 'https://rpc.api.moonbeam.network',
+      url: process.env.MOONBEAM_RPC_KEY !== undefined ? process.env.MOONBEAM_RPC_KEY : 'https://moonbeam.public.blastapi.io',
       chainId: 1284,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
