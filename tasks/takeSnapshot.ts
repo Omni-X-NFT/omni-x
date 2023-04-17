@@ -394,16 +394,13 @@ export const addSTG = async(taskArgs: any, hre: any) => {
 
 
 export const changeAmounts = async(taskArgs: any, hre: any) => {
-    const data = await fs.promises.readFile("constants/largeElementsSnapshot.json", "utf8")
+    const data = await fs.promises.readFile("constants/DadBrosFriendsFinalSnapshot.json", "utf8")
     const jsonData = JSON.parse(data)
-    let count = 0
+    console.log(jsonData)
     for (const item of jsonData) {
-        if (item.count < 3) {
-            item.count = 3
-            count += 1
-        }
+        item.count = 10
     }
-
-    await fs.promises.writeFile("constants/largeElementsSnapshot.json", JSON.stringify(jsonData, null, 2))
+    
+    await fs.promises.writeFile("constants/DadBrosFriendsFinalSnapshot.json", JSON.stringify(jsonData, null, 2))
 
 }
