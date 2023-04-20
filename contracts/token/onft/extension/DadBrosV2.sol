@@ -4,14 +4,15 @@ pragma solidity ^0.8;
 import "../ONFT721.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "../../../libraries/OmniLinearCurve.sol";
 import {toDaysWadUnsafe} from "solmate/src/utils/SignedWadMath.sol";
 
 /// @title Interface of the AdvancedONFT standard
 /// @author exakoss
 /// @notice this implementation supports: batch mint, payable public and private mint, reveal of metadata and EIP-2981 on-chain royalties
-contract DadBros is  ONFT721, ReentrancyGuard {
+contract DadBrosV2 is  ERC721, ReentrancyGuard, Ownable {
     using Strings for uint;
     using OmniLinearCurve for OmniLinearCurve.OmniCurve;
 
@@ -19,48 +20,41 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     uint public tax = 1000; // 100% = 10000
 
 
-    uint16 public nextMintId;
+    uint16 public nextMintId = 1318;
 
     /*//////////////////////////////////////////////////////////////
                             MINT CONSTANTS
     //////////////////////////////////////////////////////////////*/
 
-    uint16 public constant MAX_MINT_ID_FREE = 700;
     uint16 public constant MAX_MINT_ID_TOTAL = 3000;
-    uint16 public constant MAX_MINT_ID_FRIENDS = 2300;
-    uint8 public constant MAX_TOKENS_PER_MINT_FREE = 4;
+    uint16 public maxClaimId = 1318;
     uint8 public constant MAX_TOKENS_PER_MINT_FRIENDS = 5;
     uint8 public constant MAX_TOKENS_PER_MINT_PUBLIC = 20;
    
 
-    uint128 public constant MIN_PUBLIC_PRICE = 0.01 ether;
-    uint128 public constant MIN_FRIENDS_PRICE = 0.005 ether;
-    uint128 public MAX_PRICE_FRIENDS  = 0.02 ether;
-    uint128 public MAX_PRICE_PUBLIC  = 10 ether;
+    uint128 public MIN_PUBLIC_PRICE = 0.018 ether;
+    uint128 public MAX_PRICE_PUBLIC  = 0.03 ether;
+    uint128 public FLAT_PRICE_FRIENDS = 0.01 ether;
 
    
-    uint128 public constant PRICE_DELTA_PUBLIC = 0.0001e18;
-    uint128 public constant PRICE_DECAY_PUBLIC= 0.00009e18;
-    uint128 public constant PRICE_DELTA_FRIENDS = 0.00015e18;
-    uint128 public constant PRICE_DECAY_FRIENDS= 0.00009e18;
+    uint128 public PRICE_DELTA_PUBLIC = 0.00008e18;
+    uint128 public PRICE_DECAY_PUBLIC= 0.002e18;
+
 
 
     uint16 public friendsAndPublicSupply;
-    uint16 public freeSupply;
+    uint16 public claimSupply;
 
    /*//////////////////////////////////////////////////////////////
                             MINT TYPES
     //////////////////////////////////////////////////////////////*/
-    uint8 private constant MINT_FREE_ID = 1;
     uint8 private constant MINT_FRIENDS_ID = 2;
     uint8 private constant MINT_PUBLIC_ID = 3;
 
     /*//////////////////////////////////////////////////////////////
                              MINTING STATE
     //////////////////////////////////////////////////////////////*/
-    uint128 public spotPriceFriends = 0.00995 ether;
-    uint128 public spotPricePublic = 0.0199 ether;
-    uint256 public lastUpdateFriends = 0;
+    uint128 public spotPricePublic = 0.01992 ether;
     uint256 public lastUpdatePublic = 0;
 
 
@@ -68,8 +62,9 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     address payable beneficiary;
     address payable taxRecipient;
 
-    bytes32 public merkleRootFree;
+
     bytes32 public merkleRootFriends;
+    bytes32 public merkleRootClaim;
 
     string private baseURI;
     string private hiddenMetadataURI;
@@ -79,6 +74,8 @@ contract DadBros is  ONFT721, ReentrancyGuard {
 
 
     mapping (uint8 => mapping (address => uint16)) public minted;
+    mapping (address => bool) public claimed;
+
 
     modifier onlyBeneficiaryAndOwner() {
         require(msg.sender == beneficiary || msg.sender == owner() , "DadBros: caller is not the beneficiary");
@@ -88,7 +85,6 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     /// @notice Constructor for the AdvancedONFT
     /// @param _name the name of the token
     /// @param _symbol the token symbol
-    /// @param _layerZeroEndpoint handles message transmission across chains
     /// @param _baseTokenURI the base URI for computing the tokenURI
     /// @param _hiddenURI the URI for computing the hiddenMetadataUri
     /// @param _tax the tax percentage (100% = 10000)
@@ -96,13 +92,12 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     constructor(
         string memory _name,
         string memory _symbol,
-        address _layerZeroEndpoint,
         string memory _baseTokenURI,
         string memory _hiddenURI,
         uint _tax,
         address _taxRecipient
     ) 
-    ONFT721(_name, _symbol, _layerZeroEndpoint, 200000) 
+    ERC721(_name, _symbol)
     {
 
         beneficiary = payable(msg.sender);
@@ -123,45 +118,34 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     
 
     /// @notice Mint functions for all 3 mint tiers         
-    /// @param _nbTokens the number of tokens to mint (Free: 1-4 Friends: 1-5 Public: 1-20)
-    /// @param mintType the type of mint (1: Free 2: Friends 3: Public)
+    /// @param _nbTokens the number of tokens to mint (Friends: 1-5 Public: 1-20)
+    /// @param mintType the type of mint (2: Friends 3: Public)
     /// @param _merkleProof the merkle proof
     /// @param wlAllocationAmt the amount of tokens allocated to the address
     function mint(uint16 _nbTokens, uint8 mintType, bytes32[] calldata _merkleProof, uint256 wlAllocationAmt) external payable {
         require(_saleStarted == true, "DadBros: Sale has not started yet!");
         require(_nbTokens > 0, "DadBros: Cannot mint 0 tokens");
         require(_nbTokens + nextMintId <= MAX_MINT_ID_TOTAL, "DadBros: Max supply reached");
-        require(mintType == MINT_FREE_ID || mintType == MINT_FRIENDS_ID || mintType == MINT_PUBLIC_ID, "DadBros: Invalid mint type");
+        require(mintType == MINT_FRIENDS_ID || mintType == MINT_PUBLIC_ID, "DadBros: Invalid mint type");
         uint currMinted = minted[mintType][msg.sender];
 
         uint128 newSpotPrice;
         uint256 totalPrice;
 
-        if (mintType == MINT_FREE_ID) {
-            
-            require(freeSupply + _nbTokens <= MAX_MINT_ID_FREE, "DadBros: Max supply reached");
-            require(currMinted + _nbTokens <= wlAllocationAmt, "DadBros: Max tokens per address reached");
-            require(_nbTokens <= MAX_TOKENS_PER_MINT_FREE, "DadBros: Max tokens per mint reached");
-            {
-                bool isWl = MerkleProof.verify(_merkleProof, merkleRootFree, keccak256(abi.encodePacked(_msgSender(), wlAllocationAmt)));
-                require(isWl == true, "DadBros: Invalid Merkle Proof");
-            }
+    
 
-        } else if (mintType == MINT_FRIENDS_ID) {
+        if (mintType == MINT_FRIENDS_ID) {
             require(currMinted + _nbTokens <= wlAllocationAmt, "DadBros: Max tokens per address reached");
-            require(friendsAndPublicSupply + _nbTokens <= MAX_MINT_ID_FRIENDS, "DadBros: Max supply reached");
             require(_nbTokens <= MAX_TOKENS_PER_MINT_FRIENDS, "DadBros: Max tokens per mint reached");
             {
                 bool isWl = MerkleProof.verify(_merkleProof, merkleRootFriends, keccak256(abi.encodePacked(_msgSender(), wlAllocationAmt)));
                 require(isWl == true, "DadBros: Invalid Merkle Proof");
             }
 
-            (newSpotPrice, totalPrice) = getPriceInfo(MINT_FRIENDS_ID, _nbTokens);
-            require(msg.value >= totalPrice, "DadBros: Not enough ETH");
+            require(msg.value >= FLAT_PRICE_FRIENDS * uint128(_nbTokens), "DadBros: Not enough ETH");
 
         } else if (mintType == MINT_PUBLIC_ID) {
             require(_nbTokens <= MAX_TOKENS_PER_MINT_PUBLIC, "DadBros: Max tokens per mint reached");
-            require(friendsAndPublicSupply + _nbTokens <= MAX_MINT_ID_FRIENDS, "DadBros: Max supply reached");
 
 
             (newSpotPrice, totalPrice) = getPriceInfo(MINT_PUBLIC_ID, _nbTokens);
@@ -178,37 +162,45 @@ contract DadBros is  ONFT721, ReentrancyGuard {
 
         minted[mintType][msg.sender] += _nbTokens;
 
-        if (mintType == MINT_FRIENDS_ID) {
-            spotPriceFriends = newSpotPrice;
-            lastUpdateFriends = block.timestamp;
-            friendsAndPublicSupply += _nbTokens;
-        } else if (mintType == MINT_PUBLIC_ID) {
+    
+        if (mintType == MINT_PUBLIC_ID) {
             spotPricePublic = newSpotPrice;
             lastUpdatePublic = block.timestamp;
-            friendsAndPublicSupply += _nbTokens;
-        } else {
-            freeSupply += _nbTokens;
         }
-    
+        friendsAndPublicSupply += _nbTokens;
     }
 
-    /// @param mintType  (1: Free 2: Friends 3: Public)
-    /// @param amount (1-4 for Free, 1-5 for Friends, 1-20 for Public)
+    function claim(uint256[] memory tokenIds, address to, bytes32[] calldata _merkleProof) external {
+        require(_saleStarted == true, "DadBros: claim has not started yet!");
+        require(claimed[to] == false, "DadBros: Already claimed");
+        require(tokenIds.length > 0, "DadBros: Cannot claim 0 tokens");
+        require(tokenIds.length + claimSupply <= maxClaimId, "DadBros: Max claim supply reached");
+
+
+        {
+            bool isWl = MerkleProof.verify(_merkleProof, merkleRootClaim, keccak256(abi.encodePacked(to, tokenIds)));
+            require(isWl == true, "DadBros: Invalid Merkle Proof");
+        }
+
+        for (uint16 i; i < tokenIds.length; i++) {
+            _mint(to, tokenIds[i]);
+        }
+        
+        claimed[to] = true;
+        claimSupply += uint16(tokenIds.length);
+
+    }
+
+    /// @param mintType  (2: Friends 3: Public)
+    /// @param amount (1-5 for Friends, 1-20 for Public)
     /// @return new next spot price (in wei)
     /// @return total price (in wei)
     function getPriceInfo(uint8 mintType, uint16 amount) public view returns (uint128, uint256) {
-        require(mintType == MINT_FRIENDS_ID || mintType == MINT_PUBLIC_ID, "DadBros: Invalid mint type");
+        require( mintType == MINT_FRIENDS_ID || mintType == MINT_PUBLIC_ID, "DadBros: Invalid mint type");
         OmniLinearCurve.OmniCurve memory curve;
+        
         if (mintType == MINT_FRIENDS_ID) {
-            
-            curve = OmniLinearCurve.OmniCurve({
-                lastUpdate: lastUpdateFriends == 0 ? block.timestamp : lastUpdateFriends,
-                spotPrice: spotPriceFriends,
-                priceDelta: PRICE_DELTA_FRIENDS,
-                priceDecay: PRICE_DECAY_FRIENDS,
-                minPrice: MIN_FRIENDS_PRICE,
-                maxPrice: MAX_PRICE_FRIENDS
-            });
+            return (FLAT_PRICE_FRIENDS, FLAT_PRICE_FRIENDS * uint128(amount));
         } else if (mintType == MINT_PUBLIC_ID) {
             curve = OmniLinearCurve.OmniCurve({
                 lastUpdate: lastUpdatePublic == 0 ? block.timestamp : lastUpdatePublic,
@@ -232,10 +224,11 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     }
 
     function setMerkleRoot(bytes32 tier, bytes32 _merkleRoot) external onlyBeneficiaryAndOwner {
-        if (tier == "free") {
-            merkleRootFree = _merkleRoot;
-        } else if (tier == "friends") {
+
+        if (tier == "friends") {
             merkleRootFriends = _merkleRoot;
+        } else if (tier == "claim") {
+            merkleRootClaim = _merkleRoot;
         }
     }
 
@@ -257,7 +250,7 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     }
 
     function flipSaleStarted() external onlyBeneficiaryAndOwner {
-        require(merkleRootFree != bytes32(0) && merkleRootFriends != bytes32(0), "DadBros: Merkle root not set");
+        require(merkleRootClaim != bytes32(0) && merkleRootFriends != bytes32(0), "DadBros: Merkle root not set");
         _saleStarted = !_saleStarted;
     }
 
@@ -265,6 +258,35 @@ contract DadBros is  ONFT721, ReentrancyGuard {
     function _baseURI() internal view override returns (string memory) {
         return baseURI;
     }
+
+    function setMaxClaimId(uint16 _maxClaimId) external onlyBeneficiaryAndOwner {
+        maxClaimId = _maxClaimId;
+    }
+
+    function setPriceParams(bytes32 _param, uint128 _value) external onlyBeneficiaryAndOwner {
+
+        if (_param == "PRICE_DELTA_PUBLIC") {
+            PRICE_DELTA_PUBLIC = _value;
+        } else if (_param == "PRICE_DECAY_PUBLIC") {
+            PRICE_DECAY_PUBLIC = _value;
+        } else if (_param == "MIN_PUBLIC_PRICE") {
+            MIN_PUBLIC_PRICE = _value;
+        } else if (_param == "spotPricePublic"){
+            spotPricePublic = _value;
+        } else if (_param == "MAX_PRICE_PUBLIC"){
+            MAX_PRICE_PUBLIC = _value;
+        } else if (_param == "FLAT_PRICE_FRIENDS"){
+            FLAT_PRICE_FRIENDS = _value;
+        } else {
+            revert("DadBros: Invalid param");
+        }
+    }
+    
+    function setNextMintId(uint16 _nextMintId) external onlyBeneficiaryAndOwner {
+        nextMintId = _nextMintId;
+    }
+
+
 
     function withdraw() public virtual onlyBeneficiaryAndOwner {
         require(beneficiary != address(0), "DadBros: Beneficiary not set!");

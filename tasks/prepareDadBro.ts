@@ -1,9 +1,9 @@
 
 import { loadAbi, createContractByName } from './shared'
 import shell from 'shelljs'
-import DadBroArgs from '../constants/DadBroArgs.json'
+import DadBroArgs from '../constants/DadBroV2Args.json'
 
-const DadBrosAbi = loadAbi('../artifacts/contracts/token/onft/extension/DadBros.sol/DadBros.json')
+const DadBrosAbi = loadAbi('../artifacts/contracts/token/onft/extension/DadBrosV2.sol/DadBrosV2.json')
 
 const tx = async (tx1: any) => {
   await tx1.wait()
@@ -19,10 +19,10 @@ export const prepareDadBro = async function (taskArgs: any, hre: any) {
   const [owner] = await ethers.getSigners()
   const args = (DadBroArgs as any)[network.name]
 
-  const DadBros = createContractByName(hre, 'DadBros', DadBrosAbi().abi, owner)
-  // await tx(await DadBros.setMerkleRoot(hre.ethers.utils.formatBytes32String("free"), args.merkleRootFree))
+  const DadBros = createContractByName(hre, 'DadBrosV2', DadBrosAbi().abi, owner)
+  await tx(await DadBros.setMerkleRoot(hre.ethers.utils.formatBytes32String("claim"), args.merkleRootClaim))
   await tx(await DadBros.setMerkleRoot(hre.ethers.utils.formatBytes32String("friends"), args.merkleRootFriends))
-  // await tx(await DadBros.flipSaleStarted())
-  // await tx(await DadBros.setBeneficiary(args.beneficiary))
+  await tx(await DadBros.flipSaleStarted())
+  await tx(await DadBros.setBeneficiary("0x3D4bDd0Daa396FA0b8B488FA7faF9050cb944239"))
   console.log(`✅ DadBros prepared on ${network.name}`)
 }

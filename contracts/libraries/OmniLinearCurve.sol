@@ -21,6 +21,8 @@ library OmniLinearCurve {
         uint128 priceDecay;
         /// @notice min price for minting radbros.
         uint128 minPrice;
+
+        uint128 maxPrice;
     }
 
     /// @notice get the purchase price for a given number of items on a bonding curve.
@@ -36,7 +38,7 @@ library OmniLinearCurve {
             return (curve.spotPrice, curve.spotPrice * numItems);
         }
 
-        uint256 decay = (curve.priceDecay * (block.timestamp - curve.lastUpdate)) / 14400;
+        uint256 decay = (curve.priceDecay * (block.timestamp - curve.lastUpdate)) / 600;
 
         // For a linear curve, the spot price increases by delta for each item bought, and decreases for each day since the last update.
         uint256 newSpotPrice_ = curve.spotPrice + curve.priceDelta * numItems;
@@ -47,7 +49,9 @@ library OmniLinearCurve {
 
         if (newSpotPrice_ < curve.minPrice) {
             newSpotPrice_ = curve.minPrice;
-        } 
+        } else if (newSpotPrice_ > curve.maxPrice) {
+            newSpotPrice_ = curve.maxPrice;
+        }
 
         // For an exponential curve, the spot price is multiplied by delta for each item bought
         require(newSpotPrice_ <= type(uint128).max, "SPOT_PRICE_OVERFLOW");

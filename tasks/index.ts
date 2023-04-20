@@ -11,7 +11,7 @@ import { deployAdvancedONFT721, deployAllAdvancedONFT721 } from './deployAdvance
 import { prepareAdvancedONFT, prepareAllAdvancedONFT } from './prepareAdvancedONFT'
 import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './deployAdvancedONFT721Gasless'
 import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
-import { MerkleGen } from './merkle'
+import { MerkleGen, MerkleGenWithIds } from './merkle'
 import { mintGasless721 } from './mintGasless'
 import { sendBatch721 } from './sendBatch721'
 import { set721Config } from './set721Config'
@@ -171,3 +171,6 @@ task('deployAllDadBros', 'deployAllDadBros')
 task('prepareDadBro', 'prepare dad bros')
   .setAction(prepareDadBro)
 
+task('merkleGenWithIds', 'MerkleGenWithIds')
+  .addParam('adr', 'minter address')
+  .setAction(MerkleGenWithIds)
