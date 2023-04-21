@@ -11,6 +11,7 @@ import { deployAdvancedONFT721, deployAllAdvancedONFT721 } from './deployAdvance
 import { prepareAdvancedONFT, prepareAllAdvancedONFT } from './prepareAdvancedONFT'
 import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './deployAdvancedONFT721Gasless'
 import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
+import { deployReservoirRouter } from './deployReservoirRouter'
 
 
 task(
@@ -112,3 +113,7 @@ task('prepareAdvancedONFTGasless', 'prepareAdvancedONFTGasless')
 task('prepareAllAdvancedONFTGasless', 'prepareAllAdvancedONFTGasless')
   .addParam('e', 'testnet or mainnet')
   .setAction(prepareAllAdvancedONFTGasless)
+
+task('deployReservoirRouter', 'deployReservoirRouter')
+  .setAction(deployReservoirRouter)
+  

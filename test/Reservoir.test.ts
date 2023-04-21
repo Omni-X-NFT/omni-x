@@ -297,6 +297,7 @@ describe("[ExchangeRouter] Seaport listings", () => {
       from: carol.address,
       to: makerChain.router.address,
       currency: takerChain.erc20Mock.address,
+      allowedModule: makerChain.seaportModule.address,
       isNative: false,
     }
     const msgValue = executions

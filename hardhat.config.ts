@@ -33,7 +33,7 @@ const config: HardhatUserConfig = {
 
   namedAccounts: {
     deployer: {
-      default: process.env.PRIVATE_KEY || 0 // wallet address 0, of the mnemonic in .env
+      default: `privatekey://${process.env.PRIVATE_KEY}`
     }
   },
 

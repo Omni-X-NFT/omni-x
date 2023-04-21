@@ -36,6 +36,7 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
         address from;           // buyer
         address to;             // exchange router address on destination chain
         address currency;       // currency address
+        address allowedModule;  // allowed module to take the funds.
         bool isNative;          // is native eth trading?
     }
 
@@ -55,8 +56,6 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
     }
 
     IStargatePoolManager public stargatePoolManager;
-    address public seaportModule;
-    address public WETH;
 
     /**
      * receive fallback
@@ -73,14 +72,6 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
     */
     function setStargatePoolManager(address manager) external onlyOwner {
         stargatePoolManager = IStargatePoolManager(manager);
-    }
-
-    function setSeaportModule(address module) external onlyOwner {
-        seaportModule = module;
-    }
-
-    function setWETH(address weth) external onlyOwner {
-        WETH = weth;
     }
 
     /**
@@ -145,10 +136,12 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
     * @param executionInfos execution infos
     * @dev this function is used only for makerAskWithTakerBid
      */
-    function _getSgPayload(ExecutionInfo[] calldata executionInfos)
+    function _getSgPayload(address allowedModule, bool isNative, ExecutionInfo[] calldata executionInfos)
         internal pure returns (bytes memory)
     {
         bytes memory payload = abi.encode(
+            allowedModule,
+            isNative,
             executionInfos
         );
 
@@ -170,7 +163,7 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
         if (address(stargatePoolManager) == address(0)) return 0;
         if (!stargatePoolManager.isSwappable(crossInfo.currency, crossInfo.toChainId)) return 0;
 
-        bytes memory payload = _getSgPayload(executionInfos);
+        bytes memory payload = _getSgPayload(crossInfo.allowedModule, crossInfo.isNative, executionInfos);
         (uint256 fee, ) = stargatePoolManager.getSwapFee(crossInfo.toChainId, crossInfo.to, payload);
 
         return fee;
@@ -191,7 +184,7 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
         require (address(stargatePoolManager) != address(0), "ExechangeRouter: stargate pool manager is null");
         require (stargatePoolManager.isSwappable(crossInfo.currency, crossInfo.toChainId), "ExechangeRouter: currency is not swappable");
 
-        bytes memory payload = _getSgPayload(executionInfos);
+        bytes memory payload = _getSgPayload(crossInfo.allowedModule, crossInfo.isNative, executionInfos);
 
         if (!crossInfo.isNative) {
             stargatePoolManager.swap{value: msg.value}(
@@ -204,7 +197,7 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
                 payload
             );
         } else {
-            stargatePoolManager.swapETH{value: msg.value}(
+            stargatePoolManager.swapETH{value: msg.value - crossInfo.amount}(
                 crossInfo.toChainId,
                 payable(msg.sender),
                 crossInfo.amount,
@@ -267,13 +260,15 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
         uint256 _price,         // the qty of local _token contract tokens  
         bytes memory _payload
     ) external override {
-        ExecutionInfo[] memory executionInfos = abi.decode(_payload, (ExecutionInfo[]));
+        (address allowedModule, bool isNative, ExecutionInfo[] memory executionInfos) = abi.decode(_payload, (address, bool, ExecutionInfo[]));
         
-        // transfer funds to seaport module
-        if (token == address(0) || token == WETH) {
-            payable(seaportModule).transfer(_price);
-        } else {
-            IERC20(token).transfer(seaportModule, _price);
+        // transfer funds to allowedModule
+        if (allowedModule != address(0)) {
+            if (isNative) {
+                payable(allowedModule).transfer(_price);
+            } else {
+                IERC20(token).transfer(allowedModule, _price);
+            }
         }
 
         uint256 length = executionInfos.length;

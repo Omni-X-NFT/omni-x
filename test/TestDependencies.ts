@@ -135,7 +135,6 @@ export const deploy = async (owner: SignerWithAddress, lzChainId: number) => {
   chain.router = await deployContract("ExchangeRouter", owner, [chain.layerZeroEndpoint.address]) as ExchangeRouter;
   chain.seaportModule = await deployContract("SeaportModule", owner, [owner.address, chain.router.address]) as SeaportModule;
   await (await chain.seaportModule.setExchange(chain.seaport.address)).wait();
-  await (await chain.router.setSeaportModule(chain.seaportModule.address)).wait();
   return chain
 }
 
