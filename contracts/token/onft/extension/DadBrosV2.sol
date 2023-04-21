@@ -20,14 +20,14 @@ contract DadBrosV2 is  ERC721, ReentrancyGuard, Ownable {
     uint public tax = 1000; // 100% = 10000
 
 
-    uint16 public nextMintId = 1318;
+    uint16 public nextMintId = 1304;
 
     /*//////////////////////////////////////////////////////////////
                             MINT CONSTANTS
     //////////////////////////////////////////////////////////////*/
 
     uint16 public constant MAX_MINT_ID_TOTAL = 3000;
-    uint16 public maxClaimId = 1318;
+    uint16 public maxClaimId = 1303;
     uint8 public constant MAX_TOKENS_PER_MINT_FRIENDS = 5;
     uint8 public constant MAX_TOKENS_PER_MINT_PUBLIC = 20;
    

@@ -23,6 +23,6 @@ export const prepareDadBro = async function (taskArgs: any, hre: any) {
   await tx(await DadBros.setMerkleRoot(hre.ethers.utils.formatBytes32String("claim"), args.merkleRootClaim))
   await tx(await DadBros.setMerkleRoot(hre.ethers.utils.formatBytes32String("friends"), args.merkleRootFriends))
   await tx(await DadBros.flipSaleStarted())
-  await tx(await DadBros.setBeneficiary("0x3D4bDd0Daa396FA0b8B488FA7faF9050cb944239"))
+  await tx(await DadBros.setBeneficiary(args.beneficiary))
   console.log(`✅ DadBros prepared on ${network.name}`)
 }

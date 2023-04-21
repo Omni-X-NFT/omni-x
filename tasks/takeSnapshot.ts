@@ -234,12 +234,11 @@ export const snap = async (taskArgs: any, hre: any) => {
       
           let dataCursor = firstResponse.cursor
           for (const owner of firstResponse.result) {
-              if (owners[owner.owner_of] !== undefined) {
-                    owners[owner.owner_of].ids.push(owner.token_id)
-              } else {
-                  owners[owner.owner_of] = {
-                  ids: [owner.token_id]
-                  }
+            if (owners[owner.owner_of] !== undefined) {
+            } else {
+                owners[owner.owner_of] = {
+                count: 10
+                }
               }
           }
       do {
@@ -257,10 +256,9 @@ export const snap = async (taskArgs: any, hre: any) => {
    
            for (const owner of response.result) {
                if (owners[owner.owner_of] !== undefined) {
-                   owners[owner.owner_of].ids.push(owner.token_id)
                } else {
                    owners[owner.owner_of] = {
-                   ids: [owner.token_id]
+                   count: 10
                    }
                }
            }
@@ -281,7 +279,7 @@ export const snap = async (taskArgs: any, hre: any) => {
    
     //    if (Object.keys(jsonData).length > 0) {
     //        // Convert the array back to JSON format
-            await fs.promises.writeFile('constants/DadBrosClaimSnapshot.json', JSON.stringify(owners, null, 2))
+        await fs.promises.writeFile('constants/DadBrosClaimNew.json', JSON.stringify(owners, null, 2))
     //    }
            
    
@@ -304,7 +302,7 @@ export const snap = async (taskArgs: any, hre: any) => {
               console.log(uniqOwners.length)
               console.log(uniqOwners)
        
-              const data = await fs.promises.readFile('constants/DadBrosClaimSnapshot.json', 'utf8')
+              const data = await fs.promises.readFile('constants/DadBrosClaimNew.json', 'utf8')
               const jsonData = JSON.parse(data)
               
               for (const item of uniqOwners) {
@@ -322,7 +320,7 @@ export const snap = async (taskArgs: any, hre: any) => {
           
               if (Object.keys(jsonData).length > 0) {
                   // Convert the array back to JSON format
-                  await fs.promises.writeFile('constants/DadBrosClaimSnapshot.json', JSON.stringify(jsonData, null, 2))
+                  await fs.promises.writeFile('constants/DadBrosClaimNew.json', JSON.stringify(jsonData, null, 2))
               }
               console.log('✅ Snapshot saved')
               
@@ -391,6 +389,31 @@ export const addSTG = async(taskArgs: any, hre: any) => {
   console.log(finalData)
   await fs.promises.writeFile("constants/GregArbitrumSnpashot.json", JSON.stringify(finalData, null, 2))
  
+}
+
+export const combine = async(taskArgs: any, hre: any) => {
+    const dataNew = await fs.promises.readFile("constants/DadBrosClaimNew.json", "utf8")
+    const data = await fs.promises.readFile("constants/DadBrosFriendsFinalSnapshot.json", "utf8")
+    const keysNew = Object.keys(dataNew)
+    const jsonData = JSON.parse(data)
+    const jsonNewData = JSON.parse(dataNew)
+    console.log(jsonData.length)
+
+
+    outerLoop: for (const item of Object.entries(jsonNewData)){
+        for (const item2 of jsonData) {
+            if (item2.address === item[0]) {
+                continue outerLoop
+            }
+        }
+        jsonData.push({address: item[0], count: 10})
+    }
+
+    console.log(jsonData.length)
+    await fs.promises.writeFile('constants/DadBrosFriendsFinalSnapshot.json', JSON.stringify(jsonData, null, 2))
+    
+    
+
 }
 
 

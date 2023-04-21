@@ -16,7 +16,7 @@ import { mintGasless721 } from './mintGasless'
 import { sendBatch721 } from './sendBatch721'
 import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
-import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
+import { snap, convertFormat, addSTG, changeAmounts, combine } from './takeSnapshot'
 import { analyzeStuckTx } from './analyzeStuckTx'
 import { deployDadBro, deployAllDadBros } from './deployDadBros'
 import { prepareDadBro } from './prepareDadBro'
@@ -174,3 +174,6 @@ task('prepareDadBro', 'prepare dad bros')
 task('merkleGenWithIds', 'MerkleGenWithIds')
   .addParam('adr', 'minter address')
   .setAction(MerkleGenWithIds)
+
+task('combine', 'combine')
+  .setAction(combine)
