@@ -235,6 +235,7 @@ export const snap = async (taskArgs: any, hre: any) => {
           let dataCursor = firstResponse.cursor
           for (const owner of firstResponse.result) {
             if (owners[owner.owner_of] !== undefined) {
+                
             } else {
                 owners[owner.owner_of] = {
                 count: 10
@@ -256,10 +257,11 @@ export const snap = async (taskArgs: any, hre: any) => {
    
            for (const owner of response.result) {
                if (owners[owner.owner_of] !== undefined) {
+               
                } else {
-                   owners[owner.owner_of] = {
-                   count: 10
-                   }
+                    owners[owner.owner_of] = {
+                        count: 10
+                    }
                }
            }
            dataCursor = response.cursor
@@ -279,7 +281,7 @@ export const snap = async (taskArgs: any, hre: any) => {
    
     //    if (Object.keys(jsonData).length > 0) {
     //        // Convert the array back to JSON format
-        await fs.promises.writeFile('constants/DadBrosClaimNew.json', JSON.stringify(owners, null, 2))
+        await fs.promises.writeFile('constants/Sonara.json', JSON.stringify(owners, null, 2))
     //    }
            
    
@@ -336,7 +338,7 @@ export const snap = async (taskArgs: any, hre: any) => {
   }
 
 export const convertFormat = async (taskArgs: any, hre: any) => {
-    const data = await fs.promises.readFile("constants/DadBrosClaimSnapshot.json", "utf8")
+    const data = await fs.promises.readFile("constants/DadBrosClaimFinal.json", "utf8")
     const jsonData = JSON.parse(data)
 
     const newData:any = []
@@ -349,7 +351,7 @@ export const convertFormat = async (taskArgs: any, hre: any) => {
     }
 
 
-    await fs.promises.writeFile("constants/DadBrosClaimSnapshot.json", JSON.stringify(newData, null, 2))
+    await fs.promises.writeFile("constants/DadBrosClaimFinal.json", JSON.stringify(newData, null, 2))
 }
 
 export const addSTG = async(taskArgs: any, hre: any) => {
@@ -392,7 +394,7 @@ export const addSTG = async(taskArgs: any, hre: any) => {
 }
 
 export const combine = async(taskArgs: any, hre: any) => {
-    const dataNew = await fs.promises.readFile("constants/DadBrosClaimNew.json", "utf8")
+    const dataNew = await fs.promises.readFile("constants/Sonara.json", "utf8")
     const data = await fs.promises.readFile("constants/DadBrosFriendsFinalSnapshot.json", "utf8")
     const keysNew = Object.keys(dataNew)
     const jsonData = JSON.parse(data)
@@ -402,6 +404,7 @@ export const combine = async(taskArgs: any, hre: any) => {
 
     outerLoop: for (const item of Object.entries(jsonNewData)){
         for (const item2 of jsonData) {
+
             if (item2.address === item[0]) {
                 continue outerLoop
             }
@@ -409,8 +412,9 @@ export const combine = async(taskArgs: any, hre: any) => {
         jsonData.push({address: item[0], count: 10})
     }
 
+    console.log(jsonData)
     console.log(jsonData.length)
-    await fs.promises.writeFile('constants/DadBrosFriendsFinalSnapshot.json', JSON.stringify(jsonData, null, 2))
+    await fs.promises.writeFile('constants/DadBrosFriends.json', JSON.stringify(jsonData, null, 2))
     
     
 

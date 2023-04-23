@@ -22,7 +22,6 @@ export const deployDadBro = async function (taskArgs: any, hre: any) {
     args.name,
     args.symbol,
     args.baseTokenURI,
-    args.hiddenURI,
     args.tax,
     args.taxRecipient
   ])

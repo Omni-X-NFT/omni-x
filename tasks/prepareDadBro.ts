@@ -20,9 +20,9 @@ export const prepareDadBro = async function (taskArgs: any, hre: any) {
   const args = (DadBroArgs as any)[network.name]
 
   const DadBros = createContractByName(hre, 'DadBrosV2', DadBrosAbi().abi, owner)
-  // await tx(await DadBros.setMerkleRoot(hre.ethers.utils.formatBytes32String("claim"), args.merkleRootClaim))
-  // await tx(await DadBros.setMerkleRoot(hre.ethers.utils.formatBytes32String("friends"), args.merkleRootFriends))
-  // await tx(await DadBros.flipSaleStarted())
+  await tx(await DadBros.setMerkleRoot(hre.ethers.utils.formatBytes32String("claim"), args.merkleRootClaim))
+  await tx(await DadBros.setMerkleRoot(hre.ethers.utils.formatBytes32String("friends"), args.merkleRootFriends))
   await tx(await DadBros.setBeneficiary(args.beneficiary))
+  // await tx(await DadBros.flipSaleStarted())
   console.log(`✅ DadBros prepared on ${network.name}`)
 }

@@ -21,16 +21,16 @@ contract DadBrosV2 is  ERC721, ReentrancyGuard, Ownable, DefaultOperatorFilterer
     uint public tax = 1000; // 100% = 10000
 
 
-    uint16 public nextMintId = 1303;
+    uint16 public nextMintId = 1302;
 
     /*//////////////////////////////////////////////////////////////
                             MINT CONSTANTS
     //////////////////////////////////////////////////////////////*/
 
     uint16 public constant MAX_MINT_ID_TOTAL = 3000;
-    uint16 public maxClaimId = 1303;
-    uint8 public constant MAX_TOKENS_PER_MINT_FRIENDS = 5;
-    uint8 public constant MAX_TOKENS_PER_MINT_PUBLIC = 20;
+    uint16 public maxClaimId = 1302;
+    uint8 public  MAX_TOKENS_PER_MINT_FRIENDS = 5;
+    uint8 public MAX_TOKENS_PER_MINT_PUBLIC = 20;
    
 
     uint128 public MIN_PUBLIC_PRICE = 0.018 ether;
@@ -69,7 +69,7 @@ contract DadBrosV2 is  ERC721, ReentrancyGuard, Ownable, DefaultOperatorFilterer
     bytes32 public merkleRootClaim;
 
     string private baseURI;
-    string private hiddenMetadataURI;
+
 
     bool public _saleStarted;
     bool public revealed;
@@ -88,14 +88,12 @@ contract DadBrosV2 is  ERC721, ReentrancyGuard, Ownable, DefaultOperatorFilterer
     /// @param _name the name of the token
     /// @param _symbol the token symbol
     /// @param _baseTokenURI the base URI for computing the tokenURI
-    /// @param _hiddenURI the URI for computing the hiddenMetadataUri
     /// @param _tax the tax percentage (100% = 10000)
     /// @param _taxRecipient the address that receives the tax
     constructor(
         string memory _name,
         string memory _symbol,
         string memory _baseTokenURI,
-        string memory _hiddenURI,
         uint _tax,
         address _taxRecipient
     ) 
@@ -104,7 +102,6 @@ contract DadBrosV2 is  ERC721, ReentrancyGuard, Ownable, DefaultOperatorFilterer
 
         beneficiary = payable(msg.sender);
         baseURI = _baseTokenURI;
-        hiddenMetadataURI = _hiddenURI;
         tax = _tax;
         taxRecipient = payable(_taxRecipient);
 
@@ -243,9 +240,7 @@ contract DadBrosV2 is  ERC721, ReentrancyGuard, Ownable, DefaultOperatorFilterer
         beneficiary = _beneficiary;
     }
 
-    function setHiddenMetadataUri(string memory _hiddenMetadataUri) external onlyBeneficiaryAndOwner {
-        hiddenMetadataURI = _hiddenMetadataUri;
-    }
+
 
     function flipRevealed() external onlyBeneficiaryAndOwner {
         revealed = !revealed;
@@ -263,6 +258,16 @@ contract DadBrosV2 is  ERC721, ReentrancyGuard, Ownable, DefaultOperatorFilterer
 
     function setMaxClaimId(uint16 _maxClaimId) external onlyBeneficiaryAndOwner {
         maxClaimId = _maxClaimId;
+    }
+
+    function setMaxTokensPerMint(bytes32 _param, uint8 _value) external onlyBeneficiaryAndOwner {
+        if (_param == "MAX_TOKENS_PER_MINT_FRIENDS") {
+            MAX_TOKENS_PER_MINT_FRIENDS = _value;
+        } else if (_param == "MAX_TOKENS_PER_MINT_PUBLIC") {
+            MAX_TOKENS_PER_MINT_PUBLIC = _value;
+        } else {
+            revert("DadBros: Invalid param");
+        }
     }
 
     function setPriceParams(bytes32 _param, uint128 _value) external onlyBeneficiaryAndOwner {
@@ -301,9 +306,6 @@ contract DadBrosV2 is  ERC721, ReentrancyGuard, Ownable, DefaultOperatorFilterer
 
     function tokenURI(uint tokenId) public view override(ERC721) returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
-        if (!revealed) {
-            return hiddenMetadataURI;
-        }
         return string(abi.encodePacked(_baseURI(), tokenId.toString()));
     }
 
