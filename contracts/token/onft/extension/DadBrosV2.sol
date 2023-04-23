@@ -7,12 +7,13 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "../../../libraries/OmniLinearCurve.sol";
+import "operator-filter-registry/src/DefaultOperatorFilterer.sol";
 import {toDaysWadUnsafe} from "solmate/src/utils/SignedWadMath.sol";
 
 /// @title Interface of the AdvancedONFT standard
 /// @author exakoss
 /// @notice this implementation supports: batch mint, payable public and private mint, reveal of metadata and EIP-2981 on-chain royalties
-contract DadBrosV2 is  ERC721, ReentrancyGuard, Ownable {
+contract DadBrosV2 is  ERC721, ReentrancyGuard, Ownable, DefaultOperatorFilterer {
     using Strings for uint;
     using OmniLinearCurve for OmniLinearCurve.OmniCurve;
 
@@ -20,7 +21,7 @@ contract DadBrosV2 is  ERC721, ReentrancyGuard, Ownable {
     uint public tax = 1000; // 100% = 10000
 
 
-    uint16 public nextMintId = 1304;
+    uint16 public nextMintId = 1303;
 
     /*//////////////////////////////////////////////////////////////
                             MINT CONSTANTS
@@ -34,6 +35,7 @@ contract DadBrosV2 is  ERC721, ReentrancyGuard, Ownable {
 
     uint128 public MIN_PUBLIC_PRICE = 0.018 ether;
     uint128 public MAX_PRICE_PUBLIC  = 0.03 ether;
+
     uint128 public FLAT_PRICE_FRIENDS = 0.01 ether;
 
    
@@ -303,6 +305,30 @@ contract DadBrosV2 is  ERC721, ReentrancyGuard, Ownable {
             return hiddenMetadataURI;
         }
         return string(abi.encodePacked(_baseURI(), tokenId.toString()));
+    }
+
+     function setApprovalForAll(address operator, bool approved) public override onlyAllowedOperatorApproval(operator) {
+        super.setApprovalForAll(operator, approved);
+    }
+
+    function approve(address operator, uint256 tokenId) public override onlyAllowedOperatorApproval(operator) {
+        super.approve(operator, tokenId);
+    }
+
+    function transferFrom(address from, address to, uint256 tokenId) public override onlyAllowedOperator(from) {
+        super.transferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenId) public override onlyAllowedOperator(from) {
+        super.safeTransferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data)
+        public
+        override
+        onlyAllowedOperator(from)
+    {
+        super.safeTransferFrom(from, to, tokenId, data);
     }
     
 }
