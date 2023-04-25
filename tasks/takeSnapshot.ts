@@ -394,22 +394,22 @@ export const addSTG = async(taskArgs: any, hre: any) => {
 }
 
 export const combine = async(taskArgs: any, hre: any) => {
-    const dataNew = await fs.promises.readFile("constants/Sonara.json", "utf8")
-    const data = await fs.promises.readFile("constants/DadBrosFriendsFinalSnapshot.json", "utf8")
+    const dataNew = await fs.promises.readFile("constants/DadBrosFreeFinalSnapshot.json", "utf8")
+    const data = await fs.promises.readFile("constants/DadBrosFriends.json", "utf8")
     const keysNew = Object.keys(dataNew)
     const jsonData = JSON.parse(data)
     const jsonNewData = JSON.parse(dataNew)
     console.log(jsonData.length)
 
 
-    outerLoop: for (const item of Object.entries(jsonNewData)){
+    outerLoop: for (const item of jsonNewData) {
         for (const item2 of jsonData) {
 
-            if (item2.address === item[0]) {
+            if (item2.address === item.address) {
                 continue outerLoop
             }
         }
-        jsonData.push({address: item[0], count: 10})
+        jsonData.push({address: item.address, count: 10})
     }
 
     console.log(jsonData)
