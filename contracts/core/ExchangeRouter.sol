@@ -197,7 +197,7 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
                 payload
             );
         } else {
-            stargatePoolManager.swapETH{value: msg.value - crossInfo.amount}(
+            stargatePoolManager.swapETH{value: msg.value}(
                 crossInfo.toChainId,
                 payable(msg.sender),
                 crossInfo.amount,
