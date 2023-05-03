@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.17;
 
+/**
+ * @title ICurrencyManager
+ * @author LooksRare protocol team (👀,💎)
+ */
 interface ICurrencyManager {
-    function addCurrency(address currency) external;
-
-    function removeCurrency(address currency) external;
-
-    function isCurrencyWhitelisted(address currency) external view returns (bool);
-
-    function isOmniCurrency(address currency) external view returns (bool);
-
-    function viewWhitelistedCurrencies(uint256 cursor, uint256 size) external view returns (address[] memory, uint256);
-
-    function viewCountWhitelistedCurrencies() external view returns (uint256);
+    /**
+     * @notice It is emitted if the currency status in the allowlist is updated.
+     * @param currency Currency address (address(0) = ETH)
+     * @param isAllowed Whether the currency is allowed
+     */
+    event CurrencyStatusUpdated(address currency, bool isAllowed);
 }

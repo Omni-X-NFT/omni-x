@@ -1,0 +1,420 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "salePrice",
+          "type": "uint256"
+        }
+      ],
+      "name": "royaltyInfo",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "royaltyAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "interfaceId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "royaltyInfo(uint256,uint256)": "2a55205a",
+    "supportsInterface(bytes4)": "01ffc9a7"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salePrice\",\"type\":\"uint256\"}],\"name\":\"royaltyInfo\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"royaltyAmount\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Interface for the NFT Royalty Standard. A standardized way to retrieve royalty payment information for non-fungible tokens (NFTs) to enable universal support for royalty payments across all NFT marketplaces and ecosystem participants. _Available since v4.5._\",\"kind\":\"dev\",\"methods\":{\"royaltyInfo(uint256,uint256)\":{\"details\":\"Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of exchange. The royalty amount is denominated and should be paid in that same unit of exchange.\"},\"supportsInterface(bytes4)\":{\"details\":\"Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section] to learn more about how these ids are created. This function call must use less than 30 000 gas.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"node_modules/@openzeppelin/contracts/interfaces/IERC2981.sol\":\"IERC2981\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@ensdomains/=node_modules/@ensdomains/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":solmate/=node_modules/solmate/\",\":xdeployer/=node_modules/xdeployer/\"]},\"sources\":{\"node_modules/@openzeppelin/contracts/interfaces/IERC2981.sol\":{\"keccak256\":\"0xa812eed728198acd2c30d06950a5bea8d68436e4f694dd892273266ec2f79f5b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f5522afc5c222c810d9ad67c45f37cb7169452fcf76692cad10ac8153c068daa\",\"dweb:/ipfs/QmX4XgnDp7pyvojQ6g5tacrUMCf7TED2qC2vERH9Xh9feZ\"]},\"node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f\",\"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "salePrice",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "royaltyInfo",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "receiver",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "royaltyAmount",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "royaltyInfo(uint256,uint256)": {
+            "details": "Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of exchange. The royalty amount is denominated and should be paid in that same unit of exchange."
+          },
+          "supportsInterface(bytes4)": {
+            "details": "Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section] to learn more about how these ids are created. This function call must use less than 30 000 gas."
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":@ensdomains/=node_modules/@ensdomains/",
+        ":@gelatonetwork/=node_modules/@gelatonetwork/",
+        ":@layerzerolabs/=node_modules/@layerzerolabs/",
+        ":@openzeppelin/=node_modules/@openzeppelin/",
+        ":@uniswap/=node_modules/@uniswap/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":eth-gas-reporter/=node_modules/eth-gas-reporter/",
+        ":forge-std/=lib/forge-std/src/",
+        ":hardhat-deploy/=node_modules/hardhat-deploy/",
+        ":hardhat/=node_modules/hardhat/",
+        ":operator-filter-registry/=node_modules/operator-filter-registry/",
+        ":solmate/=node_modules/solmate/",
+        ":xdeployer/=node_modules/xdeployer/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "node_modules/@openzeppelin/contracts/interfaces/IERC2981.sol": "IERC2981"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "node_modules/@openzeppelin/contracts/interfaces/IERC2981.sol": {
+        "keccak256": "0xa812eed728198acd2c30d06950a5bea8d68436e4f694dd892273266ec2f79f5b",
+        "urls": [
+          "bzz-raw://f5522afc5c222c810d9ad67c45f37cb7169452fcf76692cad10ac8153c068daa",
+          "dweb:/ipfs/QmX4XgnDp7pyvojQ6g5tacrUMCf7TED2qC2vERH9Xh9feZ"
+        ],
+        "license": "MIT"
+      },
+      "node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1",
+        "urls": [
+          "bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f",
+          "dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "node_modules/@openzeppelin/contracts/interfaces/IERC2981.sol",
+    "id": 58429,
+    "exportedSymbols": {
+      "IERC165": [
+        64469
+      ],
+      "IERC2981": [
+        58428
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "107:781:143",
+    "nodes": [
+      {
+        "id": 58411,
+        "nodeType": "PragmaDirective",
+        "src": "107:23:143",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ]
+      },
+      {
+        "id": 58412,
+        "nodeType": "ImportDirective",
+        "src": "132:44:143",
+        "nodes": [],
+        "absolutePath": "node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol",
+        "file": "../utils/introspection/IERC165.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 58429,
+        "sourceUnit": 64470,
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "id": 58428,
+        "nodeType": "ContractDefinition",
+        "src": "468:419:143",
+        "nodes": [
+          {
+            "id": 58427,
+            "nodeType": "FunctionDefinition",
+            "src": "740:145:143",
+            "nodes": [],
+            "documentation": {
+              "id": 58416,
+              "nodeType": "StructuredDocumentation",
+              "src": "504:231:143",
+              "text": " @dev Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of\n exchange. The royalty amount is denominated and should be paid in that same unit of exchange."
+            },
+            "functionSelector": "2a55205a",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "royaltyInfo",
+            "nameLocation": "749:11:143",
+            "parameters": {
+              "id": 58421,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 58418,
+                  "mutability": "mutable",
+                  "name": "tokenId",
+                  "nameLocation": "769:7:143",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 58427,
+                  "src": "761:15:143",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 58417,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "761:7:143",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 58420,
+                  "mutability": "mutable",
+                  "name": "salePrice",
+                  "nameLocation": "786:9:143",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 58427,
+                  "src": "778:17:143",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 58419,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "778:7:143",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "760:36:143"
+            },
+            "returnParameters": {
+              "id": 58426,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 58423,
+                  "mutability": "mutable",
+                  "name": "receiver",
+                  "nameLocation": "852:8:143",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 58427,
+                  "src": "844:16:143",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 58422,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "844:7:143",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 58425,
+                  "mutability": "mutable",
+                  "name": "royaltyAmount",
+                  "nameLocation": "870:13:143",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 58427,
+                  "src": "862:21:143",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 58424,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "862:7:143",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "843:41:143"
+            },
+            "scope": 58428,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 58414,
+              "name": "IERC165",
+              "nameLocations": [
+                "490:7:143"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 64469,
+              "src": "490:7:143"
+            },
+            "id": 58415,
+            "nodeType": "InheritanceSpecifier",
+            "src": "490:7:143"
+          }
+        ],
+        "canonicalName": "IERC2981",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 58413,
+          "nodeType": "StructuredDocumentation",
+          "src": "178:289:143",
+          "text": " @dev Interface for the NFT Royalty Standard.\n A standardized way to retrieve royalty payment information for non-fungible tokens (NFTs) to enable universal\n support for royalty payments across all NFT marketplaces and ecosystem participants.\n _Available since v4.5._"
+        },
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          58428,
+          64469
+        ],
+        "name": "IERC2981",
+        "nameLocation": "478:8:143",
+        "scope": 58429,
+        "usedErrors": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 143
+}

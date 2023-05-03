@@ -1,91 +1,37 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.17;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-
+// Interfaces
 import {ICurrencyManager} from "../interfaces/ICurrencyManager.sol";
-import {InterfaceChecker} from "../libraries/InterfaceChecker.sol";
-import {IOFT} from "../token/oft/IOFT.sol";
+
+// Dependencies
+import {AffiliateManager} from "./AffiliateManager.sol";
 
 /**
  * @title CurrencyManager
- * @notice It allows adding/removing currencies for trading on the OmniX exchange.
+ * @notice This contract manages the list of valid fungible currencies.
+ * @author LooksRare protocol team (👀,💎)
  */
-contract CurrencyManager is ICurrencyManager, Ownable {
-    using EnumerableSet for EnumerableSet.AddressSet;
-
-    EnumerableSet.AddressSet private _whitelistedCurrencies;
-    mapping (address => bool) private _omniCurrencies;
-
-    event CurrencyRemoved(address indexed currency);
-    event CurrencyWhitelisted(address indexed currency);
+contract CurrencyManager is ICurrencyManager, AffiliateManager {
+    /**
+     * @notice It checks whether the currency is allowed for transacting.
+     */
+    mapping(address => bool) public isCurrencyAllowed;
 
     /**
-     * @notice Add a currency in the system
-     * @param currency address of the currency to add
+     * @notice Constructor
+     * @param _owner Owner address
      */
-    function addCurrency(address currency) external override onlyOwner {
-        require(!_whitelistedCurrencies.contains(currency), "Currency: Already whitelisted");
-        _whitelistedCurrencies.add(currency);
-        _omniCurrencies[currency] = InterfaceChecker.check(currency, type(IOFT).interfaceId);
-        emit CurrencyWhitelisted(currency);
-    }
+    constructor(address _owner) AffiliateManager(_owner) {}
 
     /**
-     * @notice Remove a currency from the system
-     * @param currency address of the currency to remove
+     * @notice This function allows the owner to update the status of a currency.
+     * @param currency Currency address (address(0) for ETH)
+     * @param isAllowed Whether the currency should be allowed for trading
+     * @dev Only callable by owner.
      */
-    function removeCurrency(address currency) external override onlyOwner {
-        require(_whitelistedCurrencies.contains(currency), "Currency: Not whitelisted");
-        _whitelistedCurrencies.remove(currency);
-        delete _omniCurrencies[currency];
-
-        emit CurrencyRemoved(currency);
-    }
-
-    /**
-     * @notice Returns if a currency is in the system
-     * @param currency address of the currency
-     */
-    function isCurrencyWhitelisted(address currency) external view override returns (bool) {
-        return _whitelistedCurrencies.contains(currency);
-    }
-
-    function isOmniCurrency(address currency) external view override returns (bool) {
-        return _omniCurrencies[currency];
-    }
-
-    /**
-     * @notice View number of whitelisted currencies
-     */
-    function viewCountWhitelistedCurrencies() external view override returns (uint256) {
-        return _whitelistedCurrencies.length();
-    }
-
-    /**
-     * @notice See whitelisted currencies in the system
-     * @param cursor cursor (should start at 0 for first request)
-     * @param size size of the response (e.g., 50)
-     */
-    function viewWhitelistedCurrencies(uint256 cursor, uint256 size)
-        external
-        view
-        override
-        returns (address[] memory, uint256)
-    {
-        uint256 length = size;
-
-        if (length > _whitelistedCurrencies.length() - cursor) {
-            length = _whitelistedCurrencies.length() - cursor;
-        }
-
-        address[] memory whitelistedCurrencies = new address[](length);
-
-        for (uint256 i = 0; i < length; i++) {
-            whitelistedCurrencies[i] = _whitelistedCurrencies.at(cursor + i);
-        }
-
-        return (whitelistedCurrencies, cursor + length);
+    function updateCurrencyStatus(address currency, bool isAllowed) external onlyOwner {
+        isCurrencyAllowed[currency] = isAllowed;
+        emit CurrencyStatusUpdated(currency, isAllowed);
     }
 }

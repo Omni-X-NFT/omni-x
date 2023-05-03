@@ -1,24 +1,20 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.17;
 
+/**
+ * @title IRoyaltyFeeRegistry
+ * @author LooksRare protocol team (👀,💎)
+ */
 interface IRoyaltyFeeRegistry {
-    function updateRoyaltyInfoForCollection(
+    /**
+     * @notice This function returns the royalty information for a collection at a given transaction price.
+     * @param collection Collection address
+     * @param price Transaction price
+     * @return receiver Receiver address
+     * @return royaltyFee Royalty fee amount
+     */
+    function royaltyInfo(
         address collection,
-        address setter,
-        address receiver,
-        uint256 fee
-    ) external;
-
-    function updateRoyaltyFeeLimit(uint256 _royaltyFeeLimit) external;
-
-    function royaltyInfo(address collection, uint256 amount) external view returns (address, uint256);
-
-    function royaltyFeeInfoCollection(address collection)
-        external
-        view
-        returns (
-            address,
-            address,
-            uint256
-        );
+        uint256 price
+    ) external view returns (address receiver, uint256 royaltyFee);
 }

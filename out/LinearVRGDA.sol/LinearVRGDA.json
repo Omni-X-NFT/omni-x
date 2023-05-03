@@ -1,0 +1,792 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "int256",
+          "name": "sold",
+          "type": "int256"
+        }
+      ],
+      "name": "getTargetSaleTime",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "int256",
+          "name": "timeSinceStart",
+          "type": "int256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "sold",
+          "type": "uint256"
+        }
+      ],
+      "name": "getVRGDAPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "targetPrice",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "getTargetSaleTime(int256)": "6d9d33b7",
+    "getVRGDAPrice(int256,uint256)": "f466d4ab",
+    "targetPrice()": "dc38679c"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"int256\",\"name\":\"sold\",\"type\":\"int256\"}],\"name\":\"getTargetSaleTime\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int256\",\"name\":\"timeSinceStart\",\"type\":\"int256\"},{\"internalType\":\"uint256\",\"name\":\"sold\",\"type\":\"uint256\"}],\"name\":\"getVRGDAPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"targetPrice\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"transmissions11 <t11s@paradigm.xyz>FrankieIsLost <frankie@paradigm.xyz>\",\"kind\":\"dev\",\"methods\":{\"constructor\":{\"params\":{\"_perTimeUnit\":\"The number of tokens to target selling in 1 full unit of time, scaled by 1e18.\",\"_priceDecayPercent\":\"The percent price decays per unit of time with no sales, scaled by 1e18.\",\"_targetPrice\":\"The target price for a token if sold on pace, scaled by 1e18.\"}},\"getTargetSaleTime(int256)\":{\"details\":\"Given a number of tokens sold, return the target time that number of tokens should be sold by.\",\"params\":{\"sold\":\"A number of tokens sold, scaled by 1e18, to get the corresponding target sale time for.\"},\"returns\":{\"_0\":\"The target time the tokens should be sold by, scaled by 1e18, where the time is relative, such that 0 means the tokens should be sold immediately when the VRGDA begins.\"}},\"getVRGDAPrice(int256,uint256)\":{\"params\":{\"sold\":\"The total number of tokens that have been sold so far.\",\"timeSinceStart\":\"Time passed since the VRGDA began, scaled by 1e18.\"},\"returns\":{\"_0\":\"The price of a token according to VRGDA, scaled by 1e18.\"}}},\"stateVariables\":{\"perTimeUnit\":{\"details\":\"The total number of tokens to target selling every full unit of time.Represented as an 18 decimal fixed point number.\"}},\"title\":\"Linear Variable Rate Gradual Dutch Auction\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"constructor\":{\"notice\":\"Sets pricing parameters for the VRGDA.\"},\"getVRGDAPrice(int256,uint256)\":{\"notice\":\"Calculate the price of a token according to the VRGDA formula.\"},\"targetPrice()\":{\"notice\":\"Target price for a token, to be scaled according to sales pace.\"}},\"notice\":\"VRGDA with a linear issuance curve.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/vrgda/LinearVRGDA.sol\":\"LinearVRGDA\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@ensdomains/=node_modules/@ensdomains/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":solmate/=node_modules/solmate/\",\":xdeployer/=node_modules/xdeployer/\"]},\"sources\":{\"contracts/vrgda/LinearVRGDA.sol\":{\"keccak256\":\"0x71560686086c3138f510024913f5f0a0a0cfdd9c67fa0fdfed26770c4257f5d7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a4f0783a49bac0dc08b7f99b47105089600f1473e3bf1bde24d998377057caad\",\"dweb:/ipfs/QmNUnwXj5rKk4nvtkV5UW2ocBHpxQiHEcBCiHsaZqvWv7N\"]},\"contracts/vrgda/VRGDA.sol\":{\"keccak256\":\"0x2c092b402b78115f4f9cd21a2ad8adf75ffb93996e02739db52b51a640f6ae5d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e13acac099bf8daf60cc1219986b64a258df6ae753d01d083cd1e321ff5228e8\",\"dweb:/ipfs/QmeEGNMSFZRebUR3rZdKassQsw3AfLVjS5EAxRECrBi6my\"]},\"node_modules/solmate/src/utils/SignedWadMath.sol\":{\"keccak256\":\"0x4745d53501be520ca40f87303a0dec86e36fbb19fe57b519787fd76e7d78c42f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://316a1f46ed35273b03bd5a66f0a4bbb1bdd13de97876eabfe8e53d89920681c2\",\"dweb:/ipfs/QmZg4CAo9MLaAhTi5QKNsGNw5zkgohzge95MviZkGfwxTy\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "int256",
+              "name": "sold",
+              "type": "int256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getTargetSaleTime",
+          "outputs": [
+            {
+              "internalType": "int256",
+              "name": "",
+              "type": "int256"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "int256",
+              "name": "timeSinceStart",
+              "type": "int256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "sold",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getVRGDAPrice",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "targetPrice",
+          "outputs": [
+            {
+              "internalType": "int256",
+              "name": "",
+              "type": "int256"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "constructor": {
+            "params": {
+              "_perTimeUnit": "The number of tokens to target selling in 1 full unit of time, scaled by 1e18.",
+              "_priceDecayPercent": "The percent price decays per unit of time with no sales, scaled by 1e18.",
+              "_targetPrice": "The target price for a token if sold on pace, scaled by 1e18."
+            }
+          },
+          "getTargetSaleTime(int256)": {
+            "details": "Given a number of tokens sold, return the target time that number of tokens should be sold by.",
+            "params": {
+              "sold": "A number of tokens sold, scaled by 1e18, to get the corresponding target sale time for."
+            },
+            "returns": {
+              "_0": "The target time the tokens should be sold by, scaled by 1e18, where the time is relative, such that 0 means the tokens should be sold immediately when the VRGDA begins."
+            }
+          },
+          "getVRGDAPrice(int256,uint256)": {
+            "params": {
+              "sold": "The total number of tokens that have been sold so far.",
+              "timeSinceStart": "Time passed since the VRGDA began, scaled by 1e18."
+            },
+            "returns": {
+              "_0": "The price of a token according to VRGDA, scaled by 1e18."
+            }
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "constructor": {
+            "notice": "Sets pricing parameters for the VRGDA."
+          },
+          "getVRGDAPrice(int256,uint256)": {
+            "notice": "Calculate the price of a token according to the VRGDA formula."
+          },
+          "targetPrice()": {
+            "notice": "Target price for a token, to be scaled according to sales pace."
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":@ensdomains/=node_modules/@ensdomains/",
+        ":@gelatonetwork/=node_modules/@gelatonetwork/",
+        ":@layerzerolabs/=node_modules/@layerzerolabs/",
+        ":@openzeppelin/=node_modules/@openzeppelin/",
+        ":@uniswap/=node_modules/@uniswap/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":eth-gas-reporter/=node_modules/eth-gas-reporter/",
+        ":forge-std/=lib/forge-std/src/",
+        ":hardhat-deploy/=node_modules/hardhat-deploy/",
+        ":hardhat/=node_modules/hardhat/",
+        ":operator-filter-registry/=node_modules/operator-filter-registry/",
+        ":solmate/=node_modules/solmate/",
+        ":xdeployer/=node_modules/xdeployer/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "contracts/vrgda/LinearVRGDA.sol": "LinearVRGDA"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "contracts/vrgda/LinearVRGDA.sol": {
+        "keccak256": "0x71560686086c3138f510024913f5f0a0a0cfdd9c67fa0fdfed26770c4257f5d7",
+        "urls": [
+          "bzz-raw://a4f0783a49bac0dc08b7f99b47105089600f1473e3bf1bde24d998377057caad",
+          "dweb:/ipfs/QmNUnwXj5rKk4nvtkV5UW2ocBHpxQiHEcBCiHsaZqvWv7N"
+        ],
+        "license": "MIT"
+      },
+      "contracts/vrgda/VRGDA.sol": {
+        "keccak256": "0x2c092b402b78115f4f9cd21a2ad8adf75ffb93996e02739db52b51a640f6ae5d",
+        "urls": [
+          "bzz-raw://e13acac099bf8daf60cc1219986b64a258df6ae753d01d083cd1e321ff5228e8",
+          "dweb:/ipfs/QmeEGNMSFZRebUR3rZdKassQsw3AfLVjS5EAxRECrBi6my"
+        ],
+        "license": "MIT"
+      },
+      "node_modules/solmate/src/utils/SignedWadMath.sol": {
+        "keccak256": "0x4745d53501be520ca40f87303a0dec86e36fbb19fe57b519787fd76e7d78c42f",
+        "urls": [
+          "bzz-raw://316a1f46ed35273b03bd5a66f0a4bbb1bdd13de97876eabfe8e53d89920681c2",
+          "dweb:/ipfs/QmZg4CAo9MLaAhTi5QKNsGNw5zkgohzge95MviZkGfwxTy"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "contracts/vrgda/LinearVRGDA.sol",
+    "id": 29311,
+    "exportedSymbols": {
+      "LinearVRGDA": [
+        29310
+      ],
+      "VRGDA": [
+        29395
+      ],
+      "unsafeWadDiv": [
+        74924
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:2041:108",
+    "nodes": [
+      {
+        "id": 29265,
+        "nodeType": "PragmaDirective",
+        "src": "32:24:108",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          ">=",
+          "0.8",
+          ".0"
+        ]
+      },
+      {
+        "id": 29267,
+        "nodeType": "ImportDirective",
+        "src": "58:65:108",
+        "nodes": [],
+        "absolutePath": "node_modules/solmate/src/utils/SignedWadMath.sol",
+        "file": "solmate/src/utils/SignedWadMath.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 29311,
+        "sourceUnit": 75372,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 29266,
+              "name": "unsafeWadDiv",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 74924,
+              "src": "66:12:108",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 29269,
+        "nodeType": "ImportDirective",
+        "src": "125:34:108",
+        "nodes": [],
+        "absolutePath": "contracts/vrgda/VRGDA.sol",
+        "file": "./VRGDA.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 29311,
+        "sourceUnit": 29396,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 29268,
+              "name": "VRGDA",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 29395,
+              "src": "133:5:108",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 29310,
+        "nodeType": "ContractDefinition",
+        "src": "360:1713:108",
+        "nodes": [
+          {
+            "id": 29275,
+            "nodeType": "VariableDeclaration",
+            "src": "735:37:108",
+            "nodes": [],
+            "constant": false,
+            "documentation": {
+              "id": 29273,
+              "nodeType": "StructuredDocumentation",
+              "src": "590:140:108",
+              "text": "@dev The total number of tokens to target selling every full unit of time.\n @dev Represented as an 18 decimal fixed point number."
+            },
+            "mutability": "immutable",
+            "name": "perTimeUnit",
+            "nameLocation": "761:11:108",
+            "scope": 29310,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_int256",
+              "typeString": "int256"
+            },
+            "typeName": {
+              "id": 29274,
+              "name": "int256",
+              "nodeType": "ElementaryTypeName",
+              "src": "735:6:108",
+              "typeDescriptions": {
+                "typeIdentifier": "t_int256",
+                "typeString": "int256"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "id": 29294,
+            "nodeType": "FunctionDefinition",
+            "src": "1138:194:108",
+            "nodes": [],
+            "body": {
+              "id": 29293,
+              "nodeType": "Block",
+              "src": "1289:43:108",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "id": 29291,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 29289,
+                      "name": "perTimeUnit",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 29275,
+                      "src": "1299:11:108",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int256",
+                        "typeString": "int256"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "id": 29290,
+                      "name": "_perTimeUnit",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 29282,
+                      "src": "1313:12:108",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int256",
+                        "typeString": "int256"
+                      }
+                    },
+                    "src": "1299:26:108",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int256",
+                      "typeString": "int256"
+                    }
+                  },
+                  "id": 29292,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1299:26:108"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 29276,
+              "nodeType": "StructuredDocumentation",
+              "src": "779:354:108",
+              "text": "@notice Sets pricing parameters for the VRGDA.\n @param _targetPrice The target price for a token if sold on pace, scaled by 1e18.\n @param _priceDecayPercent The percent price decays per unit of time with no sales, scaled by 1e18.\n @param _perTimeUnit The number of tokens to target selling in 1 full unit of time, scaled by 1e18."
+            },
+            "implemented": true,
+            "kind": "constructor",
+            "modifiers": [
+              {
+                "arguments": [
+                  {
+                    "id": 29285,
+                    "name": "_targetPrice",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 29278,
+                    "src": "1255:12:108",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int256",
+                      "typeString": "int256"
+                    }
+                  },
+                  {
+                    "id": 29286,
+                    "name": "_priceDecayPercent",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 29280,
+                    "src": "1269:18:108",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int256",
+                      "typeString": "int256"
+                    }
+                  }
+                ],
+                "id": 29287,
+                "kind": "baseConstructorSpecifier",
+                "modifierName": {
+                  "id": 29284,
+                  "name": "VRGDA",
+                  "nameLocations": [
+                    "1249:5:108"
+                  ],
+                  "nodeType": "IdentifierPath",
+                  "referencedDeclaration": 29395,
+                  "src": "1249:5:108"
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1249:39:108"
+              }
+            ],
+            "name": "",
+            "nameLocation": "-1:-1:-1",
+            "parameters": {
+              "id": 29283,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 29278,
+                  "mutability": "mutable",
+                  "name": "_targetPrice",
+                  "nameLocation": "1166:12:108",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 29294,
+                  "src": "1159:19:108",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_int256",
+                    "typeString": "int256"
+                  },
+                  "typeName": {
+                    "id": 29277,
+                    "name": "int256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1159:6:108",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int256",
+                      "typeString": "int256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 29280,
+                  "mutability": "mutable",
+                  "name": "_priceDecayPercent",
+                  "nameLocation": "1195:18:108",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 29294,
+                  "src": "1188:25:108",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_int256",
+                    "typeString": "int256"
+                  },
+                  "typeName": {
+                    "id": 29279,
+                    "name": "int256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1188:6:108",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int256",
+                      "typeString": "int256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 29282,
+                  "mutability": "mutable",
+                  "name": "_perTimeUnit",
+                  "nameLocation": "1230:12:108",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 29294,
+                  "src": "1223:19:108",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_int256",
+                    "typeString": "int256"
+                  },
+                  "typeName": {
+                    "id": 29281,
+                    "name": "int256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1223:6:108",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int256",
+                      "typeString": "int256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1149:99:108"
+            },
+            "returnParameters": {
+              "id": 29288,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1289:0:108"
+            },
+            "scope": 29310,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "id": 29309,
+            "nodeType": "FunctionDefinition",
+            "src": "1930:141:108",
+            "nodes": [],
+            "body": {
+              "id": 29308,
+              "nodeType": "Block",
+              "src": "2016:55:108",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "id": 29304,
+                        "name": "sold",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 29297,
+                        "src": "2046:4:108",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int256",
+                          "typeString": "int256"
+                        }
+                      },
+                      {
+                        "id": 29305,
+                        "name": "perTimeUnit",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 29275,
+                        "src": "2052:11:108",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int256",
+                          "typeString": "int256"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_int256",
+                          "typeString": "int256"
+                        },
+                        {
+                          "typeIdentifier": "t_int256",
+                          "typeString": "int256"
+                        }
+                      ],
+                      "id": 29303,
+                      "name": "unsafeWadDiv",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 74924,
+                      "src": "2033:12:108",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_pure$_t_int256_$_t_int256_$returns$_t_int256_$",
+                        "typeString": "function (int256,int256) pure returns (int256)"
+                      }
+                    },
+                    "id": 29306,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "2033:31:108",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int256",
+                      "typeString": "int256"
+                    }
+                  },
+                  "functionReturnParameters": 29302,
+                  "id": 29307,
+                  "nodeType": "Return",
+                  "src": "2026:38:108"
+                }
+              ]
+            },
+            "baseFunctions": [
+              29394
+            ],
+            "documentation": {
+              "id": 29295,
+              "nodeType": "StructuredDocumentation",
+              "src": "1521:404:108",
+              "text": "@dev Given a number of tokens sold, return the target time that number of tokens should be sold by.\n @param sold A number of tokens sold, scaled by 1e18, to get the corresponding target sale time for.\n @return The target time the tokens should be sold by, scaled by 1e18, where the time is\n relative, such that 0 means the tokens should be sold immediately when the VRGDA begins."
+            },
+            "functionSelector": "6d9d33b7",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getTargetSaleTime",
+            "nameLocation": "1939:17:108",
+            "overrides": {
+              "id": 29299,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1990:8:108"
+            },
+            "parameters": {
+              "id": 29298,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 29297,
+                  "mutability": "mutable",
+                  "name": "sold",
+                  "nameLocation": "1964:4:108",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 29309,
+                  "src": "1957:11:108",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_int256",
+                    "typeString": "int256"
+                  },
+                  "typeName": {
+                    "id": 29296,
+                    "name": "int256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1957:6:108",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int256",
+                      "typeString": "int256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1956:13:108"
+            },
+            "returnParameters": {
+              "id": 29302,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 29301,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 29309,
+                  "src": "2008:6:108",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_int256",
+                    "typeString": "int256"
+                  },
+                  "typeName": {
+                    "id": 29300,
+                    "name": "int256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2008:6:108",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int256",
+                      "typeString": "int256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2007:8:108"
+            },
+            "scope": 29310,
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "public"
+          }
+        ],
+        "abstract": true,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 29271,
+              "name": "VRGDA",
+              "nameLocations": [
+                "393:5:108"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 29395,
+              "src": "393:5:108"
+            },
+            "id": 29272,
+            "nodeType": "InheritanceSpecifier",
+            "src": "393:5:108"
+          }
+        ],
+        "canonicalName": "LinearVRGDA",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 29270,
+          "nodeType": "StructuredDocumentation",
+          "src": "161:199:108",
+          "text": "@title Linear Variable Rate Gradual Dutch Auction\n @author transmissions11 <t11s@paradigm.xyz>\n @author FrankieIsLost <frankie@paradigm.xyz>\n @notice VRGDA with a linear issuance curve."
+        },
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          29310,
+          29395
+        ],
+        "name": "LinearVRGDA",
+        "nameLocation": "378:11:108",
+        "scope": 29311,
+        "usedErrors": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 108
+}

@@ -1,0 +1,2406 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_protocolFee",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "PROTOCOL_FEE",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bool",
+              "name": "isOrderAsk",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "taker",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "params",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct OrderTypes.TakerOrder",
+          "name": "",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bool",
+              "name": "isOrderAsk",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "signer",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "collection",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "strategy",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "currency",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "startTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "endTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "params",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes",
+              "name": "signature",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct OrderTypes.MakerOrder",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "name": "canExecuteTakerAsk",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bool",
+              "name": "isOrderAsk",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "taker",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "params",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct OrderTypes.TakerOrder",
+          "name": "takerBid",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bool",
+              "name": "isOrderAsk",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "signer",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "collection",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "strategy",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "currency",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "startTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "endTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "params",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes",
+              "name": "signature",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct OrderTypes.MakerOrder",
+          "name": "makerAsk",
+          "type": "tuple"
+        }
+      ],
+      "name": "canExecuteTakerBid",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "viewProtocolFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x60a060405234801561001057600080fd5b5060405161037938038061037983398101604081905261002f91610037565b608052610050565b60006020828403121561004957600080fd5b5051919050565b6080516103096100706000396000818160560152608d01526103096000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c80630b4501fd146100515780639dd1cda61461008b578063a22233b5146100b1578063c346b3b9146100e1575b600080fd5b6100787f000000000000000000000000000000000000000000000000000000000000000081565b6040519081526020015b60405180910390f35b7f0000000000000000000000000000000000000000000000000000000000000000610078565b6100c46100bf3660046101a0565b6100fa565b604080519315158452602084019290925290820152606001610082565b6100c46100ef3660046101a0565b600080809250925092565b600080808061010d610160860186610214565b81019061011a919061027a565b915061012e905060408701602088016102af565b6001600160a01b0316816001600160a01b0316148015610155575085604001358560600135145b8015610168575085606001358560800135145b801561017957504285610120013511155b801561018a57504285610140013510155b966080860135965060a090950135949350505050565b600080604083850312156101b357600080fd5b823567ffffffffffffffff808211156101cb57600080fd5b9084019060a082870312156101df57600080fd5b909250602084013590808211156101f557600080fd5b5083016101a0818603121561020957600080fd5b809150509250929050565b6000808335601e1984360301811261022b57600080fd5b83018035915067ffffffffffffffff82111561024657600080fd5b60200191503681900382131561025b57600080fd5b9250929050565b6001600160a01b038116811461027757600080fd5b50565b6000806040838503121561028d57600080fd5b823561ffff8116811461029f57600080fd5b9150602083013561020981610262565b6000602082840312156102c157600080fd5b81356102cc81610262565b939250505056fea2646970667358221220e65f43c9df657db88c0f5efb4e9073a23d289070845b680adb84ea21dcf5d71b64736f6c63430008110033",
+    "sourceMap": "316:1982:68:-:0;;;526:78;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;570:27;;316:1982;;14:184:189;84:6;137:2;125:9;116:7;112:23;108:32;105:52;;;153:1;150;143:12;105:52;-1:-1:-1;176:16:189;;14:184;-1:-1:-1;14:184:189:o;:::-;316:1982:68;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x608060405234801561001057600080fd5b506004361061004c5760003560e01c80630b4501fd146100515780639dd1cda61461008b578063a22233b5146100b1578063c346b3b9146100e1575b600080fd5b6100787f000000000000000000000000000000000000000000000000000000000000000081565b6040519081526020015b60405180910390f35b7f0000000000000000000000000000000000000000000000000000000000000000610078565b6100c46100bf3660046101a0565b6100fa565b604080519315158452602084019290925290820152606001610082565b6100c46100ef3660046101a0565b600080809250925092565b600080808061010d610160860186610214565b81019061011a919061027a565b915061012e905060408701602088016102af565b6001600160a01b0316816001600160a01b0316148015610155575085604001358560600135145b8015610168575085606001358560800135145b801561017957504285610120013511155b801561018a57504285610140013510155b966080860135965060a090950135949350505050565b600080604083850312156101b357600080fd5b823567ffffffffffffffff808211156101cb57600080fd5b9084019060a082870312156101df57600080fd5b909250602084013590808211156101f557600080fd5b5083016101a0818603121561020957600080fd5b809150509250929050565b6000808335601e1984360301811261022b57600080fd5b83018035915067ffffffffffffffff82111561024657600080fd5b60200191503681900382131561025b57600080fd5b9250929050565b6001600160a01b038116811461027757600080fd5b50565b6000806040838503121561028d57600080fd5b823561ffff8116811461029f57600080fd5b9150602083013561020981610262565b6000602082840312156102c157600080fd5b81356102cc81610262565b939250505056fea2646970667358221220e65f43c9df657db88c0f5efb4e9073a23d289070845b680adb84ea21dcf5d71b64736f6c63430008110033",
+    "sourceMap": "316:1982:68:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;373:37;;;;;;;;160:25:189;;;148:2;133:18;373:37:68;;;;;;;;2192:104;2277:12;2192:104;;1357:732;;;;;;:::i;:::-;;:::i;:::-;;;;1101:14:189;;1094:22;1076:41;;1148:2;1133:18;;1126:34;;;;1176:18;;;1169:34;1064:2;1049:18;1357:732:68;880:329:189;808:267:68;;;;;;:::i;:::-;977:4;;;808:267;;;;;;1357:732;1544:4;;;;1685:15;;;;:8;:15;:::i;:::-;1674:46;;;;;;;:::i;:::-;1648:72;-1:-1:-1;1769:14:68;;-1:-1:-1;1769:14:68;;;;;;;:::i;:::-;-1:-1:-1;;;;;1754:29:68;:11;-1:-1:-1;;;;;1754:29:68;;1753:85;;;;;1823:8;:14;;;1805:8;:14;;;:32;1753:85;:143;;;;;1879:8;:16;;;1859:8;:16;;;:36;1753:143;:202;;;;;1939:15;1917:8;:18;;;:37;;1753:202;:259;;;;;1996:15;1976:8;:16;;;:35;;1753:259;1731:351;2027:16;;;;;-1:-1:-1;2057:15:68;;;;;;1357:732;-1:-1:-1;;;;1357:732:68:o;196:679:189:-;324:6;332;385:2;373:9;364:7;360:23;356:32;353:52;;;401:1;398;391:12;353:52;441:9;428:23;470:18;511:2;503:6;500:14;497:34;;;527:1;524;517:12;497:34;550:22;;;;606:3;588:16;;;584:26;581:46;;;623:1;620;613:12;581:46;646:2;;-1:-1:-1;701:2:189;686:18;;673:32;;717:16;;;714:36;;;746:1;743;736:12;714:36;-1:-1:-1;769:24:189;;827:3;809:16;;;805:26;802:46;;;844:1;841;834:12;802:46;867:2;857:12;;;196:679;;;;;:::o;1214:521::-;1291:4;1297:6;1357:11;1344:25;1451:2;1447:7;1436:8;1420:14;1416:29;1412:43;1392:18;1388:68;1378:96;;1470:1;1467;1460:12;1378:96;1497:33;;1549:20;;;-1:-1:-1;1592:18:189;1581:30;;1578:50;;;1624:1;1621;1614:12;1578:50;1657:4;1645:17;;-1:-1:-1;1688:14:189;1684:27;;;1674:38;;1671:58;;;1725:1;1722;1715:12;1671:58;1214:521;;;;;:::o;1740:139::-;-1:-1:-1;;;;;1823:31:189;;1813:42;;1803:70;;1869:1;1866;1859:12;1803:70;1740:139;:::o;1884:429::-;1959:6;1967;2020:2;2008:9;1999:7;1995:23;1991:32;1988:52;;;2036:1;2033;2026:12;1988:52;2075:9;2062:23;2125:6;2118:5;2114:18;2107:5;2104:29;2094:57;;2147:1;2144;2137:12;2094:57;2170:5;-1:-1:-1;2227:2:189;2212:18;;2199:32;2240:41;2199:32;2240:41;:::i;2318:255::-;2377:6;2430:2;2418:9;2409:7;2405:23;2401:32;2398:52;;;2446:1;2443;2436:12;2398:52;2485:9;2472:23;2504:39;2537:5;2504:39;:::i;:::-;2562:5;2318:255;-1:-1:-1;;;2318:255:189:o",
+    "linkReferences": {},
+    "immutableReferences": {
+      "21286": [
+        {
+          "start": 86,
+          "length": 32
+        },
+        {
+          "start": 141,
+          "length": 32
+        }
+      ]
+    }
+  },
+  "methodIdentifiers": {
+    "PROTOCOL_FEE()": "0b4501fd",
+    "canExecuteTakerAsk((bool,address,uint256,uint256,bytes),(bool,address,address,uint256,uint256,uint256,address,address,uint256,uint256,uint256,bytes,bytes))": "c346b3b9",
+    "canExecuteTakerBid((bool,address,uint256,uint256,bytes),(bool,address,address,uint256,uint256,uint256,address,address,uint256,uint256,uint256,bytes,bytes))": "a22233b5",
+    "viewProtocolFee()": "9dd1cda6"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_protocolFee\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"PROTOCOL_FEE\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bool\",\"name\":\"isOrderAsk\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"taker\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"params\",\"type\":\"bytes\"}],\"internalType\":\"struct OrderTypes.TakerOrder\",\"name\":\"\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"bool\",\"name\":\"isOrderAsk\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"signer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"collection\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"strategy\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"endTime\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"params\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"internalType\":\"struct OrderTypes.MakerOrder\",\"name\":\"\",\"type\":\"tuple\"}],\"name\":\"canExecuteTakerAsk\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bool\",\"name\":\"isOrderAsk\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"taker\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"params\",\"type\":\"bytes\"}],\"internalType\":\"struct OrderTypes.TakerOrder\",\"name\":\"takerBid\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"bool\",\"name\":\"isOrderAsk\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"signer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"collection\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"strategy\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"endTime\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"params\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"internalType\":\"struct OrderTypes.MakerOrder\",\"name\":\"makerAsk\",\"type\":\"tuple\"}],\"name\":\"canExecuteTakerBid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"viewProtocolFee\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"canExecuteTakerAsk((bool,address,uint256,uint256,bytes),(bool,address,address,uint256,uint256,uint256,address,address,uint256,uint256,uint256,bytes,bytes))\":{\"returns\":{\"_0\":\"(whether strategy can be executed, tokenId to execute, amount of tokens to execute)\"}},\"canExecuteTakerBid((bool,address,uint256,uint256,bytes),(bool,address,address,uint256,uint256,uint256,address,address,uint256,uint256,uint256,bytes,bytes))\":{\"params\":{\"makerAsk\":\"maker ask order\",\"takerBid\":\"taker bid order\"},\"returns\":{\"_0\":\"(whether strategy can be executed, tokenId to execute, amount of tokens to execute)\"}},\"constructor\":{\"params\":{\"_protocolFee\":\": protocol fee (200 --> 2%, 400 --> 4%)\"}},\"viewProtocolFee()\":{\"returns\":{\"_0\":\"protocol fee\"}}},\"title\":\"StrategyPrivateSale\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"canExecuteTakerAsk((bool,address,uint256,uint256,bytes),(bool,address,address,uint256,uint256,uint256,address,address,uint256,uint256,uint256,bytes,bytes))\":{\"notice\":\"Check whether a taker ask order can be executed against a maker bid\"},\"canExecuteTakerBid((bool,address,uint256,uint256,bytes),(bool,address,address,uint256,uint256,uint256,address,address,uint256,uint256,uint256,bytes,bytes))\":{\"notice\":\"Check whether a taker bid order can be executed against a maker ask\"},\"constructor\":{\"notice\":\"Constructor\"},\"viewProtocolFee()\":{\"notice\":\"Return protocol fee for this strategy\"}},\"notice\":\"Strategy to set up an order that can only be executed by a specific address.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/strategy/StrategyPrivateSale.sol\":\"StrategyPrivateSale\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@ensdomains/=node_modules/@ensdomains/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":solmate/=node_modules/solmate/\",\":xdeployer/=node_modules/xdeployer/\"]},\"sources\":{\"contracts/interfaces/IExecutionStrategy.sol\":{\"keccak256\":\"0x9f4776449fd4c10a2fb4a6fcdad1fdd593c1f69280758a14c4c94b60cd2b57d7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3536f2b9f7d3d50e2a3b7a69380c990c1d85083a6c7dbfbf72c1032fcaa1299e\",\"dweb:/ipfs/QmbVCsEXzqae6a1vCm7uhz41uooE4KHJLiHDhBvjqH175A\"]},\"contracts/libraries/OrderTypes.sol\":{\"keccak256\":\"0xcc3bd38efa4e6637dc0f69e9c80da5648593c8654974e8213232014602834b2a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d3d80fbf17527b03115ae4141232fe68b40ec6ebae5ae1d67eff96d25aec6e78\",\"dweb:/ipfs/QmfEFZUtGQD7RsZCs1kcGexzZ9MBiSZvXkYX8WDrv7Gn9c\"]},\"contracts/strategy/StrategyPrivateSale.sol\":{\"keccak256\":\"0xb38735bfb24ca0e17561908ef72f18e7cefbcb84facc8ceafe2b5be8a69e85ac\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f66385892c44a558e18931382d93aa1cfc3d35c3e72e0c0fc7c47c92e0b5a7e9\",\"dweb:/ipfs/QmU6DvbVX9BHC8wLkSMRs7UFSgdWWU9bkZ2Jm75mnfLZff\"]},\"node_modules/@openzeppelin/contracts/utils/Strings.sol\":{\"keccak256\":\"0xa4d1d62251f8574deb032a35fc948386a9b4de74b812d4f545a1ac120486b48a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://8c969013129ba9e651a20735ef659fef6d8a1139ea3607bd4b26ddea2d645634\",\"dweb:/ipfs/QmVhVa6LGuzAcB8qgDtVHRkucn4ihj5UZr8xBLcJkP6ucb\"]},\"node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol\":{\"keccak256\":\"0xda898fa084aa1ddfdb346e6a40459e00a59d87071cce7c315a46d648dd71d0ba\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ce501a941f4aa1555c04dabb5e07992503bb6a9b32ff8f7cdcefdb4a742210cb\",\"dweb:/ipfs/QmeScPrUpdrGYs9BytV3Z5ZWJcBXtuAgCW4BLHua4xFUxx\"]},\"node_modules/@openzeppelin/contracts/utils/cryptography/EIP712.sol\":{\"keccak256\":\"0x948d8b2d18f38141ec78c5229d770d950ebc781ed3f44cc9e3ccbb9fded5846a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7311ac950ed2d81f3ccf1784a926efbfc82a86dcb5c98d41eb3792c0cac63a2f\",\"dweb:/ipfs/QmRRwCUHewkPmehx8QRYENFoWyLNx8UEZGULxWYUeSZdTS\"]},\"node_modules/@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol\":{\"keccak256\":\"0xea30c402170bc240354b74e6c6f6a8e5bdb1935d90d168cc58c0654461c6a72b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://95cbddf89006e6dbbc200eb091eb90025c97a9980310f2325c9bda2c4fdc97e3\",\"dweb:/ipfs/QmT67Dt3xrKEQSDC4XyDcrKwZUYsJzddrRFjEopRZNP9yR\"]},\"node_modules/@openzeppelin/contracts/utils/math/Math.sol\":{\"keccak256\":\"0xa1e8e83cd0087785df04ac79fb395d9f3684caeaf973d9e2c71caef723a3a5d6\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://33bbf48cc069be677705037ba7520c22b1b622c23b33e1a71495f2d36549d40b\",\"dweb:/ipfs/Qmct36zWXv3j7LZB83uwbg7TXwnZSN1fqHNDZ93GG98bGz\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_protocolFee",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "PROTOCOL_FEE",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct OrderTypes.TakerOrder",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bool",
+                  "name": "isOrderAsk",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "taker",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "price",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "params",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "struct OrderTypes.MakerOrder",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bool",
+                  "name": "isOrderAsk",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "signer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "collection",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "price",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "strategy",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "currency",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nonce",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "startTime",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "endTime",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "params",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "signature",
+                  "type": "bytes"
+                }
+              ]
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "canExecuteTakerAsk",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct OrderTypes.TakerOrder",
+              "name": "takerBid",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bool",
+                  "name": "isOrderAsk",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "taker",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "price",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "params",
+                  "type": "bytes"
+                }
+              ]
+            },
+            {
+              "internalType": "struct OrderTypes.MakerOrder",
+              "name": "makerAsk",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bool",
+                  "name": "isOrderAsk",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "signer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "collection",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "price",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "tokenId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "strategy",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "currency",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nonce",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "startTime",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "endTime",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "params",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "signature",
+                  "type": "bytes"
+                }
+              ]
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "canExecuteTakerBid",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "viewProtocolFee",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "canExecuteTakerAsk((bool,address,uint256,uint256,bytes),(bool,address,address,uint256,uint256,uint256,address,address,uint256,uint256,uint256,bytes,bytes))": {
+            "returns": {
+              "_0": "(whether strategy can be executed, tokenId to execute, amount of tokens to execute)"
+            }
+          },
+          "canExecuteTakerBid((bool,address,uint256,uint256,bytes),(bool,address,address,uint256,uint256,uint256,address,address,uint256,uint256,uint256,bytes,bytes))": {
+            "params": {
+              "makerAsk": "maker ask order",
+              "takerBid": "taker bid order"
+            },
+            "returns": {
+              "_0": "(whether strategy can be executed, tokenId to execute, amount of tokens to execute)"
+            }
+          },
+          "constructor": {
+            "params": {
+              "_protocolFee": ": protocol fee (200 --> 2%, 400 --> 4%)"
+            }
+          },
+          "viewProtocolFee()": {
+            "returns": {
+              "_0": "protocol fee"
+            }
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "canExecuteTakerAsk((bool,address,uint256,uint256,bytes),(bool,address,address,uint256,uint256,uint256,address,address,uint256,uint256,uint256,bytes,bytes))": {
+            "notice": "Check whether a taker ask order can be executed against a maker bid"
+          },
+          "canExecuteTakerBid((bool,address,uint256,uint256,bytes),(bool,address,address,uint256,uint256,uint256,address,address,uint256,uint256,uint256,bytes,bytes))": {
+            "notice": "Check whether a taker bid order can be executed against a maker ask"
+          },
+          "constructor": {
+            "notice": "Constructor"
+          },
+          "viewProtocolFee()": {
+            "notice": "Return protocol fee for this strategy"
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":@ensdomains/=node_modules/@ensdomains/",
+        ":@gelatonetwork/=node_modules/@gelatonetwork/",
+        ":@layerzerolabs/=node_modules/@layerzerolabs/",
+        ":@openzeppelin/=node_modules/@openzeppelin/",
+        ":@uniswap/=node_modules/@uniswap/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":eth-gas-reporter/=node_modules/eth-gas-reporter/",
+        ":forge-std/=lib/forge-std/src/",
+        ":hardhat-deploy/=node_modules/hardhat-deploy/",
+        ":hardhat/=node_modules/hardhat/",
+        ":operator-filter-registry/=node_modules/operator-filter-registry/",
+        ":solmate/=node_modules/solmate/",
+        ":xdeployer/=node_modules/xdeployer/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "contracts/strategy/StrategyPrivateSale.sol": "StrategyPrivateSale"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "contracts/interfaces/IExecutionStrategy.sol": {
+        "keccak256": "0x9f4776449fd4c10a2fb4a6fcdad1fdd593c1f69280758a14c4c94b60cd2b57d7",
+        "urls": [
+          "bzz-raw://3536f2b9f7d3d50e2a3b7a69380c990c1d85083a6c7dbfbf72c1032fcaa1299e",
+          "dweb:/ipfs/QmbVCsEXzqae6a1vCm7uhz41uooE4KHJLiHDhBvjqH175A"
+        ],
+        "license": "MIT"
+      },
+      "contracts/libraries/OrderTypes.sol": {
+        "keccak256": "0xcc3bd38efa4e6637dc0f69e9c80da5648593c8654974e8213232014602834b2a",
+        "urls": [
+          "bzz-raw://d3d80fbf17527b03115ae4141232fe68b40ec6ebae5ae1d67eff96d25aec6e78",
+          "dweb:/ipfs/QmfEFZUtGQD7RsZCs1kcGexzZ9MBiSZvXkYX8WDrv7Gn9c"
+        ],
+        "license": "MIT"
+      },
+      "contracts/strategy/StrategyPrivateSale.sol": {
+        "keccak256": "0xb38735bfb24ca0e17561908ef72f18e7cefbcb84facc8ceafe2b5be8a69e85ac",
+        "urls": [
+          "bzz-raw://f66385892c44a558e18931382d93aa1cfc3d35c3e72e0c0fc7c47c92e0b5a7e9",
+          "dweb:/ipfs/QmU6DvbVX9BHC8wLkSMRs7UFSgdWWU9bkZ2Jm75mnfLZff"
+        ],
+        "license": "MIT"
+      },
+      "node_modules/@openzeppelin/contracts/utils/Strings.sol": {
+        "keccak256": "0xa4d1d62251f8574deb032a35fc948386a9b4de74b812d4f545a1ac120486b48a",
+        "urls": [
+          "bzz-raw://8c969013129ba9e651a20735ef659fef6d8a1139ea3607bd4b26ddea2d645634",
+          "dweb:/ipfs/QmVhVa6LGuzAcB8qgDtVHRkucn4ihj5UZr8xBLcJkP6ucb"
+        ],
+        "license": "MIT"
+      },
+      "node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol": {
+        "keccak256": "0xda898fa084aa1ddfdb346e6a40459e00a59d87071cce7c315a46d648dd71d0ba",
+        "urls": [
+          "bzz-raw://ce501a941f4aa1555c04dabb5e07992503bb6a9b32ff8f7cdcefdb4a742210cb",
+          "dweb:/ipfs/QmeScPrUpdrGYs9BytV3Z5ZWJcBXtuAgCW4BLHua4xFUxx"
+        ],
+        "license": "MIT"
+      },
+      "node_modules/@openzeppelin/contracts/utils/cryptography/EIP712.sol": {
+        "keccak256": "0x948d8b2d18f38141ec78c5229d770d950ebc781ed3f44cc9e3ccbb9fded5846a",
+        "urls": [
+          "bzz-raw://7311ac950ed2d81f3ccf1784a926efbfc82a86dcb5c98d41eb3792c0cac63a2f",
+          "dweb:/ipfs/QmRRwCUHewkPmehx8QRYENFoWyLNx8UEZGULxWYUeSZdTS"
+        ],
+        "license": "MIT"
+      },
+      "node_modules/@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol": {
+        "keccak256": "0xea30c402170bc240354b74e6c6f6a8e5bdb1935d90d168cc58c0654461c6a72b",
+        "urls": [
+          "bzz-raw://95cbddf89006e6dbbc200eb091eb90025c97a9980310f2325c9bda2c4fdc97e3",
+          "dweb:/ipfs/QmT67Dt3xrKEQSDC4XyDcrKwZUYsJzddrRFjEopRZNP9yR"
+        ],
+        "license": "MIT"
+      },
+      "node_modules/@openzeppelin/contracts/utils/math/Math.sol": {
+        "keccak256": "0xa1e8e83cd0087785df04ac79fb395d9f3684caeaf973d9e2c71caef723a3a5d6",
+        "urls": [
+          "bzz-raw://33bbf48cc069be677705037ba7520c22b1b622c23b33e1a71495f2d36549d40b",
+          "dweb:/ipfs/Qmct36zWXv3j7LZB83uwbg7TXwnZSN1fqHNDZ93GG98bGz"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "contracts/strategy/StrategyPrivateSale.sol",
+    "id": 21403,
+    "exportedSymbols": {
+      "IExecutionStrategy": [
+        5589
+      ],
+      "OrderTypes": [
+        7528
+      ],
+      "StrategyPrivateSale": [
+        21402
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:2266:68",
+    "nodes": [
+      {
+        "id": 21277,
+        "nodeType": "PragmaDirective",
+        "src": "32:23:68",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ]
+      },
+      {
+        "id": 21279,
+        "nodeType": "ImportDirective",
+        "src": "57:55:68",
+        "nodes": [],
+        "absolutePath": "contracts/libraries/OrderTypes.sol",
+        "file": "../libraries/OrderTypes.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 21403,
+        "sourceUnit": 7529,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 21278,
+              "name": "OrderTypes",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 7528,
+              "src": "65:10:68",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 21281,
+        "nodeType": "ImportDirective",
+        "src": "113:72:68",
+        "nodes": [],
+        "absolutePath": "contracts/interfaces/IExecutionStrategy.sol",
+        "file": "../interfaces/IExecutionStrategy.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 21403,
+        "sourceUnit": 5590,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 21280,
+              "name": "IExecutionStrategy",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 5589,
+              "src": "121:18:68",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 21402,
+        "nodeType": "ContractDefinition",
+        "src": "316:1982:68",
+        "nodes": [
+          {
+            "id": 21286,
+            "nodeType": "VariableDeclaration",
+            "src": "373:37:68",
+            "nodes": [],
+            "constant": false,
+            "functionSelector": "0b4501fd",
+            "mutability": "immutable",
+            "name": "PROTOCOL_FEE",
+            "nameLocation": "398:12:68",
+            "scope": 21402,
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 21285,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "373:7:68",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "visibility": "public"
+          },
+          {
+            "id": 21297,
+            "nodeType": "FunctionDefinition",
+            "src": "526:78:68",
+            "nodes": [],
+            "body": {
+              "id": 21296,
+              "nodeType": "Block",
+              "src": "560:44:68",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "id": 21294,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 21292,
+                      "name": "PROTOCOL_FEE",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 21286,
+                      "src": "570:12:68",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "id": 21293,
+                      "name": "_protocolFee",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 21289,
+                      "src": "585:12:68",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "src": "570:27:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "id": 21295,
+                  "nodeType": "ExpressionStatement",
+                  "src": "570:27:68"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 21287,
+              "nodeType": "StructuredDocumentation",
+              "src": "417:104:68",
+              "text": " @notice Constructor\n @param _protocolFee: protocol fee (200 --> 2%, 400 --> 4%)"
+            },
+            "implemented": true,
+            "kind": "constructor",
+            "modifiers": [],
+            "name": "",
+            "nameLocation": "-1:-1:-1",
+            "parameters": {
+              "id": 21290,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21289,
+                  "mutability": "mutable",
+                  "name": "_protocolFee",
+                  "nameLocation": "546:12:68",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21297,
+                  "src": "538:20:68",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21288,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "538:7:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "537:22:68"
+            },
+            "returnParameters": {
+              "id": 21291,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "560:0:68"
+            },
+            "scope": 21402,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "public"
+          },
+          {
+            "id": 21320,
+            "nodeType": "FunctionDefinition",
+            "src": "808:267:68",
+            "nodes": [],
+            "body": {
+              "id": 21319,
+              "nodeType": "Block",
+              "src": "1038:37:68",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "components": [
+                      {
+                        "hexValue": "66616c7365",
+                        "id": 21314,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "bool",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "1056:5:68",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        "value": "false"
+                      },
+                      {
+                        "hexValue": "30",
+                        "id": 21315,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "number",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "1063:1:68",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        "value": "0"
+                      },
+                      {
+                        "hexValue": "30",
+                        "id": 21316,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "number",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "1066:1:68",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        "value": "0"
+                      }
+                    ],
+                    "id": 21317,
+                    "isConstant": false,
+                    "isInlineArray": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "lValueRequested": false,
+                    "nodeType": "TupleExpression",
+                    "src": "1055:13:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$_t_bool_$_t_rational_0_by_1_$_t_rational_0_by_1_$",
+                      "typeString": "tuple(bool,int_const 0,int_const 0)"
+                    }
+                  },
+                  "functionReturnParameters": 21313,
+                  "id": 21318,
+                  "nodeType": "Return",
+                  "src": "1048:20:68"
+                }
+              ]
+            },
+            "baseFunctions": [
+              5568
+            ],
+            "documentation": {
+              "id": 21298,
+              "nodeType": "StructuredDocumentation",
+              "src": "610:193:68",
+              "text": " @notice Check whether a taker ask order can be executed against a maker bid\n @return (whether strategy can be executed, tokenId to execute, amount of tokens to execute)"
+            },
+            "functionSelector": "c346b3b9",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "canExecuteTakerAsk",
+            "nameLocation": "817:18:68",
+            "overrides": {
+              "id": 21306,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "938:8:68"
+            },
+            "parameters": {
+              "id": 21305,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21301,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21320,
+                  "src": "836:30:68",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_TakerOrder_$7344_calldata_ptr",
+                    "typeString": "struct OrderTypes.TakerOrder"
+                  },
+                  "typeName": {
+                    "id": 21300,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 21299,
+                      "name": "OrderTypes.TakerOrder",
+                      "nameLocations": [
+                        "836:10:68",
+                        "847:10:68"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 7344,
+                      "src": "836:21:68"
+                    },
+                    "referencedDeclaration": 7344,
+                    "src": "836:21:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_TakerOrder_$7344_storage_ptr",
+                      "typeString": "struct OrderTypes.TakerOrder"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21304,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21320,
+                  "src": "868:30:68",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_MakerOrder_$7333_calldata_ptr",
+                    "typeString": "struct OrderTypes.MakerOrder"
+                  },
+                  "typeName": {
+                    "id": 21303,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 21302,
+                      "name": "OrderTypes.MakerOrder",
+                      "nameLocations": [
+                        "868:10:68",
+                        "879:10:68"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 7333,
+                      "src": "868:21:68"
+                    },
+                    "referencedDeclaration": 7333,
+                    "src": "868:21:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_MakerOrder_$7333_storage_ptr",
+                      "typeString": "struct OrderTypes.MakerOrder"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "835:64:68"
+            },
+            "returnParameters": {
+              "id": 21313,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21308,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21320,
+                  "src": "977:4:68",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 21307,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "977:4:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21310,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21320,
+                  "src": "995:7:68",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21309,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "995:7:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21312,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21320,
+                  "src": "1016:7:68",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21311,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1016:7:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "963:70:68"
+            },
+            "scope": 21402,
+            "stateMutability": "pure",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 21391,
+            "nodeType": "FunctionDefinition",
+            "src": "1357:732:68",
+            "nodes": [],
+            "body": {
+              "id": 21390,
+              "nodeType": "Block",
+              "src": "1605:484:68",
+              "nodes": [],
+              "statements": [
+                {
+                  "assignments": [
+                    null,
+                    21338
+                  ],
+                  "declarations": [
+                    null,
+                    {
+                      "constant": false,
+                      "id": 21338,
+                      "mutability": "mutable",
+                      "name": "targetBuyer",
+                      "nameLocation": "1659:11:68",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 21390,
+                      "src": "1651:19:68",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      },
+                      "typeName": {
+                        "id": 21337,
+                        "name": "address",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "1651:7:68",
+                        "stateMutability": "nonpayable",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 21349,
+                  "initialValue": {
+                    "arguments": [
+                      {
+                        "expression": {
+                          "id": 21341,
+                          "name": "makerAsk",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 21327,
+                          "src": "1685:8:68",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_MakerOrder_$7333_calldata_ptr",
+                            "typeString": "struct OrderTypes.MakerOrder calldata"
+                          }
+                        },
+                        "id": 21342,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "1694:6:68",
+                        "memberName": "params",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 7330,
+                        "src": "1685:15:68",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes_calldata_ptr",
+                          "typeString": "bytes calldata"
+                        }
+                      },
+                      {
+                        "components": [
+                          {
+                            "id": 21344,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "lValueRequested": false,
+                            "nodeType": "ElementaryTypeNameExpression",
+                            "src": "1703:6:68",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_type$_t_uint16_$",
+                              "typeString": "type(uint16)"
+                            },
+                            "typeName": {
+                              "id": 21343,
+                              "name": "uint16",
+                              "nodeType": "ElementaryTypeName",
+                              "src": "1703:6:68",
+                              "typeDescriptions": {}
+                            }
+                          },
+                          {
+                            "id": 21346,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "lValueRequested": false,
+                            "nodeType": "ElementaryTypeNameExpression",
+                            "src": "1711:7:68",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_type$_t_address_$",
+                              "typeString": "type(address)"
+                            },
+                            "typeName": {
+                              "id": 21345,
+                              "name": "address",
+                              "nodeType": "ElementaryTypeName",
+                              "src": "1711:7:68",
+                              "typeDescriptions": {}
+                            }
+                          }
+                        ],
+                        "id": 21347,
+                        "isConstant": false,
+                        "isInlineArray": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "lValueRequested": false,
+                        "nodeType": "TupleExpression",
+                        "src": "1702:17:68",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_tuple$_t_type$_t_uint16_$_$_t_type$_t_address_$_$",
+                          "typeString": "tuple(type(uint16),type(address))"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes_calldata_ptr",
+                          "typeString": "bytes calldata"
+                        },
+                        {
+                          "typeIdentifier": "t_tuple$_t_type$_t_uint16_$_$_t_type$_t_address_$_$",
+                          "typeString": "tuple(type(uint16),type(address))"
+                        }
+                      ],
+                      "expression": {
+                        "id": 21339,
+                        "name": "abi",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": -1,
+                        "src": "1674:3:68",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_magic_abi",
+                          "typeString": "abi"
+                        }
+                      },
+                      "id": 21340,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "lValueRequested": false,
+                      "memberLocation": "1678:6:68",
+                      "memberName": "decode",
+                      "nodeType": "MemberAccess",
+                      "src": "1674:10:68",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_abidecode_pure$__$returns$__$",
+                        "typeString": "function () pure"
+                      }
+                    },
+                    "id": 21348,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1674:46:68",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$_t_uint16_$_t_address_payable_$",
+                      "typeString": "tuple(uint16,address payable)"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "1648:72:68"
+                },
+                {
+                  "expression": {
+                    "components": [
+                      {
+                        "components": [
+                          {
+                            "commonType": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            },
+                            "id": 21382,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "leftExpression": {
+                              "commonType": {
+                                "typeIdentifier": "t_bool",
+                                "typeString": "bool"
+                              },
+                              "id": 21375,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "leftExpression": {
+                                "commonType": {
+                                  "typeIdentifier": "t_bool",
+                                  "typeString": "bool"
+                                },
+                                "id": 21368,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": false,
+                                "lValueRequested": false,
+                                "leftExpression": {
+                                  "commonType": {
+                                    "typeIdentifier": "t_bool",
+                                    "typeString": "bool"
+                                  },
+                                  "id": 21361,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "leftExpression": {
+                                    "components": [
+                                      {
+                                        "commonType": {
+                                          "typeIdentifier": "t_address",
+                                          "typeString": "address"
+                                        },
+                                        "id": 21353,
+                                        "isConstant": false,
+                                        "isLValue": false,
+                                        "isPure": false,
+                                        "lValueRequested": false,
+                                        "leftExpression": {
+                                          "id": 21350,
+                                          "name": "targetBuyer",
+                                          "nodeType": "Identifier",
+                                          "overloadedDeclarations": [],
+                                          "referencedDeclaration": 21338,
+                                          "src": "1754:11:68",
+                                          "typeDescriptions": {
+                                            "typeIdentifier": "t_address",
+                                            "typeString": "address"
+                                          }
+                                        },
+                                        "nodeType": "BinaryOperation",
+                                        "operator": "==",
+                                        "rightExpression": {
+                                          "expression": {
+                                            "id": 21351,
+                                            "name": "takerBid",
+                                            "nodeType": "Identifier",
+                                            "overloadedDeclarations": [],
+                                            "referencedDeclaration": 21324,
+                                            "src": "1769:8:68",
+                                            "typeDescriptions": {
+                                              "typeIdentifier": "t_struct$_TakerOrder_$7344_calldata_ptr",
+                                              "typeString": "struct OrderTypes.TakerOrder calldata"
+                                            }
+                                          },
+                                          "id": 21352,
+                                          "isConstant": false,
+                                          "isLValue": false,
+                                          "isPure": false,
+                                          "lValueRequested": false,
+                                          "memberLocation": "1778:5:68",
+                                          "memberName": "taker",
+                                          "nodeType": "MemberAccess",
+                                          "referencedDeclaration": 7337,
+                                          "src": "1769:14:68",
+                                          "typeDescriptions": {
+                                            "typeIdentifier": "t_address",
+                                            "typeString": "address"
+                                          }
+                                        },
+                                        "src": "1754:29:68",
+                                        "typeDescriptions": {
+                                          "typeIdentifier": "t_bool",
+                                          "typeString": "bool"
+                                        }
+                                      }
+                                    ],
+                                    "id": 21354,
+                                    "isConstant": false,
+                                    "isInlineArray": false,
+                                    "isLValue": false,
+                                    "isPure": false,
+                                    "lValueRequested": false,
+                                    "nodeType": "TupleExpression",
+                                    "src": "1753:31:68",
+                                    "typeDescriptions": {
+                                      "typeIdentifier": "t_bool",
+                                      "typeString": "bool"
+                                    }
+                                  },
+                                  "nodeType": "BinaryOperation",
+                                  "operator": "&&",
+                                  "rightExpression": {
+                                    "components": [
+                                      {
+                                        "commonType": {
+                                          "typeIdentifier": "t_uint256",
+                                          "typeString": "uint256"
+                                        },
+                                        "id": 21359,
+                                        "isConstant": false,
+                                        "isLValue": false,
+                                        "isPure": false,
+                                        "lValueRequested": false,
+                                        "leftExpression": {
+                                          "expression": {
+                                            "id": 21355,
+                                            "name": "makerAsk",
+                                            "nodeType": "Identifier",
+                                            "overloadedDeclarations": [],
+                                            "referencedDeclaration": 21327,
+                                            "src": "1805:8:68",
+                                            "typeDescriptions": {
+                                              "typeIdentifier": "t_struct$_MakerOrder_$7333_calldata_ptr",
+                                              "typeString": "struct OrderTypes.MakerOrder calldata"
+                                            }
+                                          },
+                                          "id": 21356,
+                                          "isConstant": false,
+                                          "isLValue": false,
+                                          "isPure": false,
+                                          "lValueRequested": false,
+                                          "memberLocation": "1814:5:68",
+                                          "memberName": "price",
+                                          "nodeType": "MemberAccess",
+                                          "referencedDeclaration": 7314,
+                                          "src": "1805:14:68",
+                                          "typeDescriptions": {
+                                            "typeIdentifier": "t_uint256",
+                                            "typeString": "uint256"
+                                          }
+                                        },
+                                        "nodeType": "BinaryOperation",
+                                        "operator": "==",
+                                        "rightExpression": {
+                                          "expression": {
+                                            "id": 21357,
+                                            "name": "takerBid",
+                                            "nodeType": "Identifier",
+                                            "overloadedDeclarations": [],
+                                            "referencedDeclaration": 21324,
+                                            "src": "1823:8:68",
+                                            "typeDescriptions": {
+                                              "typeIdentifier": "t_struct$_TakerOrder_$7344_calldata_ptr",
+                                              "typeString": "struct OrderTypes.TakerOrder calldata"
+                                            }
+                                          },
+                                          "id": 21358,
+                                          "isConstant": false,
+                                          "isLValue": false,
+                                          "isPure": false,
+                                          "lValueRequested": false,
+                                          "memberLocation": "1832:5:68",
+                                          "memberName": "price",
+                                          "nodeType": "MemberAccess",
+                                          "referencedDeclaration": 7339,
+                                          "src": "1823:14:68",
+                                          "typeDescriptions": {
+                                            "typeIdentifier": "t_uint256",
+                                            "typeString": "uint256"
+                                          }
+                                        },
+                                        "src": "1805:32:68",
+                                        "typeDescriptions": {
+                                          "typeIdentifier": "t_bool",
+                                          "typeString": "bool"
+                                        }
+                                      }
+                                    ],
+                                    "id": 21360,
+                                    "isConstant": false,
+                                    "isInlineArray": false,
+                                    "isLValue": false,
+                                    "isPure": false,
+                                    "lValueRequested": false,
+                                    "nodeType": "TupleExpression",
+                                    "src": "1804:34:68",
+                                    "typeDescriptions": {
+                                      "typeIdentifier": "t_bool",
+                                      "typeString": "bool"
+                                    }
+                                  },
+                                  "src": "1753:85:68",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_bool",
+                                    "typeString": "bool"
+                                  }
+                                },
+                                "nodeType": "BinaryOperation",
+                                "operator": "&&",
+                                "rightExpression": {
+                                  "components": [
+                                    {
+                                      "commonType": {
+                                        "typeIdentifier": "t_uint256",
+                                        "typeString": "uint256"
+                                      },
+                                      "id": 21366,
+                                      "isConstant": false,
+                                      "isLValue": false,
+                                      "isPure": false,
+                                      "lValueRequested": false,
+                                      "leftExpression": {
+                                        "expression": {
+                                          "id": 21362,
+                                          "name": "makerAsk",
+                                          "nodeType": "Identifier",
+                                          "overloadedDeclarations": [],
+                                          "referencedDeclaration": 21327,
+                                          "src": "1859:8:68",
+                                          "typeDescriptions": {
+                                            "typeIdentifier": "t_struct$_MakerOrder_$7333_calldata_ptr",
+                                            "typeString": "struct OrderTypes.MakerOrder calldata"
+                                          }
+                                        },
+                                        "id": 21363,
+                                        "isConstant": false,
+                                        "isLValue": false,
+                                        "isPure": false,
+                                        "lValueRequested": false,
+                                        "memberLocation": "1868:7:68",
+                                        "memberName": "tokenId",
+                                        "nodeType": "MemberAccess",
+                                        "referencedDeclaration": 7316,
+                                        "src": "1859:16:68",
+                                        "typeDescriptions": {
+                                          "typeIdentifier": "t_uint256",
+                                          "typeString": "uint256"
+                                        }
+                                      },
+                                      "nodeType": "BinaryOperation",
+                                      "operator": "==",
+                                      "rightExpression": {
+                                        "expression": {
+                                          "id": 21364,
+                                          "name": "takerBid",
+                                          "nodeType": "Identifier",
+                                          "overloadedDeclarations": [],
+                                          "referencedDeclaration": 21324,
+                                          "src": "1879:8:68",
+                                          "typeDescriptions": {
+                                            "typeIdentifier": "t_struct$_TakerOrder_$7344_calldata_ptr",
+                                            "typeString": "struct OrderTypes.TakerOrder calldata"
+                                          }
+                                        },
+                                        "id": 21365,
+                                        "isConstant": false,
+                                        "isLValue": false,
+                                        "isPure": false,
+                                        "lValueRequested": false,
+                                        "memberLocation": "1888:7:68",
+                                        "memberName": "tokenId",
+                                        "nodeType": "MemberAccess",
+                                        "referencedDeclaration": 7341,
+                                        "src": "1879:16:68",
+                                        "typeDescriptions": {
+                                          "typeIdentifier": "t_uint256",
+                                          "typeString": "uint256"
+                                        }
+                                      },
+                                      "src": "1859:36:68",
+                                      "typeDescriptions": {
+                                        "typeIdentifier": "t_bool",
+                                        "typeString": "bool"
+                                      }
+                                    }
+                                  ],
+                                  "id": 21367,
+                                  "isConstant": false,
+                                  "isInlineArray": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "nodeType": "TupleExpression",
+                                  "src": "1858:38:68",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_bool",
+                                    "typeString": "bool"
+                                  }
+                                },
+                                "src": "1753:143:68",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_bool",
+                                  "typeString": "bool"
+                                }
+                              },
+                              "nodeType": "BinaryOperation",
+                              "operator": "&&",
+                              "rightExpression": {
+                                "components": [
+                                  {
+                                    "commonType": {
+                                      "typeIdentifier": "t_uint256",
+                                      "typeString": "uint256"
+                                    },
+                                    "id": 21373,
+                                    "isConstant": false,
+                                    "isLValue": false,
+                                    "isPure": false,
+                                    "lValueRequested": false,
+                                    "leftExpression": {
+                                      "expression": {
+                                        "id": 21369,
+                                        "name": "makerAsk",
+                                        "nodeType": "Identifier",
+                                        "overloadedDeclarations": [],
+                                        "referencedDeclaration": 21327,
+                                        "src": "1917:8:68",
+                                        "typeDescriptions": {
+                                          "typeIdentifier": "t_struct$_MakerOrder_$7333_calldata_ptr",
+                                          "typeString": "struct OrderTypes.MakerOrder calldata"
+                                        }
+                                      },
+                                      "id": 21370,
+                                      "isConstant": false,
+                                      "isLValue": false,
+                                      "isPure": false,
+                                      "lValueRequested": false,
+                                      "memberLocation": "1926:9:68",
+                                      "memberName": "startTime",
+                                      "nodeType": "MemberAccess",
+                                      "referencedDeclaration": 7326,
+                                      "src": "1917:18:68",
+                                      "typeDescriptions": {
+                                        "typeIdentifier": "t_uint256",
+                                        "typeString": "uint256"
+                                      }
+                                    },
+                                    "nodeType": "BinaryOperation",
+                                    "operator": "<=",
+                                    "rightExpression": {
+                                      "expression": {
+                                        "id": 21371,
+                                        "name": "block",
+                                        "nodeType": "Identifier",
+                                        "overloadedDeclarations": [],
+                                        "referencedDeclaration": -4,
+                                        "src": "1939:5:68",
+                                        "typeDescriptions": {
+                                          "typeIdentifier": "t_magic_block",
+                                          "typeString": "block"
+                                        }
+                                      },
+                                      "id": 21372,
+                                      "isConstant": false,
+                                      "isLValue": false,
+                                      "isPure": false,
+                                      "lValueRequested": false,
+                                      "memberLocation": "1945:9:68",
+                                      "memberName": "timestamp",
+                                      "nodeType": "MemberAccess",
+                                      "src": "1939:15:68",
+                                      "typeDescriptions": {
+                                        "typeIdentifier": "t_uint256",
+                                        "typeString": "uint256"
+                                      }
+                                    },
+                                    "src": "1917:37:68",
+                                    "typeDescriptions": {
+                                      "typeIdentifier": "t_bool",
+                                      "typeString": "bool"
+                                    }
+                                  }
+                                ],
+                                "id": 21374,
+                                "isConstant": false,
+                                "isInlineArray": false,
+                                "isLValue": false,
+                                "isPure": false,
+                                "lValueRequested": false,
+                                "nodeType": "TupleExpression",
+                                "src": "1916:39:68",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_bool",
+                                  "typeString": "bool"
+                                }
+                              },
+                              "src": "1753:202:68",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_bool",
+                                "typeString": "bool"
+                              }
+                            },
+                            "nodeType": "BinaryOperation",
+                            "operator": "&&",
+                            "rightExpression": {
+                              "components": [
+                                {
+                                  "commonType": {
+                                    "typeIdentifier": "t_uint256",
+                                    "typeString": "uint256"
+                                  },
+                                  "id": 21380,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "leftExpression": {
+                                    "expression": {
+                                      "id": 21376,
+                                      "name": "makerAsk",
+                                      "nodeType": "Identifier",
+                                      "overloadedDeclarations": [],
+                                      "referencedDeclaration": 21327,
+                                      "src": "1976:8:68",
+                                      "typeDescriptions": {
+                                        "typeIdentifier": "t_struct$_MakerOrder_$7333_calldata_ptr",
+                                        "typeString": "struct OrderTypes.MakerOrder calldata"
+                                      }
+                                    },
+                                    "id": 21377,
+                                    "isConstant": false,
+                                    "isLValue": false,
+                                    "isPure": false,
+                                    "lValueRequested": false,
+                                    "memberLocation": "1985:7:68",
+                                    "memberName": "endTime",
+                                    "nodeType": "MemberAccess",
+                                    "referencedDeclaration": 7328,
+                                    "src": "1976:16:68",
+                                    "typeDescriptions": {
+                                      "typeIdentifier": "t_uint256",
+                                      "typeString": "uint256"
+                                    }
+                                  },
+                                  "nodeType": "BinaryOperation",
+                                  "operator": ">=",
+                                  "rightExpression": {
+                                    "expression": {
+                                      "id": 21378,
+                                      "name": "block",
+                                      "nodeType": "Identifier",
+                                      "overloadedDeclarations": [],
+                                      "referencedDeclaration": -4,
+                                      "src": "1996:5:68",
+                                      "typeDescriptions": {
+                                        "typeIdentifier": "t_magic_block",
+                                        "typeString": "block"
+                                      }
+                                    },
+                                    "id": 21379,
+                                    "isConstant": false,
+                                    "isLValue": false,
+                                    "isPure": false,
+                                    "lValueRequested": false,
+                                    "memberLocation": "2002:9:68",
+                                    "memberName": "timestamp",
+                                    "nodeType": "MemberAccess",
+                                    "src": "1996:15:68",
+                                    "typeDescriptions": {
+                                      "typeIdentifier": "t_uint256",
+                                      "typeString": "uint256"
+                                    }
+                                  },
+                                  "src": "1976:35:68",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_bool",
+                                    "typeString": "bool"
+                                  }
+                                }
+                              ],
+                              "id": 21381,
+                              "isConstant": false,
+                              "isInlineArray": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "nodeType": "TupleExpression",
+                              "src": "1975:37:68",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_bool",
+                                "typeString": "bool"
+                              }
+                            },
+                            "src": "1753:259:68",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            }
+                          }
+                        ],
+                        "id": 21383,
+                        "isConstant": false,
+                        "isInlineArray": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "nodeType": "TupleExpression",
+                        "src": "1752:261:68",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      {
+                        "expression": {
+                          "id": 21384,
+                          "name": "makerAsk",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 21327,
+                          "src": "2027:8:68",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_MakerOrder_$7333_calldata_ptr",
+                            "typeString": "struct OrderTypes.MakerOrder calldata"
+                          }
+                        },
+                        "id": 21385,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "2036:7:68",
+                        "memberName": "tokenId",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 7316,
+                        "src": "2027:16:68",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      },
+                      {
+                        "expression": {
+                          "id": 21386,
+                          "name": "makerAsk",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 21327,
+                          "src": "2057:8:68",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_MakerOrder_$7333_calldata_ptr",
+                            "typeString": "struct OrderTypes.MakerOrder calldata"
+                          }
+                        },
+                        "id": 21387,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "2066:6:68",
+                        "memberName": "amount",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 7318,
+                        "src": "2057:15:68",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      }
+                    ],
+                    "id": 21388,
+                    "isConstant": false,
+                    "isInlineArray": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "TupleExpression",
+                    "src": "1738:344:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$_t_bool_$_t_uint256_$_t_uint256_$",
+                      "typeString": "tuple(bool,uint256,uint256)"
+                    }
+                  },
+                  "functionReturnParameters": 21336,
+                  "id": 21389,
+                  "nodeType": "Return",
+                  "src": "1731:351:68"
+                }
+              ]
+            },
+            "baseFunctions": [
+              5583
+            ],
+            "documentation": {
+              "id": 21321,
+              "nodeType": "StructuredDocumentation",
+              "src": "1081:271:68",
+              "text": " @notice Check whether a taker bid order can be executed against a maker ask\n @param takerBid taker bid order\n @param makerAsk maker ask order\n @return (whether strategy can be executed, tokenId to execute, amount of tokens to execute)"
+            },
+            "functionSelector": "a22233b5",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "canExecuteTakerBid",
+            "nameLocation": "1366:18:68",
+            "overrides": {
+              "id": 21329,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1505:8:68"
+            },
+            "parameters": {
+              "id": 21328,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21324,
+                  "mutability": "mutable",
+                  "name": "takerBid",
+                  "nameLocation": "1416:8:68",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21391,
+                  "src": "1385:39:68",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_TakerOrder_$7344_calldata_ptr",
+                    "typeString": "struct OrderTypes.TakerOrder"
+                  },
+                  "typeName": {
+                    "id": 21323,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 21322,
+                      "name": "OrderTypes.TakerOrder",
+                      "nameLocations": [
+                        "1385:10:68",
+                        "1396:10:68"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 7344,
+                      "src": "1385:21:68"
+                    },
+                    "referencedDeclaration": 7344,
+                    "src": "1385:21:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_TakerOrder_$7344_storage_ptr",
+                      "typeString": "struct OrderTypes.TakerOrder"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21327,
+                  "mutability": "mutable",
+                  "name": "makerAsk",
+                  "nameLocation": "1457:8:68",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21391,
+                  "src": "1426:39:68",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_MakerOrder_$7333_calldata_ptr",
+                    "typeString": "struct OrderTypes.MakerOrder"
+                  },
+                  "typeName": {
+                    "id": 21326,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 21325,
+                      "name": "OrderTypes.MakerOrder",
+                      "nameLocations": [
+                        "1426:10:68",
+                        "1437:10:68"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 7333,
+                      "src": "1426:21:68"
+                    },
+                    "referencedDeclaration": 7333,
+                    "src": "1426:21:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_MakerOrder_$7333_storage_ptr",
+                      "typeString": "struct OrderTypes.MakerOrder"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1384:82:68"
+            },
+            "returnParameters": {
+              "id": 21336,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21331,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21391,
+                  "src": "1544:4:68",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 21330,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1544:4:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21333,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21391,
+                  "src": "1562:7:68",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21332,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1562:7:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 21335,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21391,
+                  "src": "1583:7:68",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21334,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1583:7:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1530:70:68"
+            },
+            "scope": 21402,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 21401,
+            "nodeType": "FunctionDefinition",
+            "src": "2192:104:68",
+            "nodes": [],
+            "body": {
+              "id": 21400,
+              "nodeType": "Block",
+              "src": "2260:36:68",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "id": 21398,
+                    "name": "PROTOCOL_FEE",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 21286,
+                    "src": "2277:12:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "functionReturnParameters": 21397,
+                  "id": 21399,
+                  "nodeType": "Return",
+                  "src": "2270:19:68"
+                }
+              ]
+            },
+            "baseFunctions": [
+              5588
+            ],
+            "documentation": {
+              "id": 21392,
+              "nodeType": "StructuredDocumentation",
+              "src": "2095:92:68",
+              "text": " @notice Return protocol fee for this strategy\n @return protocol fee"
+            },
+            "functionSelector": "9dd1cda6",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "viewProtocolFee",
+            "nameLocation": "2201:15:68",
+            "overrides": {
+              "id": 21394,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "2233:8:68"
+            },
+            "parameters": {
+              "id": 21393,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "2216:2:68"
+            },
+            "returnParameters": {
+              "id": 21397,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21396,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21401,
+                  "src": "2251:7:68",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21395,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2251:7:68",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2250:9:68"
+            },
+            "scope": 21402,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 21283,
+              "name": "IExecutionStrategy",
+              "nameLocations": [
+                "348:18:68"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 5589,
+              "src": "348:18:68"
+            },
+            "id": 21284,
+            "nodeType": "InheritanceSpecifier",
+            "src": "348:18:68"
+          }
+        ],
+        "canonicalName": "StrategyPrivateSale",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 21282,
+          "nodeType": "StructuredDocumentation",
+          "src": "187:128:68",
+          "text": " @title StrategyPrivateSale\n @notice Strategy to set up an order that can only be executed by\n a specific address."
+        },
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          21402,
+          5589
+        ],
+        "name": "StrategyPrivateSale",
+        "nameLocation": "325:19:68",
+        "scope": 21403,
+        "usedErrors": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 68
+}

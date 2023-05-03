@@ -1,101 +1,63 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.17;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+// Direct dependencies
+import {PackableReentrancyGuard} from "@looksrare/contracts-libs/contracts/PackableReentrancyGuard.sol";
+import {ExecutionManager} from "./ExecutionManager.sol";
+import {TransferManager} from "./TransferManager.sol";
 
-import {ITransferSelectorNFT} from "../interfaces/ITransferSelectorNFT.sol";
-import {ITransferManagerNFT} from "../interfaces/ITransferManagerNFT.sol";
-import "hardhat/console.sol";
+// Libraries
+import {OrderStructs} from "../libraries/OrderStructs.sol";
+
+// Enums
+import {CollectionType} from "../enums/CollectionType.sol";
 
 /**
  * @title TransferSelectorNFT
- * @notice It selects the NFT transfer manager based on a collection address.
+ * @notice This contract handles the logic for transferring non-fungible items.
+ * @author LooksRare protocol team (👀,💎)
  */
-contract TransferSelectorNFT is ITransferSelectorNFT, Ownable {
-    // ERC721 interfaceID
-    bytes4 public constant INTERFACE_ID_ERC721 = 0x80ac58cd;
-    // ERC1155 interfaceID
-    bytes4 public constant INTERFACE_ID_ERC1155 = 0xd9b67a26;
-
-    // Address of the transfer manager contract for ERC721 tokens
-    address public immutable TRANSFER_MANAGER_ERC721;
-
-    // Address of the transfer manager contract for ERC1155 tokens
-    address public immutable TRANSFER_MANAGER_ERC1155;
-
-    // Map collection address to transfer manager address
-    mapping(address => address) public transferManagerSelectorForCollection;
-
-    event CollectionTransferManagerAdded(address indexed collection, address indexed transferManager);
-    event CollectionTransferManagerRemoved(address indexed collection);
+contract TransferSelectorNFT is ExecutionManager, PackableReentrancyGuard {
+    /**
+     * @notice Transfer manager for ERC721 and ERC1155.
+     */
+    TransferManager public immutable transferManager;
 
     /**
      * @notice Constructor
-     * @param _transferManagerERC721 address of the ERC721 transfer manager
-     * @param _transferManagerERC1155 address of the ERC1155 transfer manager
+     * @param _owner Owner address
+     * @param _protocolFeeRecipient Protocol fee recipient address
+     * @param _transferManager Address of the transfer manager for ERC721/ERC1155
      */
     constructor(
-        address _transferManagerERC721,
-        address _transferManagerERC1155
-    ) {
-        TRANSFER_MANAGER_ERC721 = _transferManagerERC721;
-        TRANSFER_MANAGER_ERC1155 = _transferManagerERC1155;
+        address _owner,
+        address _protocolFeeRecipient,
+        address _transferManager
+    ) ExecutionManager(_owner, _protocolFeeRecipient) {
+        transferManager = TransferManager(_transferManager);
     }
 
     /**
-     * @notice Add a transfer manager for a collection
-     * @param collection collection address to add specific transfer rule
-     * @dev It is meant to be used for exceptions only (e.g., CryptoKitties)
+     * @notice This function is internal and used to transfer non-fungible tokens.
+     * @param collection Collection address
+     * @param collectionType Collection type (e.g. 0 = ERC721, 1 = ERC1155)
+     * @param sender Sender address
+     * @param recipient Recipient address
+     * @param itemIds Array of itemIds
+     * @param amounts Array of amounts
      */
-    function addCollectionTransferManager(address collection, address transferManager) external onlyOwner {
-        require(collection != address(0), "Owner: Collection cannot be null address");
-        require(transferManager != address(0), "Owner: TransferManager cannot be null address");
-
-        transferManagerSelectorForCollection[collection] = transferManager;
-
-        emit CollectionTransferManagerAdded(collection, transferManager);
-    }
-
-    /**
-     * @notice Remove a transfer manager for a collection
-     * @param collection collection address to remove exception
-     */
-    function removeCollectionTransferManager(address collection) external onlyOwner {
-        require(
-            transferManagerSelectorForCollection[collection] != address(0),
-            "Owner: Collection has no transfer manager"
-        );
-
-        // Set it to the address(0)
-        transferManagerSelectorForCollection[collection] = address(0);
-
-        emit CollectionTransferManagerRemoved(collection);
-    }
-
-    /**
-     * @notice Check the transfer manager for a token
-     * @param collection collection address
-     * @dev Support for ERC165 interface is checked AFTER custom implementation
-     */
-    function checkTransferManagerForToken(address collection) public view override returns (address transferManager) {
-        // Assign transfer manager (if any)
-        transferManager = transferManagerSelectorForCollection[collection];
-
-        if (transferManager == address(0)) {
-            if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC721)) {
-                transferManager = TRANSFER_MANAGER_ERC721;
-            } else if (IERC165(collection).supportsInterface(INTERFACE_ID_ERC1155)) {
-                transferManager = TRANSFER_MANAGER_ERC1155;
-            }
+    function _transferNFT(
+        address collection,
+        CollectionType collectionType,
+        address sender,
+        address recipient,
+        uint256[] memory itemIds,
+        uint256[] memory amounts
+    ) internal {
+        if (collectionType == CollectionType.ERC721) {
+            transferManager.transferItemsERC721(collection, sender, recipient, itemIds, amounts);
+        } else if (collectionType == CollectionType.ERC1155) {
+            transferManager.transferItemsERC1155(collection, sender, recipient, itemIds, amounts);
         }
-
-        return transferManager;
-    }
-
-    function is721(address collection) private view returns (bool) {
-        return IERC165(collection).supportsInterface(INTERFACE_ID_ERC721);
     }
 }
