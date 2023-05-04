@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // LooksRare unopinionated libraries
 import {IERC721} from "@looksrare/contracts-libs/contracts/interfaces/generic/IERC721.sol";
 
-import {CreatorFeeManagerWithRebates} from "../../contracts/CreatorFeeManagerWithRebates.sol";
+import {CreatorFeeManagerWithRebates} from "../../contracts/core/CreatorFeeManagerWithRebates.sol";
 
 // Libraries and interfaces
 import {OrderStructs} from "../../contracts/libraries/OrderStructs.sol";
@@ -25,7 +25,7 @@ contract CreatorFeeManagerWithRebatesTest is ProtocolBase {
         _setUp();
         CreatorFeeManagerWithRebates creatorFeeManager = new CreatorFeeManagerWithRebates(address(royaltyFeeRegistry));
         vm.prank(_owner);
-        looksRareProtocol.updateCreatorFeeManager(address(creatorFeeManager));
+        omniXExchange.updateCreatorFeeManager(address(creatorFeeManager));
         orderValidator.deriveProtocolParameters();
     }
 
@@ -69,7 +69,7 @@ contract CreatorFeeManagerWithRebatesTest is ProtocolBase {
 
         // Execute taker ask transaction
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         // Verify ownership is transferred
         assertEq(IERC721(erc721).ownerOf(makerBid.itemIds[0]), makerUser);
@@ -116,7 +116,7 @@ contract CreatorFeeManagerWithRebatesTest is ProtocolBase {
         vm.prank(takerUser);
 
         // Execute taker ask transaction
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         // Verify ownership is transferred
         for (uint256 i; i < makerBid.itemIds.length; i++) {
@@ -186,7 +186,7 @@ contract CreatorFeeManagerWithRebatesTest is ProtocolBase {
                 address(mockERC721WithRoyalties)
             )
         );
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testCreatorRoyaltiesRevertForEIP2981WithBundlesIfAtLeastOneCallReverts(uint256 revertIndex) public {
@@ -231,7 +231,7 @@ contract CreatorFeeManagerWithRebatesTest is ProtocolBase {
                 address(mockERC721WithRoyalties)
             )
         );
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function _assertSuccessfulTakerAsk(OrderStructs.Maker memory makerBid) private {
@@ -255,6 +255,6 @@ contract CreatorFeeManagerWithRebatesTest is ProtocolBase {
             "Royalty recipient receives 0.5% of the whole price"
         );
         // Verify the nonce is marked as executed
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, makerBid.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+        assertEq(omniXExchange.userOrderNonce(makerUser, makerBid.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
     }
 }

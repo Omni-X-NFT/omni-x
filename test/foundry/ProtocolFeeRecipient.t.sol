@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // LooksRare unopinionated libraries
 import {IERC20} from "@looksrare/contracts-libs/contracts/interfaces/generic/IERC20.sol";
 import {IWETH} from "@looksrare/contracts-libs/contracts/interfaces/generic/IWETH.sol";
 
 // Core contracts
-import {ProtocolFeeRecipient} from "../../contracts/ProtocolFeeRecipient.sol";
+import {ProtocolFeeRecipient} from "../../contracts/core/ProtocolFeeRecipient.sol";
 
 // Other mocks and utils
 import {MockERC20} from "../mock/MockERC20.sol";

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // Libraries and interfaces
 import {OrderStructs} from "../../contracts/libraries/OrderStructs.sol";
-import {WETH} from "solmate/src/tokens/WETH.sol";
+import {WETH} from "solmate/tokens/WETH.sol";
 
 // Base test
 import {ProtocolBase} from "./ProtocolBase.t.sol";
@@ -49,14 +49,14 @@ contract GasGriefingTest is ProtocolBase {
         uint256 sellerProceed = (price * _sellerProceedBpWithStandardProtocolFeeBp) / ONE_HUNDRED_PERCENT_IN_BP;
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true});
-        emit Deposit(address(looksRareProtocol), sellerProceed);
+        emit Deposit(address(omniXExchange), sellerProceed);
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit Transfer(address(looksRareProtocol), gasGriefer, sellerProceed);
+        emit Transfer(address(omniXExchange), gasGriefer, sellerProceed);
 
         vm.prank(takerUser);
         // Execute taker bid transaction
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             takerBid,
             makerAsk,
             signature,
@@ -76,9 +76,9 @@ contract GasGriefingTest is ProtocolBase {
             _initialETHBalanceRoyaltyRecipient + (price * _standardRoyaltyFee) / ONE_HUNDRED_PERCENT_IN_BP
         );
         // No leftover in the balance of the contract
-        assertEq(address(looksRareProtocol).balance, 0);
+        assertEq(address(omniXExchange).balance, 0);
         // Verify the nonce is marked as executed
-        assertEq(looksRareProtocol.userOrderNonce(gasGriefer, makerAsk.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+        assertEq(omniXExchange.userOrderNonce(gasGriefer, makerAsk.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
     }
 
     function testThreeTakerBidsGasGriefing() public {
@@ -115,14 +115,14 @@ contract GasGriefingTest is ProtocolBase {
         uint256 sellerProceedPerItem = (price * _sellerProceedBpWithStandardProtocolFeeBp) / ONE_HUNDRED_PERCENT_IN_BP;
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true});
-        emit Deposit(address(looksRareProtocol), sellerProceedPerItem);
+        emit Deposit(address(omniXExchange), sellerProceedPerItem);
 
         vm.expectEmit({checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true});
-        emit Transfer(address(looksRareProtocol), gasGriefer, sellerProceedPerItem);
+        emit Transfer(address(omniXExchange), gasGriefer, sellerProceedPerItem);
 
         vm.prank(takerUser);
         // Execute taker bid transaction
-        looksRareProtocol.executeMultipleTakerBids{value: price * numberPurchases}(
+        omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
             takerBids,
             makerAsks,
             signatures,
@@ -135,13 +135,13 @@ contract GasGriefingTest is ProtocolBase {
             // Taker user has received the asset
             assertEq(mockERC721.ownerOf(i), takerUser);
             // Verify the nonce is marked as executed
-            assertEq(looksRareProtocol.userOrderNonce(gasGriefer, i), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+            assertEq(omniXExchange.userOrderNonce(gasGriefer, i), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
         }
         // Taker bid user pays the whole price
         assertEq(address(takerUser).balance, _initialETHBalanceUser - (numberPurchases * price));
         // Maker ask user receives 99.5% of the whole price (0.5% protocol)
         assertEq(weth.balanceOf(gasGriefer), _initialWETHBalanceUser + sellerProceedPerItem * numberPurchases);
         // No leftover in the balance of the contract
-        assertEq(address(looksRareProtocol).balance, 0);
+        assertEq(address(omniXExchange).balance, 0);
     }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // Interfaces
 import {IStrategyManager} from "../../contracts/interfaces/IStrategyManager.sol";
@@ -16,20 +16,20 @@ contract InitialStatesTest is ProtocolBase, IStrategyManager {
      * Verify initial post-deployment states are as expected
      */
     function testInitialStates() public {
-        assertEq(looksRareProtocol.owner(), _owner);
-        assertEq(looksRareProtocol.protocolFeeRecipient(), address(protocolFeeRecipient));
-        assertEq(address(looksRareProtocol.transferManager()), address(transferManager));
-        assertEq(looksRareProtocol.WETH(), address(weth));
-        assertEq(looksRareProtocol.chainId(), block.chainid);
+        assertEq(omniXExchange.owner(), _owner);
+        assertEq(omniXExchange.protocolFeeRecipient(), address(protocolFeeRecipient));
+        assertEq(address(omniXExchange.transferManager()), address(transferManager));
+        assertEq(omniXExchange.WETH(), address(weth));
+        assertEq(omniXExchange.chainId(), block.chainid);
 
-        bytes32 domainSeparator = looksRareProtocol.domainSeparator();
+        bytes32 domainSeparator = omniXExchange.domainSeparator();
         bytes32 expectedDomainSeparator = keccak256(
             abi.encode(
                 keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
                 keccak256("LooksRareProtocol"),
                 keccak256(bytes("2")),
                 block.chainid,
-                address(looksRareProtocol)
+                address(omniXExchange)
             )
         );
         assertEq(domainSeparator, expectedDomainSeparator);
@@ -42,7 +42,7 @@ contract InitialStatesTest is ProtocolBase, IStrategyManager {
             bytes4 strategySelector,
             bool strategyIsMakerBid,
             address strategyImplementation
-        ) = looksRareProtocol.strategyInfo(0);
+        ) = omniXExchange.strategyInfo(0);
 
         assertTrue(strategyIsActive);
         assertEq(strategyStandardProtocolFee, _standardProtocolFeeBp);

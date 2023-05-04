@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.7;
 
-import {ERC1155} from "solmate/src/tokens/ERC1155.sol";
+import {ERC1155} from "solmate/tokens/ERC1155.sol";
 
 // LooksRare unopinionated libraries
 import {IERC2981} from "@looksrare/contracts-libs/contracts/interfaces/generic/IERC2981.sol";

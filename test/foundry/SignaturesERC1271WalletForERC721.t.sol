@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // Libraries and interfaces
 import {IReentrancyGuard} from "@looksrare/contracts-libs/contracts/interfaces/IReentrancyGuard.sol";
@@ -49,7 +49,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
         _assertValidMakerOrder(makerAsk, signature);
 
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             takerBid,
             makerAsk,
             signature,
@@ -76,7 +76,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
 
         vm.expectRevert(SignatureERC1271Invalid.selector);
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             takerBid,
             makerAsk,
             signature,
@@ -87,7 +87,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
 
     function testTakerBidReentrancy() public {
         MaliciousIsValidSignatureERC1271Wallet maliciousERC1271Wallet = new MaliciousIsValidSignatureERC1271Wallet(
-            address(looksRareProtocol)
+            address(omniXExchange)
         );
         _setUpUser(address(maliciousERC1271Wallet));
         maliciousERC1271Wallet.setFunctionToReenter(MaliciousERC1271Wallet.FunctionToReenter.ExecuteTakerBid);
@@ -98,7 +98,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
 
         vm.expectRevert(IReentrancyGuard.ReentrancyFail.selector);
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             takerBid,
             makerAsk,
             _EMPTY_SIGNATURE,
@@ -116,12 +116,12 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
         // Wallet needs to hold WETH and have given WETH approval
         deal(address(weth), address(wallet), price);
         vm.prank(address(wallet));
-        weth.approve(address(looksRareProtocol), price);
+        weth.approve(address(omniXExchange), price);
 
         _assertValidMakerOrder(makerBid, signature);
 
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         assertEq(mockERC721.ownerOf(makerBid.itemIds[0]), address(wallet));
     }
@@ -136,18 +136,18 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
         // Wallet needs to hold WETH and have given WETH approval
         deal(address(weth), address(wallet), price);
         vm.prank(address(wallet));
-        weth.approve(address(looksRareProtocol), price);
+        weth.approve(address(omniXExchange), price);
 
         _assertMakerOrderReturnValidationCode(makerBid, signature, SIGNATURE_INVALID_EIP1271);
 
         vm.expectRevert(SignatureERC1271Invalid.selector);
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testTakerAskReentrancy() public {
         MaliciousIsValidSignatureERC1271Wallet maliciousERC1271Wallet = new MaliciousIsValidSignatureERC1271Wallet(
-            address(looksRareProtocol)
+            address(omniXExchange)
         );
         _setUpUser(address(maliciousERC1271Wallet));
         maliciousERC1271Wallet.setFunctionToReenter(MaliciousERC1271Wallet.FunctionToReenter.ExecuteTakerAsk);
@@ -158,7 +158,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
 
         vm.expectRevert(IReentrancyGuard.ReentrancyFail.selector);
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, _EMPTY_SIGNATURE, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, _EMPTY_SIGNATURE, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     uint256 private constant numberPurchases = 3;
@@ -179,7 +179,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
         vm.stopPrank();
 
         vm.prank(takerUser);
-        looksRareProtocol.executeMultipleTakerBids{value: price * numberPurchases}(
+        omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
             takerBids,
             makerAsks,
             signatures,
@@ -215,7 +215,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
 
         vm.expectRevert(SignatureERC1271Invalid.selector);
         vm.prank(takerUser);
-        looksRareProtocol.executeMultipleTakerBids{value: price * numberPurchases}(
+        omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
             takerBids,
             makerAsks,
             signatures,
@@ -227,7 +227,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
 
     function testExecuteMultipleTakerBidsReentrancy() public {
         MaliciousIsValidSignatureERC1271Wallet maliciousERC1271Wallet = new MaliciousIsValidSignatureERC1271Wallet(
-            address(looksRareProtocol)
+            address(omniXExchange)
         );
         _setUpUser(address(maliciousERC1271Wallet));
         maliciousERC1271Wallet.setFunctionToReenter(MaliciousERC1271Wallet.FunctionToReenter.ExecuteMultipleTakerBids);
@@ -241,7 +241,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
 
         vm.expectRevert(IReentrancyGuard.ReentrancyFail.selector);
         vm.prank(takerUser);
-        looksRareProtocol.executeMultipleTakerBids{value: price * numberPurchases}(
+        omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
             takerBids,
             makerAsks,
             signatures,

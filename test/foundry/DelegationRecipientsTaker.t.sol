@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // Libraries and interfaces
 import {OrderStructs} from "../../contracts/libraries/OrderStructs.sol";
-import {CreatorFeeManagerWithRoyalties} from "../../contracts/CreatorFeeManagerWithRoyalties.sol";
+import {CreatorFeeManagerWithRoyalties} from "../../contracts/core/CreatorFeeManagerWithRoyalties.sol";
 
 // Base test
 import {ProtocolBase} from "./ProtocolBase.t.sol";
@@ -18,7 +18,7 @@ contract DelegationRecipientsTakerTest is ProtocolBase {
             address(royaltyFeeRegistry)
         );
         vm.prank(_owner);
-        looksRareProtocol.updateCreatorFeeManager(address(creatorFeeManager));
+        omniXExchange.updateCreatorFeeManager(address(creatorFeeManager));
     }
 
     // Fixed price of sale
@@ -77,7 +77,7 @@ contract DelegationRecipientsTakerTest is ProtocolBase {
             expectedRecipients,
             expectedFees
         );
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         // Taker user has received the asset
         assertEq(mockERC721.ownerOf(makerBid.itemIds[0]), makerUser);
@@ -95,7 +95,7 @@ contract DelegationRecipientsTakerTest is ProtocolBase {
             _initialWETHBalanceRoyaltyRecipient + (price * _standardRoyaltyFee) / ONE_HUNDRED_PERCENT_IN_BP
         );
         // Verify the nonce is marked as executed
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, makerBid.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+        assertEq(omniXExchange.userOrderNonce(makerUser, makerBid.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
     }
 
     /**
@@ -151,7 +151,7 @@ contract DelegationRecipientsTakerTest is ProtocolBase {
             expectedFees
         );
 
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             takerBid,
             makerAsk,
             signature,
@@ -174,8 +174,8 @@ contract DelegationRecipientsTakerTest is ProtocolBase {
             _initialETHBalanceRoyaltyRecipient + (price * _standardRoyaltyFee) / ONE_HUNDRED_PERCENT_IN_BP
         );
         // No leftover in the balance of the contract
-        assertEq(address(looksRareProtocol).balance, 0);
+        assertEq(address(omniXExchange).balance, 0);
         // Verify the nonce is marked as executed
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, makerAsk.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+        assertEq(omniXExchange.userOrderNonce(makerUser, makerAsk.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
     }
 }

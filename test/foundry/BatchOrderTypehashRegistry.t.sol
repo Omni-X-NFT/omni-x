@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {Test} from "../../lib/forge-std/src/Test.sol";
 
-import {BatchOrderTypehashRegistry} from "../../contracts/BatchOrderTypehashRegistry.sol";
+import {BatchOrderTypehashRegistry} from "../../contracts/core/BatchOrderTypehashRegistry.sol";
 
 // Shared errors
 import {MerkleProofTooLarge} from "../../contracts/errors/SharedErrors.sol";

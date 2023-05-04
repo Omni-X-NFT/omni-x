@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // Libraries and interfaces
 import {OrderStructs} from "../../contracts/libraries/OrderStructs.sol";
@@ -7,7 +7,7 @@ import {ICreatorFeeManager} from "../../contracts/interfaces/ICreatorFeeManager.
 import {IExecutionManager} from "../../contracts/interfaces/IExecutionManager.sol";
 
 // Core contract
-import {CreatorFeeManagerWithRoyalties} from "../../contracts/CreatorFeeManagerWithRoyalties.sol";
+import {CreatorFeeManagerWithRoyalties} from "../../contracts/core/CreatorFeeManagerWithRoyalties.sol";
 
 // Shared errors
 import {BUNDLE_ERC2981_NOT_SUPPORTED, CREATOR_FEE_TOO_HIGH} from "../../contracts/constants/ValidationCodeConstants.sol";
@@ -41,9 +41,9 @@ contract CreatorFeeManagerWithRoyaltiesTest is ProtocolBase {
         _setUp();
         creatorFeeManagerWithRoyalties = new CreatorFeeManagerWithRoyalties(address(royaltyFeeRegistry));
         vm.startPrank(_owner);
-        looksRareProtocol.updateCreatorFeeManager(address(creatorFeeManagerWithRoyalties));
+        omniXExchange.updateCreatorFeeManager(address(creatorFeeManagerWithRoyalties));
         // Set up 2% as protocol fee, which is now equal to minimum fee
-        looksRareProtocol.updateStrategy(0, true, _newProtocolFee, _newProtocolFee);
+        omniXExchange.updateStrategy(0, true, _newProtocolFee, _newProtocolFee);
         vm.stopPrank();
 
         // Adjust for new creator fee manager
@@ -68,7 +68,7 @@ contract CreatorFeeManagerWithRoyaltiesTest is ProtocolBase {
 
         // Execute taker ask transaction
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerAsk(
+        omniXExchange.executeTakerAsk(
             _genericTakerOrder(),
             makerBid,
             signature,
@@ -106,7 +106,7 @@ contract CreatorFeeManagerWithRoyaltiesTest is ProtocolBase {
 
         // Execute taker ask transaction
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerAsk(
+        omniXExchange.executeTakerAsk(
             _genericTakerOrder(),
             makerBid,
             signature,
@@ -145,7 +145,7 @@ contract CreatorFeeManagerWithRoyaltiesTest is ProtocolBase {
         vm.prank(takerUser);
 
         // Execute taker ask transaction
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         _assertMockERC721Ownership(makerBid.itemIds, makerUser);
 
@@ -187,7 +187,7 @@ contract CreatorFeeManagerWithRoyaltiesTest is ProtocolBase {
         vm.prank(takerUser);
 
         // Execute taker ask transaction
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         _assertSuccessfulTakerAskBundle(makerBid);
     }
@@ -236,7 +236,7 @@ contract CreatorFeeManagerWithRoyaltiesTest is ProtocolBase {
             )
         );
 
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         /**
          * 2. Same fee structure but different recipient
@@ -260,7 +260,7 @@ contract CreatorFeeManagerWithRoyaltiesTest is ProtocolBase {
             )
         );
 
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testCreatorRoyaltiesRevertForEIP2981WithBundlesIfAtLeastOneCallReverts(uint256 revertIndex) public {
@@ -305,12 +305,12 @@ contract CreatorFeeManagerWithRoyaltiesTest is ProtocolBase {
             )
         );
 
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testCreatorRoyaltiesRevertIfFeeHigherThanLimit() public {
         _setUpUsers();
-        uint256 _creatorRoyaltyFeeTooHigh = looksRareProtocol.maxCreatorFeeBp() + 1;
+        uint256 _creatorRoyaltyFeeTooHigh = omniXExchange.maxCreatorFeeBp() + 1;
 
         // Adjust royalties
         _setUpRoyaltiesRegistry(_creatorRoyaltyFeeTooHigh);
@@ -329,7 +329,7 @@ contract CreatorFeeManagerWithRoyaltiesTest is ProtocolBase {
 
         vm.expectRevert(IExecutionManager.CreatorFeeBpTooHigh.selector);
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         // 2. Maker ask
 
@@ -349,7 +349,7 @@ contract CreatorFeeManagerWithRoyaltiesTest is ProtocolBase {
         vm.expectRevert(IExecutionManager.CreatorFeeBpTooHigh.selector);
         vm.prank(takerUser);
 
-        looksRareProtocol.executeTakerBid{value: 1 ether}(
+        omniXExchange.executeTakerBid{value: 1 ether}(
             takerBid,
             makerAsk,
             signature,
@@ -376,7 +376,7 @@ contract CreatorFeeManagerWithRoyaltiesTest is ProtocolBase {
             _initialWETHBalanceRoyaltyRecipient + (price * _newCreatorRoyaltyFee) / ONE_HUNDRED_PERCENT_IN_BP
         );
         // Verify the nonce is marked as executed
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, makerBid.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+        assertEq(omniXExchange.userOrderNonce(makerUser, makerBid.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
     }
 
     function _assertSuccessfulTakerAskBundle(OrderStructs.Maker memory makerBid) private {
@@ -397,6 +397,6 @@ contract CreatorFeeManagerWithRoyaltiesTest is ProtocolBase {
         // Taker ask user receives 95% of the whole price
         assertEq(weth.balanceOf(takerUser), _initialWETHBalanceUser + (price * 9_500) / ONE_HUNDRED_PERCENT_IN_BP);
         // Verify the nonce is marked as executed
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, makerBid.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+        assertEq(omniXExchange.userOrderNonce(makerUser, makerBid.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
     }
 }

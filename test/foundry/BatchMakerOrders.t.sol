@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // Murky (third-party) library is used to compute Merkle trees in Solidity
 import {Merkle} from "../../lib/murky/src/Merkle.sol";
@@ -29,7 +29,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
     function setUp() public {
         _setUp();
         _setUpUsers();
-        eip712MerkleTree = new EIP712MerkleTree(looksRareProtocol);
+        eip712MerkleTree = new EIP712MerkleTree(omniXExchange);
     }
 
     function testTakerBidMultipleOrdersSignedERC721(uint256 numberOrders, uint256 orderIndex) public {
@@ -52,7 +52,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
 
         // Execute taker bid transaction
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             _genericTakerOrder(),
             makerAskToExecute,
             signature,
@@ -70,10 +70,10 @@ contract BatchMakerOrdersTest is ProtocolBase {
             _initialETHBalanceUser + (price * _sellerProceedBpWithStandardProtocolFeeBp) / ONE_HUNDRED_PERCENT_IN_BP
         );
         // No leftover in the balance of the contract
-        assertEq(address(looksRareProtocol).balance, 0);
+        assertEq(address(omniXExchange).balance, 0);
         // Verify the nonce is marked as executed
         assertEq(
-            looksRareProtocol.userOrderNonce(makerUser, makerAskToExecute.orderNonce),
+            omniXExchange.userOrderNonce(makerUser, makerAskToExecute.orderNonce),
             MAGIC_VALUE_ORDER_NONCE_EXECUTED
         );
     }
@@ -98,7 +98,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
 
         // Execute taker ask transaction
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerAsk(
+        omniXExchange.executeTakerAsk(
             _genericTakerOrder(),
             makerBidToExecute,
             signature,
@@ -117,7 +117,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
         );
         // Verify the nonce is marked as executed
         assertEq(
-            looksRareProtocol.userOrderNonce(makerUser, makerBidToExecute.orderNonce),
+            omniXExchange.userOrderNonce(makerUser, makerBidToExecute.orderNonce),
             MAGIC_VALUE_ORDER_NONCE_EXECUTED
         );
     }
@@ -150,7 +150,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(MerkleProofInvalid.selector);
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             _genericTakerOrder(),
             makerAskToExecute,
             signature,
@@ -187,7 +187,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(MerkleProofInvalid.selector);
-        looksRareProtocol.executeTakerAsk(
+        omniXExchange.executeTakerAsk(
             _genericTakerOrder(),
             makerBidToExecute,
             signature,
@@ -234,7 +234,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(MerkleProofInvalid.selector);
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             _genericTakerOrder(),
             makerAskToExecute,
             signature,
@@ -281,7 +281,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(MerkleProofInvalid.selector);
-        looksRareProtocol.executeTakerAsk(
+        omniXExchange.executeTakerAsk(
             _genericTakerOrder(),
             makerBidToExecute,
             signature,
@@ -319,7 +319,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
 
             vm.prank(takerUser);
             vm.expectRevert(abi.encodeWithSelector(MerkleProofTooLarge.selector, proofLength));
-            looksRareProtocol.executeTakerBid{value: price}(
+            omniXExchange.executeTakerBid{value: price}(
                 _genericTakerOrder(),
                 makerAskToExecute,
                 signature,
@@ -358,7 +358,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
 
             vm.prank(takerUser);
             vm.expectRevert(abi.encodeWithSelector(MerkleProofTooLarge.selector, proofLength));
-            looksRareProtocol.executeTakerBid{value: price}(
+            omniXExchange.executeTakerBid{value: price}(
                 _genericTakerOrder(),
                 makerBidToExecute,
                 signature,

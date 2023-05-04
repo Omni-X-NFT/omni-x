@@ -47,7 +47,7 @@
   "methodIdentifiers": {
     "omniReceive(uint16,bytes,uint256,uint256,bytes)": "c765e994"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"_nonce\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountLD\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"payload\",\"type\":\"bytes\"}],\"name\":\"omniReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IOmniReceiver.sol\":\"IOmniReceiver\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@ensdomains/=node_modules/@ensdomains/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":solmate/=node_modules/solmate/\",\":xdeployer/=node_modules/xdeployer/\"]},\"sources\":{\"contracts/interfaces/IOmniReceiver.sol\":{\"keccak256\":\"0xa02029450b63559e88ae1856b57d88a6c110ba5d60f45c173bd8b6ecd8c6635a\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://9d1ebeb12c825f72044b58fd8214d9a782d41e6d2f2d4299c973e20475b337a2\",\"dweb:/ipfs/QmUgABdANSTDVpbVphsNtkeuPcWZwnBUPGZSVhtkEseUC7\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"_nonce\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amountLD\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"payload\",\"type\":\"bytes\"}],\"name\":\"omniReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IOmniReceiver.sol\":\"IOmniReceiver\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@chainlink/=node_modules/@chainlink/\",\":@ensdomains/=node_modules/@ensdomains/\",\":@eth-optimism/=node_modules/@eth-optimism/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@looksrare/=node_modules/@looksrare/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":base64-sol/=node_modules/base64-sol/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":murky/=lib/murky/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":reservoirprotocol/=lib/reservoirprotocol/\",\":solmate/=lib/solmate/src/\",\":xdeployer/=node_modules/xdeployer/\"],\"viaIR\":true},\"sources\":{\"contracts/interfaces/IOmniReceiver.sol\":{\"keccak256\":\"0xa02029450b63559e88ae1856b57d88a6c110ba5d60f45c173bd8b6ecd8c6635a\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://9d1ebeb12c825f72044b58fd8214d9a782d41e6d2f2d4299c973e20475b337a2\",\"dweb:/ipfs/QmUgABdANSTDVpbVphsNtkeuPcWZwnBUPGZSVhtkEseUC7\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -101,18 +101,25 @@
     },
     "settings": {
       "remappings": [
+        ":@chainlink/=node_modules/@chainlink/",
         ":@ensdomains/=node_modules/@ensdomains/",
+        ":@eth-optimism/=node_modules/@eth-optimism/",
         ":@gelatonetwork/=node_modules/@gelatonetwork/",
         ":@layerzerolabs/=node_modules/@layerzerolabs/",
+        ":@looksrare/=node_modules/@looksrare/",
         ":@openzeppelin/=node_modules/@openzeppelin/",
         ":@uniswap/=node_modules/@uniswap/",
+        ":base64-sol/=node_modules/base64-sol/",
         ":ds-test/=lib/forge-std/lib/ds-test/src/",
         ":eth-gas-reporter/=node_modules/eth-gas-reporter/",
         ":forge-std/=lib/forge-std/src/",
         ":hardhat-deploy/=node_modules/hardhat-deploy/",
         ":hardhat/=node_modules/hardhat/",
+        ":murky/=lib/murky/src/",
+        ":openzeppelin-contracts/=lib/openzeppelin-contracts/",
         ":operator-filter-registry/=node_modules/operator-filter-registry/",
-        ":solmate/=node_modules/solmate/",
+        ":reservoirprotocol/=lib/reservoirprotocol/",
+        ":solmate/=lib/solmate/src/",
         ":xdeployer/=node_modules/xdeployer/"
       ],
       "optimizer": {
@@ -125,7 +132,8 @@
       "compilationTarget": {
         "contracts/interfaces/IOmniReceiver.sol": "IOmniReceiver"
       },
-      "libraries": {}
+      "libraries": {},
+      "viaIR": true
     },
     "sources": {
       "contracts/interfaces/IOmniReceiver.sol": {
@@ -141,19 +149,19 @@
   },
   "ast": {
     "absolutePath": "contracts/interfaces/IOmniReceiver.sol",
-    "id": 6043,
+    "id": 11670,
     "exportedSymbols": {
       "IOmniReceiver": [
-        6042
+        11669
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "38:403:22",
+    "src": "38:403:54",
     "nodes": [
       {
-        "id": 6028,
+        "id": 11655,
         "nodeType": "PragmaDirective",
-        "src": "38:23:22",
+        "src": "38:23:54",
         "nodes": [],
         "literals": [
           "solidity",
@@ -163,34 +171,34 @@
         ]
       },
       {
-        "id": 6042,
+        "id": 11669,
         "nodeType": "ContractDefinition",
-        "src": "63:378:22",
+        "src": "63:378:54",
         "nodes": [
           {
-            "id": 6041,
+            "id": 11668,
             "nodeType": "FunctionDefinition",
-            "src": "93:346:22",
+            "src": "93:346:54",
             "nodes": [],
             "functionSelector": "c765e994",
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "omniReceive",
-            "nameLocation": "102:11:22",
+            "nameLocation": "102:11:54",
             "parameters": {
-              "id": 6039,
+              "id": 11666,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 6030,
+                  "id": 11657,
                   "mutability": "mutable",
                   "name": "_srcChainId",
-                  "nameLocation": "130:11:22",
+                  "nameLocation": "130:11:54",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6041,
-                  "src": "123:18:22",
+                  "scope": 11668,
+                  "src": "123:18:54",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -198,10 +206,10 @@
                     "typeString": "uint16"
                   },
                   "typeName": {
-                    "id": 6029,
+                    "id": 11656,
                     "name": "uint16",
                     "nodeType": "ElementaryTypeName",
-                    "src": "123:6:22",
+                    "src": "123:6:54",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint16",
                       "typeString": "uint16"
@@ -211,13 +219,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 6032,
+                  "id": 11659,
                   "mutability": "mutable",
                   "name": "_srcAddress",
-                  "nameLocation": "218:11:22",
+                  "nameLocation": "218:11:54",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6041,
-                  "src": "205:24:22",
+                  "scope": 11668,
+                  "src": "205:24:54",
                   "stateVariable": false,
                   "storageLocation": "memory",
                   "typeDescriptions": {
@@ -225,10 +233,10 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 6031,
+                    "id": 11658,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
-                    "src": "205:5:22",
+                    "src": "205:5:54",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
                       "typeString": "bytes"
@@ -238,13 +246,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 6034,
+                  "id": 11661,
                   "mutability": "mutable",
                   "name": "_nonce",
-                  "nameLocation": "283:6:22",
+                  "nameLocation": "283:6:54",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6041,
-                  "src": "275:14:22",
+                  "scope": 11668,
+                  "src": "275:14:54",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -252,10 +260,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 6033,
+                    "id": 11660,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "275:7:22",
+                    "src": "275:7:54",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -265,13 +273,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 6036,
+                  "id": 11663,
                   "mutability": "mutable",
                   "name": "amountLD",
-                  "nameLocation": "325:8:22",
+                  "nameLocation": "325:8:54",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6041,
-                  "src": "317:16:22",
+                  "scope": 11668,
+                  "src": "317:16:54",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -279,10 +287,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 6035,
+                    "id": 11662,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "317:7:22",
+                    "src": "317:7:54",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -292,13 +300,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 6038,
+                  "id": 11665,
                   "mutability": "mutable",
                   "name": "payload",
-                  "nameLocation": "416:7:22",
+                  "nameLocation": "416:7:54",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6041,
-                  "src": "403:20:22",
+                  "scope": 11668,
+                  "src": "403:20:54",
                   "stateVariable": false,
                   "storageLocation": "memory",
                   "typeDescriptions": {
@@ -306,10 +314,10 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 6037,
+                    "id": 11664,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
-                    "src": "403:5:22",
+                    "src": "403:5:54",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
                       "typeString": "bytes"
@@ -318,15 +326,15 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "113:316:22"
+              "src": "113:316:54"
             },
             "returnParameters": {
-              "id": 6040,
+              "id": 11667,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "438:0:22"
+              "src": "438:0:54"
             },
-            "scope": 6042,
+            "scope": 11669,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
@@ -339,15 +347,15 @@
         "contractKind": "interface",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          6042
+          11669
         ],
         "name": "IOmniReceiver",
-        "nameLocation": "73:13:22",
-        "scope": 6043,
+        "nameLocation": "73:13:54",
+        "scope": 11670,
         "usedErrors": []
       }
     ],
     "license": "BUSL-1.1"
   },
-  "id": 22
+  "id": 54
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // Libraries, interfaces, errors
 import {OrderStructs} from "../../contracts/libraries/OrderStructs.sol";
@@ -45,7 +45,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
         vm.prank(makerUser);
         vm.expectEmit({checkTopic1: false, checkTopic2: false, checkTopic3: false, checkData: true});
         emit SubsetNoncesCancelled(makerUser, subsetNonces);
-        looksRareProtocol.cancelSubsetNonces(subsetNonces);
+        omniXExchange.cancelSubsetNonces(subsetNonces);
 
         _assertMakerOrderReturnValidationCode(makerAsk, signature, USER_SUBSET_NONCE_CANCELLED);
 
@@ -55,7 +55,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
         // Taker user actions
         vm.prank(takerUser);
         vm.expectRevert(NoncesInvalid.selector);
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             takerBid,
             makerAsk,
             signature,
@@ -79,7 +79,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
         vm.prank(makerUser);
         vm.expectEmit({checkTopic1: false, checkTopic2: false, checkTopic3: false, checkData: true});
         emit NewBidAskNonces(makerUser, 0, newAskNonce);
-        looksRareProtocol.incrementBidAskNonces(false, true);
+        omniXExchange.incrementBidAskNonces(false, true);
 
         (OrderStructs.Maker memory makerAsk, OrderStructs.Taker memory takerBid) = _createMockMakerAskAndTakerBid(
             address(mockERC721)
@@ -99,7 +99,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
         // Taker user actions
         vm.prank(takerUser);
         vm.expectRevert(NoncesInvalid.selector);
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             takerBid,
             makerAsk,
             signature,
@@ -123,7 +123,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
         vm.prank(makerUser);
         vm.expectEmit({checkTopic1: false, checkTopic2: false, checkTopic3: false, checkData: true});
         emit NewBidAskNonces(makerUser, newBidNonce, 0);
-        looksRareProtocol.incrementBidAskNonces(true, false);
+        omniXExchange.incrementBidAskNonces(true, false);
 
         uint256 itemId = 420;
 
@@ -153,7 +153,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
         // Taker user actions
         vm.prank(takerUser);
         vm.expectRevert(NoncesInvalid.selector);
-        looksRareProtocol.executeTakerAsk(
+        omniXExchange.executeTakerAsk(
             _genericTakerOrder(),
             makerBid,
             signature,
@@ -184,13 +184,13 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
         vm.startPrank(takerUser);
 
         {
-            looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+            omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
             _assertMakerOrderReturnValidationCode(makerBid, signature, USER_ORDER_NONCE_EXECUTED_OR_CANCELLED);
 
             // Second one fails
             vm.expectRevert(NoncesInvalid.selector);
-            looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+            omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
         }
 
         vm.stopPrank();
@@ -206,7 +206,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
         bytes4 selector = StrategyTestMultiFillCollectionOrder.executeStrategyWithTakerAsk.selector;
 
         StrategyTestMultiFillCollectionOrder strategyMultiFillCollectionOrder = new StrategyTestMultiFillCollectionOrder(
-                address(looksRareProtocol)
+                address(omniXExchange)
             );
 
         vm.prank(_owner);
@@ -253,7 +253,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
             vm.prank(takerUser);
 
             // Execute taker ask transaction
-            looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+            omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
         }
 
         // 2. Second maker order is signed sharing the same order nonce as the first one
@@ -296,23 +296,23 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
 
             // Second one fails when a taker user tries to execute
             vm.expectRevert(NoncesInvalid.selector);
-            looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+            omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
         }
     }
 
     function testCancelOrderNonces(uint256 nonceOne, uint256 nonceTwo) public asPrankedUser(makerUser) {
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, nonceOne), bytes32(0));
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, nonceTwo), bytes32(0));
+        assertEq(omniXExchange.userOrderNonce(makerUser, nonceOne), bytes32(0));
+        assertEq(omniXExchange.userOrderNonce(makerUser, nonceTwo), bytes32(0));
 
         uint256[] memory orderNonces = new uint256[](2);
         orderNonces[0] = nonceOne;
         orderNonces[1] = nonceTwo;
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit OrderNoncesCancelled(makerUser, orderNonces);
-        looksRareProtocol.cancelOrderNonces(orderNonces);
+        omniXExchange.cancelOrderNonces(orderNonces);
 
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, nonceOne), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, nonceTwo), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+        assertEq(omniXExchange.userOrderNonce(makerUser, nonceOne), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+        assertEq(omniXExchange.userOrderNonce(makerUser, nonceTwo), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
     }
 
     /**
@@ -327,7 +327,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
         uint256[] memory orderNonces = new uint256[](1);
         orderNonces[0] = orderNonce;
         vm.prank(makerUser);
-        looksRareProtocol.cancelOrderNonces(orderNonces);
+        omniXExchange.cancelOrderNonces(orderNonces);
 
         OrderStructs.Maker memory makerBid = _createSingleItemMakerOrder({
             quoteType: QuoteType.Bid,
@@ -359,16 +359,16 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(NoncesInvalid.selector);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testCancelNoncesRevertIfEmptyArrays() public {
         uint256[] memory nonces = new uint256[](0);
 
         vm.expectRevert(LengthsInvalid.selector);
-        looksRareProtocol.cancelSubsetNonces(nonces);
+        omniXExchange.cancelSubsetNonces(nonces);
 
         vm.expectRevert(LengthsInvalid.selector);
-        looksRareProtocol.cancelOrderNonces(nonces);
+        omniXExchange.cancelOrderNonces(nonces);
     }
 }

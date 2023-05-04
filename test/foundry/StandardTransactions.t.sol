@@ -5,7 +5,7 @@ pragma solidity ^0.8.17;
 import {OrderStructs} from "../../contracts/libraries/OrderStructs.sol";
 import {LengthsInvalid} from "../../contracts/errors/SharedErrors.sol";
 
-import {CreatorFeeManagerWithRoyalties} from "../../contracts/CreatorFeeManagerWithRoyalties.sol";
+import {CreatorFeeManagerWithRoyalties} from "../../contracts/core/CreatorFeeManagerWithRoyalties.sol";
 
 // Base test
 import {ProtocolBase} from "./ProtocolBase.t.sol";
@@ -29,7 +29,7 @@ contract StandardTransactionsTest is ProtocolBase {
             address(royaltyFeeRegistry)
         );
         vm.prank(_owner);
-        looksRareProtocol.updateCreatorFeeManager(address(creatorFeeManager));
+        omniXExchange.updateCreatorFeeManager(address(creatorFeeManager));
     }
 
     /**
@@ -81,7 +81,7 @@ contract StandardTransactionsTest is ProtocolBase {
             expectedFees
         );
 
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             takerBid,
             makerAsk,
             signature,
@@ -92,9 +92,9 @@ contract StandardTransactionsTest is ProtocolBase {
         _assertSuccessfulExecutionThroughETH(takerUser, makerUser, price, expectedFees);
 
         // No leftover in the balance of the contract
-        assertEq(address(looksRareProtocol).balance, 0);
+        assertEq(address(omniXExchange).balance, 0);
         // Verify the nonce is marked as executed
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, makerAsk.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+        assertEq(omniXExchange.userOrderNonce(makerUser, makerAsk.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
     }
 
     /**
@@ -148,7 +148,7 @@ contract StandardTransactionsTest is ProtocolBase {
             expectedFees
         );
 
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             takerBid,
             makerAsk,
             signature,
@@ -211,11 +211,11 @@ contract StandardTransactionsTest is ProtocolBase {
             expectedFees
         );
 
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         _assertSuccessfulExecutionThroughWETH(makerUser, takerUser, price, expectedFees);
         // Verify the nonce is marked as executed
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, makerBid.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+        assertEq(omniXExchange.userOrderNonce(makerUser, makerBid.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
     }
 
     /**
@@ -270,7 +270,7 @@ contract StandardTransactionsTest is ProtocolBase {
             expectedFees
         );
 
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         _assertSuccessfulExecutionThroughWETH(makerUser, takerUser, price, expectedFees);
     }
@@ -317,7 +317,7 @@ contract StandardTransactionsTest is ProtocolBase {
 
         // Execute taker bid transaction
         vm.prank(takerUser);
-        looksRareProtocol.executeMultipleTakerBids{value: price * numberPurchases}(
+        omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
             takerBids,
             makerAsks,
             signatures,
@@ -330,7 +330,7 @@ contract StandardTransactionsTest is ProtocolBase {
             // Taker user has received the asset
             assertEq(mockERC721.ownerOf(i), takerUser);
             // Verify the nonce is marked as executed
-            assertEq(looksRareProtocol.userOrderNonce(makerUser, i), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+            assertEq(omniXExchange.userOrderNonce(makerUser, i), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
         }
 
         // Taker bid user pays the whole price
@@ -343,7 +343,7 @@ contract StandardTransactionsTest is ProtocolBase {
                 ONE_HUNDRED_PERCENT_IN_BP
         );
         // No leftover in the balance of the contract
-        assertEq(address(looksRareProtocol).balance, 0);
+        assertEq(address(omniXExchange).balance, 0);
     }
 
     /**
@@ -397,7 +397,7 @@ contract StandardTransactionsTest is ProtocolBase {
 
             vm.expectRevert(abi.encodeWithSelector(ERC721TransferFromFail.selector));
             vm.prank(takerUser);
-            looksRareProtocol.executeMultipleTakerBids{value: 1.4 ether * numberPurchases}(
+            omniXExchange.executeMultipleTakerBids{value: 1.4 ether * numberPurchases}(
                 takerBids,
                 makerAsks,
                 signatures,
@@ -416,7 +416,7 @@ contract StandardTransactionsTest is ProtocolBase {
 
             vm.prank(takerUser);
             // Execute taker bid transaction
-            looksRareProtocol.executeMultipleTakerBids{value: 1.4 ether * numberPurchases}(
+            omniXExchange.executeMultipleTakerBids{value: 1.4 ether * numberPurchases}(
                 takerBids,
                 makerAsks,
                 signatures,
@@ -430,13 +430,13 @@ contract StandardTransactionsTest is ProtocolBase {
             // Taker user has received the first two assets
             assertEq(mockERC721.ownerOf(i), takerUser);
             // Verify the first two nonces are marked as executed
-            assertEq(looksRareProtocol.userOrderNonce(makerUser, i), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+            assertEq(omniXExchange.userOrderNonce(makerUser, i), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
         }
 
         // Taker user has not received the asset
         assertEq(mockERC721.ownerOf(faultyTokenId), randomUser);
         // Verify the nonce is NOT marked as executed
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, faultyTokenId), bytes32(0));
+        assertEq(omniXExchange.userOrderNonce(makerUser, faultyTokenId), bytes32(0));
         // Taker bid user pays the whole price
         assertEq(address(takerUser).balance, _initialETHBalanceUser - 1 - ((numberPurchases - 1) * 1.4 ether));
         // Maker ask user receives 99.5% of the whole price (0.5% protocol)
@@ -447,7 +447,7 @@ contract StandardTransactionsTest is ProtocolBase {
                 ONE_HUNDRED_PERCENT_IN_BP
         );
         // 1 wei left in the balance of the contract
-        assertEq(address(looksRareProtocol).balance, 1);
+        assertEq(address(omniXExchange).balance, 1);
     }
 
     function testThreeTakerBidsERC721LengthsInvalid() public {
@@ -465,7 +465,7 @@ contract StandardTransactionsTest is ProtocolBase {
 
         vm.expectRevert(LengthsInvalid.selector);
         vm.prank(takerUser);
-        looksRareProtocol.executeMultipleTakerBids{value: price * numberPurchases}(
+        omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
             takerBids,
             makerAsks,
             signatures,
@@ -480,7 +480,7 @@ contract StandardTransactionsTest is ProtocolBase {
 
         vm.expectRevert(LengthsInvalid.selector);
         vm.prank(takerUser);
-        looksRareProtocol.executeMultipleTakerBids{value: price * numberPurchases}(
+        omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
             takerBids,
             makerAsks,
             signatures,
@@ -495,7 +495,7 @@ contract StandardTransactionsTest is ProtocolBase {
 
         vm.expectRevert(LengthsInvalid.selector);
         vm.prank(takerUser);
-        looksRareProtocol.executeMultipleTakerBids{value: price * numberPurchases}(
+        omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
             takerBids,
             makerAsks,
             signatures,

@@ -11,7 +11,7 @@
     "linkReferences": {}
   },
   "methodIdentifiers": {},
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"node_modules/@gelatonetwork/relay-context/contracts/base/GelatoRelayBase.sol\":\"GelatoRelayBase\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@ensdomains/=node_modules/@ensdomains/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":solmate/=node_modules/solmate/\",\":xdeployer/=node_modules/xdeployer/\"]},\"sources\":{\"node_modules/@gelatonetwork/relay-context/contracts/base/GelatoRelayBase.sol\":{\"keccak256\":\"0x8b8ca04a1b6dce1b14b0b5f59783defe5562f876f0d6127aefa3e251b7631ba1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://96243cad1613abd9cd421b4bf84062f7b57724e34fd00cccfd4df03e0a0b8729\",\"dweb:/ipfs/QmPCY1GZBWLzNFXs9D4U5jtWUP5V3LPJbQLZgWdKiEHamB\"]},\"node_modules/@gelatonetwork/relay-context/contracts/constants/GelatoRelay.sol\":{\"keccak256\":\"0xa3f9966896db1bfafbcb1b58d1d76b44d1cd1660986e675d57398d5a9a74d242\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://189b0d7a2709775087d5eed45459d8b2f04747e23aedeabd1906a10916651a37\",\"dweb:/ipfs/QmRAXLv9ZkEYfBNkAvgGgFB8bibdcUqjuhEKyxGakZSzXs\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"node_modules/@gelatonetwork/relay-context/contracts/base/GelatoRelayBase.sol\":\"GelatoRelayBase\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@chainlink/=node_modules/@chainlink/\",\":@ensdomains/=node_modules/@ensdomains/\",\":@eth-optimism/=node_modules/@eth-optimism/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@looksrare/=node_modules/@looksrare/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":base64-sol/=node_modules/base64-sol/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":murky/=lib/murky/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":reservoirprotocol/=lib/reservoirprotocol/\",\":solmate/=lib/solmate/src/\",\":xdeployer/=node_modules/xdeployer/\"],\"viaIR\":true},\"sources\":{\"node_modules/@gelatonetwork/relay-context/contracts/base/GelatoRelayBase.sol\":{\"keccak256\":\"0x8b8ca04a1b6dce1b14b0b5f59783defe5562f876f0d6127aefa3e251b7631ba1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://96243cad1613abd9cd421b4bf84062f7b57724e34fd00cccfd4df03e0a0b8729\",\"dweb:/ipfs/QmPCY1GZBWLzNFXs9D4U5jtWUP5V3LPJbQLZgWdKiEHamB\"]},\"node_modules/@gelatonetwork/relay-context/contracts/constants/GelatoRelay.sol\":{\"keccak256\":\"0xa3f9966896db1bfafbcb1b58d1d76b44d1cd1660986e675d57398d5a9a74d242\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://189b0d7a2709775087d5eed45459d8b2f04747e23aedeabd1906a10916651a37\",\"dweb:/ipfs/QmRAXLv9ZkEYfBNkAvgGgFB8bibdcUqjuhEKyxGakZSzXs\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -32,18 +32,25 @@
     },
     "settings": {
       "remappings": [
+        ":@chainlink/=node_modules/@chainlink/",
         ":@ensdomains/=node_modules/@ensdomains/",
+        ":@eth-optimism/=node_modules/@eth-optimism/",
         ":@gelatonetwork/=node_modules/@gelatonetwork/",
         ":@layerzerolabs/=node_modules/@layerzerolabs/",
+        ":@looksrare/=node_modules/@looksrare/",
         ":@openzeppelin/=node_modules/@openzeppelin/",
         ":@uniswap/=node_modules/@uniswap/",
+        ":base64-sol/=node_modules/base64-sol/",
         ":ds-test/=lib/forge-std/lib/ds-test/src/",
         ":eth-gas-reporter/=node_modules/eth-gas-reporter/",
         ":forge-std/=lib/forge-std/src/",
         ":hardhat-deploy/=node_modules/hardhat-deploy/",
         ":hardhat/=node_modules/hardhat/",
+        ":murky/=lib/murky/src/",
+        ":openzeppelin-contracts/=lib/openzeppelin-contracts/",
         ":operator-filter-registry/=node_modules/operator-filter-registry/",
-        ":solmate/=node_modules/solmate/",
+        ":reservoirprotocol/=lib/reservoirprotocol/",
+        ":solmate/=lib/solmate/src/",
         ":xdeployer/=node_modules/xdeployer/"
       ],
       "optimizer": {
@@ -56,7 +63,8 @@
       "compilationTarget": {
         "node_modules/@gelatonetwork/relay-context/contracts/base/GelatoRelayBase.sol": "GelatoRelayBase"
       },
-      "libraries": {}
+      "libraries": {},
+      "viaIR": true
     },
     "sources": {
       "node_modules/@gelatonetwork/relay-context/contracts/base/GelatoRelayBase.sol": {
@@ -80,22 +88,22 @@
   },
   "ast": {
     "absolutePath": "node_modules/@gelatonetwork/relay-context/contracts/base/GelatoRelayBase.sol",
-    "id": 56244,
+    "id": 74029,
     "exportedSymbols": {
       "GELATO_RELAY": [
-        56248
+        74033
       ],
       "GelatoRelayBase": [
-        56243
+        74028
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "32:366:127",
+    "src": "32:366:213",
     "nodes": [
       {
-        "id": 56216,
+        "id": 74001,
         "nodeType": "PragmaDirective",
-        "src": "32:23:127",
+        "src": "32:23:213",
         "nodes": [],
         "literals": [
           "solidity",
@@ -105,24 +113,24 @@
         ]
       },
       {
-        "id": 56218,
+        "id": 74003,
         "nodeType": "ImportDirective",
-        "src": "57:58:127",
+        "src": "57:58:213",
         "nodes": [],
         "absolutePath": "node_modules/@gelatonetwork/relay-context/contracts/constants/GelatoRelay.sol",
         "file": "../constants/GelatoRelay.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 56244,
-        "sourceUnit": 56252,
+        "scope": 74029,
+        "sourceUnit": 74037,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 56217,
+              "id": 74002,
               "name": "GELATO_RELAY",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 56248,
-              "src": "65:12:127",
+              "referencedDeclaration": 74033,
+              "src": "65:12:213",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -131,19 +139,19 @@
         "unitAlias": ""
       },
       {
-        "id": 56243,
+        "id": 74028,
         "nodeType": "ContractDefinition",
-        "src": "117:280:127",
+        "src": "117:280:213",
         "nodes": [
           {
-            "id": 56230,
+            "id": 74015,
             "nodeType": "ModifierDefinition",
-            "src": "157:109:127",
+            "src": "157:109:213",
             "nodes": [],
             "body": {
-              "id": 56229,
+              "id": 74014,
               "nodeType": "Block",
-              "src": "184:82:127",
+              "src": "184:82:213",
               "nodes": [],
               "statements": [
                 {
@@ -153,26 +161,26 @@
                         "arguments": [
                           {
                             "expression": {
-                              "id": 56222,
+                              "id": 74007,
                               "name": "msg",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
                               "referencedDeclaration": -15,
-                              "src": "217:3:127",
+                              "src": "217:3:213",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_magic_message",
                                 "typeString": "msg"
                               }
                             },
-                            "id": 56223,
+                            "id": 74008,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
                             "lValueRequested": false,
-                            "memberLocation": "221:6:127",
+                            "memberLocation": "221:6:213",
                             "memberName": "sender",
                             "nodeType": "MemberAccess",
-                            "src": "217:10:127",
+                            "src": "217:10:213",
                             "typeDescriptions": {
                               "typeIdentifier": "t_address",
                               "typeString": "address"
@@ -186,18 +194,18 @@
                               "typeString": "address"
                             }
                           ],
-                          "id": 56221,
+                          "id": 74006,
                           "name": "_isGelatoRelay",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 56242,
-                          "src": "202:14:127",
+                          "referencedDeclaration": 74027,
+                          "src": "202:14:213",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_pure$_t_address_$returns$_t_bool_$",
                             "typeString": "function (address) pure returns (bool)"
                           }
                         },
-                        "id": 56224,
+                        "id": 74009,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -206,7 +214,7 @@
                         "nameLocations": [],
                         "names": [],
                         "nodeType": "FunctionCall",
-                        "src": "202:26:127",
+                        "src": "202:26:213",
                         "tryCall": false,
                         "typeDescriptions": {
                           "typeIdentifier": "t_bool",
@@ -215,14 +223,14 @@
                       },
                       {
                         "hexValue": "6f6e6c7947656c61746f52656c6179",
-                        "id": 56225,
+                        "id": 74010,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "kind": "string",
                         "lValueRequested": false,
                         "nodeType": "Literal",
-                        "src": "230:17:127",
+                        "src": "230:17:213",
                         "typeDescriptions": {
                           "typeIdentifier": "t_stringliteral_a95dc56bf0667b0f6de79705b896940750c7cacb6490944007a934baf30c06da",
                           "typeString": "literal_string \"onlyGelatoRelay\""
@@ -241,7 +249,7 @@
                           "typeString": "literal_string \"onlyGelatoRelay\""
                         }
                       ],
-                      "id": 56220,
+                      "id": 74005,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
@@ -249,13 +257,13 @@
                         -18
                       ],
                       "referencedDeclaration": -18,
-                      "src": "194:7:127",
+                      "src": "194:7:213",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 56226,
+                    "id": 74011,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -264,44 +272,44 @@
                     "nameLocations": [],
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "194:54:127",
+                    "src": "194:54:213",
                     "tryCall": false,
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 56227,
+                  "id": 74012,
                   "nodeType": "ExpressionStatement",
-                  "src": "194:54:127"
+                  "src": "194:54:213"
                 },
                 {
-                  "id": 56228,
+                  "id": 74013,
                   "nodeType": "PlaceholderStatement",
-                  "src": "258:1:127"
+                  "src": "258:1:213"
                 }
               ]
             },
             "name": "onlyGelatoRelay",
-            "nameLocation": "166:15:127",
+            "nameLocation": "166:15:213",
             "parameters": {
-              "id": 56219,
+              "id": 74004,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "181:2:127"
+              "src": "181:2:213"
             },
             "virtual": false,
             "visibility": "internal"
           },
           {
-            "id": 56242,
+            "id": 74027,
             "nodeType": "FunctionDefinition",
-            "src": "272:123:127",
+            "src": "272:123:213",
             "nodes": [],
             "body": {
-              "id": 56241,
+              "id": 74026,
               "nodeType": "Block",
-              "src": "345:50:127",
+              "src": "345:50:213",
               "nodes": [],
               "statements": [
                 {
@@ -310,18 +318,18 @@
                       "typeIdentifier": "t_address",
                       "typeString": "address"
                     },
-                    "id": 56239,
+                    "id": 74024,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftExpression": {
-                      "id": 56237,
+                      "id": 74022,
                       "name": "_forwarder",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 56232,
-                      "src": "362:10:127",
+                      "referencedDeclaration": 74017,
+                      "src": "362:10:213",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
                         "typeString": "address"
@@ -330,27 +338,27 @@
                     "nodeType": "BinaryOperation",
                     "operator": "==",
                     "rightExpression": {
-                      "id": 56238,
+                      "id": 74023,
                       "name": "GELATO_RELAY",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 56248,
-                      "src": "376:12:127",
+                      "referencedDeclaration": 74033,
+                      "src": "376:12:213",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
                         "typeString": "address"
                       }
                     },
-                    "src": "362:26:127",
+                    "src": "362:26:213",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
                     }
                   },
-                  "functionReturnParameters": 56236,
-                  "id": 56240,
+                  "functionReturnParameters": 74021,
+                  "id": 74025,
                   "nodeType": "Return",
-                  "src": "355:33:127"
+                  "src": "355:33:213"
                 }
               ]
             },
@@ -358,20 +366,20 @@
             "kind": "function",
             "modifiers": [],
             "name": "_isGelatoRelay",
-            "nameLocation": "281:14:127",
+            "nameLocation": "281:14:213",
             "parameters": {
-              "id": 56233,
+              "id": 74018,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 56232,
+                  "id": 74017,
                   "mutability": "mutable",
                   "name": "_forwarder",
-                  "nameLocation": "304:10:127",
+                  "nameLocation": "304:10:213",
                   "nodeType": "VariableDeclaration",
-                  "scope": 56242,
-                  "src": "296:18:127",
+                  "scope": 74027,
+                  "src": "296:18:213",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -379,10 +387,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 56231,
+                    "id": 74016,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "296:7:127",
+                    "src": "296:7:213",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -392,21 +400,21 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "295:20:127"
+              "src": "295:20:213"
             },
             "returnParameters": {
-              "id": 56236,
+              "id": 74021,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 56235,
+                  "id": 74020,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 56242,
-                  "src": "339:4:127",
+                  "scope": 74027,
+                  "src": "339:4:213",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -414,10 +422,10 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 56234,
+                    "id": 74019,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "339:4:127",
+                    "src": "339:4:213",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
@@ -426,9 +434,9 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "338:6:127"
+              "src": "338:6:213"
             },
-            "scope": 56243,
+            "scope": 74028,
             "stateMutability": "pure",
             "virtual": false,
             "visibility": "internal"
@@ -441,15 +449,15 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          56243
+          74028
         ],
         "name": "GelatoRelayBase",
-        "nameLocation": "135:15:127",
-        "scope": 56244,
+        "nameLocation": "135:15:213",
+        "scope": 74029,
         "usedErrors": []
       }
     ],
     "license": "MIT"
   },
-  "id": 127
+  "id": 213
 }

@@ -51,7 +51,7 @@
     "burn(uint256)": "42966c68",
     "safeMint(address,uint256,string)": "cd279c7c"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"uri\",\"type\":\"string\"}],\"name\":\"safeMint\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Interface of the ERC721 Persistent with URI\",\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IERC721Persistent.sol\":\"IERC721Persistent\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@ensdomains/=node_modules/@ensdomains/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":solmate/=node_modules/solmate/\",\":xdeployer/=node_modules/xdeployer/\"]},\"sources\":{\"contracts/interfaces/IERC721Persistent.sol\":{\"keccak256\":\"0x74e531d58fae2e0d8dd99466b707886ad6df85bd8e497adc65f5c347448897a6\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2abc2df0e025f4cceb900a92a27fefe303b67cf9aac70a18ecfaed3b3f6275b9\",\"dweb:/ipfs/QmV21iVxxrr27RTgFSBH5kgzkGMAiFKTvmQ92ddsQ6bxLu\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"uri\",\"type\":\"string\"}],\"name\":\"safeMint\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Interface of the ERC721 Persistent with URI\",\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IERC721Persistent.sol\":\"IERC721Persistent\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@chainlink/=node_modules/@chainlink/\",\":@ensdomains/=node_modules/@ensdomains/\",\":@eth-optimism/=node_modules/@eth-optimism/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@looksrare/=node_modules/@looksrare/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":base64-sol/=node_modules/base64-sol/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":murky/=lib/murky/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":reservoirprotocol/=lib/reservoirprotocol/\",\":solmate/=lib/solmate/src/\",\":xdeployer/=node_modules/xdeployer/\"],\"viaIR\":true},\"sources\":{\"contracts/interfaces/IERC721Persistent.sol\":{\"keccak256\":\"0x74e531d58fae2e0d8dd99466b707886ad6df85bd8e497adc65f5c347448897a6\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2abc2df0e025f4cceb900a92a27fefe303b67cf9aac70a18ecfaed3b3f6275b9\",\"dweb:/ipfs/QmV21iVxxrr27RTgFSBH5kgzkGMAiFKTvmQ92ddsQ6bxLu\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -107,18 +107,25 @@
     },
     "settings": {
       "remappings": [
+        ":@chainlink/=node_modules/@chainlink/",
         ":@ensdomains/=node_modules/@ensdomains/",
+        ":@eth-optimism/=node_modules/@eth-optimism/",
         ":@gelatonetwork/=node_modules/@gelatonetwork/",
         ":@layerzerolabs/=node_modules/@layerzerolabs/",
+        ":@looksrare/=node_modules/@looksrare/",
         ":@openzeppelin/=node_modules/@openzeppelin/",
         ":@uniswap/=node_modules/@uniswap/",
+        ":base64-sol/=node_modules/base64-sol/",
         ":ds-test/=lib/forge-std/lib/ds-test/src/",
         ":eth-gas-reporter/=node_modules/eth-gas-reporter/",
         ":forge-std/=lib/forge-std/src/",
         ":hardhat-deploy/=node_modules/hardhat-deploy/",
         ":hardhat/=node_modules/hardhat/",
+        ":murky/=lib/murky/src/",
+        ":openzeppelin-contracts/=lib/openzeppelin-contracts/",
         ":operator-filter-registry/=node_modules/operator-filter-registry/",
-        ":solmate/=node_modules/solmate/",
+        ":reservoirprotocol/=lib/reservoirprotocol/",
+        ":solmate/=lib/solmate/src/",
         ":xdeployer/=node_modules/xdeployer/"
       ],
       "optimizer": {
@@ -131,7 +138,8 @@
       "compilationTarget": {
         "contracts/interfaces/IERC721Persistent.sol": "IERC721Persistent"
       },
-      "libraries": {}
+      "libraries": {},
+      "viaIR": true
     },
     "sources": {
       "contracts/interfaces/IERC721Persistent.sol": {
@@ -147,19 +155,19 @@
   },
   "ast": {
     "absolutePath": "contracts/interfaces/IERC721Persistent.sol",
-    "id": 5513,
+    "id": 11241,
     "exportedSymbols": {
       "IERC721Persistent": [
-        5512
+        11240
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "33:239:12",
+    "src": "33:239:42",
     "nodes": [
       {
-        "id": 5496,
+        "id": 11224,
         "nodeType": "PragmaDirective",
-        "src": "33:23:12",
+        "src": "33:23:42",
         "nodes": [],
         "literals": [
           "solidity",
@@ -169,34 +177,34 @@
         ]
       },
       {
-        "id": 5512,
+        "id": 11240,
         "nodeType": "ContractDefinition",
-        "src": "118:154:12",
+        "src": "118:154:42",
         "nodes": [
           {
-            "id": 5506,
+            "id": 11234,
             "nodeType": "FunctionDefinition",
-            "src": "152:75:12",
+            "src": "152:75:42",
             "nodes": [],
             "functionSelector": "cd279c7c",
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "safeMint",
-            "nameLocation": "161:8:12",
+            "nameLocation": "161:8:42",
             "parameters": {
-              "id": 5504,
+              "id": 11232,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5499,
+                  "id": 11227,
                   "mutability": "mutable",
                   "name": "to",
-                  "nameLocation": "178:2:12",
+                  "nameLocation": "178:2:42",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5506,
-                  "src": "170:10:12",
+                  "scope": 11234,
+                  "src": "170:10:42",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -204,10 +212,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 5498,
+                    "id": 11226,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "170:7:12",
+                    "src": "170:7:42",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -218,13 +226,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 5501,
+                  "id": 11229,
                   "mutability": "mutable",
                   "name": "tokenId",
-                  "nameLocation": "190:7:12",
+                  "nameLocation": "190:7:42",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5506,
-                  "src": "182:15:12",
+                  "scope": 11234,
+                  "src": "182:15:42",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -232,10 +240,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5500,
+                    "id": 11228,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "182:7:12",
+                    "src": "182:7:42",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -245,13 +253,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 5503,
+                  "id": 11231,
                   "mutability": "mutable",
                   "name": "uri",
-                  "nameLocation": "213:3:12",
+                  "nameLocation": "213:3:42",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5506,
-                  "src": "199:17:12",
+                  "scope": 11234,
+                  "src": "199:17:42",
                   "stateVariable": false,
                   "storageLocation": "memory",
                   "typeDescriptions": {
@@ -259,10 +267,10 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 5502,
+                    "id": 11230,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "199:6:12",
+                    "src": "199:6:42",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -271,43 +279,43 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "169:48:12"
+              "src": "169:48:42"
             },
             "returnParameters": {
-              "id": 5505,
+              "id": 11233,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "226:0:12"
+              "src": "226:0:42"
             },
-            "scope": 5512,
+            "scope": 11240,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 5511,
+            "id": 11239,
             "nodeType": "FunctionDefinition",
-            "src": "233:37:12",
+            "src": "233:37:42",
             "nodes": [],
             "functionSelector": "42966c68",
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "burn",
-            "nameLocation": "242:4:12",
+            "nameLocation": "242:4:42",
             "parameters": {
-              "id": 5509,
+              "id": 11237,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5508,
+                  "id": 11236,
                   "mutability": "mutable",
                   "name": "tokenId",
-                  "nameLocation": "252:7:12",
+                  "nameLocation": "252:7:42",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5511,
-                  "src": "247:12:12",
+                  "scope": 11239,
+                  "src": "247:12:42",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -315,10 +323,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5507,
+                    "id": 11235,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
-                    "src": "247:4:12",
+                    "src": "247:4:42",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -327,15 +335,15 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "246:14:12"
+              "src": "246:14:42"
             },
             "returnParameters": {
-              "id": 5510,
+              "id": 11238,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "269:0:12"
+              "src": "269:0:42"
             },
-            "scope": 5512,
+            "scope": 11240,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
@@ -347,22 +355,22 @@
         "contractDependencies": [],
         "contractKind": "interface",
         "documentation": {
-          "id": 5497,
+          "id": 11225,
           "nodeType": "StructuredDocumentation",
-          "src": "58:59:12",
+          "src": "58:59:42",
           "text": " @dev Interface of the ERC721 Persistent with URI"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          5512
+          11240
         ],
         "name": "IERC721Persistent",
-        "nameLocation": "128:17:12",
-        "scope": 5513,
+        "nameLocation": "128:17:42",
+        "scope": 11241,
         "usedErrors": []
       }
     ],
     "license": "MIT"
   },
-  "id": 12
+  "id": 42
 }

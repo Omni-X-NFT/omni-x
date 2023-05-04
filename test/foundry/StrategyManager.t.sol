@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // LooksRare unopinionated libraries
 import {IOwnableTwoSteps} from "@looksrare/contracts-libs/contracts/interfaces/IOwnableTwoSteps.sol";
@@ -52,7 +52,7 @@ contract StrategyManagerTest is ProtocolBase, IStrategyManager {
 
         vm.expectEmit({checkTopic1: false, checkTopic2: false, checkTopic3: false, checkData: true});
         emit StrategyUpdated(strategyId, isActive, standardProtocolFeeBp, minTotalFeeBp);
-        looksRareProtocol.updateStrategy(strategyId, isActive, standardProtocolFeeBp, minTotalFeeBp);
+        omniXExchange.updateStrategy(strategyId, isActive, standardProtocolFeeBp, minTotalFeeBp);
 
         (
             bool strategyIsActive,
@@ -62,7 +62,7 @@ contract StrategyManagerTest is ProtocolBase, IStrategyManager {
             bytes4 strategySelector,
             bool strategyIsMakerBid,
             address strategyImplementation
-        ) = looksRareProtocol.strategyInfo(strategyId);
+        ) = omniXExchange.strategyInfo(strategyId);
 
         assertFalse(strategyIsActive);
         assertEq(strategyStandardProtocolFee, standardProtocolFeeBp);
@@ -106,7 +106,7 @@ contract StrategyManagerTest is ProtocolBase, IStrategyManager {
 
         vm.expectEmit({checkTopic1: false, checkTopic2: false, checkTopic3: false, checkData: true});
         emit StrategyUpdated(strategyId, isActive, newStandardProtocolFeeBp, newMinTotalFeeBp);
-        looksRareProtocol.updateStrategy(strategyId, isActive, newStandardProtocolFeeBp, newMinTotalFeeBp);
+        omniXExchange.updateStrategy(strategyId, isActive, newStandardProtocolFeeBp, newMinTotalFeeBp);
 
         (
             bool strategyIsActive,
@@ -116,7 +116,7 @@ contract StrategyManagerTest is ProtocolBase, IStrategyManager {
             bytes4 strategySelector,
             bool strategyIsMakerBid,
             address strategyImplementation
-        ) = looksRareProtocol.strategyInfo(strategyId);
+        ) = omniXExchange.strategyInfo(strategyId);
 
         assertTrue(strategyIsActive);
         assertEq(strategyStandardProtocolFee, newStandardProtocolFeeBp);
@@ -139,23 +139,23 @@ contract StrategyManagerTest is ProtocolBase, IStrategyManager {
             ,
             ,
 
-        ) = looksRareProtocol.strategyInfo(0);
+        ) = omniXExchange.strategyInfo(0);
 
         // 1. newStandardProtocolFee is higher than maxProtocolFeeBp
         uint16 newStandardProtocolFee = maxProtocolFeeBp + 1;
         uint16 newMinTotalFee = currentMinTotalFee;
         vm.expectRevert(StrategyProtocolFeeTooHigh.selector);
-        looksRareProtocol.updateStrategy(0, true, newStandardProtocolFee, newMinTotalFee);
+        omniXExchange.updateStrategy(0, true, newStandardProtocolFee, newMinTotalFee);
 
         // 2. newMinTotalFee is higher than maxProtocolFeeBp
         newStandardProtocolFee = currentStandardProtocolFee;
         newMinTotalFee = maxProtocolFeeBp + 1;
         vm.expectRevert(StrategyProtocolFeeTooHigh.selector);
-        looksRareProtocol.updateStrategy(0, true, newStandardProtocolFee, newMinTotalFee);
+        omniXExchange.updateStrategy(0, true, newStandardProtocolFee, newMinTotalFee);
 
         // 3. It reverts if strategy doesn't exist
         vm.expectRevert(StrategyNotUsed.selector);
-        looksRareProtocol.updateStrategy(1, true, currentStandardProtocolFee, currentMinTotalFee);
+        omniXExchange.updateStrategy(1, true, currentStandardProtocolFee, currentMinTotalFee);
     }
 
     /**
@@ -170,7 +170,7 @@ contract StrategyManagerTest is ProtocolBase, IStrategyManager {
         // 1. standardProtocolFeeBp is higher than maxProtocolFeeBp
         maxProtocolFeeBp = standardProtocolFeeBp - 1;
         vm.expectRevert(abi.encodeWithSelector(IStrategyManager.StrategyProtocolFeeTooHigh.selector));
-        looksRareProtocol.addStrategy(
+        omniXExchange.addStrategy(
             standardProtocolFeeBp,
             minTotalFeeBp,
             maxProtocolFeeBp,
@@ -182,7 +182,7 @@ contract StrategyManagerTest is ProtocolBase, IStrategyManager {
         // 2. minTotalFeeBp is higher than maxProtocolFeeBp
         maxProtocolFeeBp = minTotalFeeBp - 1;
         vm.expectRevert(abi.encodeWithSelector(IStrategyManager.StrategyProtocolFeeTooHigh.selector));
-        looksRareProtocol.addStrategy(
+        omniXExchange.addStrategy(
             standardProtocolFeeBp,
             minTotalFeeBp,
             maxProtocolFeeBp,
@@ -194,7 +194,7 @@ contract StrategyManagerTest is ProtocolBase, IStrategyManager {
         // 3. maxProtocolFeeBp is higher than _MAX_PROTOCOL_FEE
         maxProtocolFeeBp = 500 + 1;
         vm.expectRevert(abi.encodeWithSelector(IStrategyManager.StrategyProtocolFeeTooHigh.selector));
-        looksRareProtocol.addStrategy(
+        omniXExchange.addStrategy(
             standardProtocolFeeBp,
             minTotalFeeBp,
             maxProtocolFeeBp,
@@ -218,7 +218,7 @@ contract StrategyManagerTest is ProtocolBase, IStrategyManager {
 
         // 2. Invalid contract (e.g. LooksRareProtocol)
         vm.expectRevert();
-        _addStrategy(address(looksRareProtocol), randomSelector, true);
+        _addStrategy(address(omniXExchange), randomSelector, true);
 
         // 3. Contract that implements the function but returns false
         FalseBaseStrategy falseStrategy = new FalseBaseStrategy();
@@ -234,6 +234,6 @@ contract StrategyManagerTest is ProtocolBase, IStrategyManager {
 
     function testUpdateStrategyNotOwner() public {
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
-        looksRareProtocol.updateStrategy(0, false, 299, 100);
+        omniXExchange.updateStrategy(0, false, 299, 100);
     }
 }

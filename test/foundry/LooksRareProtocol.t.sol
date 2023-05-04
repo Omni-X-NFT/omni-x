@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // LooksRare unopinionated libraries
 import {IOwnableTwoSteps} from "@looksrare/contracts-libs/contracts/interfaces/IOwnableTwoSteps.sol";
@@ -54,7 +54,7 @@ contract LooksRareProtocolTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(OrderInvalid.selector);
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             takerBid,
             makerAsk,
             signature,
@@ -72,7 +72,7 @@ contract LooksRareProtocolTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(AmountInvalid.selector);
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             takerBid,
             makerAsk,
             signature,
@@ -100,7 +100,7 @@ contract LooksRareProtocolTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(CurrencyInvalid.selector);
-        looksRareProtocol.executeTakerBid{value: price}(
+        omniXExchange.executeTakerBid{value: price}(
             takerBid,
             makerAsk,
             signature,
@@ -119,7 +119,7 @@ contract LooksRareProtocolTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(CurrencyInvalid.selector);
-        looksRareProtocol.executeMultipleTakerBids{value: price}(
+        omniXExchange.executeMultipleTakerBids{value: price}(
             takerBids,
             makerAsks,
             signatures,
@@ -130,7 +130,7 @@ contract LooksRareProtocolTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(CurrencyInvalid.selector);
-        looksRareProtocol.executeMultipleTakerBids{value: price}(
+        omniXExchange.executeMultipleTakerBids{value: price}(
             takerBids,
             makerAsks,
             signatures,
@@ -158,7 +158,7 @@ contract LooksRareProtocolTest is ProtocolBase {
         // Execute taker ask transaction
         vm.prank(takerUser);
         vm.expectRevert(CurrencyInvalid.selector);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testCannotTradeIfInvalidQuoteType() public {
@@ -173,7 +173,7 @@ contract LooksRareProtocolTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(QuoteTypeInvalid.selector);
-        looksRareProtocol.executeTakerBid(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerBid(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         // 2. QuoteType = ASK but executeTakerAsk
         (OrderStructs.Maker memory makerAsk, OrderStructs.Taker memory takerBid) = _createMockMakerAskAndTakerBid(
@@ -186,28 +186,28 @@ contract LooksRareProtocolTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(QuoteTypeInvalid.selector);
-        looksRareProtocol.executeTakerAsk(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testUpdateETHGasLimitForTransfer() public asPrankedUser(_owner) {
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit NewGasLimitETHTransfer(10_000);
-        looksRareProtocol.updateETHGasLimitForTransfer(10_000);
-        assertEq(uint256(vm.load(address(looksRareProtocol), bytes32(uint256(14)))), 10_000);
+        omniXExchange.updateETHGasLimitForTransfer(10_000);
+        assertEq(uint256(vm.load(address(omniXExchange), bytes32(uint256(14)))), 10_000);
     }
 
     function testUpdateETHGasLimitForTransferRevertsIfTooLow() public asPrankedUser(_owner) {
         uint256 newGasLimitETHTransfer = 2_300;
         vm.expectRevert(NewGasLimitETHTransferTooLow.selector);
-        looksRareProtocol.updateETHGasLimitForTransfer(newGasLimitETHTransfer - 1);
+        omniXExchange.updateETHGasLimitForTransfer(newGasLimitETHTransfer - 1);
 
-        looksRareProtocol.updateETHGasLimitForTransfer(newGasLimitETHTransfer);
-        assertEq(uint256(vm.load(address(looksRareProtocol), bytes32(uint256(14)))), newGasLimitETHTransfer);
+        omniXExchange.updateETHGasLimitForTransfer(newGasLimitETHTransfer);
+        assertEq(uint256(vm.load(address(omniXExchange), bytes32(uint256(14)))), newGasLimitETHTransfer);
     }
 
     function testUpdateETHGasLimitForTransferNotOwner() public {
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
-        looksRareProtocol.updateETHGasLimitForTransfer(10_000);
+        omniXExchange.updateETHGasLimitForTransfer(10_000);
     }
 
     function testCannotCallRestrictedExecuteTakerBid() public {
@@ -222,7 +222,7 @@ contract LooksRareProtocolTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(CallerInvalid.selector);
-        looksRareProtocol.restrictedExecuteTakerBid(takerBid, makerAsk, takerUser, _computeOrderHash(makerAsk));
+        omniXExchange.restrictedExecuteTakerBid(takerBid, makerAsk, takerUser, _computeOrderHash(makerAsk));
     }
 
     /**
@@ -239,7 +239,7 @@ contract LooksRareProtocolTest is ProtocolBase {
     function _testCannotExecuteMultipleTakerBidsIfDifferentCurrencies(bool isAtomic) public {
         _setUpUsers();
         vm.prank(_owner);
-        looksRareProtocol.updateCurrencyStatus(address(mockERC20), true);
+        omniXExchange.updateCurrencyStatus(address(mockERC20), true);
 
         uint256 numberPurchases = 2;
 
@@ -280,7 +280,7 @@ contract LooksRareProtocolTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(CurrencyInvalid.selector);
-        looksRareProtocol.executeMultipleTakerBids{value: price}(
+        omniXExchange.executeMultipleTakerBids{value: price}(
             takerBids,
             makerAsks,
             signatures,

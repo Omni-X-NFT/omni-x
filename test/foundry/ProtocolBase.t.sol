@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // WETH
-import {WETH} from "solmate/src/tokens/WETH.sol";
+import {WETH} from "solmate/tokens/WETH.sol";
 
 // Libraries
 import {OrderStructs} from "../../contracts/libraries/OrderStructs.sol";
 
 // Core contracts
-import {LooksRareProtocol, ILooksRareProtocol} from "../../contracts/LooksRareProtocol.sol";
-import {TransferManager} from "../../contracts/TransferManager.sol";
-import {ProtocolFeeRecipient} from "../../contracts/ProtocolFeeRecipient.sol";
+import {OmniXExchange, IOmniXExchange} from "../../contracts/core/OmniXExchange.sol";
+import {TransferManager} from "../../contracts/core/TransferManager.sol";
+import {ProtocolFeeRecipient} from "../../contracts/core/ProtocolFeeRecipient.sol";
 
 // Other contracts
 import {OrderValidatorV2A} from "../../contracts/helpers/OrderValidatorV2A.sol";
@@ -25,7 +25,7 @@ import {MockRoyaltyFeeRegistry} from "../mock/MockRoyaltyFeeRegistry.sol";
 // Utils
 import {MockOrderGenerator} from "./utils/MockOrderGenerator.sol";
 
-contract ProtocolBase is MockOrderGenerator, ILooksRareProtocol {
+contract ProtocolBase is MockOrderGenerator, IOmniXExchange {
     address[] public operators;
 
     MockERC20 public looksRareToken;
@@ -34,7 +34,7 @@ contract ProtocolBase is MockOrderGenerator, ILooksRareProtocol {
     MockERC1155 public mockERC1155;
 
     ProtocolFeeRecipient public protocolFeeRecipient;
-    LooksRareProtocol public looksRareProtocol;
+    OmniXExchange public omniXExchange;
     TransferManager public transferManager;
     MockRoyaltyFeeRegistry public royaltyFeeRegistry;
     OrderValidatorV2A public orderValidator;
@@ -131,7 +131,7 @@ contract ProtocolBase is MockOrderGenerator, ILooksRareProtocol {
         mockERC721.setApprovalForAll(address(transferManager), true);
         mockERC1155.setApprovalForAll(address(transferManager), true);
         mockERC721WithRoyalties.setApprovalForAll(address(transferManager), true);
-        weth.approve(address(looksRareProtocol), type(uint256).max);
+        weth.approve(address(omniXExchange), type(uint256).max);
 
         // Grant approvals for transfer manager
         transferManager.grantApprovals(operators);
@@ -166,7 +166,7 @@ contract ProtocolBase is MockOrderGenerator, ILooksRareProtocol {
         transferManager = new TransferManager(_owner);
         royaltyFeeRegistry = new MockRoyaltyFeeRegistry(_owner, 9500);
         protocolFeeRecipient = new ProtocolFeeRecipient(0x5924A28caAF1cc016617874a2f0C3710d881f3c1, address(weth));
-        looksRareProtocol = new LooksRareProtocol(
+        omniXExchange = new OmniXExchange(
             _owner,
             address(protocolFeeRecipient),
             address(transferManager),
@@ -175,16 +175,16 @@ contract ProtocolBase is MockOrderGenerator, ILooksRareProtocol {
         mockERC721WithRoyalties = new MockERC721WithRoyalties(_royaltyRecipient, _standardRoyaltyFee);
 
         // Operations
-        transferManager.allowOperator(address(looksRareProtocol));
-        looksRareProtocol.updateCurrencyStatus(ETH, true);
-        looksRareProtocol.updateCurrencyStatus(address(weth), true);
+        transferManager.allowOperator(address(omniXExchange));
+        omniXExchange.updateCurrencyStatus(ETH, true);
+        omniXExchange.updateCurrencyStatus(address(weth), true);
 
         // Fetch domain separator and store it as one of the operators
-        _domainSeparator = looksRareProtocol.domainSeparator();
-        operators.push(address(looksRareProtocol));
+        _domainSeparator = omniXExchange.domainSeparator();
+        operators.push(address(omniXExchange));
 
         // Deploy order validator contract
-        orderValidator = new OrderValidatorV2A(address(looksRareProtocol));
+        orderValidator = new OrderValidatorV2A(address(omniXExchange));
 
         // Distribute ETH and WETH to protocol owner
         vm.deal(_owner, _initialETHBalanceOwner + _initialWETHBalanceOwner);
@@ -203,7 +203,7 @@ contract ProtocolBase is MockOrderGenerator, ILooksRareProtocol {
     }
 
     function _addStrategy(address strategy, bytes4 selector, bool isMakerBid) internal {
-        looksRareProtocol.addStrategy(
+        omniXExchange.addStrategy(
             _standardProtocolFeeBp,
             _minTotalFeeBp,
             _maxProtocolFeeBp,
@@ -226,7 +226,7 @@ contract ProtocolBase is MockOrderGenerator, ILooksRareProtocol {
             bytes4 strategySelector,
             bool strategyIsMakerBid,
             address strategyImplementation
-        ) = looksRareProtocol.strategyInfo(1);
+        ) = omniXExchange.strategyInfo(1);
 
         assertTrue(strategyIsActive);
         assertEq(strategyStandardProtocolFee, _standardProtocolFeeBp);

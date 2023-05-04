@@ -8,8 +8,8 @@ import {IOwnableTwoSteps} from "@looksrare/contracts-libs/contracts/interfaces/I
 import {OrderStructs} from "../../contracts/libraries/OrderStructs.sol";
 
 // Core contracts
-import {LooksRareProtocol} from "../../contracts/LooksRareProtocol.sol";
-import {ITransferManager, TransferManager} from "../../contracts/TransferManager.sol";
+import {OmniXExchange} from "../../contracts/core/OmniXExchange.sol";
+import {ITransferManager, TransferManager} from "../../contracts/core/TransferManager.sol";
 import {AmountInvalid, LengthsInvalid} from "../../contracts/errors/SharedErrors.sol";
 
 // Mocks and other utils

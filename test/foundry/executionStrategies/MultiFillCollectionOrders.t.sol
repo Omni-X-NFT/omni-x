@@ -31,7 +31,7 @@ contract MultiFillCollectionOrdersTest is ProtocolBase, IStrategyManager {
     }
 
     function _setUpNewStrategy() private asPrankedUser(_owner) {
-        strategyMultiFillCollectionOrder = new StrategyTestMultiFillCollectionOrder(address(looksRareProtocol));
+        strategyMultiFillCollectionOrder = new StrategyTestMultiFillCollectionOrder(address(omniXExchange));
         _addStrategy(address(strategyMultiFillCollectionOrder), selector, true);
     }
 
@@ -85,7 +85,7 @@ contract MultiFillCollectionOrdersTest is ProtocolBase, IStrategyManager {
 
         // Execute the first taker ask transaction by the first taker user
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         // Taker user has received the asset
         assertEq(mockERC721.ownerOf(0), makerUser);
@@ -97,7 +97,7 @@ contract MultiFillCollectionOrdersTest is ProtocolBase, IStrategyManager {
             _initialWETHBalanceUser + (price * _sellerProceedBpWithStandardProtocolFeeBp) / ONE_HUNDRED_PERCENT_IN_BP
         );
         // Verify the nonce is not marked as executed
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, makerBid.orderNonce), _computeOrderHash(makerBid));
+        assertEq(omniXExchange.userOrderNonce(makerUser, makerBid.orderNonce), _computeOrderHash(makerBid));
 
         // Second taker user actions
         address secondTakerUser = address(420);
@@ -120,7 +120,7 @@ contract MultiFillCollectionOrdersTest is ProtocolBase, IStrategyManager {
 
         // Execute a second taker ask transaction from the second taker user
         vm.prank(secondTakerUser);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         // Taker user has received the 3 assets
         assertEq(mockERC721.ownerOf(1), makerUser);
@@ -137,7 +137,7 @@ contract MultiFillCollectionOrdersTest is ProtocolBase, IStrategyManager {
                 ((price * _sellerProceedBpWithStandardProtocolFeeBp) / ONE_HUNDRED_PERCENT_IN_BP)
         );
         // Verify the nonce is now marked as executed
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, makerBid.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+        assertEq(omniXExchange.userOrderNonce(makerUser, makerBid.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
     }
 
     function testInactiveStrategy() public {
@@ -169,7 +169,7 @@ contract MultiFillCollectionOrdersTest is ProtocolBase, IStrategyManager {
         bytes memory signature = _signMakerOrder(makerBid, makerUserPK);
 
         vm.prank(_owner);
-        looksRareProtocol.updateStrategy(1, false, _standardProtocolFeeBp, _minTotalFeeBp);
+        omniXExchange.updateStrategy(1, false, _standardProtocolFeeBp, _minTotalFeeBp);
 
         {
             itemIds = new uint256[](1);
@@ -182,7 +182,7 @@ contract MultiFillCollectionOrdersTest is ProtocolBase, IStrategyManager {
             // It should revert if strategy is not available
             vm.prank(takerUser);
             vm.expectRevert(abi.encodeWithSelector(IExecutionManager.StrategyNotAvailable.selector, 1));
-            looksRareProtocol.executeTakerAsk(
+            omniXExchange.executeTakerAsk(
                 _genericTakerOrder(),
                 makerBid,
                 signature,

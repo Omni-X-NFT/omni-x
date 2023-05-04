@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // LooksRare unopinionated libraries
 import {IOwnableTwoSteps} from "@looksrare/contracts-libs/contracts/interfaces/IOwnableTwoSteps.sol";
 
 // Core contracts
-import {CurrencyManager, ICurrencyManager} from "../../contracts/CurrencyManager.sol";
+import {CurrencyManager, ICurrencyManager} from "../../contracts/core/CurrencyManager.sol";
 
 // Other mocks and utils
 import {TestHelpers} from "./utils/TestHelpers.sol";

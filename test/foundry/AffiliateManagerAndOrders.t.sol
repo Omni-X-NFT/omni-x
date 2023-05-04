@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // LooksRare unopinionated libraries
 import {IOwnableTwoSteps} from "@looksrare/contracts-libs/contracts/interfaces/IOwnableTwoSteps.sol";
@@ -39,9 +39,9 @@ contract AffiliateOrdersTest is ProtocolBase, IAffiliateManager {
 
     function _setUpAffiliate() private {
         vm.startPrank(_owner);
-        looksRareProtocol.updateAffiliateController(_owner);
-        looksRareProtocol.updateAffiliateProgramStatus(true);
-        looksRareProtocol.updateAffiliateRate(_affiliate, _affiliateRate);
+        omniXExchange.updateAffiliateController(_owner);
+        omniXExchange.updateAffiliateProgramStatus(true);
+        omniXExchange.updateAffiliateRate(_affiliate, _affiliateRate);
         vm.stopPrank();
 
         vm.deal(_affiliate, _initialETHBalanceAffiliate + _initialWETHBalanceAffiliate);
@@ -53,49 +53,49 @@ contract AffiliateOrdersTest is ProtocolBase, IAffiliateManager {
         // 1. NewAffiliateController
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit NewAffiliateController(_owner);
-        looksRareProtocol.updateAffiliateController(_owner);
+        omniXExchange.updateAffiliateController(_owner);
 
         // 2. NewAffiliateProgramStatus
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit NewAffiliateProgramStatus(true);
-        looksRareProtocol.updateAffiliateProgramStatus(true);
+        omniXExchange.updateAffiliateProgramStatus(true);
 
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit NewAffiliateProgramStatus(false);
-        looksRareProtocol.updateAffiliateProgramStatus(false);
+        omniXExchange.updateAffiliateProgramStatus(false);
 
         // 3. NewAffiliateRate
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit NewAffiliateRate(takerUser, 30);
-        looksRareProtocol.updateAffiliateRate(takerUser, 30);
+        omniXExchange.updateAffiliateRate(takerUser, 30);
     }
 
     function testCannotUpdateAffiliateRateIfNotAffiliateController() public {
         vm.expectRevert(IAffiliateManager.NotAffiliateController.selector);
-        looksRareProtocol.updateAffiliateRate(address(42), 100);
+        omniXExchange.updateAffiliateRate(address(42), 100);
     }
 
     function testCannotUpdateAffiliateRateIfRateHigherthan10000() public asPrankedUser(_owner) {
-        looksRareProtocol.updateAffiliateController(_owner);
+        omniXExchange.updateAffiliateController(_owner);
 
         address randomAffiliate = address(42);
         uint256 affiliateRateLimitBp = ONE_HUNDRED_PERCENT_IN_BP;
         vm.expectRevert(IAffiliateManager.PercentageTooHigh.selector);
-        looksRareProtocol.updateAffiliateRate(randomAffiliate, affiliateRateLimitBp + 1);
+        omniXExchange.updateAffiliateRate(randomAffiliate, affiliateRateLimitBp + 1);
 
         // It does not revert
-        looksRareProtocol.updateAffiliateRate(randomAffiliate, affiliateRateLimitBp);
-        assertEq(looksRareProtocol.affiliateRates(randomAffiliate), affiliateRateLimitBp);
+        omniXExchange.updateAffiliateRate(randomAffiliate, affiliateRateLimitBp);
+        assertEq(omniXExchange.affiliateRates(randomAffiliate), affiliateRateLimitBp);
     }
 
     function testUpdateAffiliateControllerNotOwner() public {
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
-        looksRareProtocol.updateAffiliateController(address(0));
+        omniXExchange.updateAffiliateController(address(0));
     }
 
     function testUpdateAffiliateProgramStatusNotOwner() public {
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
-        looksRareProtocol.updateAffiliateProgramStatus(false);
+        omniXExchange.updateAffiliateProgramStatus(false);
     }
 
     /**
@@ -124,7 +124,7 @@ contract AffiliateOrdersTest is ProtocolBase, IAffiliateManager {
         vm.prank(takerUser);
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit AffiliatePayment(_affiliate, makerAsk.currency, expectedAffiliateFeeAmount);
-        looksRareProtocol.executeTakerBid{value: price}(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _affiliate);
+        omniXExchange.executeTakerBid{value: price}(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _affiliate);
 
         // Taker user has received the asset
         assertEq(mockERC721.ownerOf(makerAsk.itemIds[0]), takerUser);
@@ -143,9 +143,9 @@ contract AffiliateOrdersTest is ProtocolBase, IAffiliateManager {
             "ProtocolFeeRecipient should receive 80% of protocol fee"
         );
         // No leftover in the balance of the contract
-        assertEq(address(looksRareProtocol).balance, 0);
+        assertEq(address(omniXExchange).balance, 0);
         // Verify the nonce is marked as executed
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, makerAsk.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+        assertEq(omniXExchange.userOrderNonce(makerUser, makerAsk.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
     }
 
     /**
@@ -207,7 +207,7 @@ contract AffiliateOrdersTest is ProtocolBase, IAffiliateManager {
         vm.prank(takerUser);
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit AffiliatePayment(_affiliate, makerAsks[0].currency, expectedAffiliateFeeAmount);
-        looksRareProtocol.executeMultipleTakerBids{value: price * numberPurchases}(
+        omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
             takerBids,
             makerAsks,
             signatures,
@@ -220,13 +220,13 @@ contract AffiliateOrdersTest is ProtocolBase, IAffiliateManager {
             // Taker user has received the first two assets
             assertEq(mockERC721.ownerOf(i), takerUser);
             // Verify the first two nonces are marked as executed
-            assertEq(looksRareProtocol.userOrderNonce(makerUser, i), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+            assertEq(omniXExchange.userOrderNonce(makerUser, i), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
         }
 
         // Taker user has not received the asset
         assertEq(mockERC721.ownerOf(faultyTokenId), randomUser);
         // Verify the nonce is NOT marked as executed
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, faultyTokenId), bytes32(0));
+        assertEq(omniXExchange.userOrderNonce(makerUser, faultyTokenId), bytes32(0));
         // Taker bid user pays the whole price
         assertEq(address(takerUser).balance, _initialETHBalanceUser - 1 - ((numberPurchases - 1) * price));
         // Maker ask user receives 99.5% of the whole price (0.5% protocol)
@@ -246,7 +246,7 @@ contract AffiliateOrdersTest is ProtocolBase, IAffiliateManager {
             "ProtocolFeeRecipient should receive 80% of protocol fee"
         );
         // Only 1 wei left in the balance of the contract
-        assertEq(address(looksRareProtocol).balance, 1);
+        assertEq(address(omniXExchange).balance, 1);
     }
 
     /**
@@ -276,7 +276,7 @@ contract AffiliateOrdersTest is ProtocolBase, IAffiliateManager {
         vm.prank(takerUser);
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit AffiliatePayment(_affiliate, makerBid.currency, expectedAffiliateFeeAmount);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _affiliate);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _affiliate);
 
         // Taker user has received the asset
         assertEq(mockERC721.ownerOf(makerBid.itemIds[0]), makerUser);
@@ -295,6 +295,6 @@ contract AffiliateOrdersTest is ProtocolBase, IAffiliateManager {
             "ProtocolFeeRecipient should receive 80% of protocol fee"
         );
         // Verify the nonce is marked as executed
-        assertEq(looksRareProtocol.userOrderNonce(makerUser, makerBid.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
+        assertEq(omniXExchange.userOrderNonce(makerUser, makerBid.orderNonce), MAGIC_VALUE_ORDER_NONCE_EXECUTED);
     }
 }

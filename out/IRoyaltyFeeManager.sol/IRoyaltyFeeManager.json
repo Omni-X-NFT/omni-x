@@ -53,7 +53,7 @@
   "methodIdentifiers": {
     "calculateRoyaltyFeeAndGetRecipient(address,uint256,uint256,bytes)": "4137ca9b"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"collection\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"royaltyInfo\",\"type\":\"bytes\"}],\"name\":\"calculateRoyaltyFeeAndGetRecipient\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IRoyaltyFeeManager.sol\":\"IRoyaltyFeeManager\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@ensdomains/=node_modules/@ensdomains/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":solmate/=node_modules/solmate/\",\":xdeployer/=node_modules/xdeployer/\"]},\"sources\":{\"contracts/interfaces/IRoyaltyFeeManager.sol\":{\"keccak256\":\"0x5abc6cb79acf252ebc873e7e09fe7b0e50e469e0b6684fb388f7997dabd1ead9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://185ec57d2aae25b88b8d1acfe0f67eeb34ec8fdd5854cbf3c7e9e33235c3036d\",\"dweb:/ipfs/QmWeBttyJ5XdzsSBXbL1kpDveHw57tNUH6FGrsaqprtvPa\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"collection\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"royaltyInfo\",\"type\":\"bytes\"}],\"name\":\"calculateRoyaltyFeeAndGetRecipient\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IRoyaltyFeeManager.sol\":\"IRoyaltyFeeManager\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@chainlink/=node_modules/@chainlink/\",\":@ensdomains/=node_modules/@ensdomains/\",\":@eth-optimism/=node_modules/@eth-optimism/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@looksrare/=node_modules/@looksrare/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":base64-sol/=node_modules/base64-sol/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":murky/=lib/murky/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":reservoirprotocol/=lib/reservoirprotocol/\",\":solmate/=lib/solmate/src/\",\":xdeployer/=node_modules/xdeployer/\"],\"viaIR\":true},\"sources\":{\"contracts/interfaces/IRoyaltyFeeManager.sol\":{\"keccak256\":\"0x5abc6cb79acf252ebc873e7e09fe7b0e50e469e0b6684fb388f7997dabd1ead9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://185ec57d2aae25b88b8d1acfe0f67eeb34ec8fdd5854cbf3c7e9e33235c3036d\",\"dweb:/ipfs/QmWeBttyJ5XdzsSBXbL1kpDveHw57tNUH6FGrsaqprtvPa\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -114,18 +114,25 @@
     },
     "settings": {
       "remappings": [
+        ":@chainlink/=node_modules/@chainlink/",
         ":@ensdomains/=node_modules/@ensdomains/",
+        ":@eth-optimism/=node_modules/@eth-optimism/",
         ":@gelatonetwork/=node_modules/@gelatonetwork/",
         ":@layerzerolabs/=node_modules/@layerzerolabs/",
+        ":@looksrare/=node_modules/@looksrare/",
         ":@openzeppelin/=node_modules/@openzeppelin/",
         ":@uniswap/=node_modules/@uniswap/",
+        ":base64-sol/=node_modules/base64-sol/",
         ":ds-test/=lib/forge-std/lib/ds-test/src/",
         ":eth-gas-reporter/=node_modules/eth-gas-reporter/",
         ":forge-std/=lib/forge-std/src/",
         ":hardhat-deploy/=node_modules/hardhat-deploy/",
         ":hardhat/=node_modules/hardhat/",
+        ":murky/=lib/murky/src/",
+        ":openzeppelin-contracts/=lib/openzeppelin-contracts/",
         ":operator-filter-registry/=node_modules/operator-filter-registry/",
-        ":solmate/=node_modules/solmate/",
+        ":reservoirprotocol/=lib/reservoirprotocol/",
+        ":solmate/=lib/solmate/src/",
         ":xdeployer/=node_modules/xdeployer/"
       ],
       "optimizer": {
@@ -138,7 +145,8 @@
       "compilationTarget": {
         "contracts/interfaces/IRoyaltyFeeManager.sol": "IRoyaltyFeeManager"
       },
-      "libraries": {}
+      "libraries": {},
+      "viaIR": true
     },
     "sources": {
       "contracts/interfaces/IRoyaltyFeeManager.sol": {
@@ -154,19 +162,19 @@
   },
   "ast": {
     "absolutePath": "contracts/interfaces/IRoyaltyFeeManager.sol",
-    "id": 6117,
+    "id": 11865,
     "exportedSymbols": {
       "IRoyaltyFeeManager": [
-        6116
+        11864
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "32:264:25",
+    "src": "32:264:57",
     "nodes": [
       {
-        "id": 6100,
+        "id": 11848,
         "nodeType": "PragmaDirective",
-        "src": "32:23:25",
+        "src": "32:23:57",
         "nodes": [],
         "literals": [
           "solidity",
@@ -176,34 +184,34 @@
         ]
       },
       {
-        "id": 6116,
+        "id": 11864,
         "nodeType": "ContractDefinition",
-        "src": "57:239:25",
+        "src": "57:239:57",
         "nodes": [
           {
-            "id": 6115,
+            "id": 11863,
             "nodeType": "FunctionDefinition",
-            "src": "92:202:25",
+            "src": "92:202:57",
             "nodes": [],
             "functionSelector": "4137ca9b",
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "calculateRoyaltyFeeAndGetRecipient",
-            "nameLocation": "101:34:25",
+            "nameLocation": "101:34:57",
             "parameters": {
-              "id": 6109,
+              "id": 11857,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 6102,
+                  "id": 11850,
                   "mutability": "mutable",
                   "name": "collection",
-                  "nameLocation": "153:10:25",
+                  "nameLocation": "153:10:57",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6115,
-                  "src": "145:18:25",
+                  "scope": 11863,
+                  "src": "145:18:57",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -211,10 +219,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 6101,
+                    "id": 11849,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "145:7:25",
+                    "src": "145:7:57",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -225,13 +233,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 6104,
+                  "id": 11852,
                   "mutability": "mutable",
                   "name": "tokenId",
-                  "nameLocation": "181:7:25",
+                  "nameLocation": "181:7:57",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6115,
-                  "src": "173:15:25",
+                  "scope": 11863,
+                  "src": "173:15:57",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -239,10 +247,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 6103,
+                    "id": 11851,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "173:7:25",
+                    "src": "173:7:57",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -252,13 +260,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 6106,
+                  "id": 11854,
                   "mutability": "mutable",
                   "name": "amount",
-                  "nameLocation": "206:6:25",
+                  "nameLocation": "206:6:57",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6115,
-                  "src": "198:14:25",
+                  "scope": 11863,
+                  "src": "198:14:57",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -266,10 +274,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 6105,
+                    "id": 11853,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "198:7:25",
+                    "src": "198:7:57",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -279,13 +287,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 6108,
+                  "id": 11856,
                   "mutability": "mutable",
                   "name": "royaltyInfo",
-                  "nameLocation": "235:11:25",
+                  "nameLocation": "235:11:57",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6115,
-                  "src": "222:24:25",
+                  "scope": 11863,
+                  "src": "222:24:57",
                   "stateVariable": false,
                   "storageLocation": "memory",
                   "typeDescriptions": {
@@ -293,10 +301,10 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 6107,
+                    "id": 11855,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
-                    "src": "222:5:25",
+                    "src": "222:5:57",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
                       "typeString": "bytes"
@@ -305,21 +313,21 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "135:117:25"
+              "src": "135:117:57"
             },
             "returnParameters": {
-              "id": 6114,
+              "id": 11862,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 6111,
+                  "id": 11859,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6115,
-                  "src": "276:7:25",
+                  "scope": 11863,
+                  "src": "276:7:57",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -327,10 +335,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 6110,
+                    "id": 11858,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "276:7:25",
+                    "src": "276:7:57",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -341,13 +349,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 6113,
+                  "id": 11861,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6115,
-                  "src": "285:7:25",
+                  "scope": 11863,
+                  "src": "285:7:57",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -355,10 +363,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 6112,
+                    "id": 11860,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "285:7:25",
+                    "src": "285:7:57",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -367,9 +375,9 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "275:18:25"
+              "src": "275:18:57"
             },
-            "scope": 6116,
+            "scope": 11864,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
@@ -382,15 +390,15 @@
         "contractKind": "interface",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          6116
+          11864
         ],
         "name": "IRoyaltyFeeManager",
-        "nameLocation": "67:18:25",
-        "scope": 6117,
+        "nameLocation": "67:18:57",
+        "scope": 11865,
         "usedErrors": []
       }
     ],
     "license": "MIT"
   },
-  "id": 25
+  "id": 57
 }

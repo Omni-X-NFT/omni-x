@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 /**
  * @author OpenZeppelin (last updated v4.8.0) (utils/math/Math.sol)

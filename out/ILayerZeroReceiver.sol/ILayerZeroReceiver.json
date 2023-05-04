@@ -42,7 +42,7 @@
   "methodIdentifiers": {
     "lzReceive(uint16,bytes,uint64,bytes)": "001d3567"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"lzReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/ILayerZeroReceiver.sol\":\"ILayerZeroReceiver\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@ensdomains/=node_modules/@ensdomains/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":solmate/=node_modules/solmate/\",\":xdeployer/=node_modules/xdeployer/\"]},\"sources\":{\"contracts/interfaces/ILayerZeroReceiver.sol\":{\"keccak256\":\"0x8d3744d49cea963aca1774a20e95e4ea157725f8d70eaa8fdf601c4ca28cb99b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f3ad97a5758dae977499283cfb56d59038f285010c7b8672e13e2ed7cdb5d91c\",\"dweb:/ipfs/QmatHGWtb9mtSj4iZs1PpK8YnK5s9qP9BwTHkYdCqs7nhc\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"lzReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/ILayerZeroReceiver.sol\":\"ILayerZeroReceiver\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@chainlink/=node_modules/@chainlink/\",\":@ensdomains/=node_modules/@ensdomains/\",\":@eth-optimism/=node_modules/@eth-optimism/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@looksrare/=node_modules/@looksrare/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":base64-sol/=node_modules/base64-sol/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":murky/=lib/murky/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":reservoirprotocol/=lib/reservoirprotocol/\",\":solmate/=lib/solmate/src/\",\":xdeployer/=node_modules/xdeployer/\"],\"viaIR\":true},\"sources\":{\"contracts/interfaces/ILayerZeroReceiver.sol\":{\"keccak256\":\"0x8d3744d49cea963aca1774a20e95e4ea157725f8d70eaa8fdf601c4ca28cb99b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f3ad97a5758dae977499283cfb56d59038f285010c7b8672e13e2ed7cdb5d91c\",\"dweb:/ipfs/QmatHGWtb9mtSj4iZs1PpK8YnK5s9qP9BwTHkYdCqs7nhc\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -91,18 +91,25 @@
     },
     "settings": {
       "remappings": [
+        ":@chainlink/=node_modules/@chainlink/",
         ":@ensdomains/=node_modules/@ensdomains/",
+        ":@eth-optimism/=node_modules/@eth-optimism/",
         ":@gelatonetwork/=node_modules/@gelatonetwork/",
         ":@layerzerolabs/=node_modules/@layerzerolabs/",
+        ":@looksrare/=node_modules/@looksrare/",
         ":@openzeppelin/=node_modules/@openzeppelin/",
         ":@uniswap/=node_modules/@uniswap/",
+        ":base64-sol/=node_modules/base64-sol/",
         ":ds-test/=lib/forge-std/lib/ds-test/src/",
         ":eth-gas-reporter/=node_modules/eth-gas-reporter/",
         ":forge-std/=lib/forge-std/src/",
         ":hardhat-deploy/=node_modules/hardhat-deploy/",
         ":hardhat/=node_modules/hardhat/",
+        ":murky/=lib/murky/src/",
+        ":openzeppelin-contracts/=lib/openzeppelin-contracts/",
         ":operator-filter-registry/=node_modules/operator-filter-registry/",
-        ":solmate/=node_modules/solmate/",
+        ":reservoirprotocol/=lib/reservoirprotocol/",
+        ":solmate/=lib/solmate/src/",
         ":xdeployer/=node_modules/xdeployer/"
       ],
       "optimizer": {
@@ -115,7 +122,8 @@
       "compilationTarget": {
         "contracts/interfaces/ILayerZeroReceiver.sol": "ILayerZeroReceiver"
       },
-      "libraries": {}
+      "libraries": {},
+      "viaIR": true
     },
     "sources": {
       "contracts/interfaces/ILayerZeroReceiver.sol": {
@@ -131,19 +139,19 @@
   },
   "ast": {
     "absolutePath": "contracts/interfaces/ILayerZeroReceiver.sol",
-    "id": 5867,
+    "id": 11460,
     "exportedSymbols": {
       "ILayerZeroReceiver": [
-        5866
+        11459
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "33:558:17",
+    "src": "33:558:48",
     "nodes": [
       {
-        "id": 5854,
+        "id": 11447,
         "nodeType": "PragmaDirective",
-        "src": "33:24:17",
+        "src": "33:24:48",
         "nodes": [],
         "literals": [
           "solidity",
@@ -153,34 +161,34 @@
         ]
       },
       {
-        "id": 5866,
+        "id": 11459,
         "nodeType": "ContractDefinition",
-        "src": "59:532:17",
+        "src": "59:532:48",
         "nodes": [
           {
-            "id": 5865,
+            "id": 11458,
             "nodeType": "FunctionDefinition",
-            "src": "473:116:17",
+            "src": "473:116:48",
             "nodes": [],
             "functionSelector": "001d3567",
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "lzReceive",
-            "nameLocation": "482:9:17",
+            "nameLocation": "482:9:48",
             "parameters": {
-              "id": 5863,
+              "id": 11456,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5856,
+                  "id": 11449,
                   "mutability": "mutable",
                   "name": "_srcChainId",
-                  "nameLocation": "499:11:17",
+                  "nameLocation": "499:11:48",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5865,
-                  "src": "492:18:17",
+                  "scope": 11458,
+                  "src": "492:18:48",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -188,10 +196,10 @@
                     "typeString": "uint16"
                   },
                   "typeName": {
-                    "id": 5855,
+                    "id": 11448,
                     "name": "uint16",
                     "nodeType": "ElementaryTypeName",
-                    "src": "492:6:17",
+                    "src": "492:6:48",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint16",
                       "typeString": "uint16"
@@ -201,13 +209,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 5858,
+                  "id": 11451,
                   "mutability": "mutable",
                   "name": "_srcAddress",
-                  "nameLocation": "527:11:17",
+                  "nameLocation": "527:11:48",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5865,
-                  "src": "512:26:17",
+                  "scope": 11458,
+                  "src": "512:26:48",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
@@ -215,10 +223,10 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 5857,
+                    "id": 11450,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
-                    "src": "512:5:17",
+                    "src": "512:5:48",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
                       "typeString": "bytes"
@@ -228,13 +236,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 5860,
+                  "id": 11453,
                   "mutability": "mutable",
                   "name": "_nonce",
-                  "nameLocation": "547:6:17",
+                  "nameLocation": "547:6:48",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5865,
-                  "src": "540:13:17",
+                  "scope": 11458,
+                  "src": "540:13:48",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -242,10 +250,10 @@
                     "typeString": "uint64"
                   },
                   "typeName": {
-                    "id": 5859,
+                    "id": 11452,
                     "name": "uint64",
                     "nodeType": "ElementaryTypeName",
-                    "src": "540:6:17",
+                    "src": "540:6:48",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint64",
                       "typeString": "uint64"
@@ -255,13 +263,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 5862,
+                  "id": 11455,
                   "mutability": "mutable",
                   "name": "_payload",
-                  "nameLocation": "570:8:17",
+                  "nameLocation": "570:8:48",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5865,
-                  "src": "555:23:17",
+                  "scope": 11458,
+                  "src": "555:23:48",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
@@ -269,10 +277,10 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 5861,
+                    "id": 11454,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
-                    "src": "555:5:17",
+                    "src": "555:5:48",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
                       "typeString": "bytes"
@@ -281,15 +289,15 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "491:88:17"
+              "src": "491:88:48"
             },
             "returnParameters": {
-              "id": 5864,
+              "id": 11457,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "588:0:17"
+              "src": "588:0:48"
             },
-            "scope": 5866,
+            "scope": 11459,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
@@ -302,15 +310,15 @@
         "contractKind": "interface",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          5866
+          11459
         ],
         "name": "ILayerZeroReceiver",
-        "nameLocation": "69:18:17",
-        "scope": 5867,
+        "nameLocation": "69:18:48",
+        "scope": 11460,
         "usedErrors": []
       }
     ],
     "license": "MIT"
   },
-  "id": 17
+  "id": 48
 }

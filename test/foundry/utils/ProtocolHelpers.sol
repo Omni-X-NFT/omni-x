@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // Dependencies
-import {BatchOrderTypehashRegistry} from "../../../contracts/BatchOrderTypehashRegistry.sol";
+import {BatchOrderTypehashRegistry} from "../../../contracts/core/BatchOrderTypehashRegistry.sol";
 
 // Libraries
 import {OrderStructs} from "../../../contracts/libraries/OrderStructs.sol";

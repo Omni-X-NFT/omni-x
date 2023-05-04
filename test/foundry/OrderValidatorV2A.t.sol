@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-import {LooksRareProtocol} from "../../contracts/LooksRareProtocol.sol";
-import {TransferManager} from "../../contracts/TransferManager.sol";
-import {CreatorFeeManagerWithRoyalties} from "../../contracts/CreatorFeeManagerWithRoyalties.sol";
+import {OmniXExchange} from "../../contracts/core/OmniXExchange.sol";
+import {TransferManager} from "../../contracts/core/TransferManager.sol";
+import {CreatorFeeManagerWithRoyalties} from "../../contracts/core/CreatorFeeManagerWithRoyalties.sol";
 
 import {OrderValidatorV2A} from "../../contracts/helpers/OrderValidatorV2A.sol";
 
@@ -37,14 +37,14 @@ import {QuoteType} from "../../contracts/enums/QuoteType.sol";
  */
 contract OrderValidatorV2ATest is TestParameters {
     CreatorFeeManagerWithRoyalties private creatorFeeManager;
-    LooksRareProtocol private looksRareProtocol;
+    OmniXExchange private omniXExchange;
     MockRoyaltyFeeRegistry private royaltyFeeRegistry;
     OrderValidatorV2A private orderValidator;
     TransferManager private transferManager;
 
     function setUp() public {
         transferManager = new TransferManager(address(this));
-        looksRareProtocol = new LooksRareProtocol(
+        omniXExchange = new OmniXExchange(
             address(this),
             address(this),
             address(transferManager),
@@ -52,9 +52,9 @@ contract OrderValidatorV2ATest is TestParameters {
         );
         royaltyFeeRegistry = new MockRoyaltyFeeRegistry(address(this), 9_500);
         creatorFeeManager = new CreatorFeeManagerWithRoyalties(address(royaltyFeeRegistry));
-        looksRareProtocol.updateCreatorFeeManager(address(creatorFeeManager));
-        looksRareProtocol.updateCurrencyStatus(ETH, true);
-        orderValidator = new OrderValidatorV2A(address(looksRareProtocol));
+        omniXExchange.updateCreatorFeeManager(address(creatorFeeManager));
+        omniXExchange.updateCurrencyStatus(ETH, true);
+        orderValidator = new OrderValidatorV2A(address(omniXExchange));
     }
 
     function testDeriveProtocolParameters() public {
@@ -67,7 +67,7 @@ contract OrderValidatorV2ATest is TestParameters {
                     keccak256("LooksRareProtocol"),
                     keccak256(bytes("2")),
                     block.chainid,
-                    address(looksRareProtocol)
+                    address(omniXExchange)
                 )
             )
         );
@@ -92,7 +92,7 @@ contract OrderValidatorV2ATest is TestParameters {
         OrderStructs.Maker memory makerBid;
         makerBid.quoteType = QuoteType.Bid;
         address currency = address(1); // it cannot be 0
-        looksRareProtocol.updateCurrencyStatus(currency, true);
+        omniXExchange.updateCurrencyStatus(currency, true);
         makerBid.currency = currency;
         makerBid.strategyId = 1;
         uint256[9] memory validationCodes = orderValidator.checkMakerOrderValidity(
@@ -111,7 +111,7 @@ contract OrderValidatorV2ATest is TestParameters {
         makerAsk.collection = address(new MockERC721());
 
         address[] memory operators = new address[](1);
-        operators[0] = address(orderValidator.looksRareProtocol());
+        operators[0] = address(orderValidator.omniXExchange());
 
         transferManager.allowOperator(operators[0]);
 
@@ -235,7 +235,7 @@ contract OrderValidatorV2ATest is TestParameters {
         mockERC20.mint(makerUser, 1 ether);
 
         vm.startPrank(makerUser);
-        mockERC20.approve(address(orderValidator.looksRareProtocol()), makerBid.price - 1 wei);
+        mockERC20.approve(address(orderValidator.omniXExchange()), makerBid.price - 1 wei);
         vm.stopPrank();
 
         uint256[9] memory validationCodes = orderValidator.checkMakerOrderValidity(

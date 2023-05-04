@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // LooksRare unopinionated libraries
 import {IOwnableTwoSteps} from "@looksrare/contracts-libs/contracts/interfaces/IOwnableTwoSteps.sol";
@@ -7,7 +7,7 @@ import {SignatureEOAInvalid} from "@looksrare/contracts-libs/contracts/errors/Si
 
 // Libraries and interfaces
 import {OrderStructs} from "../../contracts/libraries/OrderStructs.sol";
-import {ILooksRareProtocol} from "../../contracts/interfaces/ILooksRareProtocol.sol";
+import {IOmniXExchange} from "../../contracts/interfaces/IOmniXExchange.sol";
 
 // Base test
 import {ProtocolBase} from "./ProtocolBase.t.sol";
@@ -23,17 +23,17 @@ contract DomainSeparatorUpdatesTest is ProtocolBase {
         vm.chainId(newChainId);
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit NewDomainSeparator();
-        looksRareProtocol.updateDomainSeparator();
-        assertEq(looksRareProtocol.chainId(), newChainId);
+        omniXExchange.updateDomainSeparator();
+        assertEq(omniXExchange.chainId(), newChainId);
         assertEq(
-            looksRareProtocol.domainSeparator(),
+            omniXExchange.domainSeparator(),
             keccak256(
                 abi.encode(
                     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
                     keccak256("LooksRareProtocol"),
                     keccak256(bytes("2")),
                     newChainId,
-                    address(looksRareProtocol)
+                    address(omniXExchange)
                 )
             )
         );
@@ -49,7 +49,7 @@ contract DomainSeparatorUpdatesTest is ProtocolBase {
 
         // Owner updates the domain separator
         vm.prank(_owner);
-        looksRareProtocol.updateDomainSeparator();
+        omniXExchange.updateDomainSeparator();
 
         (OrderStructs.Maker memory makerAsk, OrderStructs.Taker memory takerBid) = _createMockMakerAskAndTakerBid(
             address(mockERC721)
@@ -62,7 +62,7 @@ contract DomainSeparatorUpdatesTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(SignatureEOAInvalid.selector);
-        looksRareProtocol.executeTakerBid{value: makerAsk.price}(
+        omniXExchange.executeTakerBid{value: makerAsk.price}(
             takerBid,
             makerAsk,
             signature,
@@ -89,8 +89,8 @@ contract DomainSeparatorUpdatesTest is ProtocolBase {
         mockERC721.mint(makerUser, makerAsk.itemIds[0]);
 
         vm.prank(takerUser);
-        vm.expectRevert(ILooksRareProtocol.ChainIdInvalid.selector);
-        looksRareProtocol.executeTakerBid{value: makerAsk.price}(
+        vm.expectRevert(IOmniXExchange.ChainIdInvalid.selector);
+        omniXExchange.executeTakerBid{value: makerAsk.price}(
             takerBid,
             makerAsk,
             signature,
@@ -101,11 +101,11 @@ contract DomainSeparatorUpdatesTest is ProtocolBase {
 
     function testUpdateDomainSeparatorSameDomainSeparator() public asPrankedUser(_owner) {
         vm.expectRevert(SameDomainSeparator.selector);
-        looksRareProtocol.updateDomainSeparator();
+        omniXExchange.updateDomainSeparator();
     }
 
     function testUpdateDomainSeparatorNotOwner() public {
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
-        looksRareProtocol.updateDomainSeparator();
+        omniXExchange.updateDomainSeparator();
     }
 }

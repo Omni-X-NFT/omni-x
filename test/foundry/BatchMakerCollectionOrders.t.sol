@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // Strategies
 import {StrategyCollectionOffer} from "../../contracts/executionStrategies/StrategyCollectionOffer.sol";
@@ -30,7 +30,7 @@ contract BatchMakerCollectionOrdersTest is ProtocolBase {
 
         strategy = new StrategyCollectionOffer();
         vm.prank(_owner);
-        looksRareProtocol.addStrategy(
+        omniXExchange.addStrategy(
             _standardProtocolFeeBp,
             _minTotalFeeBp,
             _maxProtocolFeeBp,
@@ -40,7 +40,7 @@ contract BatchMakerCollectionOrdersTest is ProtocolBase {
         );
 
         _setUpUsers();
-        eip712MerkleTree = new EIP712MerkleTree(looksRareProtocol);
+        eip712MerkleTree = new EIP712MerkleTree(omniXExchange);
     }
 
     function testTakerAskMultipleOrdersSignedERC721(uint256 numberOrders) public {
@@ -66,14 +66,14 @@ contract BatchMakerCollectionOrdersTest is ProtocolBase {
 
             // Execute taker ask transaction
             vm.prank(takerUser);
-            looksRareProtocol.executeTakerAsk(takerOrder, makerBidToExecute, signature, merkleTree, _EMPTY_AFFILIATE);
+            omniXExchange.executeTakerAsk(takerOrder, makerBidToExecute, signature, merkleTree, _EMPTY_AFFILIATE);
 
             // Maker user has received the asset
             assertEq(mockERC721.ownerOf(i), makerUser);
 
             // Verify the nonce is marked as executed
             assertEq(
-                looksRareProtocol.userOrderNonce(makerUser, makerBidToExecute.orderNonce),
+                omniXExchange.userOrderNonce(makerUser, makerBidToExecute.orderNonce),
                 MAGIC_VALUE_ORDER_NONCE_EXECUTED
             );
         }

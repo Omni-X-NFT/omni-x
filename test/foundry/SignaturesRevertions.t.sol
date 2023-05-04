@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // Libraries, interfaces, errors
 import {SignatureParameterVInvalid, SignatureParameterSInvalid, SignatureEOAInvalid, NullSignerAddress, SignatureLengthInvalid} from "@looksrare/contracts-libs/contracts/errors/SignatureCheckerErrors.sol";
@@ -49,7 +49,7 @@ contract SignaturesRevertionsTest is ProtocolBase {
 
         vm.expectRevert(SignatureEOAInvalid.selector);
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerBid(
+        omniXExchange.executeTakerBid(
             _genericTakerOrder(),
             makerAsk,
             signature,
@@ -87,7 +87,7 @@ contract SignaturesRevertionsTest is ProtocolBase {
 
         vm.expectRevert(abi.encodeWithSelector(SignatureParameterVInvalid.selector, v));
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerBid(
+        omniXExchange.executeTakerBid(
             _genericTakerOrder(),
             makerAsk,
             signature,
@@ -125,7 +125,7 @@ contract SignaturesRevertionsTest is ProtocolBase {
 
         vm.expectRevert(abi.encodeWithSelector(SignatureParameterSInvalid.selector));
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerBid(
+        omniXExchange.executeTakerBid(
             _genericTakerOrder(),
             makerAsk,
             signature,
@@ -163,7 +163,7 @@ contract SignaturesRevertionsTest is ProtocolBase {
 
         vm.expectRevert(abi.encodeWithSelector(NullSignerAddress.selector));
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerBid(
+        omniXExchange.executeTakerBid(
             _genericTakerOrder(),
             makerAsk,
             signature,
@@ -187,6 +187,6 @@ contract SignaturesRevertionsTest is ProtocolBase {
 
         vm.expectRevert(abi.encodeWithSelector(SignatureLengthInvalid.selector, length));
         vm.prank(takerUser);
-        looksRareProtocol.executeTakerBid(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerBid(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 }

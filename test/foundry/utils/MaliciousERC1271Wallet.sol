@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-import {ILooksRareProtocol} from "../../../contracts/interfaces/ILooksRareProtocol.sol";
+import {IOmniXExchange} from "../../../contracts/interfaces/IOmniXExchange.sol";
 import {OrderStructs} from "../../../contracts/libraries/OrderStructs.sol";
 
 abstract contract MaliciousERC1271Wallet {
@@ -12,11 +12,11 @@ abstract contract MaliciousERC1271Wallet {
         ExecuteMultipleTakerBids
     }
 
-    ILooksRareProtocol internal immutable looksRareProtocol;
+    IOmniXExchange internal immutable omniXExchange;
     FunctionToReenter internal functionToReenter;
 
-    constructor(address _looksRareProtocol) {
-        looksRareProtocol = ILooksRareProtocol(_looksRareProtocol);
+    constructor(address _omniXExchange) {
+        omniXExchange = IOmniXExchange(_omniXExchange);
     }
 
     function setFunctionToReenter(FunctionToReenter _functionToReenter) external {
@@ -46,7 +46,7 @@ abstract contract MaliciousERC1271Wallet {
         OrderStructs.Maker memory makerBid;
         OrderStructs.MerkleTree memory merkleTree;
 
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, merkleTree, address(this));
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, merkleTree, address(this));
     }
 
     function _executeTakerBid(bytes memory signature) internal {
@@ -54,7 +54,7 @@ abstract contract MaliciousERC1271Wallet {
         OrderStructs.Maker memory makerAsk;
         OrderStructs.MerkleTree memory merkleTree;
 
-        looksRareProtocol.executeTakerBid(takerBid, makerAsk, signature, merkleTree, address(this));
+        omniXExchange.executeTakerBid(takerBid, makerAsk, signature, merkleTree, address(this));
     }
 
     function _executeMultipleTakerBids() internal {
@@ -63,6 +63,6 @@ abstract contract MaliciousERC1271Wallet {
         bytes[] memory signatures = new bytes[](2);
         OrderStructs.MerkleTree[] memory merkleTrees = new OrderStructs.MerkleTree[](2);
 
-        looksRareProtocol.executeMultipleTakerBids(takerBids, makerAsks, signatures, merkleTrees, address(this), false);
+        omniXExchange.executeMultipleTakerBids(takerBids, makerAsks, signatures, merkleTrees, address(this), false);
     }
 }

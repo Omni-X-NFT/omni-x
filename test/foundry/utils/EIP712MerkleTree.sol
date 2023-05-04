@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // Forge test
 import {Test} from "forge-std/Test.sol";
@@ -8,7 +8,7 @@ import {Test} from "forge-std/Test.sol";
 import {OrderStructs} from "../../../contracts/libraries/OrderStructs.sol";
 
 // Core contracts
-import {LooksRareProtocol} from "../../../contracts/LooksRareProtocol.sol";
+import {OmniXExchange} from "../../../contracts/core/OmniXExchange.sol";
 
 // Utils
 import {MerkleWithPosition} from "./MerkleWithPosition.sol";
@@ -20,10 +20,10 @@ import {MAX_CALLDATA_PROOF_LENGTH} from "../../../contracts/constants/NumericCon
 contract EIP712MerkleTree is Test {
     using OrderStructs for OrderStructs.Maker;
 
-    LooksRareProtocol private looksRareProtocol;
+    OmniXExchange private omniXExchange;
 
-    constructor(LooksRareProtocol _looksRareProtocol) {
-        looksRareProtocol = _looksRareProtocol;
+    constructor(OmniXExchange _omniXExchange) {
+        omniXExchange = _omniXExchange;
     }
 
     function sign(
@@ -79,7 +79,7 @@ contract EIP712MerkleTree is Test {
     ) private view returns (bytes memory signature) {
         bytes32 digest = keccak256(abi.encode(batchOrderTypehash, root));
 
-        bytes32 domainSeparator = looksRareProtocol.domainSeparator();
+        bytes32 domainSeparator = omniXExchange.domainSeparator();
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
             privateKey,

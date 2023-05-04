@@ -1,91 +1,74 @@
 {
   "abi": [
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "strategy",
-          "type": "address"
-        }
-      ],
-      "name": "addStrategy",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "strategy",
-          "type": "address"
-        }
-      ],
-      "name": "isStrategyWhitelisted",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "strategy",
-          "type": "address"
-        }
-      ],
-      "name": "removeStrategy",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+      "inputs": [],
+      "name": "CreatorFeeBpTooHigh",
+      "type": "error"
     },
     {
       "inputs": [],
-      "name": "viewCountWhitelistedStrategies",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
+      "name": "NewProtocolFeeRecipientCannotBeNullAddress",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NoSelectorForStrategy",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "OutsideOfTimeRange",
+      "type": "error"
     },
     {
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "cursor",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "size",
+          "name": "strategyId",
           "type": "uint256"
         }
       ],
-      "name": "viewWhitelistedStrategies",
-      "outputs": [
+      "name": "StrategyNotAvailable",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
         {
-          "internalType": "address[]",
-          "name": "",
-          "type": "address[]"
-        },
+          "indexed": false,
+          "internalType": "address",
+          "name": "creatorFeeManager",
+          "type": "address"
+        }
+      ],
+      "name": "NewCreatorFeeManager",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
         {
+          "indexed": false,
           "internalType": "uint256",
-          "name": "",
+          "name": "maxCreatorFeeBp",
           "type": "uint256"
         }
       ],
-      "stateMutability": "view",
-      "type": "function"
+      "name": "NewMaxCreatorFeeBp",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "protocolFeeRecipient",
+          "type": "address"
+        }
+      ],
+      "name": "NewProtocolFeeRecipient",
+      "type": "event"
     }
   ],
   "bytecode": {
@@ -98,14 +81,8 @@
     "sourceMap": "",
     "linkReferences": {}
   },
-  "methodIdentifiers": {
-    "addStrategy(address)": "223e5479",
-    "isStrategyWhitelisted(address)": "999ba27c",
-    "removeStrategy(address)": "175188e8",
-    "viewCountWhitelistedStrategies()": "985e3a2f",
-    "viewWhitelistedStrategies(uint256,uint256)": "31fb5b1f"
-  },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"strategy\",\"type\":\"address\"}],\"name\":\"addStrategy\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"strategy\",\"type\":\"address\"}],\"name\":\"isStrategyWhitelisted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"strategy\",\"type\":\"address\"}],\"name\":\"removeStrategy\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"viewCountWhitelistedStrategies\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"cursor\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"size\",\"type\":\"uint256\"}],\"name\":\"viewWhitelistedStrategies\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IExecutionManager.sol\":\"IExecutionManager\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@ensdomains/=node_modules/@ensdomains/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":solmate/=node_modules/solmate/\",\":xdeployer/=node_modules/xdeployer/\"]},\"sources\":{\"contracts/interfaces/IExecutionManager.sol\":{\"keccak256\":\"0x9131d2bafbad278942e034d09407bc8b6e36576d54f6cdc394e6e8887695a638\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://04f143543bd7d3bf9bdeae4704df8c9243c2a7210ca7aa03d063c5df148fd3c1\",\"dweb:/ipfs/QmNs3vMsvt9SXo9NLs7WbZ9bsJj5WRcyM9Jw7yNyjyVhY2\"]}},\"version\":1}",
+  "methodIdentifiers": {},
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"CreatorFeeBpTooHigh\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NewProtocolFeeRecipientCannotBeNullAddress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NoSelectorForStrategy\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OutsideOfTimeRange\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"strategyId\",\"type\":\"uint256\"}],\"name\":\"StrategyNotAvailable\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"creatorFeeManager\",\"type\":\"address\"}],\"name\":\"NewCreatorFeeManager\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"maxCreatorFeeBp\",\"type\":\"uint256\"}],\"name\":\"NewMaxCreatorFeeBp\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"protocolFeeRecipient\",\"type\":\"address\"}],\"name\":\"NewProtocolFeeRecipient\",\"type\":\"event\"}],\"devdoc\":{\"author\":\"LooksRare protocol team (\\ud83d\\udc40,\\ud83d\\udc8e)\",\"errors\":{\"StrategyNotAvailable(uint256)\":[{\"details\":\"It is returned if there is no implementation address and the strategyId is strictly greater than 0.\"}]},\"events\":{\"NewCreatorFeeManager(address)\":{\"params\":{\"creatorFeeManager\":\"Address of the new creator fee manager\"}},\"NewMaxCreatorFeeBp(uint256)\":{\"params\":{\"maxCreatorFeeBp\":\"New maximum creator fee (in basis point)\"}},\"NewProtocolFeeRecipient(address)\":{\"params\":{\"protocolFeeRecipient\":\"Address of the new protocol fee recipient\"}}},\"kind\":\"dev\",\"methods\":{},\"title\":\"IExecutionManager\",\"version\":1},\"userdoc\":{\"errors\":{\"CreatorFeeBpTooHigh()\":[{\"notice\":\"It is returned if the creator fee (in basis point) is too high.\"}],\"NewProtocolFeeRecipientCannotBeNullAddress()\":[{\"notice\":\"It is returned if the new protocol fee recipient is set to address(0).\"}],\"NoSelectorForStrategy()\":[{\"notice\":\"It is returned if there is no selector for maker ask/bid for a given strategyId,         depending on the quote type.\"}],\"OutsideOfTimeRange()\":[{\"notice\":\"It is returned if the current block timestamp is not between start and end times in the maker order.\"}],\"StrategyNotAvailable(uint256)\":[{\"notice\":\"It is returned if the strategy id has no implementation.\"}]},\"events\":{\"NewCreatorFeeManager(address)\":{\"notice\":\"It is issued when there is a new creator fee manager.\"},\"NewMaxCreatorFeeBp(uint256)\":{\"notice\":\"It is issued when there is a new maximum creator fee (in basis point).\"},\"NewProtocolFeeRecipient(address)\":{\"notice\":\"It is issued when there is a new protocol fee recipient address.\"}},\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IExecutionManager.sol\":\"IExecutionManager\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@chainlink/=node_modules/@chainlink/\",\":@ensdomains/=node_modules/@ensdomains/\",\":@eth-optimism/=node_modules/@eth-optimism/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@looksrare/=node_modules/@looksrare/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":base64-sol/=node_modules/base64-sol/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":murky/=lib/murky/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":reservoirprotocol/=lib/reservoirprotocol/\",\":solmate/=lib/solmate/src/\",\":xdeployer/=node_modules/xdeployer/\"],\"viaIR\":true},\"sources\":{\"contracts/interfaces/IExecutionManager.sol\":{\"keccak256\":\"0x7f26d3306ee63a7c441dc943bb06e78458d49e3ad5b7db740f0cd9e2f9ff71d4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6ca852f6cb9f9a5753a6be4131a3e211d9996bd974b631981e466e3a2b8b1fab\",\"dweb:/ipfs/Qmah2DshXPR8Rdw1Zmmmwgs8AymcmT3b1pGcJXv2m7SEps\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -114,89 +91,74 @@
     "output": {
       "abi": [
         {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "strategy",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function",
-          "name": "addStrategy"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "strategy",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "isStrategyWhitelisted",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "strategy",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function",
-          "name": "removeStrategy"
+          "inputs": [],
+          "type": "error",
+          "name": "CreatorFeeBpTooHigh"
         },
         {
           "inputs": [],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "viewCountWhitelistedStrategies",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ]
+          "type": "error",
+          "name": "NewProtocolFeeRecipientCannotBeNullAddress"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "NoSelectorForStrategy"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "OutsideOfTimeRange"
         },
         {
           "inputs": [
             {
               "internalType": "uint256",
-              "name": "cursor",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "size",
+              "name": "strategyId",
               "type": "uint256"
             }
           ],
-          "stateMutability": "view",
-          "type": "function",
-          "name": "viewWhitelistedStrategies",
-          "outputs": [
+          "type": "error",
+          "name": "StrategyNotAvailable"
+        },
+        {
+          "inputs": [
             {
-              "internalType": "address[]",
-              "name": "",
-              "type": "address[]"
-            },
+              "internalType": "address",
+              "name": "creatorFeeManager",
+              "type": "address",
+              "indexed": false
+            }
+          ],
+          "type": "event",
+          "name": "NewCreatorFeeManager",
+          "anonymous": false
+        },
+        {
+          "inputs": [
             {
               "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
+              "name": "maxCreatorFeeBp",
+              "type": "uint256",
+              "indexed": false
             }
-          ]
+          ],
+          "type": "event",
+          "name": "NewMaxCreatorFeeBp",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "protocolFeeRecipient",
+              "type": "address",
+              "indexed": false
+            }
+          ],
+          "type": "event",
+          "name": "NewProtocolFeeRecipient",
+          "anonymous": false
         }
       ],
       "devdoc": {
@@ -212,18 +174,25 @@
     },
     "settings": {
       "remappings": [
+        ":@chainlink/=node_modules/@chainlink/",
         ":@ensdomains/=node_modules/@ensdomains/",
+        ":@eth-optimism/=node_modules/@eth-optimism/",
         ":@gelatonetwork/=node_modules/@gelatonetwork/",
         ":@layerzerolabs/=node_modules/@layerzerolabs/",
+        ":@looksrare/=node_modules/@looksrare/",
         ":@openzeppelin/=node_modules/@openzeppelin/",
         ":@uniswap/=node_modules/@uniswap/",
+        ":base64-sol/=node_modules/base64-sol/",
         ":ds-test/=lib/forge-std/lib/ds-test/src/",
         ":eth-gas-reporter/=node_modules/eth-gas-reporter/",
         ":forge-std/=lib/forge-std/src/",
         ":hardhat-deploy/=node_modules/hardhat-deploy/",
         ":hardhat/=node_modules/hardhat/",
+        ":murky/=lib/murky/src/",
+        ":openzeppelin-contracts/=lib/openzeppelin-contracts/",
         ":operator-filter-registry/=node_modules/operator-filter-registry/",
-        ":solmate/=node_modules/solmate/",
+        ":reservoirprotocol/=lib/reservoirprotocol/",
+        ":solmate/=lib/solmate/src/",
         ":xdeployer/=node_modules/xdeployer/"
       ],
       "optimizer": {
@@ -236,14 +205,15 @@
       "compilationTarget": {
         "contracts/interfaces/IExecutionManager.sol": "IExecutionManager"
       },
-      "libraries": {}
+      "libraries": {},
+      "viaIR": true
     },
     "sources": {
       "contracts/interfaces/IExecutionManager.sol": {
-        "keccak256": "0x9131d2bafbad278942e034d09407bc8b6e36576d54f6cdc394e6e8887695a638",
+        "keccak256": "0x7f26d3306ee63a7c441dc943bb06e78458d49e3ad5b7db740f0cd9e2f9ff71d4",
         "urls": [
-          "bzz-raw://04f143543bd7d3bf9bdeae4704df8c9243c2a7210ca7aa03d063c5df148fd3c1",
-          "dweb:/ipfs/QmNs3vMsvt9SXo9NLs7WbZ9bsJj5WRcyM9Jw7yNyjyVhY2"
+          "bzz-raw://6ca852f6cb9f9a5753a6be4131a3e211d9996bd974b631981e466e3a2b8b1fab",
+          "dweb:/ipfs/Qmah2DshXPR8Rdw1Zmmmwgs8AymcmT3b1pGcJXv2m7SEps"
         ],
         "license": "MIT"
       }
@@ -252,56 +222,61 @@
   },
   "ast": {
     "absolutePath": "contracts/interfaces/IExecutionManager.sol",
-    "id": 5550,
+    "id": 11289,
     "exportedSymbols": {
       "IExecutionManager": [
-        5549
+        11288
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "32:451:13",
+    "src": "32:1721:45",
     "nodes": [
       {
-        "id": 5514,
+        "id": 11254,
         "nodeType": "PragmaDirective",
-        "src": "32:23:13",
+        "src": "32:24:45",
         "nodes": [],
         "literals": [
           "solidity",
           "^",
           "0.8",
-          ".0"
+          ".17"
         ]
       },
       {
-        "id": 5549,
+        "id": 11288,
         "nodeType": "ContractDefinition",
-        "src": "57:426:13",
+        "src": "141:1612:45",
         "nodes": [
           {
-            "id": 5519,
-            "nodeType": "FunctionDefinition",
-            "src": "91:48:13",
+            "id": 11260,
+            "nodeType": "EventDefinition",
+            "src": "331:54:45",
             "nodes": [],
-            "functionSelector": "223e5479",
-            "implemented": false,
-            "kind": "function",
-            "modifiers": [],
-            "name": "addStrategy",
-            "nameLocation": "100:11:13",
+            "anonymous": false,
+            "documentation": {
+              "id": 11256,
+              "nodeType": "StructuredDocumentation",
+              "src": "175:151:45",
+              "text": " @notice It is issued when there is a new creator fee manager.\n @param creatorFeeManager Address of the new creator fee manager"
+            },
+            "eventSelector": "a7014d98341b07b23615cb6b4da7cca2a381932b46fb39ca4b8c3875c53aa764",
+            "name": "NewCreatorFeeManager",
+            "nameLocation": "337:20:45",
             "parameters": {
-              "id": 5517,
+              "id": 11259,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5516,
+                  "id": 11258,
+                  "indexed": false,
                   "mutability": "mutable",
-                  "name": "strategy",
-                  "nameLocation": "120:8:13",
+                  "name": "creatorFeeManager",
+                  "nameLocation": "366:17:45",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5519,
-                  "src": "112:16:13",
+                  "scope": 11260,
+                  "src": "358:25:45",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -309,10 +284,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 5515,
+                    "id": 11257,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "112:7:13",
+                    "src": "358:7:45",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -322,43 +297,89 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "111:18:13"
-            },
-            "returnParameters": {
-              "id": 5518,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "138:0:13"
-            },
-            "scope": 5549,
-            "stateMutability": "nonpayable",
-            "virtual": false,
-            "visibility": "external"
+              "src": "357:27:45"
+            }
           },
           {
-            "id": 5524,
-            "nodeType": "FunctionDefinition",
-            "src": "145:51:13",
+            "id": 11265,
+            "nodeType": "EventDefinition",
+            "src": "564:50:45",
             "nodes": [],
-            "functionSelector": "175188e8",
-            "implemented": false,
-            "kind": "function",
-            "modifiers": [],
-            "name": "removeStrategy",
-            "nameLocation": "154:14:13",
+            "anonymous": false,
+            "documentation": {
+              "id": 11261,
+              "nodeType": "StructuredDocumentation",
+              "src": "391:168:45",
+              "text": " @notice It is issued when there is a new maximum creator fee (in basis point).\n @param maxCreatorFeeBp New maximum creator fee (in basis point)"
+            },
+            "eventSelector": "caba16bb74e50491b14ebf4755083b43aaf56a765134681af613a2ef8d732f4f",
+            "name": "NewMaxCreatorFeeBp",
+            "nameLocation": "570:18:45",
             "parameters": {
-              "id": 5522,
+              "id": 11264,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5521,
+                  "id": 11263,
+                  "indexed": false,
                   "mutability": "mutable",
-                  "name": "strategy",
-                  "nameLocation": "177:8:13",
+                  "name": "maxCreatorFeeBp",
+                  "nameLocation": "597:15:45",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5524,
-                  "src": "169:16:13",
+                  "scope": 11265,
+                  "src": "589:23:45",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 11262,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "589:7:45",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "588:25:45"
+            }
+          },
+          {
+            "id": 11270,
+            "nodeType": "EventDefinition",
+            "src": "793:60:45",
+            "nodes": [],
+            "anonymous": false,
+            "documentation": {
+              "id": 11266,
+              "nodeType": "StructuredDocumentation",
+              "src": "620:168:45",
+              "text": " @notice It is issued when there is a new protocol fee recipient address.\n @param protocolFeeRecipient Address of the new protocol fee recipient"
+            },
+            "eventSelector": "8cffb07faa2874440346743bdc0a86b06c3335cc47dc49b327d10e77b73ceb10",
+            "name": "NewProtocolFeeRecipient",
+            "nameLocation": "799:23:45",
+            "parameters": {
+              "id": 11269,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 11268,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "protocolFeeRecipient",
+                  "nameLocation": "831:20:45",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 11270,
+                  "src": "823:28:45",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -366,10 +387,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 5520,
+                    "id": 11267,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "169:7:13",
+                    "src": "823:7:45",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -379,282 +400,120 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "168:18:13"
+              "src": "822:30:45"
+            }
+          },
+          {
+            "id": 11273,
+            "nodeType": "ErrorDefinition",
+            "src": "954:28:45",
+            "nodes": [],
+            "documentation": {
+              "id": 11271,
+              "nodeType": "StructuredDocumentation",
+              "src": "859:90:45",
+              "text": " @notice It is returned if the creator fee (in basis point) is too high."
             },
-            "returnParameters": {
-              "id": 5523,
+            "errorSelector": "97d7dcfb",
+            "name": "CreatorFeeBpTooHigh",
+            "nameLocation": "960:19:45",
+            "parameters": {
+              "id": 11272,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "195:0:13"
-            },
-            "scope": 5549,
-            "stateMutability": "nonpayable",
-            "virtual": false,
-            "visibility": "external"
+              "src": "979:2:45"
+            }
           },
           {
-            "id": 5531,
-            "nodeType": "FunctionDefinition",
-            "src": "202:78:13",
+            "id": 11276,
+            "nodeType": "ErrorDefinition",
+            "src": "1090:51:45",
             "nodes": [],
-            "functionSelector": "999ba27c",
-            "implemented": false,
-            "kind": "function",
-            "modifiers": [],
-            "name": "isStrategyWhitelisted",
-            "nameLocation": "211:21:13",
+            "documentation": {
+              "id": 11274,
+              "nodeType": "StructuredDocumentation",
+              "src": "988:97:45",
+              "text": " @notice It is returned if the new protocol fee recipient is set to address(0)."
+            },
+            "errorSelector": "f966bcb0",
+            "name": "NewProtocolFeeRecipientCannotBeNullAddress",
+            "nameLocation": "1096:42:45",
             "parameters": {
-              "id": 5527,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 5526,
-                  "mutability": "mutable",
-                  "name": "strategy",
-                  "nameLocation": "241:8:13",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 5531,
-                  "src": "233:16:13",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_address",
-                    "typeString": "address"
-                  },
-                  "typeName": {
-                    "id": 5525,
-                    "name": "address",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "233:7:13",
-                    "stateMutability": "nonpayable",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_address",
-                      "typeString": "address"
-                    }
-                  },
-                  "visibility": "internal"
-                }
-              ],
-              "src": "232:18:13"
-            },
-            "returnParameters": {
-              "id": 5530,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 5529,
-                  "mutability": "mutable",
-                  "name": "",
-                  "nameLocation": "-1:-1:-1",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 5531,
-                  "src": "274:4:13",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_bool",
-                    "typeString": "bool"
-                  },
-                  "typeName": {
-                    "id": 5528,
-                    "name": "bool",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "274:4:13",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_bool",
-                      "typeString": "bool"
-                    }
-                  },
-                  "visibility": "internal"
-                }
-              ],
-              "src": "273:6:13"
-            },
-            "scope": 5549,
-            "stateMutability": "view",
-            "virtual": false,
-            "visibility": "external"
-          },
-          {
-            "id": 5543,
-            "nodeType": "FunctionDefinition",
-            "src": "286:115:13",
-            "nodes": [],
-            "functionSelector": "31fb5b1f",
-            "implemented": false,
-            "kind": "function",
-            "modifiers": [],
-            "name": "viewWhitelistedStrategies",
-            "nameLocation": "295:25:13",
-            "parameters": {
-              "id": 5536,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 5533,
-                  "mutability": "mutable",
-                  "name": "cursor",
-                  "nameLocation": "329:6:13",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 5543,
-                  "src": "321:14:13",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 5532,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "321:7:13",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 5535,
-                  "mutability": "mutable",
-                  "name": "size",
-                  "nameLocation": "345:4:13",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 5543,
-                  "src": "337:12:13",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 5534,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "337:7:13",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "visibility": "internal"
-                }
-              ],
-              "src": "320:30:13"
-            },
-            "returnParameters": {
-              "id": 5542,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 5539,
-                  "mutability": "mutable",
-                  "name": "",
-                  "nameLocation": "-1:-1:-1",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 5543,
-                  "src": "374:16:13",
-                  "stateVariable": false,
-                  "storageLocation": "memory",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
-                    "typeString": "address[]"
-                  },
-                  "typeName": {
-                    "baseType": {
-                      "id": 5537,
-                      "name": "address",
-                      "nodeType": "ElementaryTypeName",
-                      "src": "374:7:13",
-                      "stateMutability": "nonpayable",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_address",
-                        "typeString": "address"
-                      }
-                    },
-                    "id": 5538,
-                    "nodeType": "ArrayTypeName",
-                    "src": "374:9:13",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
-                      "typeString": "address[]"
-                    }
-                  },
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 5541,
-                  "mutability": "mutable",
-                  "name": "",
-                  "nameLocation": "-1:-1:-1",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 5543,
-                  "src": "392:7:13",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 5540,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "392:7:13",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "visibility": "internal"
-                }
-              ],
-              "src": "373:27:13"
-            },
-            "scope": 5549,
-            "stateMutability": "view",
-            "virtual": false,
-            "visibility": "external"
-          },
-          {
-            "id": 5548,
-            "nodeType": "FunctionDefinition",
-            "src": "407:74:13",
-            "nodes": [],
-            "functionSelector": "985e3a2f",
-            "implemented": false,
-            "kind": "function",
-            "modifiers": [],
-            "name": "viewCountWhitelistedStrategies",
-            "nameLocation": "416:30:13",
-            "parameters": {
-              "id": 5544,
+              "id": 11275,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "446:2:13"
+              "src": "1138:2:45"
+            }
+          },
+          {
+            "id": 11279,
+            "nodeType": "ErrorDefinition",
+            "src": "1303:30:45",
+            "nodes": [],
+            "documentation": {
+              "id": 11277,
+              "nodeType": "StructuredDocumentation",
+              "src": "1147:151:45",
+              "text": " @notice It is returned if there is no selector for maker ask/bid for a given strategyId,\n         depending on the quote type."
             },
-            "returnParameters": {
-              "id": 5547,
+            "errorSelector": "ab984846",
+            "name": "NoSelectorForStrategy",
+            "nameLocation": "1309:21:45",
+            "parameters": {
+              "id": 11278,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1330:2:45"
+            }
+          },
+          {
+            "id": 11282,
+            "nodeType": "ErrorDefinition",
+            "src": "1471:27:45",
+            "nodes": [],
+            "documentation": {
+              "id": 11280,
+              "nodeType": "StructuredDocumentation",
+              "src": "1339:127:45",
+              "text": " @notice It is returned if the current block timestamp is not between start and end times in the maker order."
+            },
+            "errorSelector": "7476320f",
+            "name": "OutsideOfTimeRange",
+            "nameLocation": "1477:18:45",
+            "parameters": {
+              "id": 11281,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1495:2:45"
+            }
+          },
+          {
+            "id": 11287,
+            "nodeType": "ErrorDefinition",
+            "src": "1704:47:45",
+            "nodes": [],
+            "documentation": {
+              "id": 11283,
+              "nodeType": "StructuredDocumentation",
+              "src": "1504:195:45",
+              "text": " @notice It is returned if the strategy id has no implementation.\n @dev It is returned if there is no implementation address and the strategyId is strictly greater than 0."
+            },
+            "errorSelector": "d73c2c6a",
+            "name": "StrategyNotAvailable",
+            "nameLocation": "1710:20:45",
+            "parameters": {
+              "id": 11286,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5546,
+                  "id": 11285,
                   "mutability": "mutable",
-                  "name": "",
-                  "nameLocation": "-1:-1:-1",
+                  "name": "strategyId",
+                  "nameLocation": "1739:10:45",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5548,
-                  "src": "472:7:13",
+                  "scope": 11287,
+                  "src": "1731:18:45",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -662,10 +521,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5545,
+                    "id": 11284,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "472:7:13",
+                    "src": "1731:7:45",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -674,12 +533,8 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "471:9:13"
-            },
-            "scope": 5549,
-            "stateMutability": "view",
-            "virtual": false,
-            "visibility": "external"
+              "src": "1730:20:45"
+            }
           }
         ],
         "abstract": false,
@@ -687,17 +542,29 @@
         "canonicalName": "IExecutionManager",
         "contractDependencies": [],
         "contractKind": "interface",
-        "fullyImplemented": false,
+        "documentation": {
+          "id": 11255,
+          "nodeType": "StructuredDocumentation",
+          "src": "58:82:45",
+          "text": " @title IExecutionManager\n @author LooksRare protocol team (👀,💎)"
+        },
+        "fullyImplemented": true,
         "linearizedBaseContracts": [
-          5549
+          11288
         ],
         "name": "IExecutionManager",
-        "nameLocation": "67:17:13",
-        "scope": 5550,
-        "usedErrors": []
+        "nameLocation": "151:17:45",
+        "scope": 11289,
+        "usedErrors": [
+          11273,
+          11276,
+          11279,
+          11282,
+          11287
+        ]
       }
     ],
     "license": "MIT"
   },
-  "id": 13
+  "id": 45
 }

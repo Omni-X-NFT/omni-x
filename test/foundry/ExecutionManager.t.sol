@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 // LooksRare unopinionated libraries
 import {IOwnableTwoSteps} from "@looksrare/contracts-libs/contracts/interfaces/IOwnableTwoSteps.sol";
@@ -27,49 +27,49 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
     function testUpdateCreatorFeeManager() public asPrankedUser(_owner) {
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit NewCreatorFeeManager(address(1));
-        looksRareProtocol.updateCreatorFeeManager(address(1));
-        assertEq(address(looksRareProtocol.creatorFeeManager()), address(1));
+        omniXExchange.updateCreatorFeeManager(address(1));
+        assertEq(address(omniXExchange.creatorFeeManager()), address(1));
     }
 
     function testUpdateCreatorFeeManagerNotOwner() public {
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
-        looksRareProtocol.updateCreatorFeeManager(address(1));
+        omniXExchange.updateCreatorFeeManager(address(1));
     }
 
     function testUpdateMaxCreatorFeeBp(uint16 newMaxCreatorFeeBp) public asPrankedUser(_owner) {
         vm.assume(newMaxCreatorFeeBp <= 2_500);
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit NewMaxCreatorFeeBp(newMaxCreatorFeeBp);
-        looksRareProtocol.updateMaxCreatorFeeBp(newMaxCreatorFeeBp);
-        assertEq(looksRareProtocol.maxCreatorFeeBp(), newMaxCreatorFeeBp);
+        omniXExchange.updateMaxCreatorFeeBp(newMaxCreatorFeeBp);
+        assertEq(omniXExchange.maxCreatorFeeBp(), newMaxCreatorFeeBp);
     }
 
     function testUpdateMaxCreatorFeeBpNotOwner() public {
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
-        looksRareProtocol.updateMaxCreatorFeeBp(uint16(2_500));
+        omniXExchange.updateMaxCreatorFeeBp(uint16(2_500));
     }
 
     function testUpdateMaxCreatorFeeBpTooHigh(uint16 newMaxCreatorFeeBp) public asPrankedUser(_owner) {
         vm.assume(newMaxCreatorFeeBp > 2_500);
         vm.expectRevert(CreatorFeeBpTooHigh.selector);
-        looksRareProtocol.updateMaxCreatorFeeBp(newMaxCreatorFeeBp);
+        omniXExchange.updateMaxCreatorFeeBp(newMaxCreatorFeeBp);
     }
 
     function testUpdateProtocolFeeRecipient() public asPrankedUser(_owner) {
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit NewProtocolFeeRecipient(address(1));
-        looksRareProtocol.updateProtocolFeeRecipient(address(1));
-        assertEq(looksRareProtocol.protocolFeeRecipient(), address(1));
+        omniXExchange.updateProtocolFeeRecipient(address(1));
+        assertEq(omniXExchange.protocolFeeRecipient(), address(1));
     }
 
     function testUpdateProtocolFeeRecipientCannotBeNullAddress() public asPrankedUser(_owner) {
         vm.expectRevert(IExecutionManager.NewProtocolFeeRecipientCannotBeNullAddress.selector);
-        looksRareProtocol.updateProtocolFeeRecipient(address(0));
+        omniXExchange.updateProtocolFeeRecipient(address(0));
     }
 
     function testUpdateProtocolFeeRecipientNotOwner() public {
         vm.expectRevert(IOwnableTwoSteps.NotOwner.selector);
-        looksRareProtocol.updateProtocolFeeRecipient(address(1));
+        omniXExchange.updateProtocolFeeRecipient(address(1));
     }
 
     function testCannotValidateOrderIfTooEarlyToExecute(uint256 timestamp) public asPrankedUser(takerUser) {
@@ -94,7 +94,7 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
         // Maker bid is invalid if its start time is not within 5 minutes into the future
         vm.warp(makerBid.startTime - 5 minutes - 1 seconds);
         vm.expectRevert(OutsideOfTimeRange.selector);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testCannotValidateOrderIfTooLateToExecute(uint256 timestamp) public asPrankedUser(takerUser) {
@@ -116,7 +116,7 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
 
         vm.warp(block.timestamp + 1 seconds);
         vm.expectRevert(OutsideOfTimeRange.selector);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testCannotValidateOrderIfStartTimeLaterThanEndTime(uint256 timestamp) public asPrankedUser(takerUser) {
@@ -136,7 +136,7 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
         _assertMakerOrderReturnValidationCode(makerBid, signature, START_TIME_GREATER_THAN_END_TIME);
 
         vm.expectRevert(OutsideOfTimeRange.selector);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testCannotValidateOrderIfMakerBidItemIdsIsEmpty() public {
@@ -152,7 +152,7 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
         _assertMakerOrderReturnValidationCode(makerBid, signature, MAKER_ORDER_INVALID_STANDARD_SALE);
 
         vm.expectRevert(OrderInvalid.selector);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testCannotValidateOrderIfMakerBidItemIdsLengthMismatch(
@@ -172,7 +172,7 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
         _assertMakerOrderReturnValidationCode(makerBid, signature, MAKER_ORDER_INVALID_STANDARD_SALE);
 
         vm.expectRevert(OrderInvalid.selector);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testCannotValidateOrderIfMakerAskItemIdsIsEmpty() public asPrankedUser(takerUser) {
@@ -190,7 +190,7 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
         _assertMakerOrderReturnValidationCode(makerAsk, signature, MAKER_ORDER_INVALID_STANDARD_SALE);
 
         vm.expectRevert(OrderInvalid.selector);
-        looksRareProtocol.executeTakerBid{value: makerAsk.price}(
+        omniXExchange.executeTakerBid{value: makerAsk.price}(
             takerBid,
             makerAsk,
             signature,
@@ -217,7 +217,7 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
         _assertMakerOrderReturnValidationCode(makerAsk, signature, MAKER_ORDER_INVALID_STANDARD_SALE);
 
         vm.expectRevert(OrderInvalid.selector);
-        looksRareProtocol.executeTakerBid{value: makerAsk.price}(
+        omniXExchange.executeTakerBid{value: makerAsk.price}(
             takerBid,
             makerAsk,
             signature,
@@ -234,7 +234,7 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
 
         bool isMakerBid = true;
         vm.prank(_owner);
-        looksRareProtocol.addStrategy(
+        omniXExchange.addStrategy(
             250,
             250,
             300,
@@ -257,7 +257,7 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
 
         vm.prank(takerUser);
         vm.expectRevert(IExecutionManager.NoSelectorForStrategy.selector);
-        looksRareProtocol.executeTakerBid{value: makerAsk.price}(
+        omniXExchange.executeTakerBid{value: makerAsk.price}(
             takerBid,
             makerAsk,
             signature,
@@ -275,7 +275,7 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
         bool isMakerBid = false;
         vm.prank(_owner);
         // All parameters are random, including the selector and the implementation
-        looksRareProtocol.addStrategy(
+        omniXExchange.addStrategy(
             250,
             250,
             300,
@@ -299,6 +299,6 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
 
         vm.prank(takerUser);
         vm.expectRevert(IExecutionManager.NoSelectorForStrategy.selector);
-        looksRareProtocol.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerAsk(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 }
