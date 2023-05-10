@@ -487,13 +487,13 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
                 maker.amount
             );
         } else {
-            (, address takerCurrency,, address takerStrategy,) = taker.decodeParams();
+            (, address takerCurrency, address takerCollection, address takerStrategy,) = taker.decodeParams();
             OrderTypes.PartyData memory takerParty = OrderTypes.PartyData(takerCurrency, takerStrategy, taker.taker, takerChainId);
             OrderTypes.PartyData memory makerParty = OrderTypes.PartyData(maker.currency, maker.strategy, maker.signer, makerChainId);
             bytes memory royaltyInfo = maker.getRoyaltyInfo();
             payload = abi.encode(
                 LZ_MESSAGE_ORDER_BID,
-                maker.collection,
+                takerCollection,
                 taker.tokenId,
                 maker.amount,
                 maker.price,
