@@ -732,14 +732,27 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
                 // on maker chain (buyer)
                 // sgPayload - seller's chain info as well
                 // swap or bridge funds to taker chain(seller). go though sgReceive or omniReceive
-                fundManager.transferProxyFunds{value: currencyFee}(
-                    makerParty.currency,
-                    makerParty.party,
-                    price,
-                    makerParty.chainId,
-                    takerParty.chainId,
-                    sgPayload
-                );
+                if (makerParty.currency == WETH) {
+                    IERC20(WETH).safeTransferFrom(makerParty.party, address(this), price);
+
+                    fundManager.transferProxyFunds{value: currencyFee + price}(
+                        makerParty.currency,
+                        makerParty.party,
+                        price,
+                        makerParty.chainId,
+                        takerParty.chainId,
+                        sgPayload
+                    );
+                } else {
+                    fundManager.transferProxyFunds{value: currencyFee}(
+                        makerParty.currency,
+                        makerParty.party,
+                        price,
+                        makerParty.chainId,
+                        takerParty.chainId,
+                        sgPayload
+                    );
+                }
             }
         }
     }
