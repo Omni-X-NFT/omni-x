@@ -110,7 +110,7 @@ export const deployGhosts = async (taskArgs: any, hre: any) => {
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
   // testnet: ['fuji', 'mumbai', 'bsc-testnet', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
-  testnet: ['mumbai', 'bsc-testnet', 'fuji', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
+  testnet: ['mumbai', 'bsc-testnet', 'fuji', 'goerli', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet']
 }
 
 export const deployOmnixAll = async function (taskArgs: any) {

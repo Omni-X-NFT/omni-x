@@ -141,8 +141,7 @@ export const setupBridge = async (taskArgs: any, hre: any) => {
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
-  // testnet: ['bsc-testnet', 'fuji', 'goerli', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'mumbai']
-  testnet: ['bsc-testnet', 'fuji', 'fantom-testnet']
+  testnet: ['bsc-testnet', 'fuji', 'goerli', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'mumbai', 'moonbeam_testnet']
 }
 
 export const prepareOmnixAll = async function (taskArgs: any) {
@@ -168,16 +167,10 @@ export const linkOmnixAll = async function (taskArgs: any) {
 
   for (const network of networks) {
     await Promise.all(
-      ['goerli', 'arbitrum-goerli'].map(async (dst: string) => {
+      networks.map(async (dst: string) => {
         if (network != dst) {
           {
             const checkWireUpCommand = `npx hardhat linkOmniX --network ${dst} --dstchainname ${network}`
-            console.log(checkWireUpCommand)
-            shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
-          }
-
-          {
-            const checkWireUpCommand = `npx hardhat linkOmniX --network ${network} --dstchainname ${dst}`
             console.log(checkWireUpCommand)
             shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
           }
