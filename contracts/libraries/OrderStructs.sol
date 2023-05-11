@@ -86,6 +86,13 @@ library OrderStructs{
         MerkleTreeNodePosition position;
     }
 
+    struct PartyData {
+        address currency;   // currency
+        address strategy;   // strategy
+        address party;      // party address. seller or buyer address.
+        uint16 lzChainId;     // lz chain id
+    }
+
     /**
      * @notice MerkleTree is the struct for a merkle tree of order hashes.
      * @dev A Merkle tree can be computed with order hashes.

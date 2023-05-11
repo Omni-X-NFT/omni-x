@@ -15,6 +15,8 @@ import {OrderStructs} from "../libraries/OrderStructs.sol";
 
 // Interfaces
 import {IOmniXExchange} from "../interfaces/IOmniXExchange.sol";
+import {CollectionType} from "../enums/CollectionType.sol";
+
 
 // Shared errors
 import {CallerInvalid, CurrencyInvalid, LengthsInvalid, MerkleProofInvalid, MerkleProofTooLarge, QuoteTypeInvalid} from "../errors/SharedErrors.sol";
@@ -42,6 +44,16 @@ contract OmniXExchange is
     BatchOrderTypehashRegistry
 {
     using OrderStructs for OrderStructs.Maker;
+
+
+    
+    uint16 private constant LZ_ADAPTER_VERSION = 2;
+    uint8 private constant LZ_MESSAGE_ORDER_ASK = 1;
+    uint8 private constant LZ_MESSAGE_ORDER_BID = 2;
+    uint8 private constant LZ_MESSAGE_ORDER_ASK_RESP = 3;
+    uint8 private constant LZ_MESSAGE_ORDER_BID_RESP = 4;
+    uint8 private constant RESP_OK = 1;
+    uint8 private constant RESP_FAIL = 2;
 
     /**
      * @notice Wrapped ETH.
@@ -662,6 +674,55 @@ contract OmniXExchange is
 
 
     function _nonblockingLzReceive(uint16 _srcChainId, bytes memory _srcAddress, uint64 _nonce, bytes memory _payload) internal virtual override{
+        (uint8 lzMessage) = abi.decode(_payload, (uint8));
+        
+        if (lzMessage == LZ_MESSAGE_ORDER_ASK){
+            (, address collection, CollectionType _collectionType ,address from, address to, uint[] memory itemIds, uint[] memory amounts) = 
+                abi.decode(_payload, (uint8, address, CollectionType, address, address, uint[], uint[]));
 
+            _transferNFT(collection, _collectionType, from, to, itemIds, amounts);
+        } 
+        else if (lzMessage == LZ_MESSAGE_ORDER_BID) {
+            (   ,
+                address collection,
+                CollectionType _collectionType,
+                uint[] memory itemIds,
+                uint[] memory amounts,
+                uint price,
+                OrderStructs.PartyData memory takerParty,
+                OrderStructs.PartyData memory makerParty,
+                bytes memory royaltyInfo
+            ) = abi.decode(_payload, (
+                uint8, address, CollectionType, uint[], uint[], uint, OrderStructs.PartyData, OrderStructs.PartyData, bytes
+            ));
+
+            bytes memory sgPayload = abi.encode(
+                collection,
+                _collectionType,        // collection
+                takerParty.party,       // seller
+                makerParty.party,       // buyer
+                itemIds,                // tokenId
+                amounts,                 // amount for 1155
+                takerParty.currency,    // currency
+                takerParty.strategy,    // strategy
+                royaltyInfo             // royalty info
+            );
+
+            uint256 currencyFee = lzFeeTransferCurrency(
+                makerParty.currency,    // currency
+                takerParty.party,       // to
+                price,                  // price
+                makerParty.chainId,     // fromChainId
+                takerParty.chainId,     // takerChainId
+                sgPayload
+            );
+
+            // if (currencyFee == 0) {
+            //     // on maker chain (buyer)
+            //     // if currencyFee is 0, already tranferred NFT.
+            //     // thus here just transfer funds and fees.
+            //     _transferToAskRecipientAndCreatorIfAny(makerParty.strategy, makerParty.currency, price, makerParty.party, takerParty.party, royaltyInfo);
+            // }
+        }
     }
 }
