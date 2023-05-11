@@ -103,6 +103,7 @@ contract GasGriefingTest is ProtocolBase {
                 currency: ETH,
                 signer: gasGriefer,
                 price: price, // Fixed
+                lzChainId: 10121,
                 itemId: i // (0, 1, etc.)
             });
 

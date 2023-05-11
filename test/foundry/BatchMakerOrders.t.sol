@@ -382,6 +382,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
                 currency: ETH,
                 signer: makerUser,
                 price: price,
+                lzChainId: 10121,
                 itemId: i
             });
         }
@@ -401,6 +402,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
                 currency: address(weth),
                 signer: makerUser,
                 price: price,
+                lzChainId: 10121,
                 itemId: i
             });
         }

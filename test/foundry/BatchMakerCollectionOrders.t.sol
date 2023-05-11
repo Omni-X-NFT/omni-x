@@ -62,7 +62,7 @@ contract BatchMakerCollectionOrdersTest is ProtocolBase {
             // Verify validity
             _assertValidMakerOrderWithMerkleTree(makerBidToExecute, signature, merkleTree);
 
-            OrderStructs.Taker memory takerOrder = OrderStructs.Taker(takerUser, abi.encode(i));
+            OrderStructs.Taker memory takerOrder = OrderStructs.Taker(takerUser, 10121, abi.encode(i));
 
             // Execute taker ask transaction
             vm.prank(takerUser);
@@ -107,6 +107,7 @@ contract BatchMakerCollectionOrdersTest is ProtocolBase {
                 currency: address(weth),
                 signer: makerUser,
                 price: price,
+                lzChainId: 10121,
                 itemId: 0 // Not used
             });
         }

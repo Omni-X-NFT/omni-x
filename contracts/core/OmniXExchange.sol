@@ -29,46 +29,10 @@ import {MAX_CALLDATA_PROOF_LENGTH, ONE_HUNDRED_PERCENT_IN_BP} from "../constants
 // Enums
 import {QuoteType} from "../enums/QuoteType.sol";
 
-/**
- * @title LooksRareProtocol
- * @notice This contract is the core smart contract of the LooksRare protocol ("v2").
- *         It is the main entry point for users to initiate transactions with taker orders
- *         and manage the cancellation of maker orders, which exist off-chain.
-LOOKSRARELOOKSRARELOOKSRLOOKSRARELOOKSRARELOOKSRARELOOKSRARELOOKSRLOOKSRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELOOKSRAR'''''''''''''''''''''''''''''''''''OOKSRLOOKSRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELOOKS:.                                        .;OOKSRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELOO,.                                            .,KSRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRAREL'                ..',;:LOOKS::;,'..                'RARELOOKSRARELOOKSR
-LOOKSRARELOOKSRAR.              .,:LOOKSRARELOOKSRARELO:,.              .RELOOKSRARELOOKSR
-LOOKSRARELOOKS:.             .;RARELOOKSRARELOOKSRARELOOKSl;.             .:OOKSRARELOOKSR
-LOOKSRARELOO;.            .'OKSRARELOOKSRARELOOKSRARELOOKSRARE'.            .;KSRARELOOKSR
-LOOKSRAREL,.            .,LOOKSRARELOOK:;;:"""":;;;lELOOKSRARELO,.            .,RARELOOKSR
-LOOKSRAR.             .;okLOOKSRAREx:.              .;OOKSRARELOOK;.             .RELOOKSR
-LOOKS:.             .:dOOOLOOKSRARE'      .''''..     .OKSRARELOOKSR:.             .LOOKSR
-LOx;.             .cKSRARELOOKSRAR'     'LOOKSRAR'     .KSRARELOOKSRARc..            .OKSR
-L;.             .cxOKSRARELOOKSRAR.    .LOOKS.RARE'     ;kRARELOOKSRARExc.             .;R
-LO'             .;oOKSRARELOOKSRAl.    .LOOKS.RARE.     :kRARELOOKSRAREo;.             'SR
-LOOK;.            .,KSRARELOOKSRAx,     .;LOOKSR;.     .oSRARELOOKSRAo,.            .;OKSR
-LOOKSk:.            .'RARELOOKSRARd;.      ....       'oOOOOOOOOOOxc'.            .:LOOKSR
-LOOKSRARc.             .:dLOOKSRAREko;.            .,lxOOOOOOOOOd:.             .ARELOOKSR
-LOOKSRARELo'             .;oOKSRARELOOxoc;,....,;:ldkOOOOOOOOkd;.             'SRARELOOKSR
-LOOKSRARELOOd,.            .,lSRARELOOKSRARELOOKSRARELOOKSRkl,.            .,OKSRARELOOKSR
-LOOKSRARELOOKSx;.            ..;oxELOOKSRARELOOKSRARELOkxl:..            .:LOOKSRARELOOKSR
-LOOKSRARELOOKSRARc.              .':cOKSRARELOOKSRALOc;'.              .ARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELl'                 ...'',,,,''...                 'SRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELOOo,.                                          .,OKSRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELOOKSx;.                                      .;xOOKSRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELOOKSRLO:.                                  .:SRLOOKSRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELOOKSRLOOKl.                              .lOKSRLOOKSRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELOOKSRLOOKSRo'.                        .'oWENV2?LOOKSRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELOOKSRLOOKSRARd;.                    .;xRELOOKSRLOOKSRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELOOKSRLOOKSRARELO:.                .:kRARELOOKSRLOOKSRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELOOKSRLOOKSRARELOOKl.            .cOKSRARELOOKSRLOOKSRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELOOKSRLOOKSRARELOOKSRo'        'oLOOKSRARELOOKSRLOOKSRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELOOKSRLOOKSRARELOOKSRARE,.  .,dRELOOKSRARELOOKSRLOOKSRARELOOKSRARELOOKSR
-LOOKSRARELOOKSRARELOOKSRLOOKSRARELOOKSRARELOOKSRARELOOKSRARELOOKSRLOOKSRARELOOKSRARELOOKSR
- * @author LooksRare protocol team (👀,💎)
- */
+import {ICurrencyManager} from "../interfaces/ICurrencyManager.sol";
+
+
+
 contract OmniXExchange is
     IOmniXExchange,
     TransferSelectorNFT,
@@ -109,11 +73,12 @@ contract OmniXExchange is
      * @param _weth Wrapped ETH address
      */
     constructor(
+        address _endpoint,
         address _owner,
         address _protocolFeeRecipient,
         address _transferManager,
         address _weth
-    ) TransferSelectorNFT(_owner, _protocolFeeRecipient, _transferManager) {
+    ) TransferSelectorNFT( _endpoint, _owner, _protocolFeeRecipient, _transferManager) {
         _updateDomainSeparator();
         WETH = _weth;
     }
@@ -160,14 +125,16 @@ contract OmniXExchange is
         bytes32 orderHash = makerAsk.hash();
         _verifyMerkleProofOrOrderHash(merkleTree, orderHash, makerSignature, makerAsk.signer);
 
+    
         // Execute the transaction and fetch protocol fee amount
         uint256 totalProtocolFeeAmount = _executeTakerBid(takerBid, makerAsk, msg.sender, orderHash);
 
         // Pay protocol fee amount (and affiliate fee if any)
         _payProtocolFeeAndAffiliateFee(currency, msg.sender, affiliate, totalProtocolFeeAmount);
-
         // Return ETH if any
         _returnETHIfAnyWithOneWeiLeft();
+    
+
     }
 
 
@@ -380,6 +347,62 @@ contract OmniXExchange is
         return feeAmounts[2];
     }
 
+
+    // function getLzFees(
+    //     OrderStructs.Taker calldata taker,
+    //     OrderStructs.Maker calldata maker,
+    //     uint256 destAirdrop
+    //     ) public view returns(uint256 omnixMessageFee, uint256 crossChainCurrencyFee) {
+
+    //         if (maker.quoteType == QuoteType.Ask) {
+    //             bytes memory sgPayload = _getSgPayload(taker, maker);
+    //             uint256 crossChainCurrencyFee = _getCrossChainCurrencyFee(
+    //                 maker.currency,
+    //                 maker.signer,
+    //                 maker.price,
+    //                 taker.lzChainId,
+    //                 maker.lzChainId,
+    //                 sgPayload
+    //             );
+                
+    //             omnixMessageFee = 0;
+    //             if (crossChainCurrencyFee == 0){
+    //                 (omnixMessageFee,,) = _getLzPayload(destAirdrop, taker, maker);
+    //             }
+
+    //             return (omnixMessageFee, crossChainCurrencyFee);
+
+                
+    //         }
+    // }
+
+    // function _getCrossChainCurrencyFee(
+    //     address currency,
+    //     address to,
+    //     uint256 amount,
+    //     uint16 fromChainId,
+    //     uint16 toChainId,
+    //     bytes memory payload
+    // ) public view override returns(uint256) {
+        
+
+    // }
+
+    // function _getSgPayload(OrderStructs.Taker calldata takerBid, OrderStructs.Maker calldata makerAsk) internal pure returns(bytes memory) {
+    //     bytes memory payload = abi.encode(
+    //         makerAsk.collection,
+    //         makerAsk.signer,
+    //         takerBid.taker,
+    //         abi.encodePacked(makerAsk.itemIds),
+    //         abi.encodePacked(makerAsk.amounts),
+    //         makerAsk.currency,
+    //         makerAsk.strategyId,
+    //         makerAsk.getRoyaltyInfo()
+    //     );
+
+    //     return payload;
+    // }  
+
     /**
      * @notice This function is internal and is used to execute a taker bid (against a maker ask).
      * @param takerBid Taker bid order struct
@@ -399,6 +422,8 @@ contract OmniXExchange is
         }
 
         address signer = makerAsk.signer;
+
+
         {
             // Verify nonces
             bytes32 userOrderNonceStatus = userOrderNonce[signer][makerAsk.orderNonce];
@@ -633,5 +658,10 @@ contract OmniXExchange is
         }
 
         _computeDigestAndVerify(orderHash, signature, signer);
+    }
+
+
+    function _nonblockingLzReceive(uint16 _srcChainId, bytes memory _srcAddress, uint64 _nonce, bytes memory _payload) internal virtual override{
+
     }
 }

@@ -302,6 +302,7 @@ contract StandardTransactionsTest is ProtocolBase {
                 collection: address(mockERC721),
                 currency: ETH,
                 signer: makerUser,
+                lzChainId: 10121,
                 price: price, // Fixed
                 itemId: i // (0, 1, etc.)
             });
@@ -374,6 +375,7 @@ contract StandardTransactionsTest is ProtocolBase {
                 currency: ETH,
                 signer: makerUser,
                 price: 1.4 ether, // Fixed
+                lzChainId: 10121,
                 itemId: i // (0, 1, etc.)
             });
 

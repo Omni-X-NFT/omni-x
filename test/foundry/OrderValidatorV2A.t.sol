@@ -31,6 +31,8 @@ import {MockERC20} from "../mock/MockERC20.sol";
 import {CollectionType} from "../../contracts/enums/CollectionType.sol";
 import {QuoteType} from "../../contracts/enums/QuoteType.sol";
 
+import {LZEndpointMock} from "../../contracts/mocks/LZEndpointMock.sol";
+
 /**
  * @dev Not everything is tested in this file. Most tests live in other files
  * with the assert functions living in ProtocolBase.t.sol.
@@ -41,10 +43,15 @@ contract OrderValidatorV2ATest is TestParameters {
     MockRoyaltyFeeRegistry private royaltyFeeRegistry;
     OrderValidatorV2A private orderValidator;
     TransferManager private transferManager;
+    LZEndpointMock private lzendpoint;
+
+    uint16 public constant LZ_CHAIN_ID = 10121;
 
     function setUp() public {
         transferManager = new TransferManager(address(this));
+        lzendpoint = new LZEndpointMock(LZ_CHAIN_ID);
         omniXExchange = new OmniXExchange(
+            address(lzendpoint),
             address(this),
             address(this),
             address(transferManager),

@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "@openzeppelin/contracts/utils/Context.sol";
+
 // Adapted from:
 // https://github.com/boringcrypto/BoringSolidity/blob/e74c5b22a61bfbadd645e51a64aa1d33734d577a/contracts/BoringOwnable.sol
-contract TwoStepOwnable {
+contract TwoStepOwnable is Context {
     // --- Fields ---
 
     address public owner;

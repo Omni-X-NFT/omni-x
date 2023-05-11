@@ -7,6 +7,7 @@ import {WETH} from "solmate/tokens/WETH.sol";
 // Libraries
 import {OrderStructs} from "../../contracts/libraries/OrderStructs.sol";
 
+
 // Core contracts
 import {OmniXExchange, IOmniXExchange} from "../../contracts/core/OmniXExchange.sol";
 import {TransferManager} from "../../contracts/core/TransferManager.sol";
@@ -21,6 +22,7 @@ import {MockERC721} from "../mock/MockERC721.sol";
 import {MockERC721WithRoyalties} from "../mock/MockERC721WithRoyalties.sol";
 import {MockERC1155} from "../mock/MockERC1155.sol";
 import {MockRoyaltyFeeRegistry} from "../mock/MockRoyaltyFeeRegistry.sol";
+import {LZEndpointMock} from "../../contracts/mocks/LZEndpointMock.sol";
 
 // Utils
 import {MockOrderGenerator} from "./utils/MockOrderGenerator.sol";
@@ -32,12 +34,15 @@ contract ProtocolBase is MockOrderGenerator, IOmniXExchange {
     MockERC721WithRoyalties public mockERC721WithRoyalties;
     MockERC721 public mockERC721;
     MockERC1155 public mockERC1155;
+    LZEndpointMock public lzendpoint;
 
     ProtocolFeeRecipient public protocolFeeRecipient;
     OmniXExchange public omniXExchange;
     TransferManager public transferManager;
     MockRoyaltyFeeRegistry public royaltyFeeRegistry;
     OrderValidatorV2A public orderValidator;
+
+    uint16 public constant LZ_CHAIN_ID = 10121;
 
     WETH public weth;
 
@@ -162,11 +167,13 @@ contract ProtocolBase is MockOrderGenerator, IOmniXExchange {
         looksRareToken = new MockERC20();
         mockERC721 = new MockERC721();
         mockERC1155 = new MockERC1155();
+        lzendpoint = new LZEndpointMock(LZ_CHAIN_ID);
 
         transferManager = new TransferManager(_owner);
         royaltyFeeRegistry = new MockRoyaltyFeeRegistry(_owner, 9500);
         protocolFeeRecipient = new ProtocolFeeRecipient(0x5924A28caAF1cc016617874a2f0C3710d881f3c1, address(weth));
         omniXExchange = new OmniXExchange(
+            address(lzendpoint),
             _owner,
             address(protocolFeeRecipient),
             address(transferManager),
@@ -199,7 +206,7 @@ contract ProtocolBase is MockOrderGenerator, IOmniXExchange {
     }
 
     function _genericTakerOrder() internal pure returns (OrderStructs.Taker memory takerOrder) {
-        takerOrder = OrderStructs.Taker(takerUser, abi.encode());
+        takerOrder = OrderStructs.Taker(takerUser, 10121, abi.encode());
     }
 
     function _addStrategy(address strategy, bytes4 selector, bool isMakerBid) internal {

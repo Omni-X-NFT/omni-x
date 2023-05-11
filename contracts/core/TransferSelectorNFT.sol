@@ -17,7 +17,7 @@ import {CollectionType} from "../enums/CollectionType.sol";
  * @notice This contract handles the logic for transferring non-fungible items.
  * @author LooksRare protocol team (👀,💎)
  */
-contract TransferSelectorNFT is ExecutionManager, PackableReentrancyGuard {
+abstract contract TransferSelectorNFT is ExecutionManager, PackableReentrancyGuard {
     /**
      * @notice Transfer manager for ERC721 and ERC1155.
      */
@@ -30,10 +30,11 @@ contract TransferSelectorNFT is ExecutionManager, PackableReentrancyGuard {
      * @param _transferManager Address of the transfer manager for ERC721/ERC1155
      */
     constructor(
+        address _endpoint,
         address _owner,
         address _protocolFeeRecipient,
         address _transferManager
-    ) ExecutionManager(_owner, _protocolFeeRecipient) {
+    ) ExecutionManager( _endpoint, _owner, _protocolFeeRecipient) {
         transferManager = TransferManager(_transferManager);
     }
 
@@ -60,4 +61,5 @@ contract TransferSelectorNFT is ExecutionManager, PackableReentrancyGuard {
             transferManager.transferItemsERC1155(collection, sender, recipient, itemIds, amounts);
         }
     }
+
 }

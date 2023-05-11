@@ -298,6 +298,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
                 collection: address(mockERC721),
                 currency: ETH,
                 signer: signer,
+                lzChainId: 10121,
                 price: price,
                 itemId: i // 0, 1, etc.
             });

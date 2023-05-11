@@ -177,6 +177,7 @@ contract AffiliateOrdersTest is ProtocolBase, IAffiliateManager {
                 currency: ETH,
                 signer: makerUser,
                 price: price,
+                lzChainId: 10121,
                 itemId: i // (0, 1, etc.)
             });
 

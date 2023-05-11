@@ -48,6 +48,7 @@ library OrderStructs{
         uint256 price;
         uint256[] itemIds;
         uint256[] amounts;
+        uint16 lzChainId;
         bytes additionalParameters;
     }
 
@@ -63,6 +64,7 @@ library OrderStructs{
      */
     struct Taker {
         address recipient;
+        uint16 lzChainId;
         bytes additionalParameters;
     }
 
@@ -120,9 +122,16 @@ library OrderStructs{
                 "uint256 price,"
                 "uint256[] itemIds,"
                 "uint256[] amounts,"
+                "uint16 lzChainId,"
                 "bytes additionalParameters"
             ")"
         );
+
+    function getRoyaltyInfo(Maker memory makerOrder) internal pure returns (bytes memory) {
+        // lzChainId
+        (, bytes memory royaltyInfo) = abi.decode(makerOrder.additionalParameters, (uint16, bytes));
+        return royaltyInfo;
+    }
 
     /**
      * 5. Hash functions
@@ -156,6 +165,7 @@ library OrderStructs{
                         maker.price,
                         keccak256(abi.encodePacked(maker.itemIds)),
                         keccak256(abi.encodePacked(maker.amounts)),
+                        maker.lzChainId,
                         keccak256(maker.additionalParameters)
                     )
                 )

@@ -31,10 +31,11 @@ contract MockOrderGenerator is ProtocolHelpers {
             currency: ETH,
             signer: makerUser,
             price: 1 ether,
+            lzChainId: 10121,
             itemId: 420
         });
 
-        newTakerBid = OrderStructs.Taker(takerUser, abi.encode());
+        newTakerBid = OrderStructs.Taker(takerUser, 10121, abi.encode());
     }
 
     function _createMockMakerBidAndTakerAsk(
@@ -54,10 +55,11 @@ contract MockOrderGenerator is ProtocolHelpers {
             currency: currency,
             signer: makerUser,
             price: 1 ether,
+            lzChainId: 10121,
             itemId: 420
         });
 
-        newTakerAsk = OrderStructs.Taker(takerUser, abi.encode());
+        newTakerAsk = OrderStructs.Taker(takerUser, 10121, abi.encode());
     }
 
     function _createMockMakerAskAndTakerBidWithBundle(
@@ -83,10 +85,11 @@ contract MockOrderGenerator is ProtocolHelpers {
             signer: makerUser,
             price: 1 ether,
             itemIds: itemIds,
+            lzChainId: 10121,
             amounts: amounts
         });
 
-        newTakerBid = OrderStructs.Taker(takerUser, abi.encode());
+        newTakerBid = OrderStructs.Taker(takerUser, 10121, abi.encode());
     }
 
     function _createMockMakerBidAndTakerAskWithBundle(
@@ -113,10 +116,11 @@ contract MockOrderGenerator is ProtocolHelpers {
             signer: makerUser,
             price: 1 ether,
             itemIds: itemIds,
+            lzChainId: 10121,
             amounts: amounts
         });
 
-        newTakerAsk = OrderStructs.Taker(takerUser, abi.encode());
+        newTakerAsk = OrderStructs.Taker(takerUser, 10121, abi.encode());
     }
 
     function _getCollectionType(address collection) private view returns (CollectionType collectionType) {

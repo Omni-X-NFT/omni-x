@@ -39,6 +39,7 @@ contract SignaturesRevertionsTest is ProtocolBase {
             currency: ETH,
             signer: makerUser,
             price: price,
+            lzChainId: 10121,
             itemId: itemId
         });
 
@@ -72,6 +73,8 @@ contract SignaturesRevertionsTest is ProtocolBase {
             currency: ETH,
             signer: makerUser,
             price: price,
+            
+            lzChainId: 10121,
             itemId: itemId
         });
 
@@ -110,6 +113,7 @@ contract SignaturesRevertionsTest is ProtocolBase {
             currency: ETH,
             signer: makerUser,
             price: price,
+            lzChainId: 10121,
             itemId: itemId
         });
 
@@ -146,6 +150,7 @@ contract SignaturesRevertionsTest is ProtocolBase {
             currency: ETH,
             signer: makerUser,
             price: price,
+            lzChainId: 10121,
             itemId: itemId
         });
 

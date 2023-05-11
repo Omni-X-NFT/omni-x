@@ -33,6 +33,7 @@ contract ProtocolHelpers is TestHelpers, TestParameters {
         address currency,
         address signer,
         uint256 price,
+        uint16 lzChainId,
         uint256 itemId
     ) internal view returns (OrderStructs.Maker memory makerOrder) {
         uint256[] memory itemIds = new uint256[](1);
@@ -55,6 +56,7 @@ contract ProtocolHelpers is TestHelpers, TestParameters {
             price: price,
             itemIds: itemIds,
             amounts: amounts,
+            lzChainId: lzChainId,
             additionalParameters: abi.encode()
         });
     }
@@ -71,7 +73,8 @@ contract ProtocolHelpers is TestHelpers, TestParameters {
         address signer,
         uint256 price,
         uint256[] memory itemIds,
-        uint256[] memory amounts
+        uint256[] memory amounts,
+        uint16 lzChainId
     ) internal view returns (OrderStructs.Maker memory newMakerBid) {
         newMakerBid = OrderStructs.Maker({
             quoteType: quoteType,
@@ -88,6 +91,7 @@ contract ProtocolHelpers is TestHelpers, TestParameters {
             price: price,
             itemIds: itemIds,
             amounts: amounts,
+            lzChainId: lzChainId,
             additionalParameters: abi.encode()
         });
     }

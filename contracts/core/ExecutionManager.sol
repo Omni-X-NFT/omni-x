@@ -29,7 +29,7 @@ import {QuoteType} from "../enums/QuoteType.sol";
  *         For instance, a taker ask is executed against a maker bid (or a taker bid against a maker ask).
  * @author LooksRare protocol team (👀,💎)
  */
-contract ExecutionManager is InheritedStrategy, NonceManager, StrategyManager, IExecutionManager {
+abstract contract ExecutionManager is InheritedStrategy, NonceManager, StrategyManager, IExecutionManager {
     /**
      * @notice Protocol fee recipient.
      */
@@ -50,7 +50,7 @@ contract ExecutionManager is InheritedStrategy, NonceManager, StrategyManager, I
      * @param _owner Owner address
      * @param _protocolFeeRecipient Protocol fee recipient address
      */
-    constructor(address _owner, address _protocolFeeRecipient) StrategyManager(_owner) {
+    constructor(address _endpoint, address _owner, address _protocolFeeRecipient) StrategyManager(_endpoint, _owner) {
         _updateProtocolFeeRecipient(_protocolFeeRecipient);
     }
 
@@ -301,4 +301,6 @@ contract ExecutionManager is InheritedStrategy, NonceManager, StrategyManager, I
             }
         }
     }
+
+   
 }

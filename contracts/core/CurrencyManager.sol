@@ -12,7 +12,7 @@ import {AffiliateManager} from "./AffiliateManager.sol";
  * @notice This contract manages the list of valid fungible currencies.
  * @author LooksRare protocol team (👀,💎)
  */
-contract CurrencyManager is ICurrencyManager, AffiliateManager {
+abstract contract CurrencyManager is ICurrencyManager, AffiliateManager {
     /**
      * @notice It checks whether the currency is allowed for transacting.
      */
@@ -22,7 +22,7 @@ contract CurrencyManager is ICurrencyManager, AffiliateManager {
      * @notice Constructor
      * @param _owner Owner address
      */
-    constructor(address _owner) AffiliateManager(_owner) {}
+    constructor(address _endpoint, address _owner) AffiliateManager( _endpoint , _owner) {}
 
     /**
      * @notice This function allows the owner to update the status of a currency.
@@ -34,4 +34,5 @@ contract CurrencyManager is ICurrencyManager, AffiliateManager {
         isCurrencyAllowed[currency] = isAllowed;
         emit CurrencyStatusUpdated(currency, isAllowed);
     }
+   
 }

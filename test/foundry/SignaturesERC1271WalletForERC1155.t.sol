@@ -372,6 +372,7 @@ contract SignaturesERC1271WalletForERC1155Test is ProtocolBase {
             currency: ETH,
             signer: signer,
             price: price,
+            lzChainId: 10121,
             itemId: itemId
         });
 
@@ -393,6 +394,7 @@ contract SignaturesERC1271WalletForERC1155Test is ProtocolBase {
             currency: address(weth),
             signer: signer,
             price: price,
+            lzChainId: 10121,
             itemId: itemId
         });
 
@@ -430,6 +432,7 @@ contract SignaturesERC1271WalletForERC1155Test is ProtocolBase {
             signer: signer,
             price: price,
             itemIds: itemIds,
+            lzChainId: 10121,
             amounts: amounts
         });
 
@@ -467,6 +470,7 @@ contract SignaturesERC1271WalletForERC1155Test is ProtocolBase {
                 currency: ETH,
                 signer: signer,
                 price: price,
+                lzChainId: 10121,
                 itemId: i // 0, 1, etc.
             });
 

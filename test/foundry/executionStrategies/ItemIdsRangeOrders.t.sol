@@ -58,6 +58,7 @@ contract ItemIdsRangeOrdersTest is ProtocolBase, IStrategyManager {
             signer: makerUser,
             price: 1 ether,
             itemIds: new uint256[](0),
+            lzChainId: 10121,
             amounts: new uint256[](0)
         });
 
@@ -82,6 +83,7 @@ contract ItemIdsRangeOrdersTest is ProtocolBase, IStrategyManager {
 
         newTakerAsk = OrderStructs.Taker({
             recipient: takerUser,
+            lzChainId: 10121,
             additionalParameters: abi.encode(takerAskItemIds, _offeredAmounts({length: 3, amount: 1}))
         });
     }
@@ -144,6 +146,7 @@ contract ItemIdsRangeOrdersTest is ProtocolBase, IStrategyManager {
             signer: makerUser,
             price: 1 ether,
             itemIds: new uint256[](0),
+            lzChainId: 10121,
             amounts: new uint256[](0)
         });
 
@@ -160,6 +163,7 @@ contract ItemIdsRangeOrdersTest is ProtocolBase, IStrategyManager {
 
         OrderStructs.Taker memory takerAsk = OrderStructs.Taker({
             recipient: takerUser,
+            lzChainId: 10121,
             additionalParameters: abi.encode(takerAskItemIds, _offeredAmounts({length: 3, amount: 2}))
         });
 
@@ -459,6 +463,7 @@ contract ItemIdsRangeOrdersTest is ProtocolBase, IStrategyManager {
             currency: address(weth),
             signer: makerUser,
             price: 1 ether,
+            lzChainId: 10121,
             itemId: 0
         });
 

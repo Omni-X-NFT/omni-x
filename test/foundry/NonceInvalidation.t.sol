@@ -138,6 +138,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
             currency: address(weth),
             signer: makerUser,
             price: price,
+            lzChainId: 10121,
             itemId: itemId
         });
 
@@ -232,6 +233,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
             signer: makerUser,
             price: price,
             itemIds: itemIds,
+            lzChainId: 10121,
             amounts: amounts
         });
 
@@ -248,7 +250,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
             mockERC721.mint(takerUser, itemIds[0]);
 
             // Prepare the taker ask
-            OrderStructs.Taker memory takerAsk = OrderStructs.Taker(takerUser, abi.encode(itemIds, amounts));
+            OrderStructs.Taker memory takerAsk = OrderStructs.Taker(takerUser, 10121, abi.encode(itemIds, amounts));
 
             vm.prank(takerUser);
 
@@ -278,6 +280,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
                 signer: makerUser,
                 price: price,
                 itemIds: itemIds,
+                lzChainId: 10121,
                 amounts: amounts
             });
 
@@ -289,6 +292,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
             // Prepare the taker ask
             OrderStructs.Taker memory takerAsk = OrderStructs.Taker(
                 takerUser,
+                10121,
                 abi.encode(new uint256[](0), new uint256[](0))
             );
 
@@ -340,6 +344,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
             currency: address(weth),
             signer: makerUser,
             price: price,
+            lzChainId: 10121,
             itemId: itemId
         });
 
@@ -354,6 +359,7 @@ contract NonceInvalidationTest is INonceManager, ProtocolBase {
         // Prepare the taker ask
         OrderStructs.Taker memory takerAsk = OrderStructs.Taker(
             takerUser,
+            10121,
             abi.encode(new uint256[](0), new uint256[](0))
         );
 

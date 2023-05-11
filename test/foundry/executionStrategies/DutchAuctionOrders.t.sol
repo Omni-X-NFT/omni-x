@@ -71,6 +71,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
             currency: address(weth),
             signer: makerUser,
             price: endPrice,
+            lzChainId: 10121,
             itemId: 1
         });
 
@@ -81,7 +82,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
         newMakerAsk.additionalParameters = abi.encode(startPrice);
 
         // Using startPrice as the maxPrice
-        newTakerBid = OrderStructs.Taker(takerUser, abi.encode(startPrice));
+        newTakerBid = OrderStructs.Taker(takerUser, 10121, abi.encode(startPrice));
     }
 
     function testNewStrategy() public {
@@ -366,6 +367,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
             currency: address(weth),
             signer: makerUser,
             price: 1 ether,
+            lzChainId: 10121,
             itemId: 420
         });
 
@@ -389,6 +391,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
             currency: address(weth),
             signer: makerUser,
             price: 1 ether,
+            lzChainId: 10121,
             itemId: 420
         });
 

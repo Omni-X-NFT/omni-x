@@ -13,7 +13,7 @@ import {IStrategyManager} from "../interfaces/IStrategyManager.sol";
  * @notice This contract handles the addition and the update of execution strategies.
  * @author LooksRare protocol team (👀,💎)
  */
-contract StrategyManager is IStrategyManager, CurrencyManager {
+abstract contract StrategyManager is IStrategyManager, CurrencyManager {
     /**
      * @notice This variable keeps the count of how many strategies exist.
      *         It includes strategies that have been removed.
@@ -29,7 +29,7 @@ contract StrategyManager is IStrategyManager, CurrencyManager {
      * @notice Constructor
      * @param _owner Owner address
      */
-    constructor(address _owner) CurrencyManager(_owner) {
+    constructor(address _endpoint, address _owner) CurrencyManager(_endpoint, _owner) {
         strategyInfo[0] = Strategy({
             isActive: true,
             standardProtocolFeeBp: 50,
@@ -123,4 +123,5 @@ contract StrategyManager is IStrategyManager, CurrencyManager {
 
         emit StrategyUpdated(strategyId, isActive, newStandardProtocolFee, newMinTotalFee);
     }
+   
 }

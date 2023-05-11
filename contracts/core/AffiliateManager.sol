@@ -9,13 +9,15 @@ import {IAffiliateManager} from "../interfaces/IAffiliateManager.sol";
 
 // Constants
 import {ONE_HUNDRED_PERCENT_IN_BP} from "../constants/NumericConstants.sol";
+import {NonblockingExchangeLzApp} from "../lzApp/exchangeLzApp/NonBlockingExchangeLzApp.sol";
+
 
 /**
  * @title AffiliateManager
  * @notice This contract handles the management of affiliates for the LooksRare protocol.
  * @author LooksRare protocol team (👀,💎)
  */
-contract AffiliateManager is IAffiliateManager, OwnableTwoSteps {
+abstract contract AffiliateManager is IAffiliateManager, NonblockingExchangeLzApp {
     /**
      * @notice Whether the affiliate program is active.
      */
@@ -36,7 +38,7 @@ contract AffiliateManager is IAffiliateManager, OwnableTwoSteps {
      * @notice Constructor
      * @param _owner Owner address
      */
-    constructor(address _owner) OwnableTwoSteps(_owner) {}
+    constructor(address _endpoint, address _owner) NonblockingExchangeLzApp( _endpoint, _owner) {}
 
     /**
      * @notice This function allows the affiliate controller to update the affiliate rate (in basis point).
@@ -75,4 +77,6 @@ contract AffiliateManager is IAffiliateManager, OwnableTwoSteps {
         isAffiliateProgramActive = isActive;
         emit NewAffiliateProgramStatus(isActive);
     }
+
+    
 }
