@@ -49,6 +49,9 @@ export const prepareOmniX = async (taskArgs: any, hre: any) => {
   // const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
   // await tx(await omniXExchange.setGasForLzReceive(600000))
 
+  const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
+  await (await omniXExchange.setFundManager(getContractAddrByName(network.name, 'FundManager'))).wait()
+
   const fundManager = createContractByName(hre, 'FundManager', FundManagerAbi().abi, owner)
   await tx(await fundManager.setOmnixExchange(getContractAddrByName(network.name, 'OmniXExchange')))
 }
