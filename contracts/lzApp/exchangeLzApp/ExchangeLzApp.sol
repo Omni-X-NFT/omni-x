@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../../reservoir/misc/TwoStepOwnable.sol";
+import "./OwnableTwoSteps.sol";
 import "../../interfaces/ILayerZeroReceiver.sol";
 import "../../interfaces/ILayerZeroUserApplicationConfig.sol";
 import "../../interfaces/ILayerZeroEndpoint.sol";
@@ -11,7 +11,7 @@ import "../../libraries/BytesLib.sol";
 /*
  * a generic LzReceiver implementation
  */
-abstract contract ExchangeLzApp is TwoStepOwnable, ILayerZeroReceiver, ILayerZeroUserApplicationConfig {
+abstract contract ExchangeLzApp is OwnableTwoSteps, ILayerZeroReceiver, ILayerZeroUserApplicationConfig {
     using BytesLib for bytes;
 
     ILayerZeroEndpoint public immutable lzEndpoint;
@@ -24,7 +24,7 @@ abstract contract ExchangeLzApp is TwoStepOwnable, ILayerZeroReceiver, ILayerZer
     event SetTrustedRemoteAddress(uint16 _remoteChainId, bytes _remoteAddress);
     event SetMinDstGas(uint16 _dstChainId, uint16 _type, uint _minDstGas);
 
-    constructor(address _endpoint, address _owner) TwoStepOwnable(_owner) {
+    constructor(address _endpoint, address _owner) OwnableTwoSteps(_owner) {
         lzEndpoint = ILayerZeroEndpoint(_endpoint);
     }
 

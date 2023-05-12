@@ -2,7 +2,7 @@
   "abi": [
     {
       "inputs": [],
-      "name": "InvalidParams",
+      "name": "NoOngoingTransferInProgress",
       "type": "error"
     },
     {
@@ -12,13 +12,39 @@
     },
     {
       "inputs": [],
+      "name": "NotOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "PercentageTooHigh",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "Unauthorized",
+      "name": "RenouncementNotInProgress",
       "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TransferAlreadyInProgress",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TransferNotInProgress",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "WrongPotentialOwner",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "CancelOwnershipTransfer",
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -37,6 +63,31 @@
         }
       ],
       "name": "CurrencyStatusUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "InitiateOwnershipRenouncement",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "potentialOwner",
+          "type": "address"
+        }
+      ],
+      "name": "InitiateOwnershipTransfer",
       "type": "event"
     },
     {
@@ -119,19 +170,13 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "previousOwner",
-          "type": "address"
-        },
-        {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "newOwner",
           "type": "address"
         }
       ],
-      "name": "OwnershipTransferred",
+      "name": "NewOwner",
       "type": "event"
     },
     {
@@ -244,7 +289,21 @@
     },
     {
       "inputs": [],
-      "name": "claimOwnership",
+      "name": "cancelOwnershipTransfer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "confirmOwnershipRenouncement",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "confirmOwnershipTransfer",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -347,6 +406,26 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "initiateOwnershipRenouncement",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newPotentialOwner",
+          "type": "address"
+        }
+      ],
+      "name": "initiateOwnershipTransfer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -513,7 +592,20 @@
     },
     {
       "inputs": [],
-      "name": "pendingOwner",
+      "name": "ownershipStatus",
+      "outputs": [
+        {
+          "internalType": "enum IOwnableTwoSteps.Status",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "potentialOwner",
       "outputs": [
         {
           "internalType": "address",
@@ -694,19 +786,6 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "transferOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "uint16",
           "name": "",
           "type": "uint16"
@@ -799,11 +878,15 @@
   "methodIdentifiers": {
     "affiliateController()": "4cbac9dc",
     "affiliateRates(address)": "7a7d8851",
-    "claimOwnership()": "4e71e0c8",
+    "cancelOwnershipTransfer()": "23452b9c",
+    "confirmOwnershipRenouncement()": "3e567539",
+    "confirmOwnershipTransfer()": "7200b829",
     "failedMessages(uint16,bytes,uint256)": "8ee74912",
     "forceResumeReceive(uint16,bytes)": "42d65a8d",
     "getConfig(uint16,uint16,address,uint256)": "f5ecbdbc",
     "getTrustedRemoteAddress(uint16)": "9f38369a",
+    "initiateOwnershipRenouncement()": "5b6ac011",
+    "initiateOwnershipTransfer(address)": "c0b6f561",
     "isAffiliateProgramActive()": "67d9dd79",
     "isCurrencyAllowed(address)": "5a195d19",
     "isTrustedRemote(uint16,bytes)": "3d8b38f6",
@@ -812,7 +895,8 @@
     "minDstGasLookup(uint16,uint16)": "8cfd8f5c",
     "nonblockingLzReceive(uint16,bytes,uint64,bytes)": "66ad5c8a",
     "owner()": "8da5cb5b",
-    "pendingOwner()": "e30c3978",
+    "ownershipStatus()": "2bb5a9e6",
+    "potentialOwner()": "7762df25",
     "precrime()": "950c8a74",
     "retryMessage(uint16,bytes,uint64,bytes)": "d1deba1f",
     "setConfig(uint16,uint16,uint256,bytes)": "cbed8b9c",
@@ -822,14 +906,13 @@
     "setSendVersion(uint16)": "07e0db17",
     "setTrustedRemote(uint16,bytes)": "eb8d72b7",
     "setTrustedRemoteAddress(uint16,bytes)": "a6c3d165",
-    "transferOwnership(address)": "f2fde38b",
     "trustedRemoteLookup(uint16)": "7533d788",
     "updateAffiliateController(address)": "a02bab57",
     "updateAffiliateProgramStatus(bool)": "54878876",
     "updateAffiliateRate(address,uint256)": "ae1cce5a",
     "updateCurrencyStatus(address,bool)": "1d3c4268"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"InvalidParams\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotAffiliateController\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PercentageTooHigh\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"Unauthorized\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isAllowed\",\"type\":\"bool\"}],\"name\":\"CurrencyStatusUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"MessageFailed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"affiliateController\",\"type\":\"address\"}],\"name\":\"NewAffiliateController\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"name\":\"NewAffiliateProgramStatus\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"affiliate\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"rate\",\"type\":\"uint256\"}],\"name\":\"NewAffiliateRate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_dstChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_type\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_minDstGas\",\"type\":\"uint256\"}],\"name\":\"SetMinDstGas\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"precrime\",\"type\":\"address\"}],\"name\":\"SetPrecrime\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_path\",\"type\":\"bytes\"}],\"name\":\"SetTrustedRemote\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_remoteAddress\",\"type\":\"bytes\"}],\"name\":\"SetTrustedRemoteAddress\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"affiliateController\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"affiliateRates\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"claimOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"failedMessages\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"}],\"name\":\"forceResumeReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"_chainId\",\"type\":\"uint16\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_configType\",\"type\":\"uint256\"}],\"name\":\"getConfig\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"}],\"name\":\"getTrustedRemoteAddress\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"isAffiliateProgramActive\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"isCurrencyAllowed\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"}],\"name\":\"isTrustedRemote\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"lzEndpoint\",\"outputs\":[{\"internalType\":\"contract ILayerZeroEndpoint\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"lzReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"name\":\"minDstGasLookup\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"nonblockingLzReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pendingOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"precrime\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"retryMessage\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"_chainId\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"_configType\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_config\",\"type\":\"bytes\"}],\"name\":\"setConfig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_dstChainId\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"_packetType\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"_minGas\",\"type\":\"uint256\"}],\"name\":\"setMinDstGas\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_precrime\",\"type\":\"address\"}],\"name\":\"setPrecrime\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"}],\"name\":\"setReceiveVersion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"}],\"name\":\"setSendVersion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_path\",\"type\":\"bytes\"}],\"name\":\"setTrustedRemote\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_remoteAddress\",\"type\":\"bytes\"}],\"name\":\"setTrustedRemoteAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"name\":\"trustedRemoteLookup\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAffiliateController\",\"type\":\"address\"}],\"name\":\"updateAffiliateController\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"name\":\"updateAffiliateProgramStatus\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"affiliate\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"bp\",\"type\":\"uint256\"}],\"name\":\"updateAffiliateRate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"isAllowed\",\"type\":\"bool\"}],\"name\":\"updateCurrencyStatus\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"LooksRare protocol team (\\ud83d\\udc40,\\ud83d\\udc8e)\",\"kind\":\"dev\",\"methods\":{\"constructor\":{\"params\":{\"_owner\":\"Owner address\"}},\"updateAffiliateController(address)\":{\"details\":\"Only callable by owner.\",\"params\":{\"newAffiliateController\":\"New affiliate controller address\"}},\"updateAffiliateProgramStatus(bool)\":{\"details\":\"Only callable by owner.\",\"params\":{\"isActive\":\"Whether the affiliate program is active\"}},\"updateAffiliateRate(address,uint256)\":{\"params\":{\"affiliate\":\"Affiliate address\",\"bp\":\"Rate (in basis point) to collect (e.g. 100 = 1%) per referred transaction\"}},\"updateCurrencyStatus(address,bool)\":{\"details\":\"Only callable by owner.\",\"params\":{\"currency\":\"Currency address (address(0) for ETH)\",\"isAllowed\":\"Whether the currency should be allowed for trading\"}}},\"title\":\"CurrencyManager\",\"version\":1},\"userdoc\":{\"errors\":{\"NotAffiliateController()\":[{\"notice\":\"It is returned if the function is called by another address than the affiliate controller.\"}],\"PercentageTooHigh()\":[{\"notice\":\"It is returned if the affiliate controller is trying to set an affiliate rate higher than 10,000.\"}]},\"events\":{\"CurrencyStatusUpdated(address,bool)\":{\"notice\":\"It is emitted if the currency status in the allowlist is updated.\"},\"NewAffiliateController(address)\":{\"notice\":\"It is emitted when there is an update of affliate controller.\"},\"NewAffiliateProgramStatus(bool)\":{\"notice\":\"It is emitted if the affiliate program is activated or deactivated.\"},\"NewAffiliateRate(address,uint256)\":{\"notice\":\"It is emitted if there is a new affiliate and its associated rate (in basis point).\"}},\"kind\":\"user\",\"methods\":{\"affiliateController()\":{\"notice\":\"Address of the affiliate controller.\"},\"affiliateRates(address)\":{\"notice\":\"It tracks the affiliate rate (in basis point) for a given affiliate address.         The basis point represents how much of the protocol fee will be shared to the affiliate.\"},\"constructor\":{\"notice\":\"Constructor\"},\"isAffiliateProgramActive()\":{\"notice\":\"Whether the affiliate program is active.\"},\"isCurrencyAllowed(address)\":{\"notice\":\"It checks whether the currency is allowed for transacting.\"},\"updateAffiliateController(address)\":{\"notice\":\"This function allows the owner to update the affiliate controller address.\"},\"updateAffiliateProgramStatus(bool)\":{\"notice\":\"This function allows the owner to update the affiliate program status.\"},\"updateAffiliateRate(address,uint256)\":{\"notice\":\"This function allows the affiliate controller to update the affiliate rate (in basis point).\"},\"updateCurrencyStatus(address,bool)\":{\"notice\":\"This function allows the owner to update the status of a currency.\"}},\"notice\":\"This contract manages the list of valid fungible currencies.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/core/CurrencyManager.sol\":\"CurrencyManager\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@chainlink/=node_modules/@chainlink/\",\":@ensdomains/=node_modules/@ensdomains/\",\":@eth-optimism/=node_modules/@eth-optimism/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@looksrare/=node_modules/@looksrare/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":base64-sol/=node_modules/base64-sol/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":murky/=lib/murky/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":reservoirprotocol/=lib/reservoirprotocol/\",\":solmate/=lib/solmate/src/\",\":xdeployer/=node_modules/xdeployer/\"],\"viaIR\":true},\"sources\":{\"contracts/constants/NumericConstants.sol\":{\"keccak256\":\"0x30fb11ade509ec46e86ebbcc00b558f788fe3a22f4850a35d3351eba0de96334\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6b64755ba6164dabce9e8547cb17e6a517e470f5655f8f04886e447e46b06328\",\"dweb:/ipfs/QmYk7B5qWkNXtM6rDcnc1ayhv5NnNH2okcKknQVYCrmfDR\"]},\"contracts/core/AffiliateManager.sol\":{\"keccak256\":\"0x523e993d95d2958e25c77a9e5893e6281558ae23b7fbdcfd65fbd252e59e84c4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4ebe8e2ccc7dfa0a5f72e8d6b956115c323fb982ead23acb870094862b8cdf5a\",\"dweb:/ipfs/QmcRTYKnUQRTMtWv8CD3dPNn9ddjazEUnu8eZNk884xFE4\"]},\"contracts/core/CurrencyManager.sol\":{\"keccak256\":\"0x9faa7b1be507069bda09813f01912e1642ef114ba8d9939f1b21c8831a6569cb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fd2e5b1d133cfed8fcdc847050fbce6101c847bdae1be62ff4caf8103e87de30\",\"dweb:/ipfs/QmWEGD2QiFswjbT67dPTUGNRtdZQV8bDc9m79RAiEksqs8\"]},\"contracts/interfaces/IAffiliateManager.sol\":{\"keccak256\":\"0x7b6e0992b6e44a5cd6d1bc2da9c7fc897573e4004ff87d185d9fa31a70848755\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://22426bef9d21dce6ef30317fed8599a87d760cc9fb38c09a20b85b3182cff61f\",\"dweb:/ipfs/QmP9Xa3nwg7rhjKtsioCoGaegGzyF2tB5Rbnx2rpgUjBkW\"]},\"contracts/interfaces/ICurrencyManager.sol\":{\"keccak256\":\"0x561b7e2bcdbd6ef67b90c07e01efd90ab4605d0deddd18b0e6eb30479ec26dd1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3b3c8819b11814cda7d7bf6382c5ac2322569beeef9912049259f9fa674783f7\",\"dweb:/ipfs/QmPyo1JZbmRaYD9tshjCPS1VZxREAmLvQkZYjniJjAUH3T\"]},\"contracts/interfaces/ILayerZeroEndpoint.sol\":{\"keccak256\":\"0x99e841ea21cba851b8356c00db1f42f8b6f51f7c69c9d51c567124530a3cf842\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://dbdb5500c2cb54c39c153dcc7974d8e6eb4cd13c2ec52563ff7b2d0b61aa4b2d\",\"dweb:/ipfs/QmX4ukYKAuZuG3gEQTn8XdpRLXXF9wt8hcBTwXVd1Ly9Hq\"]},\"contracts/interfaces/ILayerZeroReceiver.sol\":{\"keccak256\":\"0x8d3744d49cea963aca1774a20e95e4ea157725f8d70eaa8fdf601c4ca28cb99b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f3ad97a5758dae977499283cfb56d59038f285010c7b8672e13e2ed7cdb5d91c\",\"dweb:/ipfs/QmatHGWtb9mtSj4iZs1PpK8YnK5s9qP9BwTHkYdCqs7nhc\"]},\"contracts/interfaces/ILayerZeroUserApplicationConfig.sol\":{\"keccak256\":\"0xc4a255f5e1c8636ff1f46c97eecfdf583f50d87f53f7dad5451bea4f14fe3132\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://45216f78e00d4de204e21db3b82eea06f3e1f347964a037cb93351e5c461de03\",\"dweb:/ipfs/Qmb7NMFmkrXsmp42pdaJEJxrctZBvrczmFxjjN52ddVmzP\"]},\"contracts/libraries/BytesLib.sol\":{\"keccak256\":\"0x880ceabc6474d5cfc5c533800c41bb7a12fd88980b66a1e4849916d214f2d8cd\",\"license\":\"Unlicense\",\"urls\":[\"bzz-raw://428da4f9eed925935522d7bcf440535d26572880cb9df9c2fdba0bb5a4708b5f\",\"dweb:/ipfs/QmPkyKtuYqP8SdTBYspiqUh5dcJyztnRjA3uZuhv6rUhYk\"]},\"contracts/lzApp/exchangeLzApp/ExchangeLzApp.sol\":{\"keccak256\":\"0xdce6c426c86d1a76601bf942babf8db3baf2d8e7563340b5e59f711bdee9500f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3aaed8039085c9fd4ae0cb343263d7eabb7e908b2e7a40c2600790fe6fd2e791\",\"dweb:/ipfs/QmbNxP3LAjsVY3XBoYNoZFpbSveiummpmUnVdgDKHo6HDn\"]},\"contracts/lzApp/exchangeLzApp/NonBlockingExchangeLzApp.sol\":{\"keccak256\":\"0xf391cf6c7b29e40b3b85e0eac32a0a1e9c0daa04afce0e74f72322815effbe6f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://cb0466e3cfd488e03aee9d464c28e6a92ec4dac0362a97448d622f539b394891\",\"dweb:/ipfs/QmUgcTRC5XL2gBD4aaVpHzmNpy6m1y1aTbEc8CSnwgqLNk\"]},\"contracts/reservoir/misc/TwoStepOwnable.sol\":{\"keccak256\":\"0x4327eafecd0ab6c931b8e527702b4c700b403527ef321680d3c886f00b9efc08\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://289e4d95780cf4842f9f825b38208a2456c4b4096c858b8f0d7c6ef7798dbef5\",\"dweb:/ipfs/QmYeYFsopfLzyWbpJW9mwjrsJtt9dNKswKcCbAUQ6C9mxm\"]},\"node_modules/@looksrare/contracts-libs/contracts/OwnableTwoSteps.sol\":{\"keccak256\":\"0x0e47e11eb59908f12443c7e23d2f437992da7349d6cef7757f04014eaf82b74e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://055c0d474b793aec08aa882c93dfe01f5537b479d2730433ce262edfc4a04efb\",\"dweb:/ipfs/QmP2bwDjHAWjJKTQtKr3imKPiuf7a1M664XzEe8hjKiS6P\"]},\"node_modules/@looksrare/contracts-libs/contracts/interfaces/IOwnableTwoSteps.sol\":{\"keccak256\":\"0x9ec76240061a336b8cd10a3ab1d21d8fcc6807e13b95d01c84b6282c88080379\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e737caefdb8fe8fbf5b657e92f7a0b6a7d34cb0a1e1567172ff2e1d16174b623\",\"dweb:/ipfs/QmRFcz4vu86evsfUzpwyvvAKtWJe2mi3CfCD551eVRvupT\"]},\"node_modules/@openzeppelin/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"NoOngoingTransferInProgress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotAffiliateController\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PercentageTooHigh\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RenouncementNotInProgress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TransferAlreadyInProgress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TransferNotInProgress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"WrongPotentialOwner\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[],\"name\":\"CancelOwnershipTransfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isAllowed\",\"type\":\"bool\"}],\"name\":\"CurrencyStatusUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[],\"name\":\"InitiateOwnershipRenouncement\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"potentialOwner\",\"type\":\"address\"}],\"name\":\"InitiateOwnershipTransfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"MessageFailed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"affiliateController\",\"type\":\"address\"}],\"name\":\"NewAffiliateController\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"name\":\"NewAffiliateProgramStatus\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"affiliate\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"rate\",\"type\":\"uint256\"}],\"name\":\"NewAffiliateRate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"NewOwner\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_dstChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_type\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_minDstGas\",\"type\":\"uint256\"}],\"name\":\"SetMinDstGas\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"precrime\",\"type\":\"address\"}],\"name\":\"SetPrecrime\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_path\",\"type\":\"bytes\"}],\"name\":\"SetTrustedRemote\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_remoteAddress\",\"type\":\"bytes\"}],\"name\":\"SetTrustedRemoteAddress\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"affiliateController\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"affiliateRates\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"cancelOwnershipTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"confirmOwnershipRenouncement\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"confirmOwnershipTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"failedMessages\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"}],\"name\":\"forceResumeReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"_chainId\",\"type\":\"uint16\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_configType\",\"type\":\"uint256\"}],\"name\":\"getConfig\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"}],\"name\":\"getTrustedRemoteAddress\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"initiateOwnershipRenouncement\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newPotentialOwner\",\"type\":\"address\"}],\"name\":\"initiateOwnershipTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"isAffiliateProgramActive\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"isCurrencyAllowed\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"}],\"name\":\"isTrustedRemote\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"lzEndpoint\",\"outputs\":[{\"internalType\":\"contract ILayerZeroEndpoint\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"lzReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"name\":\"minDstGasLookup\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"nonblockingLzReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"ownershipStatus\",\"outputs\":[{\"internalType\":\"enum IOwnableTwoSteps.Status\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"potentialOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"precrime\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"retryMessage\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"_chainId\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"_configType\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_config\",\"type\":\"bytes\"}],\"name\":\"setConfig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_dstChainId\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"_packetType\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"_minGas\",\"type\":\"uint256\"}],\"name\":\"setMinDstGas\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_precrime\",\"type\":\"address\"}],\"name\":\"setPrecrime\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"}],\"name\":\"setReceiveVersion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"}],\"name\":\"setSendVersion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_path\",\"type\":\"bytes\"}],\"name\":\"setTrustedRemote\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_remoteAddress\",\"type\":\"bytes\"}],\"name\":\"setTrustedRemoteAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"name\":\"trustedRemoteLookup\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAffiliateController\",\"type\":\"address\"}],\"name\":\"updateAffiliateController\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"name\":\"updateAffiliateProgramStatus\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"affiliate\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"bp\",\"type\":\"uint256\"}],\"name\":\"updateAffiliateRate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"isAllowed\",\"type\":\"bool\"}],\"name\":\"updateCurrencyStatus\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"LooksRare protocol team (\\ud83d\\udc40,\\ud83d\\udc8e)\",\"kind\":\"dev\",\"methods\":{\"cancelOwnershipTransfer()\":{\"details\":\"This function can be used for both cancelling a transfer to a new owner and      cancelling the renouncement of the ownership.\"},\"confirmOwnershipTransfer()\":{\"details\":\"This function can only be called by the current potential owner.\"},\"constructor\":{\"params\":{\"_owner\":\"Owner address\"}},\"initiateOwnershipTransfer(address)\":{\"params\":{\"newPotentialOwner\":\"New potential owner address\"}},\"updateAffiliateController(address)\":{\"details\":\"Only callable by owner.\",\"params\":{\"newAffiliateController\":\"New affiliate controller address\"}},\"updateAffiliateProgramStatus(bool)\":{\"details\":\"Only callable by owner.\",\"params\":{\"isActive\":\"Whether the affiliate program is active\"}},\"updateAffiliateRate(address,uint256)\":{\"params\":{\"affiliate\":\"Affiliate address\",\"bp\":\"Rate (in basis point) to collect (e.g. 100 = 1%) per referred transaction\"}},\"updateCurrencyStatus(address,bool)\":{\"details\":\"Only callable by owner.\",\"params\":{\"currency\":\"Currency address (address(0) for ETH)\",\"isAllowed\":\"Whether the currency should be allowed for trading\"}}},\"title\":\"CurrencyManager\",\"version\":1},\"userdoc\":{\"errors\":{\"NoOngoingTransferInProgress()\":[{\"notice\":\"This is returned when there is no transfer of ownership in progress.\"}],\"NotAffiliateController()\":[{\"notice\":\"It is returned if the function is called by another address than the affiliate controller.\"}],\"NotOwner()\":[{\"notice\":\"This is returned when the caller is not the owner.\"}],\"PercentageTooHigh()\":[{\"notice\":\"It is returned if the affiliate controller is trying to set an affiliate rate higher than 10,000.\"}],\"RenouncementNotInProgress()\":[{\"notice\":\"This is returned when there is no renouncement in progress but         the owner tries to validate the ownership renouncement.\"}],\"TransferAlreadyInProgress()\":[{\"notice\":\"This is returned when the transfer is already in progress but the owner tries         initiate a new ownership transfer.\"}],\"TransferNotInProgress()\":[{\"notice\":\"This is returned when there is no ownership transfer in progress but the         ownership change tries to be approved.\"}],\"WrongPotentialOwner()\":[{\"notice\":\"This is returned when the ownership transfer is attempted to be validated by the         a caller that is not the potential owner.\"}]},\"events\":{\"CancelOwnershipTransfer()\":{\"notice\":\"This is emitted if the ownership transfer is cancelled.\"},\"CurrencyStatusUpdated(address,bool)\":{\"notice\":\"It is emitted if the currency status in the allowlist is updated.\"},\"InitiateOwnershipRenouncement()\":{\"notice\":\"This is emitted if the ownership renouncement is initiated.\"},\"InitiateOwnershipTransfer(address,address)\":{\"notice\":\"This is emitted if the ownership transfer is initiated.\"},\"NewAffiliateController(address)\":{\"notice\":\"It is emitted when there is an update of affliate controller.\"},\"NewAffiliateProgramStatus(bool)\":{\"notice\":\"It is emitted if the affiliate program is activated or deactivated.\"},\"NewAffiliateRate(address,uint256)\":{\"notice\":\"It is emitted if there is a new affiliate and its associated rate (in basis point).\"},\"NewOwner(address)\":{\"notice\":\"This is emitted when there is a new owner.\"}},\"kind\":\"user\",\"methods\":{\"affiliateController()\":{\"notice\":\"Address of the affiliate controller.\"},\"affiliateRates(address)\":{\"notice\":\"It tracks the affiliate rate (in basis point) for a given affiliate address.         The basis point represents how much of the protocol fee will be shared to the affiliate.\"},\"cancelOwnershipTransfer()\":{\"notice\":\"This function is used to cancel the ownership transfer.\"},\"confirmOwnershipRenouncement()\":{\"notice\":\"This function is used to confirm the ownership renouncement.\"},\"confirmOwnershipTransfer()\":{\"notice\":\"This function is used to confirm the ownership transfer.\"},\"constructor\":{\"notice\":\"Constructor\"},\"initiateOwnershipRenouncement()\":{\"notice\":\"This function is used to initiate the ownership renouncement.\"},\"initiateOwnershipTransfer(address)\":{\"notice\":\"This function is used to initiate the transfer of ownership to a new owner.\"},\"isAffiliateProgramActive()\":{\"notice\":\"Whether the affiliate program is active.\"},\"isCurrencyAllowed(address)\":{\"notice\":\"It checks whether the currency is allowed for transacting.\"},\"owner()\":{\"notice\":\"Address of the current owner.\"},\"ownershipStatus()\":{\"notice\":\"Ownership status.\"},\"potentialOwner()\":{\"notice\":\"Address of the potential owner.\"},\"updateAffiliateController(address)\":{\"notice\":\"This function allows the owner to update the affiliate controller address.\"},\"updateAffiliateProgramStatus(bool)\":{\"notice\":\"This function allows the owner to update the affiliate program status.\"},\"updateAffiliateRate(address,uint256)\":{\"notice\":\"This function allows the affiliate controller to update the affiliate rate (in basis point).\"},\"updateCurrencyStatus(address,bool)\":{\"notice\":\"This function allows the owner to update the status of a currency.\"}},\"notice\":\"This contract manages the list of valid fungible currencies.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/core/CurrencyManager.sol\":\"CurrencyManager\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@chainlink/=node_modules/@chainlink/\",\":@ensdomains/=node_modules/@ensdomains/\",\":@eth-optimism/=node_modules/@eth-optimism/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@looksrare/=node_modules/@looksrare/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":base64-sol/=node_modules/base64-sol/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":murky/=lib/murky/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":reservoirprotocol/=lib/reservoirprotocol/\",\":solmate/=lib/solmate/src/\",\":xdeployer/=node_modules/xdeployer/\"],\"viaIR\":true},\"sources\":{\"contracts/constants/NumericConstants.sol\":{\"keccak256\":\"0x30fb11ade509ec46e86ebbcc00b558f788fe3a22f4850a35d3351eba0de96334\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6b64755ba6164dabce9e8547cb17e6a517e470f5655f8f04886e447e46b06328\",\"dweb:/ipfs/QmYk7B5qWkNXtM6rDcnc1ayhv5NnNH2okcKknQVYCrmfDR\"]},\"contracts/core/AffiliateManager.sol\":{\"keccak256\":\"0x523e993d95d2958e25c77a9e5893e6281558ae23b7fbdcfd65fbd252e59e84c4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4ebe8e2ccc7dfa0a5f72e8d6b956115c323fb982ead23acb870094862b8cdf5a\",\"dweb:/ipfs/QmcRTYKnUQRTMtWv8CD3dPNn9ddjazEUnu8eZNk884xFE4\"]},\"contracts/core/CurrencyManager.sol\":{\"keccak256\":\"0x9faa7b1be507069bda09813f01912e1642ef114ba8d9939f1b21c8831a6569cb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fd2e5b1d133cfed8fcdc847050fbce6101c847bdae1be62ff4caf8103e87de30\",\"dweb:/ipfs/QmWEGD2QiFswjbT67dPTUGNRtdZQV8bDc9m79RAiEksqs8\"]},\"contracts/interfaces/IAffiliateManager.sol\":{\"keccak256\":\"0x7b6e0992b6e44a5cd6d1bc2da9c7fc897573e4004ff87d185d9fa31a70848755\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://22426bef9d21dce6ef30317fed8599a87d760cc9fb38c09a20b85b3182cff61f\",\"dweb:/ipfs/QmP9Xa3nwg7rhjKtsioCoGaegGzyF2tB5Rbnx2rpgUjBkW\"]},\"contracts/interfaces/ICurrencyManager.sol\":{\"keccak256\":\"0x561b7e2bcdbd6ef67b90c07e01efd90ab4605d0deddd18b0e6eb30479ec26dd1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3b3c8819b11814cda7d7bf6382c5ac2322569beeef9912049259f9fa674783f7\",\"dweb:/ipfs/QmPyo1JZbmRaYD9tshjCPS1VZxREAmLvQkZYjniJjAUH3T\"]},\"contracts/interfaces/ILayerZeroEndpoint.sol\":{\"keccak256\":\"0x99e841ea21cba851b8356c00db1f42f8b6f51f7c69c9d51c567124530a3cf842\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://dbdb5500c2cb54c39c153dcc7974d8e6eb4cd13c2ec52563ff7b2d0b61aa4b2d\",\"dweb:/ipfs/QmX4ukYKAuZuG3gEQTn8XdpRLXXF9wt8hcBTwXVd1Ly9Hq\"]},\"contracts/interfaces/ILayerZeroReceiver.sol\":{\"keccak256\":\"0x8d3744d49cea963aca1774a20e95e4ea157725f8d70eaa8fdf601c4ca28cb99b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f3ad97a5758dae977499283cfb56d59038f285010c7b8672e13e2ed7cdb5d91c\",\"dweb:/ipfs/QmatHGWtb9mtSj4iZs1PpK8YnK5s9qP9BwTHkYdCqs7nhc\"]},\"contracts/interfaces/ILayerZeroUserApplicationConfig.sol\":{\"keccak256\":\"0xc4a255f5e1c8636ff1f46c97eecfdf583f50d87f53f7dad5451bea4f14fe3132\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://45216f78e00d4de204e21db3b82eea06f3e1f347964a037cb93351e5c461de03\",\"dweb:/ipfs/Qmb7NMFmkrXsmp42pdaJEJxrctZBvrczmFxjjN52ddVmzP\"]},\"contracts/libraries/BytesLib.sol\":{\"keccak256\":\"0x880ceabc6474d5cfc5c533800c41bb7a12fd88980b66a1e4849916d214f2d8cd\",\"license\":\"Unlicense\",\"urls\":[\"bzz-raw://428da4f9eed925935522d7bcf440535d26572880cb9df9c2fdba0bb5a4708b5f\",\"dweb:/ipfs/QmPkyKtuYqP8SdTBYspiqUh5dcJyztnRjA3uZuhv6rUhYk\"]},\"contracts/lzApp/exchangeLzApp/ExchangeLzApp.sol\":{\"keccak256\":\"0x4fd71bf649b7277954071e09bce0a1c1883c2c12e1fd26ba1db38cff50c30586\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b03c04b61ee7217b90eda43e78a383a3f25398e690c6b02c169185aaf3153240\",\"dweb:/ipfs/QmZPobYmDBfvTUkgkKqY7e1QotvugxWk377KX5sfgMMzCj\"]},\"contracts/lzApp/exchangeLzApp/IOwnableTwoSteps.sol\":{\"keccak256\":\"0x9ec76240061a336b8cd10a3ab1d21d8fcc6807e13b95d01c84b6282c88080379\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e737caefdb8fe8fbf5b657e92f7a0b6a7d34cb0a1e1567172ff2e1d16174b623\",\"dweb:/ipfs/QmRFcz4vu86evsfUzpwyvvAKtWJe2mi3CfCD551eVRvupT\"]},\"contracts/lzApp/exchangeLzApp/NonBlockingExchangeLzApp.sol\":{\"keccak256\":\"0xf391cf6c7b29e40b3b85e0eac32a0a1e9c0daa04afce0e74f72322815effbe6f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://cb0466e3cfd488e03aee9d464c28e6a92ec4dac0362a97448d622f539b394891\",\"dweb:/ipfs/QmUgcTRC5XL2gBD4aaVpHzmNpy6m1y1aTbEc8CSnwgqLNk\"]},\"contracts/lzApp/exchangeLzApp/OwnableTwoSteps.sol\":{\"keccak256\":\"0x0666abde000717e31c42f675940620276722f910aa7dcdb41f533d631ebac962\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7d88bda0221d5a60d72b65ef0defb6d090edce619a2936b0059074646ab0a0a8\",\"dweb:/ipfs/QmPBW2ubniUpjhTPoyipeWa6WtsukmdGaqdZvnFXX8JJdj\"]},\"node_modules/@looksrare/contracts-libs/contracts/OwnableTwoSteps.sol\":{\"keccak256\":\"0x0e47e11eb59908f12443c7e23d2f437992da7349d6cef7757f04014eaf82b74e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://055c0d474b793aec08aa882c93dfe01f5537b479d2730433ce262edfc4a04efb\",\"dweb:/ipfs/QmP2bwDjHAWjJKTQtKr3imKPiuf7a1M664XzEe8hjKiS6P\"]},\"node_modules/@looksrare/contracts-libs/contracts/interfaces/IOwnableTwoSteps.sol\":{\"keccak256\":\"0x9ec76240061a336b8cd10a3ab1d21d8fcc6807e13b95d01c84b6282c88080379\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e737caefdb8fe8fbf5b657e92f7a0b6a7d34cb0a1e1567172ff2e1d16174b623\",\"dweb:/ipfs/QmRFcz4vu86evsfUzpwyvvAKtWJe2mi3CfCD551eVRvupT\"]},\"node_modules/@openzeppelin/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -840,7 +923,7 @@
         {
           "inputs": [],
           "type": "error",
-          "name": "InvalidParams"
+          "name": "NoOngoingTransferInProgress"
         },
         {
           "inputs": [],
@@ -850,12 +933,38 @@
         {
           "inputs": [],
           "type": "error",
+          "name": "NotOwner"
+        },
+        {
+          "inputs": [],
+          "type": "error",
           "name": "PercentageTooHigh"
         },
         {
           "inputs": [],
           "type": "error",
-          "name": "Unauthorized"
+          "name": "RenouncementNotInProgress"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "TransferAlreadyInProgress"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "TransferNotInProgress"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "WrongPotentialOwner"
+        },
+        {
+          "inputs": [],
+          "type": "event",
+          "name": "CancelOwnershipTransfer",
+          "anonymous": false
         },
         {
           "inputs": [
@@ -874,6 +983,31 @@
           ],
           "type": "event",
           "name": "CurrencyStatusUpdated",
+          "anonymous": false
+        },
+        {
+          "inputs": [],
+          "type": "event",
+          "name": "InitiateOwnershipRenouncement",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address",
+              "indexed": false
+            },
+            {
+              "internalType": "address",
+              "name": "potentialOwner",
+              "type": "address",
+              "indexed": false
+            }
+          ],
+          "type": "event",
+          "name": "InitiateOwnershipTransfer",
           "anonymous": false
         },
         {
@@ -956,19 +1090,13 @@
           "inputs": [
             {
               "internalType": "address",
-              "name": "previousOwner",
-              "type": "address",
-              "indexed": true
-            },
-            {
-              "internalType": "address",
               "name": "newOwner",
               "type": "address",
-              "indexed": true
+              "indexed": false
             }
           ],
           "type": "event",
-          "name": "OwnershipTransferred",
+          "name": "NewOwner",
           "anonymous": false
         },
         {
@@ -1083,7 +1211,19 @@
           "inputs": [],
           "stateMutability": "nonpayable",
           "type": "function",
-          "name": "claimOwnership"
+          "name": "cancelOwnershipTransfer"
+        },
+        {
+          "inputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "confirmOwnershipRenouncement"
+        },
+        {
+          "inputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "confirmOwnershipTransfer"
         },
         {
           "inputs": [
@@ -1183,6 +1323,24 @@
               "type": "bytes"
             }
           ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "initiateOwnershipRenouncement"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newPotentialOwner",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "initiateOwnershipTransfer"
         },
         {
           "inputs": [],
@@ -1348,7 +1506,20 @@
           "inputs": [],
           "stateMutability": "view",
           "type": "function",
-          "name": "pendingOwner",
+          "name": "ownershipStatus",
+          "outputs": [
+            {
+              "internalType": "enum IOwnableTwoSteps.Status",
+              "name": "",
+              "type": "uint8"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "potentialOwner",
           "outputs": [
             {
               "internalType": "address",
@@ -1519,18 +1690,6 @@
         {
           "inputs": [
             {
-              "internalType": "address",
-              "name": "newOwner",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function",
-          "name": "transferOwnership"
-        },
-        {
-          "inputs": [
-            {
               "internalType": "uint16",
               "name": "",
               "type": "uint16"
@@ -1609,9 +1768,20 @@
       "devdoc": {
         "kind": "dev",
         "methods": {
+          "cancelOwnershipTransfer()": {
+            "details": "This function can be used for both cancelling a transfer to a new owner and      cancelling the renouncement of the ownership."
+          },
+          "confirmOwnershipTransfer()": {
+            "details": "This function can only be called by the current potential owner."
+          },
           "constructor": {
             "params": {
               "_owner": "Owner address"
+            }
+          },
+          "initiateOwnershipTransfer(address)": {
+            "params": {
+              "newPotentialOwner": "New potential owner address"
             }
           },
           "updateAffiliateController(address)": {
@@ -1651,14 +1821,38 @@
           "affiliateRates(address)": {
             "notice": "It tracks the affiliate rate (in basis point) for a given affiliate address.         The basis point represents how much of the protocol fee will be shared to the affiliate."
           },
+          "cancelOwnershipTransfer()": {
+            "notice": "This function is used to cancel the ownership transfer."
+          },
+          "confirmOwnershipRenouncement()": {
+            "notice": "This function is used to confirm the ownership renouncement."
+          },
+          "confirmOwnershipTransfer()": {
+            "notice": "This function is used to confirm the ownership transfer."
+          },
           "constructor": {
             "notice": "Constructor"
+          },
+          "initiateOwnershipRenouncement()": {
+            "notice": "This function is used to initiate the ownership renouncement."
+          },
+          "initiateOwnershipTransfer(address)": {
+            "notice": "This function is used to initiate the transfer of ownership to a new owner."
           },
           "isAffiliateProgramActive()": {
             "notice": "Whether the affiliate program is active."
           },
           "isCurrencyAllowed(address)": {
             "notice": "It checks whether the currency is allowed for transacting."
+          },
+          "owner()": {
+            "notice": "Address of the current owner."
+          },
+          "ownershipStatus()": {
+            "notice": "Ownership status."
+          },
+          "potentialOwner()": {
+            "notice": "Address of the potential owner."
           },
           "updateAffiliateController(address)": {
             "notice": "This function allows the owner to update the affiliate controller address."
@@ -1786,10 +1980,18 @@
         "license": "Unlicense"
       },
       "contracts/lzApp/exchangeLzApp/ExchangeLzApp.sol": {
-        "keccak256": "0xdce6c426c86d1a76601bf942babf8db3baf2d8e7563340b5e59f711bdee9500f",
+        "keccak256": "0x4fd71bf649b7277954071e09bce0a1c1883c2c12e1fd26ba1db38cff50c30586",
         "urls": [
-          "bzz-raw://3aaed8039085c9fd4ae0cb343263d7eabb7e908b2e7a40c2600790fe6fd2e791",
-          "dweb:/ipfs/QmbNxP3LAjsVY3XBoYNoZFpbSveiummpmUnVdgDKHo6HDn"
+          "bzz-raw://b03c04b61ee7217b90eda43e78a383a3f25398e690c6b02c169185aaf3153240",
+          "dweb:/ipfs/QmZPobYmDBfvTUkgkKqY7e1QotvugxWk377KX5sfgMMzCj"
+        ],
+        "license": "MIT"
+      },
+      "contracts/lzApp/exchangeLzApp/IOwnableTwoSteps.sol": {
+        "keccak256": "0x9ec76240061a336b8cd10a3ab1d21d8fcc6807e13b95d01c84b6282c88080379",
+        "urls": [
+          "bzz-raw://e737caefdb8fe8fbf5b657e92f7a0b6a7d34cb0a1e1567172ff2e1d16174b623",
+          "dweb:/ipfs/QmRFcz4vu86evsfUzpwyvvAKtWJe2mi3CfCD551eVRvupT"
         ],
         "license": "MIT"
       },
@@ -1801,11 +2003,11 @@
         ],
         "license": "MIT"
       },
-      "contracts/reservoir/misc/TwoStepOwnable.sol": {
-        "keccak256": "0x4327eafecd0ab6c931b8e527702b4c700b403527ef321680d3c886f00b9efc08",
+      "contracts/lzApp/exchangeLzApp/OwnableTwoSteps.sol": {
+        "keccak256": "0x0666abde000717e31c42f675940620276722f910aa7dcdb41f533d631ebac962",
         "urls": [
-          "bzz-raw://289e4d95780cf4842f9f825b38208a2456c4b4096c858b8f0d7c6ef7798dbef5",
-          "dweb:/ipfs/QmYeYFsopfLzyWbpJW9mwjrsJtt9dNKswKcCbAUQ6C9mxm"
+          "bzz-raw://7d88bda0221d5a60d72b65ef0defb6d090edce619a2936b0059074646ab0a0a8",
+          "dweb:/ipfs/QmPBW2ubniUpjhTPoyipeWa6WtsukmdGaqdZvnFXX8JJdj"
         ],
         "license": "MIT"
       },
@@ -1847,7 +2049,7 @@
         825
       ],
       "ICurrencyManager": [
-        9003
+        9156
       ]
     },
     "nodeType": "SourceUnit",
@@ -1874,7 +2076,7 @@
         "file": "../interfaces/ICurrencyManager.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 826,
-        "sourceUnit": 9004,
+        "sourceUnit": 9157,
         "symbolAliases": [
           {
             "foreign": {
@@ -1882,7 +2084,7 @@
               "name": "ICurrencyManager",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 9003,
+              "referencedDeclaration": 9156,
               "src": "80:16:7",
               "typeDescriptions": {}
             },
@@ -2238,7 +2440,7 @@
                       "name": "CurrencyStatusUpdated",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 9002,
+                      "referencedDeclaration": 9155,
                       "src": "1181:21:7",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_bool_$returns$__$",
@@ -2287,7 +2489,7 @@
                     "1107:9:7"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 15697,
+                  "referencedDeclaration": 11462,
                   "src": "1107:9:7"
                 },
                 "nodeType": "ModifierInvocation",
@@ -2380,7 +2582,7 @@
                 "406:16:7"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 9003,
+              "referencedDeclaration": 9156,
               "src": "406:16:7"
             },
             "id": 782,
@@ -2416,23 +2618,28 @@
         "linearizedBaseContracts": [
           825,
           322,
-          11546,
-          11362,
-          9229,
-          9198,
-          15761,
-          52309,
-          8959,
-          9003
+          11434,
+          11206,
+          9382,
+          9351,
+          11651,
+          49055,
+          11250,
+          9112,
+          9156
         ],
         "name": "CurrencyManager",
         "nameLocation": "387:15:7",
         "scope": 826,
         "usedErrors": [
-          8955,
-          8958,
-          15682,
-          15684
+          9108,
+          9111,
+          11216,
+          11219,
+          11222,
+          11225,
+          11228,
+          11231
         ]
       }
     ],

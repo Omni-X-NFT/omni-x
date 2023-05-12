@@ -146,7 +146,6 @@ contract OmniXExchange is
         // Return ETH if any
         _returnETHIfAnyWithOneWeiLeft();
     
-
     }
 
 
@@ -708,14 +707,14 @@ contract OmniXExchange is
                 royaltyInfo             // royalty info
             );
 
-            uint256 currencyFee = lzFeeTransferCurrency(
-                makerParty.currency,    // currency
-                takerParty.party,       // to
-                price,                  // price
-                makerParty.chainId,     // fromChainId
-                takerParty.chainId,     // takerChainId
-                sgPayload
-            );
+            // uint256 currencyFee = lzFeeTransferCurrency(
+            //     makerParty.currency,    // currency
+            //     takerParty.party,       // to
+            //     price,                  // price
+            //     makerParty.chainId,     // fromChainId
+            //     takerParty.chainId,     // takerChainId
+            //     sgPayload
+            // );
 
             // if (currencyFee == 0) {
             //     // on maker chain (buyer)
