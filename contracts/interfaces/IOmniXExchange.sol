@@ -148,6 +148,7 @@ interface IOmniXExchange {
      * @param affiliate Affiliate address
      */
     function executeTakerBid(
+        uint256 destAidrop,
         OrderStructs.Taker calldata takerBid,
         OrderStructs.Maker calldata makerAsk,
         bytes calldata makerSignature,
@@ -166,6 +167,7 @@ interface IOmniXExchange {
      *        i.e. whether it should revert if 1 or more transactions fail
      */
     function executeMultipleTakerBids(
+        uint256 destAidrop,
         OrderStructs.Taker[] calldata takerBids,
         OrderStructs.Maker[] calldata makerAsks,
         bytes[] calldata makerSignatures,

@@ -13,6 +13,7 @@ import {MerkleProofCalldataWithNodes} from "../libraries/OpenZeppelin/MerkleProo
 // Libraries
 import {OrderStructs} from "../libraries/OrderStructs.sol";
 
+
 // Interfaces
 import {IOmniXExchange} from "../interfaces/IOmniXExchange.sol";
 import {CollectionType} from "../enums/CollectionType.sol";
@@ -32,6 +33,9 @@ import {MAX_CALLDATA_PROOF_LENGTH, ONE_HUNDRED_PERCENT_IN_BP} from "../constants
 import {QuoteType} from "../enums/QuoteType.sol";
 
 import {ICurrencyManager} from "../interfaces/ICurrencyManager.sol";
+import {BytesLib} from "../libraries/BytesLib.sol";
+import {IOFT} from "../token/oft/IOFT.sol";
+import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
 
 
 
@@ -44,6 +48,7 @@ contract OmniXExchange is
     BatchOrderTypehashRegistry
 {
     using OrderStructs for OrderStructs.Maker;
+    using BytesLib for bytes;
 
 
     
@@ -59,11 +64,14 @@ contract OmniXExchange is
      * @notice Wrapped ETH.
      */
     address public immutable WETH;
+    IStargatePoolManager public stargatePoolManager;
 
     /**
      * @notice Current chainId.
      */
     uint256 public chainId;
+    uint256 public gasForLzReceive;
+    uint256 public gasForOmniLzReceive = 350000;
 
     /**
      * @notice Current domain separator.
@@ -93,6 +101,7 @@ contract OmniXExchange is
     ) TransferSelectorNFT( _endpoint, _owner, _protocolFeeRecipient, _transferManager) {
         _updateDomainSeparator();
         WETH = _weth;
+        gasForLzReceive = 600000;
     }
 
     function executeTakerAsk(
@@ -121,6 +130,7 @@ contract OmniXExchange is
     }
 
     function executeTakerBid(
+        uint destAirdrop,
         OrderStructs.Taker calldata takerBid,
         OrderStructs.Maker calldata makerAsk,
         bytes calldata makerSignature,
@@ -137,9 +147,8 @@ contract OmniXExchange is
         bytes32 orderHash = makerAsk.hash();
         _verifyMerkleProofOrOrderHash(merkleTree, orderHash, makerSignature, makerAsk.signer);
 
-    
         // Execute the transaction and fetch protocol fee amount
-        uint256 totalProtocolFeeAmount = _executeTakerBid(takerBid, makerAsk, msg.sender, orderHash);
+        uint256 totalProtocolFeeAmount = _executeTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, orderHash);
 
         // Pay protocol fee amount (and affiliate fee if any)
         _payProtocolFeeAndAffiliateFee(currency, msg.sender, affiliate, totalProtocolFeeAmount);
@@ -150,6 +159,7 @@ contract OmniXExchange is
 
 
     function executeMultipleTakerBids(
+        uint256 destAirdrop,
         OrderStructs.Taker[] calldata takerBids,
         OrderStructs.Maker[] calldata makerAsks,
         bytes[] calldata makerSignatures,
@@ -195,7 +205,7 @@ contract OmniXExchange is
                         _verifyMerkleProofOrOrderHash(merkleTrees[i], orderHash, makerSignatures[i], makerAsk.signer);
 
                         // Execute the transaction and add protocol fee
-                        totalProtocolFeeAmount += _executeTakerBid(takerBid, makerAsk, msg.sender, orderHash);
+                        totalProtocolFeeAmount += _executeTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, orderHash);
 
                         unchecked {
                             ++i;
@@ -250,6 +260,7 @@ contract OmniXExchange is
      * @dev This function is only callable by this contract. It is used for non-atomic batch order matching.
      */
     function restrictedExecuteTakerBid(
+        uint256 destAirdrop,
         OrderStructs.Taker calldata takerBid,
         OrderStructs.Maker calldata makerAsk,
         address sender,
@@ -259,7 +270,7 @@ contract OmniXExchange is
             revert CallerInvalid();
         }
 
-        protocolFeeAmount = _executeTakerBid(takerBid, makerAsk, sender, orderHash);
+        protocolFeeAmount = _executeTakerBid(destAirdrop, takerBid, makerAsk, sender, orderHash);
     }
 
     /**
@@ -359,60 +370,142 @@ contract OmniXExchange is
     }
 
 
-    // function getLzFees(
-    //     OrderStructs.Taker calldata taker,
-    //     OrderStructs.Maker calldata maker,
-    //     uint256 destAirdrop
-    //     ) public view returns(uint256 omnixMessageFee, uint256 crossChainCurrencyFee) {
 
-    //         if (maker.quoteType == QuoteType.Ask) {
-    //             bytes memory sgPayload = _getSgPayload(taker, maker);
-    //             uint256 crossChainCurrencyFee = _getCrossChainCurrencyFee(
-    //                 maker.currency,
-    //                 maker.signer,
-    //                 maker.price,
-    //                 taker.lzChainId,
-    //                 maker.lzChainId,
-    //                 sgPayload
-    //             );
+
+    function getLzFees(
+        OrderStructs.Taker calldata taker,
+        OrderStructs.Maker calldata maker,
+        uint256 destAirdrop
+        ) public view returns(uint256, uint256, uint256) {
+
+            if (maker.quoteType == QuoteType.Ask) {
+                bytes memory sgPayload = _getSgPayload(taker, maker);
+                uint256 crossChainCurrencyFee = _getCrossChainCurrencyFee(
+                    maker.currency,
+                    maker.signer,
+                    maker.price,
+                    taker.lzChainId,
+                    maker.lzChainId,
+                    sgPayload
+                );
                 
-    //             omnixMessageFee = 0;
-    //             if (crossChainCurrencyFee == 0){
-    //                 (omnixMessageFee,,) = _getLzPayload(destAirdrop, taker, maker);
-    //             }
+                uint256 omnixMessageFee = 0;
+                if (crossChainCurrencyFee == 0){
+                    (omnixMessageFee,,) = _getLzPayload(destAirdrop, taker, maker);
+                }
 
-    //             return (omnixMessageFee, crossChainCurrencyFee);
+                return (omnixMessageFee, crossChainCurrencyFee, uint256(0));
 
                 
-    //         }
-    // }
+            }
+    }
 
-    // function _getCrossChainCurrencyFee(
-    //     address currency,
-    //     address to,
-    //     uint256 amount,
-    //     uint16 fromChainId,
-    //     uint16 toChainId,
-    //     bytes memory payload
-    // ) public view override returns(uint256) {
-        
 
-    // }
+    function _getLzPayload(
+        uint destAirdrop,
+        OrderStructs.Taker calldata taker,
+        OrderStructs.Maker calldata maker
+    ) internal view returns(uint256, bytes memory, bytes memory) {
+        if (taker.lzChainId == maker.lzChainId) {
+            return (0, bytes(""), bytes(""));
+        }
+        bytes memory payload;
+        if (maker.quoteType == QuoteType.Ask) {
+            payload = abi.encode(
+                LZ_MESSAGE_ORDER_ASK,
+                maker.collection,
+                maker.signer,
+                taker.recipient,
+                abi.encodePacked(maker.itemIds),
+                abi.encodePacked(maker.amounts)
+            );
+        }
+        // add takerAsk logic
 
-    // function _getSgPayload(OrderStructs.Taker calldata takerBid, OrderStructs.Maker calldata makerAsk) internal pure returns(bytes memory) {
-    //     bytes memory payload = abi.encode(
-    //         makerAsk.collection,
-    //         makerAsk.signer,
-    //         takerBid.taker,
-    //         abi.encodePacked(makerAsk.itemIds),
-    //         abi.encodePacked(makerAsk.amounts),
-    //         makerAsk.currency,
-    //         makerAsk.strategyId,
-    //         makerAsk.getRoyaltyInfo()
-    //     );
 
-    //     return payload;
-    // }  
+        address destAddress = trustedRemoteLookup[maker.lzChainId].toAddress(0);
+        bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForLzReceive, destAirdrop, destAddress);
+
+        (uint256 messageFee,) = lzEndpoint.estimateFees(
+            maker.lzChainId,
+            address(this),
+            payload,
+            false,
+            adapterParams
+        );
+
+        return (messageFee, payload, adapterParams);
+
+
+    }
+
+    function setGasForLzReceive(uint256 gas) external onlyOwner {
+        gasForLzReceive = gas;
+    }
+    function setGasForOmniLZReceive(uint256 gas) external onlyOwner {
+        gasForOmniLzReceive = gas;
+    }
+
+    function setStargatePoolManager(address manager) external onlyOwner {
+        stargatePoolManager = IStargatePoolManager(manager);
+    }
+
+    function _getCrossChainCurrencyFee(
+        address currency,
+        address to,
+        uint256 amount,
+        uint16 fromChainId,
+        uint16 toChainId,
+        bytes memory payload
+    ) public view returns(uint256) {
+        if (currency == address(0)) return 0;
+
+        if (isOmniCurrency(currency)) {
+            if (fromChainId == toChainId) {
+                return 0;
+            } else {
+                bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
+                bytes memory toAddress = abi.encodePacked(to);
+                (uint256 messageFee,) = IOFT(currency).estimateSendFee(
+                    toChainId,
+                    toAddress,
+                    amount,
+                    false,
+                    adapterParams,
+                    payload
+                );
+                return messageFee;
+                
+            }
+        } else {
+            if (
+                fromChainId != toChainId &&
+                address(stargatePoolManager) != address(0) &&
+                stargatePoolManager.isSwappable(currency, toChainId)
+            ) {
+                (uint256 fee, ) = stargatePoolManager.getSwapFee(toChainId, to, payload);
+                return fee;
+            }
+
+        }
+        return 0;
+
+    }
+
+    function _getSgPayload(OrderStructs.Taker calldata takerBid, OrderStructs.Maker calldata makerAsk) internal pure returns(bytes memory) {
+        bytes memory payload = abi.encode(
+            makerAsk.collection,
+            makerAsk.signer,
+            takerBid.recipient,
+            abi.encodePacked(makerAsk.itemIds),
+            abi.encodePacked(makerAsk.amounts),
+            makerAsk.currency,
+            makerAsk.strategyId,
+            makerAsk.getRoyaltyInfo()
+        );
+
+        return payload;
+    }  
 
     /**
      * @notice This function is internal and is used to execute a taker bid (against a maker ask).
@@ -423,6 +516,7 @@ contract OmniXExchange is
      * @return protocolFeeAmount Protocol fee amount
      */
     function _executeTakerBid(
+        uint destAirdrop,
         OrderStructs.Taker calldata takerBid,
         OrderStructs.Maker calldata makerAsk,
         address sender,
@@ -433,6 +527,8 @@ contract OmniXExchange is
         }
 
         address signer = makerAsk.signer;
+
+        
 
 
         {
@@ -448,6 +544,8 @@ contract OmniXExchange is
             }
         }
 
+
+        
         (
             uint256[] memory itemIds,
             uint256[] memory amounts,
@@ -459,18 +557,35 @@ contract OmniXExchange is
         // Order nonce status is updated
         _updateUserOrderNonce(isNonceInvalidated, signer, makerAsk.orderNonce, orderHash);
 
-        // Taker action goes first
-        _transferToAskRecipientAndCreatorIfAny(recipients, feeAmounts, makerAsk.currency, sender);
 
-        // Maker action goes second
-        _transferNFT(
+        (uint16 makerChainId, uint16 takerChainId) = (makerAsk.lzChainId, takerBid.lzChainId);
+
+
+
+        if (makerChainId == takerChainId) {
+            // Taker action goes first
+            _transferToAskRecipientAndCreatorIfAny(recipients, feeAmounts, makerAsk.currency, sender);
+            // Maker action goes second
+            _transferNFT(
             makerAsk.collection,
             makerAsk.collectionType,
             signer,
             takerBid.recipient == address(0) ? sender : takerBid.recipient,
             itemIds,
             amounts
-        );
+            );
+        } else {
+            (uint256 omnixMessageFee, uint256 crossChainCurrencyFee,) = getLzFees(takerBid, makerAsk, destAirdrop); 
+            require(omnixMessageFee + crossChainCurrencyFee <= msg.value, "OmniXExchange: Insufficient value for cross chain transfer");
+
+            if (omnixMessageFee != 0) {
+                _sendCrossMessage(takerBid, makerAsk, 0);
+                _transferToAskRecipientAndCreatorIfAny(recipients, feeAmounts, makerAsk.currency, sender);
+            } 
+        }
+
+       
+       
 
         emit TakerBid(
             NonceInvalidationParameters({
@@ -491,6 +606,18 @@ contract OmniXExchange is
 
         // It returns the protocol fee amount
         return feeAmounts[2];
+    }
+
+    function _sendCrossMessage(
+        OrderStructs.Taker calldata taker,
+        OrderStructs.Maker calldata maker,
+        uint destAirdrop
+    ) internal {
+        
+        require(trustedRemoteLookup[maker.lzChainId].length != 0, "LzSend: dest chain is not trusted");
+
+        (uint256 messageFee, bytes memory payload, bytes memory adapterParams) = _getLzPayload(destAirdrop, taker, maker);
+        lzEndpoint.send{value: messageFee}(maker.lzChainId, trustedRemoteLookup[maker.lzChainId], payload, payable(msg.sender), address(0), adapterParams);
     }
 
     /**
@@ -681,31 +808,31 @@ contract OmniXExchange is
 
             _transferNFT(collection, _collectionType, from, to, itemIds, amounts);
         } 
-        else if (lzMessage == LZ_MESSAGE_ORDER_BID) {
-            (   ,
-                address collection,
-                CollectionType _collectionType,
-                uint[] memory itemIds,
-                uint[] memory amounts,
-                uint price,
-                OrderStructs.PartyData memory takerParty,
-                OrderStructs.PartyData memory makerParty,
-                bytes memory royaltyInfo
-            ) = abi.decode(_payload, (
-                uint8, address, CollectionType, uint[], uint[], uint, OrderStructs.PartyData, OrderStructs.PartyData, bytes
-            ));
+        // else if (lzMessage == LZ_MESSAGE_ORDER_BID) {
+        //     (   ,
+        //         address collection,
+        //         CollectionType _collectionType,
+        //         uint[] memory itemIds,
+        //         uint[] memory amounts,
+        //         uint price,
+        //         OrderStructs.PartyData memory takerParty,
+        //         OrderStructs.PartyData memory makerParty,
+        //         bytes memory royaltyInfo
+        //     ) = abi.decode(_payload, (
+        //         uint8, address, CollectionType, uint[], uint[], uint, OrderStructs.PartyData, OrderStructs.PartyData, bytes
+        //     ));
 
-            bytes memory sgPayload = abi.encode(
-                collection,
-                _collectionType,        // collection
-                takerParty.party,       // seller
-                makerParty.party,       // buyer
-                itemIds,                // tokenId
-                amounts,                 // amount for 1155
-                takerParty.currency,    // currency
-                takerParty.strategy,    // strategy
-                royaltyInfo             // royalty info
-            );
+        //     bytes memory sgPayload = abi.encode(
+        //         collection,
+        //         _collectionType,        // collection
+        //         takerParty.party,       // seller
+        //         makerParty.party,       // buyer
+        //         itemIds,                // tokenId
+        //         amounts,                 // amount for 1155
+        //         takerParty.currency,    // currency
+        //         takerParty.strategy,    // strategy
+        //         royaltyInfo             // royalty info
+        //     );
 
             // uint256 currencyFee = lzFeeTransferCurrency(
             //     makerParty.currency,    // currency
@@ -722,6 +849,6 @@ contract OmniXExchange is
             //     // thus here just transfer funds and fees.
             //     _transferToAskRecipientAndCreatorIfAny(makerParty.strategy, makerParty.currency, price, makerParty.party, takerParty.party, royaltyInfo);
             // }
-        }
+        //}
     }
 }
