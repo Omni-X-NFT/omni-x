@@ -4,8 +4,11 @@ pragma solidity ^0.8.17;
 // Interfaces
 import {ICurrencyManager} from "../interfaces/ICurrencyManager.sol";
 
+import {InterfaceChecker} from "../libraries/InterfaceChecker.sol";
+
 // Dependencies
 import {AffiliateManager} from "./AffiliateManager.sol";
+import {IOFT} from "../token/oft/IOFT.sol";
 
 /**
  * @title CurrencyManager
@@ -17,6 +20,7 @@ abstract contract CurrencyManager is ICurrencyManager, AffiliateManager {
      * @notice It checks whether the currency is allowed for transacting.
      */
     mapping(address => bool) public isCurrencyAllowed;
+    mapping(address => bool) public isCurrencyOmni;
 
     /**
      * @notice Constructor
@@ -32,7 +36,14 @@ abstract contract CurrencyManager is ICurrencyManager, AffiliateManager {
      */
     function updateCurrencyStatus(address currency, bool isAllowed) external onlyOwner {
         isCurrencyAllowed[currency] = isAllowed;
+        isCurrencyOmni[currency] = InterfaceChecker.check(currency, type(IOFT).interfaceId);
         emit CurrencyStatusUpdated(currency, isAllowed);
     }
+
+    function isOmniCurrency(address currency) public view returns(bool) {
+        return isCurrencyOmni[currency];
+    }
+
+
    
 }
