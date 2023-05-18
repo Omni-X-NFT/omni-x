@@ -36,6 +36,7 @@ import {ICurrencyManager} from "../interfaces/ICurrencyManager.sol";
 import {BytesLib} from "../libraries/BytesLib.sol";
 import {IOFT} from "../token/oft/IOFT.sol";
 import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
+import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 
 
@@ -47,6 +48,7 @@ contract OmniXExchange is
     LowLevelERC20Transfer,
     BatchOrderTypehashRegistry
 {
+    using SafeERC20 for IERC20;
     using OrderStructs for OrderStructs.Maker;
     using BytesLib for bytes;
 
@@ -229,7 +231,7 @@ contract OmniXExchange is
                     {
                         _verifyMerkleProofOrOrderHash(merkleTrees[i], orderHash, makerSignatures[i], makerAsk.signer);
 
-                        try this.restrictedExecuteTakerBid(takerBid, makerAsk, msg.sender, orderHash) returns (
+                        try this.restrictedExecuteTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, orderHash) returns (
                             uint256 protocolFeeAmount
                         ) {
                             totalProtocolFeeAmount += protocolFeeAmount;
@@ -528,9 +530,6 @@ contract OmniXExchange is
 
         address signer = makerAsk.signer;
 
-        
-
-
         {
             // Verify nonces
             bytes32 userOrderNonceStatus = userOrderNonce[signer][makerAsk.orderNonce];
@@ -544,8 +543,6 @@ contract OmniXExchange is
             }
         }
 
-
-        
         (
             uint256[] memory itemIds,
             uint256[] memory amounts,
@@ -559,8 +556,6 @@ contract OmniXExchange is
 
 
         (uint16 makerChainId, uint16 takerChainId) = (makerAsk.lzChainId, takerBid.lzChainId);
-
-
 
         if (makerChainId == takerChainId) {
             // Taker action goes first
@@ -581,7 +576,17 @@ contract OmniXExchange is
             if (omnixMessageFee != 0) {
                 _sendCrossMessage(takerBid, makerAsk, 0);
                 _transferToAskRecipientAndCreatorIfAny(recipients, feeAmounts, makerAsk.currency, sender);
-            } 
+            } else {
+                bytes memory sgPayload = _getSgPayload(takerBid, makerAsk);
+                _transferProxyFunds(
+                    makerAsk.currency,
+                    takerBid.recipient == address(0) ? sender : takerBid.recipient,
+                    makerAsk.price,
+                    takerChainId,
+                    makerChainId,
+                    sgPayload
+                );
+            }
         }
 
        
@@ -710,6 +715,70 @@ contract OmniXExchange is
         }
     }
 
+
+
+    function _transferProxyFunds(
+        address currency,
+        address from,
+        uint price, 
+        uint16 fromChainId,
+        uint16 toChainId,
+        bytes memory payload
+    ) internal {
+
+        address to = this.getTrustedRemoteAddress(toChainId).toAddress(0);
+        
+        if (currency == WETH) {
+            if (fromChainId != toChainId && 
+                address(stargatePoolManager) != address(0) &&
+                stargatePoolManager.isSwappable(WETH, toChainId)
+            ) {
+                stargatePoolManager.swapETH{value: msg.value}(toChainId, payable(from), price, to, payload);
+            }
+            else {
+                payable(to).transfer(price);
+            }
+        } else {
+            if (isOmniCurrency(currency)) {
+                if (fromChainId == toChainId) {
+                    _safeTransferFrom(currency, from, to, price);
+                } else {
+                    bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
+                    IOFT(currency).sendFrom{value: msg.value - price}(
+                        from,
+                        toChainId,
+                        abi.encodePacked(to),
+                        price,
+                        payable(address(this)),
+                        address(0x0),
+                        adapterParams,
+                        payload
+                    );
+                }
+            } else {
+                if (
+                fromChainId != toChainId && 
+                address(stargatePoolManager) != address(0) &&
+                stargatePoolManager.isSwappable(currency, toChainId)
+                ) {
+                    stargatePoolManager.swap{value: msg.value - price}(currency, toChainId, payable(address(this)), price, from, to, payload);
+                }
+                else {
+                    _safeTransferFrom(currency, from, to, price);
+                }
+            }
+
+        }
+    }
+
+    function _safeTransferFrom(address currency, address from, address to, uint amount) private {
+        if (from == address(this)) {
+            IERC20(currency).safeTransfer(to, amount);
+        } else {
+            IERC20(currency).safeTransferFrom(from, to, amount);
+        }
+    }
+
     /**
      * @notice This function is private and used to compute the domain separator and store the current chain id.
      */
@@ -798,7 +867,7 @@ contract OmniXExchange is
         _computeDigestAndVerify(orderHash, signature, signer);
     }
 
-
+    // add sg receive  
     function _nonblockingLzReceive(uint16 _srcChainId, bytes memory _srcAddress, uint64 _nonce, bytes memory _payload) internal virtual override{
         (uint8 lzMessage) = abi.decode(_payload, (uint8));
         
