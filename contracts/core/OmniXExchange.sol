@@ -129,7 +129,7 @@ contract OmniXExchange is
         uint256 totalProtocolFeeAmount = _executeTakerAsk(takerAsk, makerBid, orderHash);
 
         // Pay protocol fee (and affiliate fee if any)
-        _payProtocolFeeAndAffiliateFee(currency, signer, affiliate, totalProtocolFeeAmount);
+        _payProtocolFeeAndAffiliateFee(currency, signer, affiliate, signer, totalProtocolFeeAmount);
     }
 
     function executeTakerBid(
@@ -154,7 +154,7 @@ contract OmniXExchange is
         uint256 totalProtocolFeeAmount = _executeTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, affiliate, orderHash);
 
         // Pay protocol fee amount (and affiliate fee if any)
-        _payProtocolFeeAndAffiliateFee(currency, msg.sender, affiliate, totalProtocolFeeAmount);
+        _payProtocolFeeAndAffiliateFee(currency, msg.sender, affiliate, msg.sender totalProtocolFeeAmount);
         // Return ETH if any
         _returnETHIfAnyWithOneWeiLeft();
     
@@ -246,7 +246,7 @@ contract OmniXExchange is
             }
 
             // Pay protocol fee (and affiliate fee if any)
-            _payProtocolFeeAndAffiliateFee(currency, msg.sender, affiliate, totalProtocolFeeAmount);
+            _payProtocolFeeAndAffiliateFee(currency, msg.sender, affiliate, msg.sender, totalProtocolFeeAmount);
         }
 
         // Return ETH if any
@@ -665,7 +665,9 @@ contract OmniXExchange is
         address currency,
         address bidUser,
         address affiliate,
+        address from,
         uint256 totalProtocolFeeAmount
+
     ) internal {
         if (totalProtocolFeeAmount != 0) {
             if (affiliate != address(0)) {
@@ -683,7 +685,7 @@ contract OmniXExchange is
                         // If currency is ERC20, funds are not transferred from bidder to bidder
                         // (since it uses transferFrom).
                         if (bidUser != affiliate) {
-                            _transferFungibleTokens(currency, bidUser, affiliate, totalAffiliateFeeAmount);
+                            _transferFungibleTokens(currency, from , affiliate, totalAffiliateFeeAmount);
                         }
 
                         emit AffiliatePayment(affiliate, currency, totalAffiliateFeeAmount);
@@ -692,7 +694,7 @@ contract OmniXExchange is
             }
 
             // Transfer remaining protocol fee to the protocol fee recipient
-            _transferFungibleTokens(currency, bidUser, protocolFeeRecipient, totalProtocolFeeAmount);
+            _transferFungibleTokens(currency, from , protocolFeeRecipient, totalProtocolFeeAmount);
         }
     }
 
@@ -718,7 +720,7 @@ contract OmniXExchange is
      * @param recipients Recipient addresses
      * @param feeAmounts Fees
      * @param currency Currency address
-     * @param bidUser Bid user address
+     * @param from Bid user address
      * @dev It does not send to the 0-th element in the array since it is the protocol fee,
      *      which is paid later in the execution flow.
      */
@@ -726,7 +728,7 @@ contract OmniXExchange is
         address[2] memory recipients,
         uint256[3] memory feeAmounts,
         address currency,
-        address bidUser
+        address from
     ) private {
         // @dev There is no check for address(0) since the ask recipient can never be address(0)
         // If ask recipient is the maker --> the signer cannot be the null address
@@ -734,13 +736,13 @@ contract OmniXExchange is
         // if the recipient (in TakerAsk) is set to address(0), it is adjusted to the original taker address
         uint256 sellerProceed = feeAmounts[0];
         if (sellerProceed != 0) {
-            _transferFungibleTokens(currency, bidUser, recipients[0], sellerProceed);
+            _transferFungibleTokens(currency, from, recipients[0], sellerProceed);
         }
 
         // @dev There is no check for address(0), if the creator recipient is address(0), the fee is set to 0
         uint256 creatorFeeAmount = feeAmounts[1];
         if (creatorFeeAmount != 0) {
-            _transferFungibleTokens(currency, bidUser, recipients[1], creatorFeeAmount);
+            _transferFungibleTokens(currency, from, recipients[1], creatorFeeAmount);
         }
     }
 
@@ -949,9 +951,9 @@ contract OmniXExchange is
                 recipients,
                 feeAmounts,
                 currency,
-                buyer
+                address(this)
             );
-            _payProtocolFeeAndAffiliateFee(currency, buyer, affiliate, feeAmounts[2]);
+            _payProtocolFeeAndAffiliateFee(currency, buyer, affiliate, address(this), feeAmounts[2]);
         } catch (bytes memory reason) {
             if (currency == WETH) {
                 payable(buyer).transfer(_price);
