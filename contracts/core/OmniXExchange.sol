@@ -151,13 +151,18 @@ contract OmniXExchange is
         _verifyMerkleProofOrOrderHash(merkleTree, orderHash, makerSignature, makerAsk.signer);
 
         // Execute the transaction and fetch protocol fee amount
+       
         uint256 totalProtocolFeeAmount = _executeTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, affiliate, orderHash);
 
-        // Pay protocol fee amount (and affiliate fee if any)
-        _payProtocolFeeAndAffiliateFee(currency, msg.sender, affiliate, msg.sender totalProtocolFeeAmount);
+        // Pay protocol fee amount if same chain trading, else this will be done on the maker chain where the trade gets finalized (and affiliate fee if any) 
+        if (makerAsk.lzChainId == takerBid.lzChainId) {
+            _payProtocolFeeAndAffiliateFee(currency, msg.sender, affiliate, msg.sender, totalProtocolFeeAmount);
+        }
+       
         // Return ETH if any
         _returnETHIfAnyWithOneWeiLeft();
-    
+
+
     }
 
 
@@ -745,7 +750,6 @@ contract OmniXExchange is
             _transferFungibleTokens(currency, from, recipients[1], creatorFeeAmount);
         }
     }
-
 
 
     function _transferProxyFunds(
