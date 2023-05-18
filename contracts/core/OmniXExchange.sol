@@ -37,7 +37,7 @@ import {BytesLib} from "../libraries/BytesLib.sol";
 import {IOFT} from "../token/oft/IOFT.sol";
 import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
 import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-
+import {IStargateReceiver} from "../interfaces/IStargateReceiver.sol";
 
 
 contract OmniXExchange is
@@ -46,7 +46,8 @@ contract OmniXExchange is
     LowLevelETHReturnETHIfAnyExceptOneWei,
     LowLevelWETH,
     LowLevelERC20Transfer,
-    BatchOrderTypehashRegistry
+    BatchOrderTypehashRegistry,
+    IStargateReceiver
 {
     using SafeERC20 for IERC20;
     using OrderStructs for OrderStructs.Maker;
@@ -150,7 +151,7 @@ contract OmniXExchange is
         _verifyMerkleProofOrOrderHash(merkleTree, orderHash, makerSignature, makerAsk.signer);
 
         // Execute the transaction and fetch protocol fee amount
-        uint256 totalProtocolFeeAmount = _executeTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, orderHash);
+        uint256 totalProtocolFeeAmount = _executeTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, affiliate, orderHash);
 
         // Pay protocol fee amount (and affiliate fee if any)
         _payProtocolFeeAndAffiliateFee(currency, msg.sender, affiliate, totalProtocolFeeAmount);
@@ -377,11 +378,16 @@ contract OmniXExchange is
     function getLzFees(
         OrderStructs.Taker calldata taker,
         OrderStructs.Maker calldata maker,
-        uint256 destAirdrop
+        uint256 destAirdrop,
+        uint256[] memory itemIds,
+        uint256[] memory amounts,
+        address[2] memory recipients,
+        uint256[3] memory feeAmounts,
+        address affiliate
         ) public view returns(uint256, uint256, uint256) {
 
             if (maker.quoteType == QuoteType.Ask) {
-                bytes memory sgPayload = _getSgPayload(taker, maker);
+                bytes memory sgPayload = _getSgPayload(taker, maker, itemIds, amounts, recipients, feeAmounts, affiliate);
                 uint256 crossChainCurrencyFee = _getCrossChainCurrencyFee(
                     maker.currency,
                     maker.signer,
@@ -494,15 +500,26 @@ contract OmniXExchange is
 
     }
 
-    function _getSgPayload(OrderStructs.Taker calldata takerBid, OrderStructs.Maker calldata makerAsk) internal pure returns(bytes memory) {
+    function _getSgPayload(
+        OrderStructs.Taker calldata takerBid, 
+        OrderStructs.Maker calldata makerAsk, 
+        uint256[] memory itemIds,
+        uint256[] memory amounts,
+        address[2] memory recipients,
+        uint256[3] memory feeAmounts,
+        address affiliate
+        ) internal pure returns(bytes memory) {
         bytes memory payload = abi.encode(
             makerAsk.collection,
+            makerAsk.collectionType,
             makerAsk.signer,
             takerBid.recipient,
-            abi.encodePacked(makerAsk.itemIds),
-            abi.encodePacked(makerAsk.amounts),
+            itemIds,
+            amounts,
             makerAsk.currency,
             makerAsk.strategyId,
+            recipients, 
+            feeAmounts,
             makerAsk.getRoyaltyInfo()
         );
 
@@ -522,6 +539,7 @@ contract OmniXExchange is
         OrderStructs.Taker calldata takerBid,
         OrderStructs.Maker calldata makerAsk,
         address sender,
+        address affiliate,
         bytes32 orderHash
     ) internal returns (uint256) {
         if (makerAsk.quoteType != QuoteType.Ask) {
@@ -559,6 +577,8 @@ contract OmniXExchange is
 
         if (makerChainId == takerChainId) {
             // Taker action goes first
+            require(makerAsk.currency == takerBid.currency, "OmniXExchange: Currency mismatch");
+
             _transferToAskRecipientAndCreatorIfAny(recipients, feeAmounts, makerAsk.currency, sender);
             // Maker action goes second
             _transferNFT(
@@ -570,7 +590,16 @@ contract OmniXExchange is
             amounts
             );
         } else {
-            (uint256 omnixMessageFee, uint256 crossChainCurrencyFee,) = getLzFees(takerBid, makerAsk, destAirdrop); 
+            (uint256 omnixMessageFee, uint256 crossChainCurrencyFee,) = getLzFees(
+                takerBid,
+                makerAsk,
+                destAirdrop, 
+                itemIds,
+                amounts,
+                recipients,
+                feeAmounts,
+                affiliate
+                ); 
             require(omnixMessageFee + crossChainCurrencyFee <= msg.value, "OmniXExchange: Insufficient value for cross chain transfer");
 
             if (omnixMessageFee != 0) {
@@ -579,7 +608,7 @@ contract OmniXExchange is
             } else {
                 bytes memory sgPayload = _getSgPayload(takerBid, makerAsk);
                 _transferProxyFunds(
-                    makerAsk.currency,
+                    takerBid.currency,
                     takerBid.recipient == address(0) ? sender : takerBid.recipient,
                     makerAsk.price,
                     takerChainId,
@@ -868,6 +897,84 @@ contract OmniXExchange is
     }
 
     // add sg receive  
+
+    function transferNFTLz(address collection, CollectionType collectionType, address from, address to, uint[] itemIds, uint[] amounts) external {
+        require (msg.sender == address(this), "_transferNFTLz: invalid caller");
+
+        _transferNFT(
+            collection,
+            collectionType,
+            from,
+            to,
+            itemIds,
+            amounts
+        );
+    }
+
+    function _tokenReceived(
+        uint256 _price,
+        bytes memory _payload
+    ) internal {
+        (
+            address collection,
+            CollectionType collectionType,
+            address seller,
+            address buyer,
+            uint256[] memory itemIds,
+            uint256[] memory amounts,
+            address currency,
+            uint256 strategyId,
+            address[2] memory recipients,
+            uint256[3] memory feeAmounts,
+            address affiliate,
+            bytes memory royaltyInfo
+        ) = abi.decode(_payload, (
+            address,
+            CollectionType,
+            address,
+            address,
+            uint256[],
+            uint256[],
+            address,
+            uint256,
+            address[2],
+            uint256[3],
+            address,
+            bytes
+        ));
+
+
+        try this.transferNFTLz(collection, collectionType, seller, buyer, itemIds, amounts) {
+            _transferToAskRecipientAndCreatorIfAny(
+                recipients,
+                feeAmounts,
+                currency,
+                buyer
+            );
+            _payProtocolFeeAndAffiliateFee(currency, buyer, affiliate, feeAmounts[2]);
+        } catch (bytes memory reason) {
+            if (currency == WETH) {
+                payable(buyer).transfer(_price);
+            } else {
+                _transferFungibleTokens(currency, address(this), buyer, _price);
+            }
+        }
+    }
+
+    function sgReceive(
+        uint16,
+        bytes memory,
+        uint256,
+        address,
+        uint256 _price,
+        bytes memory _payload
+    ) external override {
+        if (_payload.length == 0) return;
+
+        _tokenReceived(_price, _payload);
+    }
+
+    
     function _nonblockingLzReceive(uint16 _srcChainId, bytes memory _srcAddress, uint64 _nonce, bytes memory _payload) internal virtual override{
         (uint8 lzMessage) = abi.decode(_payload, (uint8));
         

@@ -64,6 +64,7 @@ library OrderStructs{
      */
     struct Taker {
         address recipient;
+        address currency;
         uint16 lzChainId;
         bytes additionalParameters;
     }
