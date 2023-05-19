@@ -53,6 +53,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
         // Execute taker bid transaction
         vm.prank(takerUser);
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             _genericTakerOrder(),
             makerAskToExecute,
             signature,
@@ -151,6 +152,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
         vm.prank(takerUser);
         vm.expectRevert(MerkleProofInvalid.selector);
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             _genericTakerOrder(),
             makerAskToExecute,
             signature,
@@ -235,6 +237,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
         vm.prank(takerUser);
         vm.expectRevert(MerkleProofInvalid.selector);
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             _genericTakerOrder(),
             makerAskToExecute,
             signature,
@@ -320,6 +323,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
             vm.prank(takerUser);
             vm.expectRevert(abi.encodeWithSelector(MerkleProofTooLarge.selector, proofLength));
             omniXExchange.executeTakerBid{value: price}(
+                destAirdrop,
                 _genericTakerOrder(),
                 makerAskToExecute,
                 signature,
@@ -359,6 +363,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
             vm.prank(takerUser);
             vm.expectRevert(abi.encodeWithSelector(MerkleProofTooLarge.selector, proofLength));
             omniXExchange.executeTakerBid{value: price}(
+                destAirdrop,
                 _genericTakerOrder(),
                 makerBidToExecute,
                 signature,

@@ -121,15 +121,13 @@ contract OmniXExchange is
             revert CurrencyInvalid();
         }
 
-        address signer = makerBid.signer;
-        bytes32 orderHash = makerBid.hash();
-        _verifyMerkleProofOrOrderHash(merkleTree, orderHash, makerSignature, signer);
+        _verifyMerkleProofOrOrderHash(merkleTree, makerBid.hash(), makerSignature, makerBid.signer);
 
         // Execute the transaction and fetch protocol fee amount
-        uint256 totalProtocolFeeAmount = _executeTakerAsk(takerAsk, makerBid, orderHash);
+        uint256 totalProtocolFeeAmount = _executeTakerAsk(takerAsk, makerBid, makerBid.hash());
 
         // Pay protocol fee (and affiliate fee if any)
-        _payProtocolFeeAndAffiliateFee(currency, signer, affiliate, signer, totalProtocolFeeAmount);
+        _payProtocolFeeAndAffiliateFee(currency, makerBid.signer, affiliate, makerBid.signer, totalProtocolFeeAmount);
     }
 
     function executeTakerBid(
@@ -147,12 +145,12 @@ contract OmniXExchange is
             revert CurrencyInvalid();
         }
 
-        bytes32 orderHash = makerAsk.hash();
-        _verifyMerkleProofOrOrderHash(merkleTree, orderHash, makerSignature, makerAsk.signer);
+        
+        _verifyMerkleProofOrOrderHash(merkleTree, makerAsk.hash(), makerSignature, makerAsk.signer);
 
         // Execute the transaction and fetch protocol fee amount
        
-        uint256 totalProtocolFeeAmount = _executeTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, affiliate, orderHash);
+        uint256 totalProtocolFeeAmount = _executeTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, affiliate, makerAsk.hash());
 
         // Pay protocol fee amount if same chain trading, else this will be done on the maker chain where the trade gets finalized (and affiliate fee if any) 
         if (makerAsk.lzChainId == takerBid.lzChainId) {
@@ -213,7 +211,7 @@ contract OmniXExchange is
                         _verifyMerkleProofOrOrderHash(merkleTrees[i], orderHash, makerSignatures[i], makerAsk.signer);
 
                         // Execute the transaction and add protocol fee
-                        totalProtocolFeeAmount += _executeTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, orderHash);
+                        totalProtocolFeeAmount += _executeTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, affiliate, orderHash);
 
                         unchecked {
                             ++i;
@@ -237,7 +235,7 @@ contract OmniXExchange is
                     {
                         _verifyMerkleProofOrOrderHash(merkleTrees[i], orderHash, makerSignatures[i], makerAsk.signer);
 
-                        try this.restrictedExecuteTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, orderHash) returns (
+                        try this.restrictedExecuteTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, affiliate, orderHash) returns (
                             uint256 protocolFeeAmount
                         ) {
                             totalProtocolFeeAmount += protocolFeeAmount;
@@ -272,13 +270,14 @@ contract OmniXExchange is
         OrderStructs.Taker calldata takerBid,
         OrderStructs.Maker calldata makerAsk,
         address sender,
+        address affiliate,
         bytes32 orderHash
     ) external returns (uint256 protocolFeeAmount) {
         if (msg.sender != address(this)) {
             revert CallerInvalid();
         }
 
-        protocolFeeAmount = _executeTakerBid(destAirdrop, takerBid, makerAsk, sender, orderHash);
+        protocolFeeAmount = _executeTakerBid(destAirdrop, takerBid, makerAsk, sender, affiliate, orderHash);
     }
 
     /**
@@ -551,15 +550,15 @@ contract OmniXExchange is
             revert QuoteTypeInvalid();
         }
 
-        address signer = makerAsk.signer;
+        
 
         {
             // Verify nonces
-            bytes32 userOrderNonceStatus = userOrderNonce[signer][makerAsk.orderNonce];
+            bytes32 userOrderNonceStatus = userOrderNonce[makerAsk.signer][makerAsk.orderNonce];
 
             if (
-                userBidAskNonces[signer].askNonce != makerAsk.globalNonce ||
-                userSubsetNonce[signer][makerAsk.subsetNonce] ||
+                userBidAskNonces[makerAsk.signer].askNonce != makerAsk.globalNonce ||
+                userSubsetNonce[makerAsk.signer][makerAsk.subsetNonce] ||
                 (userOrderNonceStatus != bytes32(0) && userOrderNonceStatus != orderHash)
             ) {
                 revert NoncesInvalid();
@@ -575,7 +574,7 @@ contract OmniXExchange is
         ) = _executeStrategyForTakerOrder(takerBid, makerAsk, msg.sender);
 
         // Order nonce status is updated
-        _updateUserOrderNonce(isNonceInvalidated, signer, makerAsk.orderNonce, orderHash);
+        _updateUserOrderNonce(isNonceInvalidated, makerAsk.signer, makerAsk.orderNonce, orderHash);
 
 
         (uint16 makerChainId, uint16 takerChainId) = (makerAsk.lzChainId, takerBid.lzChainId);
@@ -611,7 +610,7 @@ contract OmniXExchange is
                 _sendCrossMessage(takerBid, makerAsk, 0);
                 _transferToAskRecipientAndCreatorIfAny(recipients, feeAmounts, makerAsk.currency, sender);
             } else {
-                bytes memory sgPayload = _getSgPayload(takerBid, makerAsk);
+                bytes memory sgPayload = _getSgPayload(takerBid, makerAsk, itemIds, amounts, recipients, feeAmounts, affiliate);
                 _transferProxyFunds(
                     takerBid.currency,
                     takerBid.recipient == address(0) ? sender : takerBid.recipient,
@@ -904,7 +903,7 @@ contract OmniXExchange is
 
     // add sg receive  
 
-    function transferNFTLz(address collection, CollectionType collectionType, address from, address to, uint[] itemIds, uint[] amounts) external {
+    function transferNFTLz(address collection, CollectionType collectionType, address from, address to, uint[] memory itemIds, uint[] memory amounts) external {
         require (msg.sender == address(this), "_transferNFTLz: invalid caller");
 
         _transferNFT(

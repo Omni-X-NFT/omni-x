@@ -152,6 +152,7 @@ contract DelegationRecipientsTakerTest is ProtocolBase {
         );
 
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,

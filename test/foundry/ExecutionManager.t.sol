@@ -191,6 +191,7 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
 
         vm.expectRevert(OrderInvalid.selector);
         omniXExchange.executeTakerBid{value: makerAsk.price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,
@@ -218,6 +219,7 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
 
         vm.expectRevert(OrderInvalid.selector);
         omniXExchange.executeTakerBid{value: makerAsk.price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,
@@ -258,6 +260,7 @@ contract ExecutionManagerTest is ProtocolBase, IExecutionManager, IStrategyManag
         vm.prank(takerUser);
         vm.expectRevert(IExecutionManager.NoSelectorForStrategy.selector);
         omniXExchange.executeTakerBid{value: makerAsk.price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,

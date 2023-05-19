@@ -35,7 +35,7 @@ contract MockOrderGenerator is ProtocolHelpers {
             itemId: 420
         });
 
-        newTakerBid = OrderStructs.Taker(takerUser, 10121, abi.encode());
+        newTakerBid = OrderStructs.Taker(takerUser, ETH, 10121, abi.encode());
     }
 
     function _createMockMakerBidAndTakerAsk(
@@ -59,7 +59,7 @@ contract MockOrderGenerator is ProtocolHelpers {
             itemId: 420
         });
 
-        newTakerAsk = OrderStructs.Taker(takerUser, 10121, abi.encode());
+        newTakerAsk = OrderStructs.Taker(takerUser, currency, 10121, abi.encode());
     }
 
     function _createMockMakerAskAndTakerBidWithBundle(
@@ -89,7 +89,7 @@ contract MockOrderGenerator is ProtocolHelpers {
             amounts: amounts
         });
 
-        newTakerBid = OrderStructs.Taker(takerUser, 10121, abi.encode());
+        newTakerBid = OrderStructs.Taker(takerUser, ETH, 10121, abi.encode());
     }
 
     function _createMockMakerBidAndTakerAskWithBundle(
@@ -120,7 +120,7 @@ contract MockOrderGenerator is ProtocolHelpers {
             amounts: amounts
         });
 
-        newTakerAsk = OrderStructs.Taker(takerUser, 10121, abi.encode());
+        newTakerAsk = OrderStructs.Taker(takerUser, currency, 10121, abi.encode());
     }
 
     function _getCollectionType(address collection) private view returns (CollectionType collectionType) {

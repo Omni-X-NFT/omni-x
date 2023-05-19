@@ -129,6 +129,7 @@ contract SandboxTest is ProtocolBase {
         vm.expectRevert(abi.encodeWithSelector(ERC721TransferFromFail.selector));
         vm.prank(takerUser);
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,
@@ -143,6 +144,7 @@ contract SandboxTest is ProtocolBase {
         // It shouldn't fail with collectionType = 0
         vm.prank(takerUser);
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,

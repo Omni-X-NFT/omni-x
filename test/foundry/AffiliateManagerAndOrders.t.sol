@@ -124,7 +124,7 @@ contract AffiliateOrdersTest is ProtocolBase, IAffiliateManager {
         vm.prank(takerUser);
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit AffiliatePayment(_affiliate, makerAsk.currency, expectedAffiliateFeeAmount);
-        omniXExchange.executeTakerBid{value: price}(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _affiliate);
+        omniXExchange.executeTakerBid{value: price}(destAirdrop, takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _affiliate);
 
         // Taker user has received the asset
         assertEq(mockERC721.ownerOf(makerAsk.itemIds[0]), takerUser);
@@ -209,6 +209,7 @@ contract AffiliateOrdersTest is ProtocolBase, IAffiliateManager {
         vm.expectEmit({checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true});
         emit AffiliatePayment(_affiliate, makerAsks[0].currency, expectedAffiliateFeeAmount);
         omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
+            destAirdrop,
             takerBids,
             makerAsks,
             signatures,

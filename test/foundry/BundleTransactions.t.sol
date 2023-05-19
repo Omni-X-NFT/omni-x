@@ -141,6 +141,7 @@ contract BundleTransactionsTest is ProtocolBase {
         // Execute taker bid transaction
         vm.prank(takerUser);
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,
@@ -174,6 +175,7 @@ contract BundleTransactionsTest is ProtocolBase {
         // Execute taker bid transaction
         vm.prank(takerUser);
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,
@@ -212,6 +214,7 @@ contract BundleTransactionsTest is ProtocolBase {
         vm.prank(takerUser);
 
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,

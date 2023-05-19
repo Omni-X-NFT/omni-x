@@ -55,6 +55,7 @@ contract LooksRareProtocolTest is ProtocolBase {
         vm.prank(takerUser);
         vm.expectRevert(OrderInvalid.selector);
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,
@@ -73,6 +74,7 @@ contract LooksRareProtocolTest is ProtocolBase {
         vm.prank(takerUser);
         vm.expectRevert(AmountInvalid.selector);
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,
@@ -101,6 +103,7 @@ contract LooksRareProtocolTest is ProtocolBase {
         vm.prank(takerUser);
         vm.expectRevert(CurrencyInvalid.selector);
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,
@@ -120,6 +123,7 @@ contract LooksRareProtocolTest is ProtocolBase {
         vm.prank(takerUser);
         vm.expectRevert(CurrencyInvalid.selector);
         omniXExchange.executeMultipleTakerBids{value: price}(
+            destAirdrop,
             takerBids,
             makerAsks,
             signatures,
@@ -131,6 +135,7 @@ contract LooksRareProtocolTest is ProtocolBase {
         vm.prank(takerUser);
         vm.expectRevert(CurrencyInvalid.selector);
         omniXExchange.executeMultipleTakerBids{value: price}(
+            destAirdrop,
             takerBids,
             makerAsks,
             signatures,
@@ -173,7 +178,7 @@ contract LooksRareProtocolTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(QuoteTypeInvalid.selector);
-        omniXExchange.executeTakerBid(takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerBid(destAirdrop,takerAsk, makerBid, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         // 2. QuoteType = ASK but executeTakerAsk
         (OrderStructs.Maker memory makerAsk, OrderStructs.Taker memory takerBid) = _createMockMakerAskAndTakerBid(
@@ -222,7 +227,7 @@ contract LooksRareProtocolTest is ProtocolBase {
 
         vm.prank(takerUser);
         vm.expectRevert(CallerInvalid.selector);
-        omniXExchange.restrictedExecuteTakerBid(takerBid, makerAsk, takerUser, _computeOrderHash(makerAsk));
+        omniXExchange.restrictedExecuteTakerBid(destAirdrop,takerBid, makerAsk, takerUser, _EMPTY_AFFILIATE, _computeOrderHash(makerAsk));
     }
 
     /**
@@ -282,6 +287,7 @@ contract LooksRareProtocolTest is ProtocolBase {
         vm.prank(takerUser);
         vm.expectRevert(CurrencyInvalid.selector);
         omniXExchange.executeMultipleTakerBids{value: price}(
+            destAirdrop,
             takerBids,
             makerAsks,
             signatures,

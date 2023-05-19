@@ -63,6 +63,7 @@ contract DomainSeparatorUpdatesTest is ProtocolBase {
         vm.prank(takerUser);
         vm.expectRevert(SignatureEOAInvalid.selector);
         omniXExchange.executeTakerBid{value: makerAsk.price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,
@@ -91,6 +92,7 @@ contract DomainSeparatorUpdatesTest is ProtocolBase {
         vm.prank(takerUser);
         vm.expectRevert(IOmniXExchange.ChainIdInvalid.selector);
         omniXExchange.executeTakerBid{value: makerAsk.price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,

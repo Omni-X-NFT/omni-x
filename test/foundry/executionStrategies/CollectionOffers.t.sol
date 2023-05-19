@@ -153,7 +153,7 @@ contract CollectionOrdersTest is ProtocolBase {
         mockERC721.mint(takerUser, tokenId);
 
         // Prepare the taker ask
-        OrderStructs.Taker memory takerAsk = OrderStructs.Taker(takerUser, 10121, abi.encode(tokenId, 1));
+        OrderStructs.Taker memory takerAsk = OrderStructs.Taker(takerUser, address(weth), 10121, abi.encode(tokenId, 1));
 
         _assertOrderIsValid(makerBid, false);
         _assertValidMakerOrder(makerBid, signature);
@@ -199,7 +199,7 @@ contract CollectionOrdersTest is ProtocolBase {
         bytes memory signature = _signMakerOrder(makerBid, makerUserPK);
 
         // Prepare the taker ask
-        OrderStructs.Taker memory takerAsk = OrderStructs.Taker(takerUser, 10121, abi.encode(itemIdInMerkleTree, proof));
+        OrderStructs.Taker memory takerAsk = OrderStructs.Taker(takerUser, address(weth), 10121, abi.encode(itemIdInMerkleTree, proof));
 
         // Verify validity of maker bid order
         _assertOrderIsValid(makerBid, true);
@@ -244,7 +244,7 @@ contract CollectionOrdersTest is ProtocolBase {
 
         // Prepare the taker ask
         proof[0] = bytes32(0); // Tamper with the proof
-        OrderStructs.Taker memory takerAsk = OrderStructs.Taker(takerUser, 10121, abi.encode(itemIdSold, proof));
+        OrderStructs.Taker memory takerAsk = OrderStructs.Taker(takerUser, address(weth), 10121, abi.encode(itemIdSold, proof));
 
         // Verify validity of maker bid order
         _assertOrderIsValid(makerBid, true);
@@ -274,7 +274,7 @@ contract CollectionOrdersTest is ProtocolBase {
         });
 
         // Prepare the taker ask
-        OrderStructs.Taker memory takerAsk = OrderStructs.Taker(takerUser, 10121, abi.encode(5));
+        OrderStructs.Taker memory takerAsk = OrderStructs.Taker(takerUser, address(weth), 10121, abi.encode(5));
 
         // 1. Amount is 0 (without merkle proof)
         makerBid.amounts[0] = 0;

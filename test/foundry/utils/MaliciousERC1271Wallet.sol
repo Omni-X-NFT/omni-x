@@ -15,6 +15,7 @@ abstract contract MaliciousERC1271Wallet {
     IOmniXExchange internal immutable omniXExchange;
     FunctionToReenter internal functionToReenter;
 
+    uint256 constant internal destAirdrop = 200000;
     constructor(address _omniXExchange) {
         omniXExchange = IOmniXExchange(_omniXExchange);
     }
@@ -54,7 +55,7 @@ abstract contract MaliciousERC1271Wallet {
         OrderStructs.Maker memory makerAsk;
         OrderStructs.MerkleTree memory merkleTree;
 
-        omniXExchange.executeTakerBid(takerBid, makerAsk, signature, merkleTree, address(this));
+        omniXExchange.executeTakerBid(destAirdrop,takerBid, makerAsk, signature, merkleTree, address(this));
     }
 
     function _executeMultipleTakerBids() internal {
@@ -63,6 +64,6 @@ abstract contract MaliciousERC1271Wallet {
         bytes[] memory signatures = new bytes[](2);
         OrderStructs.MerkleTree[] memory merkleTrees = new OrderStructs.MerkleTree[](2);
 
-        omniXExchange.executeMultipleTakerBids(takerBids, makerAsks, signatures, merkleTrees, address(this), false);
+        omniXExchange.executeMultipleTakerBids(destAirdrop,takerBids, makerAsks, signatures, merkleTrees, address(this), false);
     }
 }

@@ -83,6 +83,7 @@ contract ItemIdsRangeOrdersTest is ProtocolBase, IStrategyManager {
 
         newTakerAsk = OrderStructs.Taker({
             recipient: takerUser,
+            currency: address(weth),
             lzChainId: 10121,
             additionalParameters: abi.encode(takerAskItemIds, _offeredAmounts({length: 3, amount: 1}))
         });
@@ -163,6 +164,7 @@ contract ItemIdsRangeOrdersTest is ProtocolBase, IStrategyManager {
 
         OrderStructs.Taker memory takerAsk = OrderStructs.Taker({
             recipient: takerUser,
+            currency: address(weth),
             lzChainId: 10121,
             additionalParameters: abi.encode(takerAskItemIds, _offeredAmounts({length: 3, amount: 2}))
         });

@@ -82,7 +82,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
         newMakerAsk.additionalParameters = abi.encode(startPrice);
 
         // Using startPrice as the maxPrice
-        newTakerBid = OrderStructs.Taker(takerUser, 10121, abi.encode(startPrice));
+        newTakerBid = OrderStructs.Taker(takerUser, address(weth), 10121, abi.encode(startPrice));
     }
 
     function testNewStrategy() public {
@@ -152,7 +152,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
 
         // Execute taker bid transaction
         vm.prank(takerUser);
-        omniXExchange.executeTakerBid(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerBid(destAirdrop,takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         // Taker user has received the asset
         assertEq(mockERC721.ownerOf(1), takerUser);
@@ -204,7 +204,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
 
         vm.expectRevert(errorSelector);
         vm.prank(takerUser);
-        omniXExchange.executeTakerBid(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerBid(destAirdrop,takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testTakerBidTooLow(
@@ -244,7 +244,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
 
         vm.expectRevert(BidTooLow.selector);
         vm.prank(takerUser);
-        omniXExchange.executeTakerBid(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerBid(destAirdrop,takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testInactiveStrategy() public {
@@ -269,7 +269,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
 
         vm.prank(takerUser);
         vm.expectRevert(abi.encodeWithSelector(IExecutionManager.StrategyNotAvailable.selector, 1));
-        omniXExchange.executeTakerBid(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerBid(destAirdrop,takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testZeroItemIdsLength() public {
@@ -291,7 +291,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
 
         vm.expectRevert(errorSelector);
         vm.prank(takerUser);
-        omniXExchange.executeTakerBid(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerBid(destAirdrop,takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testItemIdsAndAmountsLengthMismatch() public {
@@ -313,7 +313,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
 
         vm.expectRevert(errorSelector);
         vm.prank(takerUser);
-        omniXExchange.executeTakerBid(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerBid(destAirdrop,takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testInvalidAmounts() public {
@@ -339,7 +339,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
 
         vm.expectRevert(AmountInvalid.selector);
         vm.prank(takerUser);
-        omniXExchange.executeTakerBid(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerBid(destAirdrop,takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
 
         // 2. ERC721 amount > 1
         makerAsk.amounts[0] = 2;
@@ -350,7 +350,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
 
         vm.prank(takerUser);
         vm.expectRevert(AmountInvalid.selector);
-        omniXExchange.executeTakerBid(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerBid(destAirdrop,takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 
     function testWrongQuoteType() public {

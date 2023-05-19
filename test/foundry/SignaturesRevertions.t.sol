@@ -51,6 +51,7 @@ contract SignaturesRevertionsTest is ProtocolBase {
         vm.expectRevert(SignatureEOAInvalid.selector);
         vm.prank(takerUser);
         omniXExchange.executeTakerBid(
+            destAirdrop,
             _genericTakerOrder(),
             makerAsk,
             signature,
@@ -91,6 +92,7 @@ contract SignaturesRevertionsTest is ProtocolBase {
         vm.expectRevert(abi.encodeWithSelector(SignatureParameterVInvalid.selector, v));
         vm.prank(takerUser);
         omniXExchange.executeTakerBid(
+            destAirdrop,
             _genericTakerOrder(),
             makerAsk,
             signature,
@@ -130,6 +132,7 @@ contract SignaturesRevertionsTest is ProtocolBase {
         vm.expectRevert(abi.encodeWithSelector(SignatureParameterSInvalid.selector));
         vm.prank(takerUser);
         omniXExchange.executeTakerBid(
+            destAirdrop,
             _genericTakerOrder(),
             makerAsk,
             signature,
@@ -169,6 +172,7 @@ contract SignaturesRevertionsTest is ProtocolBase {
         vm.expectRevert(abi.encodeWithSelector(NullSignerAddress.selector));
         vm.prank(takerUser);
         omniXExchange.executeTakerBid(
+            destAirdrop,
             _genericTakerOrder(),
             makerAsk,
             signature,
@@ -192,6 +196,6 @@ contract SignaturesRevertionsTest is ProtocolBase {
 
         vm.expectRevert(abi.encodeWithSelector(SignatureLengthInvalid.selector, length));
         vm.prank(takerUser);
-        omniXExchange.executeTakerBid(takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
+        omniXExchange.executeTakerBid(destAirdrop,takerBid, makerAsk, signature, _EMPTY_MERKLE_TREE, _EMPTY_AFFILIATE);
     }
 }

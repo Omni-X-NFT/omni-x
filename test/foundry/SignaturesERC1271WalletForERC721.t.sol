@@ -50,6 +50,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
 
         vm.prank(takerUser);
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,
@@ -77,6 +78,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
         vm.expectRevert(SignatureERC1271Invalid.selector);
         vm.prank(takerUser);
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,
@@ -99,6 +101,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
         vm.expectRevert(IReentrancyGuard.ReentrancyFail.selector);
         vm.prank(takerUser);
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             _EMPTY_SIGNATURE,
@@ -180,6 +183,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
 
         vm.prank(takerUser);
         omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
+            destAirdrop,
             takerBids,
             makerAsks,
             signatures,
@@ -216,6 +220,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
         vm.expectRevert(SignatureERC1271Invalid.selector);
         vm.prank(takerUser);
         omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
+            destAirdrop,
             takerBids,
             makerAsks,
             signatures,
@@ -242,6 +247,7 @@ contract SignaturesERC1271WalletForERC721Test is ProtocolBase {
         vm.expectRevert(IReentrancyGuard.ReentrancyFail.selector);
         vm.prank(takerUser);
         omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
+            destAirdrop,
             takerBids,
             makerAsks,
             signatures,

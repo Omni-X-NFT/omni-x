@@ -57,6 +57,7 @@ contract GasGriefingTest is ProtocolBase {
         vm.prank(takerUser);
         // Execute taker bid transaction
         omniXExchange.executeTakerBid{value: price}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,
@@ -124,6 +125,7 @@ contract GasGriefingTest is ProtocolBase {
         vm.prank(takerUser);
         // Execute taker bid transaction
         omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
+            destAirdrop,
             takerBids,
             makerAsks,
             signatures,

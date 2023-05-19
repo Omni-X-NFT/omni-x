@@ -195,16 +195,6 @@ abstract contract ExecutionManager is InheritedStrategy, NonceManager, StrategyM
         }
     }
 
-    // function _setFees(
-    //     OrderStructs.Taker calldata takerOrder,
-    //     OrderStructs.Maker calldata makerOrder,
-    //     address[2] memoryy recipients,
-    //     uint256[3] memory feeAmounts,
-    //     uint256 price
-    // ) internal  {
-
-    // }
-
 
     /**
      * @notice This private function updates the protocol fee recipient.

@@ -42,6 +42,8 @@ contract ProtocolBase is MockOrderGenerator, IOmniXExchange {
     MockRoyaltyFeeRegistry public royaltyFeeRegistry;
     OrderValidatorV2A public orderValidator;
 
+    uint256 public constant destAirdrop = 200000;
+
     uint16 public constant LZ_CHAIN_ID = 10121;
 
     WETH public weth;
@@ -206,7 +208,7 @@ contract ProtocolBase is MockOrderGenerator, IOmniXExchange {
     }
 
     function _genericTakerOrder() internal pure returns (OrderStructs.Taker memory takerOrder) {
-        takerOrder = OrderStructs.Taker(takerUser, 10121, abi.encode());
+        takerOrder = OrderStructs.Taker(takerUser, ETH, 10121, abi.encode());
     }
 
     function _addStrategy(address strategy, bytes4 selector, bool isMakerBid) internal {
@@ -263,6 +265,7 @@ contract ProtocolBase is MockOrderGenerator, IOmniXExchange {
     ) external {}
 
     function executeTakerBid(
+        uint256 destAirdrop,
         OrderStructs.Taker calldata takerBid,
         OrderStructs.Maker calldata makerAsk,
         bytes calldata makerSignature,
@@ -271,6 +274,7 @@ contract ProtocolBase is MockOrderGenerator, IOmniXExchange {
     ) external payable {}
 
     function executeMultipleTakerBids(
+        uint256 destAirdrop,
         OrderStructs.Taker[] calldata takerBids,
         OrderStructs.Maker[] calldata makerAsks,
         bytes[] calldata makerSignatures,

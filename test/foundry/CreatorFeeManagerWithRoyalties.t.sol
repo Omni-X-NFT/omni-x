@@ -350,6 +350,7 @@ contract CreatorFeeManagerWithRoyaltiesTest is ProtocolBase {
         vm.prank(takerUser);
 
         omniXExchange.executeTakerBid{value: 1 ether}(
+            destAirdrop,
             takerBid,
             makerAsk,
             signature,
