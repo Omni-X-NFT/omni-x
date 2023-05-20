@@ -36,7 +36,7 @@ abstract contract CurrencyManager is ICurrencyManager, AffiliateManager {
      */
     function updateCurrencyStatus(address currency, bool isAllowed) external onlyOwner {
         isCurrencyAllowed[currency] = isAllowed;
-        isCurrencyOmni[currency] = InterfaceChecker.check(currency, type(IOFT).interfaceId);
+        
         emit CurrencyStatusUpdated(currency, isAllowed);
     }
 

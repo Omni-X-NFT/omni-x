@@ -344,7 +344,7 @@ contract OmniXExchange is
             address[2] memory recipients,
             uint256[3] memory feeAmounts,
             bool isNonceInvalidated
-        ) = _executeStrategyForTakerOrder(takerAsk, makerBid, msg.sender);
+        ) = this._executeStrategyForTakerOrder(takerAsk, makerBid, msg.sender);
 
         // Order nonce status is updated
         _updateUserOrderNonce(isNonceInvalidated, signer, makerBid.orderNonce, orderHash);
@@ -383,15 +383,11 @@ contract OmniXExchange is
         OrderStructs.Taker calldata taker,
         OrderStructs.Maker calldata maker,
         uint256 destAirdrop,
-        uint256[] memory itemIds,
-        uint256[] memory amounts,
-        address[2] memory recipients,
-        uint256[3] memory feeAmounts,
         address affiliate
         ) public view returns(uint256, uint256, uint256) {
 
             if (maker.quoteType == QuoteType.Ask) {
-                bytes memory sgPayload = _getSgPayload(taker, maker, itemIds, amounts, recipients, feeAmounts, affiliate);
+                bytes memory sgPayload = _getSgPayload(taker, maker, affiliate);
                 uint256 crossChainCurrencyFee = _getCrossChainCurrencyFee(
                     maker.currency,
                     maker.signer,
@@ -507,24 +503,13 @@ contract OmniXExchange is
     function _getSgPayload(
         OrderStructs.Taker calldata takerBid, 
         OrderStructs.Maker calldata makerAsk, 
-        uint256[] memory itemIds,
-        uint256[] memory amounts,
-        address[2] memory recipients,
-        uint256[3] memory feeAmounts,
         address affiliate
         ) internal pure returns(bytes memory) {
         bytes memory payload = abi.encode(
-            makerAsk.collection,
-            makerAsk.collectionType,
-            makerAsk.signer,
-            takerBid.recipient,
-            itemIds,
-            amounts,
-            makerAsk.currency,
-            makerAsk.strategyId,
-            recipients, 
-            feeAmounts,
-            makerAsk.getRoyaltyInfo()
+            takerBid,
+            makerAsk,
+            affiliate
+           
         );
 
         return payload;
@@ -571,7 +556,7 @@ contract OmniXExchange is
             address[2] memory recipients,
             uint256[3] memory feeAmounts,
             bool isNonceInvalidated
-        ) = _executeStrategyForTakerOrder(takerBid, makerAsk, msg.sender);
+        ) = this._executeStrategyForTakerOrder(takerBid, makerAsk, msg.sender);
 
         // Order nonce status is updated
         _updateUserOrderNonce(isNonceInvalidated, makerAsk.signer, makerAsk.orderNonce, orderHash);
@@ -588,7 +573,7 @@ contract OmniXExchange is
             _transferNFT(
             makerAsk.collection,
             makerAsk.collectionType,
-            signer,
+            makerAsk.signer,
             takerBid.recipient == address(0) ? sender : takerBid.recipient,
             itemIds,
             amounts
@@ -597,11 +582,7 @@ contract OmniXExchange is
             (uint256 omnixMessageFee, uint256 crossChainCurrencyFee,) = getLzFees(
                 takerBid,
                 makerAsk,
-                destAirdrop, 
-                itemIds,
-                amounts,
-                recipients,
-                feeAmounts,
+                destAirdrop,
                 affiliate
                 ); 
             require(omnixMessageFee + crossChainCurrencyFee <= msg.value, "OmniXExchange: Insufficient value for cross chain transfer");
@@ -610,7 +591,7 @@ contract OmniXExchange is
                 _sendCrossMessage(takerBid, makerAsk, 0);
                 _transferToAskRecipientAndCreatorIfAny(recipients, feeAmounts, makerAsk.currency, sender);
             } else {
-                bytes memory sgPayload = _getSgPayload(takerBid, makerAsk, itemIds, amounts, recipients, feeAmounts, affiliate);
+                bytes memory sgPayload = _getSgPayload(takerBid, makerAsk, affiliate);
                 _transferProxyFunds(
                     takerBid.currency,
                     takerBid.recipient == address(0) ? sender : takerBid.recipient,
@@ -921,47 +902,38 @@ contract OmniXExchange is
         bytes memory _payload
     ) internal {
         (
-            address collection,
-            CollectionType collectionType,
-            address seller,
-            address buyer,
-            uint256[] memory itemIds,
-            uint256[] memory amounts,
-            address currency,
-            uint256 strategyId,
-            address[2] memory recipients,
-            uint256[3] memory feeAmounts,
-            address affiliate,
-            bytes memory royaltyInfo
+            OrderStructs.Taker memory takerBid,
+            OrderStructs.Maker memory makerAsk,
+            address affiliate
         ) = abi.decode(_payload, (
-            address,
-            CollectionType,
-            address,
-            address,
-            uint256[],
-            uint256[],
-            address,
-            uint256,
-            address[2],
-            uint256[3],
-            address,
-            bytes
+            OrderStructs.Taker,
+            OrderStructs.Maker,
+            address
         ));
 
 
-        try this.transferNFTLz(collection, collectionType, seller, buyer, itemIds, amounts) {
+        (
+            uint256[] memory itemIds,
+            uint256[] memory amounts,
+            address[2] memory recipients,
+            uint256[3] memory feeAmounts,
+        ) = this._executeStrategyForTakerOrder(takerBid, makerAsk, makerAsk.signer);
+
+        
+
+        try this.transferNFTLz(makerAsk.collection, makerAsk.collectionType, makerAsk.signer, takerBid.recipient, itemIds, amounts) {
             _transferToAskRecipientAndCreatorIfAny(
                 recipients,
                 feeAmounts,
-                currency,
+                makerAsk.currency,
                 address(this)
             );
-            _payProtocolFeeAndAffiliateFee(currency, buyer, affiliate, address(this), feeAmounts[2]);
+            _payProtocolFeeAndAffiliateFee(makerAsk.currency, takerBid.recipient, affiliate, address(this), feeAmounts[2]);
         } catch (bytes memory reason) {
-            if (currency == WETH) {
-                payable(buyer).transfer(_price);
+            if (makerAsk.currency == WETH) {
+                payable(takerBid.recipient).transfer(_price);
             } else {
-                _transferFungibleTokens(currency, address(this), buyer, _price);
+                _transferFungibleTokens(makerAsk.currency, address(this), takerBid.recipient, _price);
             }
         }
     }

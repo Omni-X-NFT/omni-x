@@ -40,6 +40,11 @@ abstract contract ExecutionManager is InheritedStrategy, NonceManager, StrategyM
      */
     uint16 public maxCreatorFeeBp = 1_000;
 
+    modifier onlyOmnix() {
+        require(msg.sender == address(this), "Only Omnix");
+        _;
+    }
+
     /**
      * @notice Creator fee manager.
      */
@@ -105,7 +110,7 @@ abstract contract ExecutionManager is InheritedStrategy, NonceManager, StrategyM
         OrderStructs.Maker calldata makerOrder,
         address sender
     )
-        internal
+        external onlyOmnix()
         returns (
             uint256[] memory itemIds,
             uint256[] memory amounts,
