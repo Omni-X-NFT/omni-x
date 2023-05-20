@@ -952,7 +952,7 @@
     "updateAffiliateRate(address,uint256)": "ae1cce5a",
     "updateCurrencyStatus(address,bool)": "1d3c4268"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"NoOngoingTransferInProgress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotAffiliateController\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PercentageTooHigh\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RenouncementNotInProgress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TransferAlreadyInProgress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TransferNotInProgress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"WrongPotentialOwner\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[],\"name\":\"CancelOwnershipTransfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isAllowed\",\"type\":\"bool\"}],\"name\":\"CurrencyStatusUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[],\"name\":\"InitiateOwnershipRenouncement\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"potentialOwner\",\"type\":\"address\"}],\"name\":\"InitiateOwnershipTransfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"MessageFailed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"affiliateController\",\"type\":\"address\"}],\"name\":\"NewAffiliateController\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"name\":\"NewAffiliateProgramStatus\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"affiliate\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"rate\",\"type\":\"uint256\"}],\"name\":\"NewAffiliateRate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"NewOwner\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_dstChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_type\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_minDstGas\",\"type\":\"uint256\"}],\"name\":\"SetMinDstGas\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"precrime\",\"type\":\"address\"}],\"name\":\"SetPrecrime\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_path\",\"type\":\"bytes\"}],\"name\":\"SetTrustedRemote\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_remoteAddress\",\"type\":\"bytes\"}],\"name\":\"SetTrustedRemoteAddress\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"affiliateController\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"affiliateRates\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"cancelOwnershipTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"confirmOwnershipRenouncement\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"confirmOwnershipTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"failedMessages\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"}],\"name\":\"forceResumeReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"_chainId\",\"type\":\"uint16\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_configType\",\"type\":\"uint256\"}],\"name\":\"getConfig\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"}],\"name\":\"getTrustedRemoteAddress\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"initiateOwnershipRenouncement\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newPotentialOwner\",\"type\":\"address\"}],\"name\":\"initiateOwnershipTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"isAffiliateProgramActive\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"isCurrencyAllowed\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"isCurrencyOmni\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"}],\"name\":\"isOmniCurrency\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"}],\"name\":\"isTrustedRemote\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"lzEndpoint\",\"outputs\":[{\"internalType\":\"contract ILayerZeroEndpoint\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"lzReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"name\":\"minDstGasLookup\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"nonblockingLzReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"ownershipStatus\",\"outputs\":[{\"internalType\":\"enum IOwnableTwoSteps.Status\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"potentialOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"precrime\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"retryMessage\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"_chainId\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"_configType\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_config\",\"type\":\"bytes\"}],\"name\":\"setConfig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_dstChainId\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"_packetType\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"_minGas\",\"type\":\"uint256\"}],\"name\":\"setMinDstGas\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_precrime\",\"type\":\"address\"}],\"name\":\"setPrecrime\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"}],\"name\":\"setReceiveVersion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"}],\"name\":\"setSendVersion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_path\",\"type\":\"bytes\"}],\"name\":\"setTrustedRemote\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_remoteAddress\",\"type\":\"bytes\"}],\"name\":\"setTrustedRemoteAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"name\":\"trustedRemoteLookup\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAffiliateController\",\"type\":\"address\"}],\"name\":\"updateAffiliateController\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"name\":\"updateAffiliateProgramStatus\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"affiliate\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"bp\",\"type\":\"uint256\"}],\"name\":\"updateAffiliateRate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"isAllowed\",\"type\":\"bool\"}],\"name\":\"updateCurrencyStatus\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"LooksRare protocol team (\\ud83d\\udc40,\\ud83d\\udc8e)\",\"kind\":\"dev\",\"methods\":{\"cancelOwnershipTransfer()\":{\"details\":\"This function can be used for both cancelling a transfer to a new owner and      cancelling the renouncement of the ownership.\"},\"confirmOwnershipTransfer()\":{\"details\":\"This function can only be called by the current potential owner.\"},\"constructor\":{\"params\":{\"_owner\":\"Owner address\"}},\"initiateOwnershipTransfer(address)\":{\"params\":{\"newPotentialOwner\":\"New potential owner address\"}},\"updateAffiliateController(address)\":{\"details\":\"Only callable by owner.\",\"params\":{\"newAffiliateController\":\"New affiliate controller address\"}},\"updateAffiliateProgramStatus(bool)\":{\"details\":\"Only callable by owner.\",\"params\":{\"isActive\":\"Whether the affiliate program is active\"}},\"updateAffiliateRate(address,uint256)\":{\"params\":{\"affiliate\":\"Affiliate address\",\"bp\":\"Rate (in basis point) to collect (e.g. 100 = 1%) per referred transaction\"}},\"updateCurrencyStatus(address,bool)\":{\"details\":\"Only callable by owner.\",\"params\":{\"currency\":\"Currency address (address(0) for ETH)\",\"isAllowed\":\"Whether the currency should be allowed for trading\"}}},\"title\":\"CurrencyManager\",\"version\":1},\"userdoc\":{\"errors\":{\"NoOngoingTransferInProgress()\":[{\"notice\":\"This is returned when there is no transfer of ownership in progress.\"}],\"NotAffiliateController()\":[{\"notice\":\"It is returned if the function is called by another address than the affiliate controller.\"}],\"NotOwner()\":[{\"notice\":\"This is returned when the caller is not the owner.\"}],\"PercentageTooHigh()\":[{\"notice\":\"It is returned if the affiliate controller is trying to set an affiliate rate higher than 10,000.\"}],\"RenouncementNotInProgress()\":[{\"notice\":\"This is returned when there is no renouncement in progress but         the owner tries to validate the ownership renouncement.\"}],\"TransferAlreadyInProgress()\":[{\"notice\":\"This is returned when the transfer is already in progress but the owner tries         initiate a new ownership transfer.\"}],\"TransferNotInProgress()\":[{\"notice\":\"This is returned when there is no ownership transfer in progress but the         ownership change tries to be approved.\"}],\"WrongPotentialOwner()\":[{\"notice\":\"This is returned when the ownership transfer is attempted to be validated by the         a caller that is not the potential owner.\"}]},\"events\":{\"CancelOwnershipTransfer()\":{\"notice\":\"This is emitted if the ownership transfer is cancelled.\"},\"CurrencyStatusUpdated(address,bool)\":{\"notice\":\"It is emitted if the currency status in the allowlist is updated.\"},\"InitiateOwnershipRenouncement()\":{\"notice\":\"This is emitted if the ownership renouncement is initiated.\"},\"InitiateOwnershipTransfer(address,address)\":{\"notice\":\"This is emitted if the ownership transfer is initiated.\"},\"NewAffiliateController(address)\":{\"notice\":\"It is emitted when there is an update of affliate controller.\"},\"NewAffiliateProgramStatus(bool)\":{\"notice\":\"It is emitted if the affiliate program is activated or deactivated.\"},\"NewAffiliateRate(address,uint256)\":{\"notice\":\"It is emitted if there is a new affiliate and its associated rate (in basis point).\"},\"NewOwner(address)\":{\"notice\":\"This is emitted when there is a new owner.\"}},\"kind\":\"user\",\"methods\":{\"affiliateController()\":{\"notice\":\"Address of the affiliate controller.\"},\"affiliateRates(address)\":{\"notice\":\"It tracks the affiliate rate (in basis point) for a given affiliate address.         The basis point represents how much of the protocol fee will be shared to the affiliate.\"},\"cancelOwnershipTransfer()\":{\"notice\":\"This function is used to cancel the ownership transfer.\"},\"confirmOwnershipRenouncement()\":{\"notice\":\"This function is used to confirm the ownership renouncement.\"},\"confirmOwnershipTransfer()\":{\"notice\":\"This function is used to confirm the ownership transfer.\"},\"constructor\":{\"notice\":\"Constructor\"},\"initiateOwnershipRenouncement()\":{\"notice\":\"This function is used to initiate the ownership renouncement.\"},\"initiateOwnershipTransfer(address)\":{\"notice\":\"This function is used to initiate the transfer of ownership to a new owner.\"},\"isAffiliateProgramActive()\":{\"notice\":\"Whether the affiliate program is active.\"},\"isCurrencyAllowed(address)\":{\"notice\":\"It checks whether the currency is allowed for transacting.\"},\"owner()\":{\"notice\":\"Address of the current owner.\"},\"ownershipStatus()\":{\"notice\":\"Ownership status.\"},\"potentialOwner()\":{\"notice\":\"Address of the potential owner.\"},\"updateAffiliateController(address)\":{\"notice\":\"This function allows the owner to update the affiliate controller address.\"},\"updateAffiliateProgramStatus(bool)\":{\"notice\":\"This function allows the owner to update the affiliate program status.\"},\"updateAffiliateRate(address,uint256)\":{\"notice\":\"This function allows the affiliate controller to update the affiliate rate (in basis point).\"},\"updateCurrencyStatus(address,bool)\":{\"notice\":\"This function allows the owner to update the status of a currency.\"}},\"notice\":\"This contract manages the list of valid fungible currencies.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/core/CurrencyManager.sol\":\"CurrencyManager\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@chainlink/=node_modules/@chainlink/\",\":@ensdomains/=node_modules/@ensdomains/\",\":@eth-optimism/=node_modules/@eth-optimism/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@looksrare/=node_modules/@looksrare/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":base64-sol/=node_modules/base64-sol/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":murky/=lib/murky/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":reservoirprotocol/=lib/reservoirprotocol/\",\":solmate/=lib/solmate/src/\",\":xdeployer/=node_modules/xdeployer/\"],\"viaIR\":true},\"sources\":{\"contracts/constants/NumericConstants.sol\":{\"keccak256\":\"0x30fb11ade509ec46e86ebbcc00b558f788fe3a22f4850a35d3351eba0de96334\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6b64755ba6164dabce9e8547cb17e6a517e470f5655f8f04886e447e46b06328\",\"dweb:/ipfs/QmYk7B5qWkNXtM6rDcnc1ayhv5NnNH2okcKknQVYCrmfDR\"]},\"contracts/core/AffiliateManager.sol\":{\"keccak256\":\"0x523e993d95d2958e25c77a9e5893e6281558ae23b7fbdcfd65fbd252e59e84c4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4ebe8e2ccc7dfa0a5f72e8d6b956115c323fb982ead23acb870094862b8cdf5a\",\"dweb:/ipfs/QmcRTYKnUQRTMtWv8CD3dPNn9ddjazEUnu8eZNk884xFE4\"]},\"contracts/core/CurrencyManager.sol\":{\"keccak256\":\"0xd4cddb72d57d06c5444bf64627904dfb5d7192889405458d89606ef791c0dc64\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3e7cc3ada9309a0cb88c984b00eaa96463c8f4b8e726bcee3f04360b48825ab8\",\"dweb:/ipfs/Qmf88DqB39U8Nwuofd2TzuY1TfsykJHQ7H33jCt71e1Dxs\"]},\"contracts/interfaces/IAffiliateManager.sol\":{\"keccak256\":\"0x7b6e0992b6e44a5cd6d1bc2da9c7fc897573e4004ff87d185d9fa31a70848755\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://22426bef9d21dce6ef30317fed8599a87d760cc9fb38c09a20b85b3182cff61f\",\"dweb:/ipfs/QmP9Xa3nwg7rhjKtsioCoGaegGzyF2tB5Rbnx2rpgUjBkW\"]},\"contracts/interfaces/ICurrencyManager.sol\":{\"keccak256\":\"0x561b7e2bcdbd6ef67b90c07e01efd90ab4605d0deddd18b0e6eb30479ec26dd1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3b3c8819b11814cda7d7bf6382c5ac2322569beeef9912049259f9fa674783f7\",\"dweb:/ipfs/QmPyo1JZbmRaYD9tshjCPS1VZxREAmLvQkZYjniJjAUH3T\"]},\"contracts/interfaces/ILayerZeroEndpoint.sol\":{\"keccak256\":\"0x99e841ea21cba851b8356c00db1f42f8b6f51f7c69c9d51c567124530a3cf842\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://dbdb5500c2cb54c39c153dcc7974d8e6eb4cd13c2ec52563ff7b2d0b61aa4b2d\",\"dweb:/ipfs/QmX4ukYKAuZuG3gEQTn8XdpRLXXF9wt8hcBTwXVd1Ly9Hq\"]},\"contracts/interfaces/ILayerZeroReceiver.sol\":{\"keccak256\":\"0x8d3744d49cea963aca1774a20e95e4ea157725f8d70eaa8fdf601c4ca28cb99b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f3ad97a5758dae977499283cfb56d59038f285010c7b8672e13e2ed7cdb5d91c\",\"dweb:/ipfs/QmatHGWtb9mtSj4iZs1PpK8YnK5s9qP9BwTHkYdCqs7nhc\"]},\"contracts/interfaces/ILayerZeroUserApplicationConfig.sol\":{\"keccak256\":\"0xc4a255f5e1c8636ff1f46c97eecfdf583f50d87f53f7dad5451bea4f14fe3132\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://45216f78e00d4de204e21db3b82eea06f3e1f347964a037cb93351e5c461de03\",\"dweb:/ipfs/Qmb7NMFmkrXsmp42pdaJEJxrctZBvrczmFxjjN52ddVmzP\"]},\"contracts/libraries/BytesLib.sol\":{\"keccak256\":\"0x880ceabc6474d5cfc5c533800c41bb7a12fd88980b66a1e4849916d214f2d8cd\",\"license\":\"Unlicense\",\"urls\":[\"bzz-raw://428da4f9eed925935522d7bcf440535d26572880cb9df9c2fdba0bb5a4708b5f\",\"dweb:/ipfs/QmPkyKtuYqP8SdTBYspiqUh5dcJyztnRjA3uZuhv6rUhYk\"]},\"contracts/libraries/InterfaceChecker.sol\":{\"keccak256\":\"0xe10b58193112c820213a762b6e872b75eb93d6f783dd0b2b6750de7145353155\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c3708f4cbdc11a4c2f020274550c440bdaa9f09df89889fa97cef27de62fdd35\",\"dweb:/ipfs/QmZpCEphxwKuBHX4wn5JMLZXkmVnQVKMHE1736ncNvhvBB\"]},\"contracts/lzApp/exchangeLzApp/ExchangeLzApp.sol\":{\"keccak256\":\"0x4fd71bf649b7277954071e09bce0a1c1883c2c12e1fd26ba1db38cff50c30586\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b03c04b61ee7217b90eda43e78a383a3f25398e690c6b02c169185aaf3153240\",\"dweb:/ipfs/QmZPobYmDBfvTUkgkKqY7e1QotvugxWk377KX5sfgMMzCj\"]},\"contracts/lzApp/exchangeLzApp/IOwnableTwoSteps.sol\":{\"keccak256\":\"0x9ec76240061a336b8cd10a3ab1d21d8fcc6807e13b95d01c84b6282c88080379\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e737caefdb8fe8fbf5b657e92f7a0b6a7d34cb0a1e1567172ff2e1d16174b623\",\"dweb:/ipfs/QmRFcz4vu86evsfUzpwyvvAKtWJe2mi3CfCD551eVRvupT\"]},\"contracts/lzApp/exchangeLzApp/NonBlockingExchangeLzApp.sol\":{\"keccak256\":\"0xf391cf6c7b29e40b3b85e0eac32a0a1e9c0daa04afce0e74f72322815effbe6f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://cb0466e3cfd488e03aee9d464c28e6a92ec4dac0362a97448d622f539b394891\",\"dweb:/ipfs/QmUgcTRC5XL2gBD4aaVpHzmNpy6m1y1aTbEc8CSnwgqLNk\"]},\"contracts/lzApp/exchangeLzApp/OwnableTwoSteps.sol\":{\"keccak256\":\"0x0666abde000717e31c42f675940620276722f910aa7dcdb41f533d631ebac962\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7d88bda0221d5a60d72b65ef0defb6d090edce619a2936b0059074646ab0a0a8\",\"dweb:/ipfs/QmPBW2ubniUpjhTPoyipeWa6WtsukmdGaqdZvnFXX8JJdj\"]},\"contracts/token/oft/IOFT.sol\":{\"keccak256\":\"0x00d82f1aebdfd7b244072e039b9e4bfe93a8a9909065cda7f975ea5631e85541\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://96d32fb33dc212f86426afb165526e024959df31c8fc03cbd4c22ecc6fc72dc2\",\"dweb:/ipfs/QmSF2YdmYAyoKHQ48XWdVaRH4htfyMSDAkhRoQYpxRKWia\"]},\"contracts/token/oft/IOFTCore.sol\":{\"keccak256\":\"0xc9bda00ae3e2a7050e2e37583c5ab3686513eb23f0096f4921053bd0a43b2b8e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://226bfddd7e645b70c47b44a99a5c5ae84a0319046f82a7c8ee58bdf5a1502f00\",\"dweb:/ipfs/Qmc4fZ2PipkYd62xbtMRdrn7KEhTaVkVD5sQ2KAUvoYX9h\"]},\"node_modules/@looksrare/contracts-libs/contracts/OwnableTwoSteps.sol\":{\"keccak256\":\"0x0e47e11eb59908f12443c7e23d2f437992da7349d6cef7757f04014eaf82b74e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://055c0d474b793aec08aa882c93dfe01f5537b479d2730433ce262edfc4a04efb\",\"dweb:/ipfs/QmP2bwDjHAWjJKTQtKr3imKPiuf7a1M664XzEe8hjKiS6P\"]},\"node_modules/@looksrare/contracts-libs/contracts/interfaces/IOwnableTwoSteps.sol\":{\"keccak256\":\"0x9ec76240061a336b8cd10a3ab1d21d8fcc6807e13b95d01c84b6282c88080379\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e737caefdb8fe8fbf5b657e92f7a0b6a7d34cb0a1e1567172ff2e1d16174b623\",\"dweb:/ipfs/QmRFcz4vu86evsfUzpwyvvAKtWJe2mi3CfCD551eVRvupT\"]},\"node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0xbbc8ac883ac3c0078ce5ad3e288fbb3ffcc8a30c3a98c0fda0114d64fc44fca2\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://87a7a5d2f6f63f84598af02b8c50ca2df2631cb8ba2453e8d95fcb17e4be9824\",\"dweb:/ipfs/QmR76hqtAcRqoFj33tmNjcWTLrgNsAaakYwnKZ8zoJtKei\"]},\"node_modules/@openzeppelin/contracts/utils/Address.sol\":{\"keccak256\":\"0x2ccf9d2313a313d41a791505f2b5abfdc62191b5d4334f7f7a82691c088a1c87\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b3a57d0854b2fdce6ebff933a48dca2445643d1eccfc27f00292e937f26c6a58\",\"dweb:/ipfs/QmW45rZooS9TqR4YXUbjRbtf2Bpb5ouSarBvfW1LdGprvV\"]},\"node_modules/@openzeppelin/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f\",\"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy\"]},\"node_modules/hardhat/console.sol\":{\"keccak256\":\"0x72b6a1d297cd3b033d7c2e4a7e7864934bb767db6453623f1c3082c6534547f4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a8cb8681076e765c214e0d51cac989325f6b98e315eaae06ee0cbd5a9f084763\",\"dweb:/ipfs/QmNWGHi4zmjxQTYN3NMGnJd49jBT5dE4bxTdWEaDuJrC6N\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"NoOngoingTransferInProgress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotAffiliateController\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PercentageTooHigh\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RenouncementNotInProgress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TransferAlreadyInProgress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TransferNotInProgress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"WrongPotentialOwner\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[],\"name\":\"CancelOwnershipTransfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isAllowed\",\"type\":\"bool\"}],\"name\":\"CurrencyStatusUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[],\"name\":\"InitiateOwnershipRenouncement\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"potentialOwner\",\"type\":\"address\"}],\"name\":\"InitiateOwnershipTransfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"MessageFailed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"affiliateController\",\"type\":\"address\"}],\"name\":\"NewAffiliateController\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"name\":\"NewAffiliateProgramStatus\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"affiliate\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"rate\",\"type\":\"uint256\"}],\"name\":\"NewAffiliateRate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"NewOwner\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_dstChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_type\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_minDstGas\",\"type\":\"uint256\"}],\"name\":\"SetMinDstGas\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"precrime\",\"type\":\"address\"}],\"name\":\"SetPrecrime\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_path\",\"type\":\"bytes\"}],\"name\":\"SetTrustedRemote\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"_remoteAddress\",\"type\":\"bytes\"}],\"name\":\"SetTrustedRemoteAddress\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"affiliateController\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"affiliateRates\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"cancelOwnershipTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"confirmOwnershipRenouncement\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"confirmOwnershipTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"failedMessages\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"}],\"name\":\"forceResumeReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"_chainId\",\"type\":\"uint16\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_configType\",\"type\":\"uint256\"}],\"name\":\"getConfig\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"}],\"name\":\"getTrustedRemoteAddress\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"initiateOwnershipRenouncement\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newPotentialOwner\",\"type\":\"address\"}],\"name\":\"initiateOwnershipTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"isAffiliateProgramActive\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"isCurrencyAllowed\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"isCurrencyOmni\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"}],\"name\":\"isOmniCurrency\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"}],\"name\":\"isTrustedRemote\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"lzEndpoint\",\"outputs\":[{\"internalType\":\"contract ILayerZeroEndpoint\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"lzReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"name\":\"minDstGasLookup\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"nonblockingLzReceive\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"ownershipStatus\",\"outputs\":[{\"internalType\":\"enum IOwnableTwoSteps.Status\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"potentialOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"precrime\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_srcAddress\",\"type\":\"bytes\"},{\"internalType\":\"uint64\",\"name\":\"_nonce\",\"type\":\"uint64\"},{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"}],\"name\":\"retryMessage\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"_chainId\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"_configType\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_config\",\"type\":\"bytes\"}],\"name\":\"setConfig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_dstChainId\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"_packetType\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"_minGas\",\"type\":\"uint256\"}],\"name\":\"setMinDstGas\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_precrime\",\"type\":\"address\"}],\"name\":\"setPrecrime\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"}],\"name\":\"setReceiveVersion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_version\",\"type\":\"uint16\"}],\"name\":\"setSendVersion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_srcChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_path\",\"type\":\"bytes\"}],\"name\":\"setTrustedRemote\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_remoteChainId\",\"type\":\"uint16\"},{\"internalType\":\"bytes\",\"name\":\"_remoteAddress\",\"type\":\"bytes\"}],\"name\":\"setTrustedRemoteAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"name\":\"trustedRemoteLookup\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAffiliateController\",\"type\":\"address\"}],\"name\":\"updateAffiliateController\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"name\":\"updateAffiliateProgramStatus\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"affiliate\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"bp\",\"type\":\"uint256\"}],\"name\":\"updateAffiliateRate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"isAllowed\",\"type\":\"bool\"}],\"name\":\"updateCurrencyStatus\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"LooksRare protocol team (\\ud83d\\udc40,\\ud83d\\udc8e)\",\"kind\":\"dev\",\"methods\":{\"cancelOwnershipTransfer()\":{\"details\":\"This function can be used for both cancelling a transfer to a new owner and      cancelling the renouncement of the ownership.\"},\"confirmOwnershipTransfer()\":{\"details\":\"This function can only be called by the current potential owner.\"},\"constructor\":{\"params\":{\"_owner\":\"Owner address\"}},\"initiateOwnershipTransfer(address)\":{\"params\":{\"newPotentialOwner\":\"New potential owner address\"}},\"updateAffiliateController(address)\":{\"details\":\"Only callable by owner.\",\"params\":{\"newAffiliateController\":\"New affiliate controller address\"}},\"updateAffiliateProgramStatus(bool)\":{\"details\":\"Only callable by owner.\",\"params\":{\"isActive\":\"Whether the affiliate program is active\"}},\"updateAffiliateRate(address,uint256)\":{\"params\":{\"affiliate\":\"Affiliate address\",\"bp\":\"Rate (in basis point) to collect (e.g. 100 = 1%) per referred transaction\"}},\"updateCurrencyStatus(address,bool)\":{\"details\":\"Only callable by owner.\",\"params\":{\"currency\":\"Currency address (address(0) for ETH)\",\"isAllowed\":\"Whether the currency should be allowed for trading\"}}},\"title\":\"CurrencyManager\",\"version\":1},\"userdoc\":{\"errors\":{\"NoOngoingTransferInProgress()\":[{\"notice\":\"This is returned when there is no transfer of ownership in progress.\"}],\"NotAffiliateController()\":[{\"notice\":\"It is returned if the function is called by another address than the affiliate controller.\"}],\"NotOwner()\":[{\"notice\":\"This is returned when the caller is not the owner.\"}],\"PercentageTooHigh()\":[{\"notice\":\"It is returned if the affiliate controller is trying to set an affiliate rate higher than 10,000.\"}],\"RenouncementNotInProgress()\":[{\"notice\":\"This is returned when there is no renouncement in progress but         the owner tries to validate the ownership renouncement.\"}],\"TransferAlreadyInProgress()\":[{\"notice\":\"This is returned when the transfer is already in progress but the owner tries         initiate a new ownership transfer.\"}],\"TransferNotInProgress()\":[{\"notice\":\"This is returned when there is no ownership transfer in progress but the         ownership change tries to be approved.\"}],\"WrongPotentialOwner()\":[{\"notice\":\"This is returned when the ownership transfer is attempted to be validated by the         a caller that is not the potential owner.\"}]},\"events\":{\"CancelOwnershipTransfer()\":{\"notice\":\"This is emitted if the ownership transfer is cancelled.\"},\"CurrencyStatusUpdated(address,bool)\":{\"notice\":\"It is emitted if the currency status in the allowlist is updated.\"},\"InitiateOwnershipRenouncement()\":{\"notice\":\"This is emitted if the ownership renouncement is initiated.\"},\"InitiateOwnershipTransfer(address,address)\":{\"notice\":\"This is emitted if the ownership transfer is initiated.\"},\"NewAffiliateController(address)\":{\"notice\":\"It is emitted when there is an update of affliate controller.\"},\"NewAffiliateProgramStatus(bool)\":{\"notice\":\"It is emitted if the affiliate program is activated or deactivated.\"},\"NewAffiliateRate(address,uint256)\":{\"notice\":\"It is emitted if there is a new affiliate and its associated rate (in basis point).\"},\"NewOwner(address)\":{\"notice\":\"This is emitted when there is a new owner.\"}},\"kind\":\"user\",\"methods\":{\"affiliateController()\":{\"notice\":\"Address of the affiliate controller.\"},\"affiliateRates(address)\":{\"notice\":\"It tracks the affiliate rate (in basis point) for a given affiliate address.         The basis point represents how much of the protocol fee will be shared to the affiliate.\"},\"cancelOwnershipTransfer()\":{\"notice\":\"This function is used to cancel the ownership transfer.\"},\"confirmOwnershipRenouncement()\":{\"notice\":\"This function is used to confirm the ownership renouncement.\"},\"confirmOwnershipTransfer()\":{\"notice\":\"This function is used to confirm the ownership transfer.\"},\"constructor\":{\"notice\":\"Constructor\"},\"initiateOwnershipRenouncement()\":{\"notice\":\"This function is used to initiate the ownership renouncement.\"},\"initiateOwnershipTransfer(address)\":{\"notice\":\"This function is used to initiate the transfer of ownership to a new owner.\"},\"isAffiliateProgramActive()\":{\"notice\":\"Whether the affiliate program is active.\"},\"isCurrencyAllowed(address)\":{\"notice\":\"It checks whether the currency is allowed for transacting.\"},\"owner()\":{\"notice\":\"Address of the current owner.\"},\"ownershipStatus()\":{\"notice\":\"Ownership status.\"},\"potentialOwner()\":{\"notice\":\"Address of the potential owner.\"},\"updateAffiliateController(address)\":{\"notice\":\"This function allows the owner to update the affiliate controller address.\"},\"updateAffiliateProgramStatus(bool)\":{\"notice\":\"This function allows the owner to update the affiliate program status.\"},\"updateAffiliateRate(address,uint256)\":{\"notice\":\"This function allows the affiliate controller to update the affiliate rate (in basis point).\"},\"updateCurrencyStatus(address,bool)\":{\"notice\":\"This function allows the owner to update the status of a currency.\"}},\"notice\":\"This contract manages the list of valid fungible currencies.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/core/CurrencyManager.sol\":\"CurrencyManager\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@chainlink/=node_modules/@chainlink/\",\":@ensdomains/=node_modules/@ensdomains/\",\":@eth-optimism/=node_modules/@eth-optimism/\",\":@gelatonetwork/=node_modules/@gelatonetwork/\",\":@layerzerolabs/=node_modules/@layerzerolabs/\",\":@looksrare/=node_modules/@looksrare/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":@uniswap/=node_modules/@uniswap/\",\":base64-sol/=node_modules/base64-sol/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":eth-gas-reporter/=node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat-deploy/=node_modules/hardhat-deploy/\",\":hardhat/=node_modules/hardhat/\",\":murky/=lib/murky/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":operator-filter-registry/=node_modules/operator-filter-registry/\",\":reservoirprotocol/=lib/reservoirprotocol/\",\":solmate/=lib/solmate/src/\",\":xdeployer/=node_modules/xdeployer/\"],\"viaIR\":true},\"sources\":{\"contracts/constants/NumericConstants.sol\":{\"keccak256\":\"0x30fb11ade509ec46e86ebbcc00b558f788fe3a22f4850a35d3351eba0de96334\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6b64755ba6164dabce9e8547cb17e6a517e470f5655f8f04886e447e46b06328\",\"dweb:/ipfs/QmYk7B5qWkNXtM6rDcnc1ayhv5NnNH2okcKknQVYCrmfDR\"]},\"contracts/core/AffiliateManager.sol\":{\"keccak256\":\"0x523e993d95d2958e25c77a9e5893e6281558ae23b7fbdcfd65fbd252e59e84c4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4ebe8e2ccc7dfa0a5f72e8d6b956115c323fb982ead23acb870094862b8cdf5a\",\"dweb:/ipfs/QmcRTYKnUQRTMtWv8CD3dPNn9ddjazEUnu8eZNk884xFE4\"]},\"contracts/core/CurrencyManager.sol\":{\"keccak256\":\"0x3f9c716abfe67f78b0468788d089d5932facaaaf342e39db0dbd1205e3d94cb3\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a41d422d05c195f3f3f454c23743ca2dad3eff789d515d5c196fb59a20d79fa3\",\"dweb:/ipfs/QmR4T499dd2tki1S8SqwZbUgoJgZcUXjS317GeRmDHcPrv\"]},\"contracts/interfaces/IAffiliateManager.sol\":{\"keccak256\":\"0x7b6e0992b6e44a5cd6d1bc2da9c7fc897573e4004ff87d185d9fa31a70848755\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://22426bef9d21dce6ef30317fed8599a87d760cc9fb38c09a20b85b3182cff61f\",\"dweb:/ipfs/QmP9Xa3nwg7rhjKtsioCoGaegGzyF2tB5Rbnx2rpgUjBkW\"]},\"contracts/interfaces/ICurrencyManager.sol\":{\"keccak256\":\"0x561b7e2bcdbd6ef67b90c07e01efd90ab4605d0deddd18b0e6eb30479ec26dd1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3b3c8819b11814cda7d7bf6382c5ac2322569beeef9912049259f9fa674783f7\",\"dweb:/ipfs/QmPyo1JZbmRaYD9tshjCPS1VZxREAmLvQkZYjniJjAUH3T\"]},\"contracts/interfaces/ILayerZeroEndpoint.sol\":{\"keccak256\":\"0x99e841ea21cba851b8356c00db1f42f8b6f51f7c69c9d51c567124530a3cf842\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://dbdb5500c2cb54c39c153dcc7974d8e6eb4cd13c2ec52563ff7b2d0b61aa4b2d\",\"dweb:/ipfs/QmX4ukYKAuZuG3gEQTn8XdpRLXXF9wt8hcBTwXVd1Ly9Hq\"]},\"contracts/interfaces/ILayerZeroReceiver.sol\":{\"keccak256\":\"0x8d3744d49cea963aca1774a20e95e4ea157725f8d70eaa8fdf601c4ca28cb99b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f3ad97a5758dae977499283cfb56d59038f285010c7b8672e13e2ed7cdb5d91c\",\"dweb:/ipfs/QmatHGWtb9mtSj4iZs1PpK8YnK5s9qP9BwTHkYdCqs7nhc\"]},\"contracts/interfaces/ILayerZeroUserApplicationConfig.sol\":{\"keccak256\":\"0xc4a255f5e1c8636ff1f46c97eecfdf583f50d87f53f7dad5451bea4f14fe3132\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://45216f78e00d4de204e21db3b82eea06f3e1f347964a037cb93351e5c461de03\",\"dweb:/ipfs/Qmb7NMFmkrXsmp42pdaJEJxrctZBvrczmFxjjN52ddVmzP\"]},\"contracts/libraries/BytesLib.sol\":{\"keccak256\":\"0x880ceabc6474d5cfc5c533800c41bb7a12fd88980b66a1e4849916d214f2d8cd\",\"license\":\"Unlicense\",\"urls\":[\"bzz-raw://428da4f9eed925935522d7bcf440535d26572880cb9df9c2fdba0bb5a4708b5f\",\"dweb:/ipfs/QmPkyKtuYqP8SdTBYspiqUh5dcJyztnRjA3uZuhv6rUhYk\"]},\"contracts/libraries/InterfaceChecker.sol\":{\"keccak256\":\"0xe10b58193112c820213a762b6e872b75eb93d6f783dd0b2b6750de7145353155\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c3708f4cbdc11a4c2f020274550c440bdaa9f09df89889fa97cef27de62fdd35\",\"dweb:/ipfs/QmZpCEphxwKuBHX4wn5JMLZXkmVnQVKMHE1736ncNvhvBB\"]},\"contracts/lzApp/exchangeLzApp/ExchangeLzApp.sol\":{\"keccak256\":\"0x4fd71bf649b7277954071e09bce0a1c1883c2c12e1fd26ba1db38cff50c30586\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b03c04b61ee7217b90eda43e78a383a3f25398e690c6b02c169185aaf3153240\",\"dweb:/ipfs/QmZPobYmDBfvTUkgkKqY7e1QotvugxWk377KX5sfgMMzCj\"]},\"contracts/lzApp/exchangeLzApp/IOwnableTwoSteps.sol\":{\"keccak256\":\"0x9ec76240061a336b8cd10a3ab1d21d8fcc6807e13b95d01c84b6282c88080379\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e737caefdb8fe8fbf5b657e92f7a0b6a7d34cb0a1e1567172ff2e1d16174b623\",\"dweb:/ipfs/QmRFcz4vu86evsfUzpwyvvAKtWJe2mi3CfCD551eVRvupT\"]},\"contracts/lzApp/exchangeLzApp/NonBlockingExchangeLzApp.sol\":{\"keccak256\":\"0xf391cf6c7b29e40b3b85e0eac32a0a1e9c0daa04afce0e74f72322815effbe6f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://cb0466e3cfd488e03aee9d464c28e6a92ec4dac0362a97448d622f539b394891\",\"dweb:/ipfs/QmUgcTRC5XL2gBD4aaVpHzmNpy6m1y1aTbEc8CSnwgqLNk\"]},\"contracts/lzApp/exchangeLzApp/OwnableTwoSteps.sol\":{\"keccak256\":\"0x0666abde000717e31c42f675940620276722f910aa7dcdb41f533d631ebac962\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7d88bda0221d5a60d72b65ef0defb6d090edce619a2936b0059074646ab0a0a8\",\"dweb:/ipfs/QmPBW2ubniUpjhTPoyipeWa6WtsukmdGaqdZvnFXX8JJdj\"]},\"contracts/token/oft/IOFT.sol\":{\"keccak256\":\"0x00d82f1aebdfd7b244072e039b9e4bfe93a8a9909065cda7f975ea5631e85541\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://96d32fb33dc212f86426afb165526e024959df31c8fc03cbd4c22ecc6fc72dc2\",\"dweb:/ipfs/QmSF2YdmYAyoKHQ48XWdVaRH4htfyMSDAkhRoQYpxRKWia\"]},\"contracts/token/oft/IOFTCore.sol\":{\"keccak256\":\"0xc9bda00ae3e2a7050e2e37583c5ab3686513eb23f0096f4921053bd0a43b2b8e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://226bfddd7e645b70c47b44a99a5c5ae84a0319046f82a7c8ee58bdf5a1502f00\",\"dweb:/ipfs/Qmc4fZ2PipkYd62xbtMRdrn7KEhTaVkVD5sQ2KAUvoYX9h\"]},\"node_modules/@looksrare/contracts-libs/contracts/OwnableTwoSteps.sol\":{\"keccak256\":\"0x0e47e11eb59908f12443c7e23d2f437992da7349d6cef7757f04014eaf82b74e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://055c0d474b793aec08aa882c93dfe01f5537b479d2730433ce262edfc4a04efb\",\"dweb:/ipfs/QmP2bwDjHAWjJKTQtKr3imKPiuf7a1M664XzEe8hjKiS6P\"]},\"node_modules/@looksrare/contracts-libs/contracts/interfaces/IOwnableTwoSteps.sol\":{\"keccak256\":\"0x9ec76240061a336b8cd10a3ab1d21d8fcc6807e13b95d01c84b6282c88080379\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e737caefdb8fe8fbf5b657e92f7a0b6a7d34cb0a1e1567172ff2e1d16174b623\",\"dweb:/ipfs/QmRFcz4vu86evsfUzpwyvvAKtWJe2mi3CfCD551eVRvupT\"]},\"node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0xbbc8ac883ac3c0078ce5ad3e288fbb3ffcc8a30c3a98c0fda0114d64fc44fca2\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://87a7a5d2f6f63f84598af02b8c50ca2df2631cb8ba2453e8d95fcb17e4be9824\",\"dweb:/ipfs/QmR76hqtAcRqoFj33tmNjcWTLrgNsAaakYwnKZ8zoJtKei\"]},\"node_modules/@openzeppelin/contracts/utils/Address.sol\":{\"keccak256\":\"0x2ccf9d2313a313d41a791505f2b5abfdc62191b5d4334f7f7a82691c088a1c87\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b3a57d0854b2fdce6ebff933a48dca2445643d1eccfc27f00292e937f26c6a58\",\"dweb:/ipfs/QmW45rZooS9TqR4YXUbjRbtf2Bpb5ouSarBvfW1LdGprvV\"]},\"node_modules/@openzeppelin/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f\",\"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy\"]},\"node_modules/hardhat/console.sol\":{\"keccak256\":\"0x72b6a1d297cd3b033d7c2e4a7e7864934bb767db6453623f1c3082c6534547f4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a8cb8681076e765c214e0d51cac989325f6b98e315eaae06ee0cbd5a9f084763\",\"dweb:/ipfs/QmNWGHi4zmjxQTYN3NMGnJd49jBT5dE4bxTdWEaDuJrC6N\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -2002,10 +2002,10 @@
         "license": "MIT"
       },
       "contracts/core/CurrencyManager.sol": {
-        "keccak256": "0xd4cddb72d57d06c5444bf64627904dfb5d7192889405458d89606ef791c0dc64",
+        "keccak256": "0x3f9c716abfe67f78b0468788d089d5932facaaaf342e39db0dbd1205e3d94cb3",
         "urls": [
-          "bzz-raw://3e7cc3ada9309a0cb88c984b00eaa96463c8f4b8e726bcee3f04360b48825ab8",
-          "dweb:/ipfs/Qmf88DqB39U8Nwuofd2TzuY1TfsykJHQ7H33jCt71e1Dxs"
+          "bzz-raw://a41d422d05c195f3f3f454c23743ca2dad3eff789d515d5c196fb59a20d79fa3",
+          "dweb:/ipfs/QmR4T499dd2tki1S8SqwZbUgoJgZcUXjS317GeRmDHcPrv"
         ],
         "license": "MIT"
       },
@@ -2174,31 +2174,31 @@
   },
   "ast": {
     "absolutePath": "contracts/core/CurrencyManager.sol",
-    "id": 846,
+    "id": 1975,
     "exportedSymbols": {
       "AffiliateManager": [
-        322
+        1430
       ],
       "CurrencyManager": [
-        845
+        1974
       ],
       "ICurrencyManager": [
-        9068
+        12361
       ],
       "IOFT": [
-        13055
+        37380
       ],
       "InterfaceChecker": [
-        10165
+        14280
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "32:1502:7",
+    "src": "32:1631:10",
     "nodes": [
       {
-        "id": 775,
+        "id": 1883,
         "nodeType": "PragmaDirective",
-        "src": "32:24:7",
+        "src": "32:24:10",
         "nodes": [],
         "literals": [
           "solidity",
@@ -2208,24 +2208,24 @@
         ]
       },
       {
-        "id": 777,
+        "id": 1885,
         "nodeType": "ImportDirective",
-        "src": "72:68:7",
+        "src": "72:68:10",
         "nodes": [],
         "absolutePath": "contracts/interfaces/ICurrencyManager.sol",
         "file": "../interfaces/ICurrencyManager.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 846,
-        "sourceUnit": 9069,
+        "scope": 1975,
+        "sourceUnit": 12362,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 776,
+              "id": 1884,
               "name": "ICurrencyManager",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 9068,
-              "src": "80:16:7",
+              "referencedDeclaration": 12361,
+              "src": "80:16:10",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -2234,24 +2234,24 @@
         "unitAlias": ""
       },
       {
-        "id": 779,
+        "id": 1887,
         "nodeType": "ImportDirective",
-        "src": "142:67:7",
+        "src": "142:67:10",
         "nodes": [],
         "absolutePath": "contracts/libraries/InterfaceChecker.sol",
         "file": "../libraries/InterfaceChecker.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 846,
-        "sourceUnit": 10166,
+        "scope": 1975,
+        "sourceUnit": 14281,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 778,
+              "id": 1886,
               "name": "InterfaceChecker",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 10165,
-              "src": "150:16:7",
+              "referencedDeclaration": 14280,
+              "src": "150:16:10",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -2260,24 +2260,24 @@
         "unitAlias": ""
       },
       {
-        "id": 781,
+        "id": 1889,
         "nodeType": "ImportDirective",
-        "src": "227:56:7",
+        "src": "227:56:10",
         "nodes": [],
         "absolutePath": "contracts/core/AffiliateManager.sol",
         "file": "./AffiliateManager.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 846,
-        "sourceUnit": 323,
+        "scope": 1975,
+        "sourceUnit": 1431,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 780,
+              "id": 1888,
               "name": "AffiliateManager",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 322,
-              "src": "235:16:7",
+              "referencedDeclaration": 1430,
+              "src": "235:16:10",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -2286,24 +2286,24 @@
         "unitAlias": ""
       },
       {
-        "id": 783,
+        "id": 1891,
         "nodeType": "ImportDirective",
-        "src": "284:43:7",
+        "src": "284:43:10",
         "nodes": [],
         "absolutePath": "contracts/token/oft/IOFT.sol",
         "file": "../token/oft/IOFT.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 846,
-        "sourceUnit": 13056,
+        "scope": 1975,
+        "sourceUnit": 37381,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 782,
+              "id": 1890,
               "name": "IOFT",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 13055,
-              "src": "292:4:7",
+              "referencedDeclaration": 37380,
+              "src": "292:4:10",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -2312,27 +2312,27 @@
         "unitAlias": ""
       },
       {
-        "id": 845,
+        "id": 1974,
         "nodeType": "ContractDefinition",
-        "src": "482:1052:7",
+        "src": "482:1181:10",
         "nodes": [
           {
-            "id": 793,
+            "id": 1901,
             "nodeType": "VariableDeclaration",
-            "src": "650:49:7",
+            "src": "650:49:10",
             "nodes": [],
             "constant": false,
             "documentation": {
-              "id": 789,
+              "id": 1897,
               "nodeType": "StructuredDocumentation",
-              "src": "560:85:7",
+              "src": "560:85:10",
               "text": " @notice It checks whether the currency is allowed for transacting."
             },
             "functionSelector": "5a195d19",
             "mutability": "mutable",
             "name": "isCurrencyAllowed",
-            "nameLocation": "682:17:7",
-            "scope": 845,
+            "nameLocation": "682:17:10",
+            "scope": 1974,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -2340,28 +2340,28 @@
               "typeString": "mapping(address => bool)"
             },
             "typeName": {
-              "id": 792,
+              "id": 1900,
               "keyType": {
-                "id": 790,
+                "id": 1898,
                 "name": "address",
                 "nodeType": "ElementaryTypeName",
-                "src": "658:7:7",
+                "src": "658:7:10",
                 "typeDescriptions": {
                   "typeIdentifier": "t_address",
                   "typeString": "address"
                 }
               },
               "nodeType": "Mapping",
-              "src": "650:24:7",
+              "src": "650:24:10",
               "typeDescriptions": {
                 "typeIdentifier": "t_mapping$_t_address_$_t_bool_$",
                 "typeString": "mapping(address => bool)"
               },
               "valueType": {
-                "id": 791,
+                "id": 1899,
                 "name": "bool",
                 "nodeType": "ElementaryTypeName",
-                "src": "669:4:7",
+                "src": "669:4:10",
                 "typeDescriptions": {
                   "typeIdentifier": "t_bool",
                   "typeString": "bool"
@@ -2371,16 +2371,16 @@
             "visibility": "public"
           },
           {
-            "id": 797,
+            "id": 1905,
             "nodeType": "VariableDeclaration",
-            "src": "705:46:7",
+            "src": "705:46:10",
             "nodes": [],
             "constant": false,
             "functionSelector": "7730d51b",
             "mutability": "mutable",
             "name": "isCurrencyOmni",
-            "nameLocation": "737:14:7",
-            "scope": 845,
+            "nameLocation": "737:14:10",
+            "scope": 1974,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -2388,28 +2388,28 @@
               "typeString": "mapping(address => bool)"
             },
             "typeName": {
-              "id": 796,
+              "id": 1904,
               "keyType": {
-                "id": 794,
+                "id": 1902,
                 "name": "address",
                 "nodeType": "ElementaryTypeName",
-                "src": "713:7:7",
+                "src": "713:7:10",
                 "typeDescriptions": {
                   "typeIdentifier": "t_address",
                   "typeString": "address"
                 }
               },
               "nodeType": "Mapping",
-              "src": "705:24:7",
+              "src": "705:24:10",
               "typeDescriptions": {
                 "typeIdentifier": "t_mapping$_t_address_$_t_bool_$",
                 "typeString": "mapping(address => bool)"
               },
               "valueType": {
-                "id": 795,
+                "id": 1903,
                 "name": "bool",
                 "nodeType": "ElementaryTypeName",
-                "src": "724:4:7",
+                "src": "724:4:10",
                 "typeDescriptions": {
                   "typeIdentifier": "t_bool",
                   "typeString": "bool"
@@ -2419,21 +2419,21 @@
             "visibility": "public"
           },
           {
-            "id": 810,
+            "id": 1918,
             "nodeType": "FunctionDefinition",
-            "src": "836:87:7",
+            "src": "836:87:10",
             "nodes": [],
             "body": {
-              "id": 809,
+              "id": 1917,
               "nodeType": "Block",
-              "src": "921:2:7",
+              "src": "921:2:10",
               "nodes": [],
               "statements": []
             },
             "documentation": {
-              "id": 798,
+              "id": 1906,
               "nodeType": "StructuredDocumentation",
-              "src": "758:73:7",
+              "src": "758:73:10",
               "text": " @notice Constructor\n @param _owner Owner address"
             },
             "implemented": true,
@@ -2442,61 +2442,61 @@
               {
                 "arguments": [
                   {
-                    "id": 805,
+                    "id": 1913,
                     "name": "_endpoint",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 800,
-                    "src": "901:9:7",
+                    "referencedDeclaration": 1908,
+                    "src": "901:9:10",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
                     }
                   },
                   {
-                    "id": 806,
+                    "id": 1914,
                     "name": "_owner",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 802,
-                    "src": "913:6:7",
+                    "referencedDeclaration": 1910,
+                    "src": "913:6:10",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
                     }
                   }
                 ],
-                "id": 807,
+                "id": 1915,
                 "kind": "baseConstructorSpecifier",
                 "modifierName": {
-                  "id": 804,
+                  "id": 1912,
                   "name": "AffiliateManager",
                   "nameLocations": [
-                    "883:16:7"
+                    "883:16:10"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 322,
-                  "src": "883:16:7"
+                  "referencedDeclaration": 1430,
+                  "src": "883:16:10"
                 },
                 "nodeType": "ModifierInvocation",
-                "src": "883:37:7"
+                "src": "883:37:10"
               }
             ],
             "name": "",
             "nameLocation": "-1:-1:-1",
             "parameters": {
-              "id": 803,
+              "id": 1911,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 800,
+                  "id": 1908,
                   "mutability": "mutable",
                   "name": "_endpoint",
-                  "nameLocation": "856:9:7",
+                  "nameLocation": "856:9:10",
                   "nodeType": "VariableDeclaration",
-                  "scope": 810,
-                  "src": "848:17:7",
+                  "scope": 1918,
+                  "src": "848:17:10",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2504,10 +2504,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 799,
+                    "id": 1907,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "848:7:7",
+                    "src": "848:7:10",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -2518,13 +2518,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 802,
+                  "id": 1910,
                   "mutability": "mutable",
                   "name": "_owner",
-                  "nameLocation": "875:6:7",
+                  "nameLocation": "875:6:10",
                   "nodeType": "VariableDeclaration",
-                  "scope": 810,
-                  "src": "867:14:7",
+                  "scope": 1918,
+                  "src": "867:14:10",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2532,10 +2532,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 801,
+                    "id": 1909,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "867:7:7",
+                    "src": "867:7:10",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -2545,58 +2545,58 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "847:35:7"
+              "src": "847:35:10"
             },
             "returnParameters": {
-              "id": 808,
+              "id": 1916,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "921:0:7"
+              "src": "921:0:10"
             },
-            "scope": 845,
+            "scope": 1974,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "internal"
           },
           {
-            "id": 832,
+            "id": 1961,
             "nodeType": "FunctionDefinition",
-            "src": "1199:205:7",
+            "src": "1199:334:10",
             "nodes": [],
             "body": {
-              "id": 831,
+              "id": 1960,
               "nodeType": "Block",
-              "src": "1282:122:7",
+              "src": "1282:251:10",
               "nodes": [],
               "statements": [
                 {
                   "expression": {
-                    "id": 824,
+                    "id": 1932,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "baseExpression": {
-                        "id": 820,
+                        "id": 1928,
                         "name": "isCurrencyAllowed",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 793,
-                        "src": "1292:17:7",
+                        "referencedDeclaration": 1901,
+                        "src": "1292:17:10",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_address_$_t_bool_$",
                           "typeString": "mapping(address => bool)"
                         }
                       },
-                      "id": 822,
+                      "id": 1930,
                       "indexExpression": {
-                        "id": 821,
+                        "id": 1929,
                         "name": "currency",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 813,
-                        "src": "1310:8:7",
+                        "referencedDeclaration": 1921,
+                        "src": "1310:8:10",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
                           "typeString": "address"
@@ -2607,7 +2607,7 @@
                       "isPure": false,
                       "lValueRequested": true,
                       "nodeType": "IndexAccess",
-                      "src": "1292:27:7",
+                      "src": "1292:27:10",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bool",
                         "typeString": "bool"
@@ -2616,49 +2616,49 @@
                     "nodeType": "Assignment",
                     "operator": "=",
                     "rightHandSide": {
-                      "id": 823,
+                      "id": 1931,
                       "name": "isAllowed",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 815,
-                      "src": "1322:9:7",
+                      "referencedDeclaration": 1923,
+                      "src": "1322:9:10",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bool",
                         "typeString": "bool"
                       }
                     },
-                    "src": "1292:39:7",
+                    "src": "1292:39:10",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
                     }
                   },
-                  "id": 825,
+                  "id": 1933,
                   "nodeType": "ExpressionStatement",
-                  "src": "1292:39:7"
+                  "src": "1292:39:10"
                 },
                 {
                   "eventCall": {
                     "arguments": [
                       {
-                        "id": 827,
+                        "id": 1935,
                         "name": "currency",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 813,
-                        "src": "1377:8:7",
+                        "referencedDeclaration": 1921,
+                        "src": "1368:8:10",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
                           "typeString": "address"
                         }
                       },
                       {
-                        "id": 828,
+                        "id": 1936,
                         "name": "isAllowed",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 815,
-                        "src": "1387:9:7",
+                        "referencedDeclaration": 1923,
+                        "src": "1378:9:10",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bool",
                           "typeString": "bool"
@@ -2676,18 +2676,18 @@
                           "typeString": "bool"
                         }
                       ],
-                      "id": 826,
+                      "id": 1934,
                       "name": "CurrencyStatusUpdated",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 9067,
-                      "src": "1355:21:7",
+                      "referencedDeclaration": 12360,
+                      "src": "1346:21:10",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_bool_$returns$__$",
                         "typeString": "function (address,bool)"
                       }
                     },
-                    "id": 829,
+                    "id": 1937,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2696,23 +2696,314 @@
                     "nameLocations": [],
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "1355:42:7",
+                    "src": "1346:42:10",
                     "tryCall": false,
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 830,
+                  "id": 1938,
                   "nodeType": "EmitStatement",
-                  "src": "1350:47:7"
+                  "src": "1341:47:10"
+                },
+                {
+                  "condition": {
+                    "commonType": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    },
+                    "id": 1944,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "id": 1939,
+                      "name": "currency",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1921,
+                      "src": "1402:8:10",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "==",
+                    "rightExpression": {
+                      "arguments": [
+                        {
+                          "hexValue": "30",
+                          "id": 1942,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "number",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "1422:1:10",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_rational_0_by_1",
+                            "typeString": "int_const 0"
+                          },
+                          "value": "0"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_rational_0_by_1",
+                            "typeString": "int_const 0"
+                          }
+                        ],
+                        "id": 1941,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "lValueRequested": false,
+                        "nodeType": "ElementaryTypeNameExpression",
+                        "src": "1414:7:10",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_address_$",
+                          "typeString": "type(address)"
+                        },
+                        "typeName": {
+                          "id": 1940,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "1414:7:10",
+                          "typeDescriptions": {}
+                        }
+                      },
+                      "id": 1943,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "typeConversion",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "1414:10:10",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "1402:22:10",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 1946,
+                  "nodeType": "IfStatement",
+                  "src": "1398:35:10",
+                  "trueBody": {
+                    "functionReturnParameters": 1927,
+                    "id": 1945,
+                    "nodeType": "Return",
+                    "src": "1426:7:10"
+                  }
+                },
+                {
+                  "expression": {
+                    "id": 1958,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "baseExpression": {
+                        "id": 1947,
+                        "name": "isCurrencyOmni",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1905,
+                        "src": "1442:14:10",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_mapping$_t_address_$_t_bool_$",
+                          "typeString": "mapping(address => bool)"
+                        }
+                      },
+                      "id": 1949,
+                      "indexExpression": {
+                        "id": 1948,
+                        "name": "currency",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1921,
+                        "src": "1457:8:10",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "nodeType": "IndexAccess",
+                      "src": "1442:24:10",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "arguments": [
+                        {
+                          "id": 1952,
+                          "name": "currency",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 1921,
+                          "src": "1492:8:10",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        },
+                        {
+                          "expression": {
+                            "arguments": [
+                              {
+                                "id": 1954,
+                                "name": "IOFT",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 37380,
+                                "src": "1507:4:10",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_type$_t_contract$_IOFT_$37380_$",
+                                  "typeString": "type(contract IOFT)"
+                                }
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_type$_t_contract$_IOFT_$37380_$",
+                                  "typeString": "type(contract IOFT)"
+                                }
+                              ],
+                              "id": 1953,
+                              "name": "type",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": -27,
+                              "src": "1502:4:10",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_function_metatype_pure$__$returns$__$",
+                                "typeString": "function () pure"
+                              }
+                            },
+                            "id": 1955,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "functionCall",
+                            "lValueRequested": false,
+                            "nameLocations": [],
+                            "names": [],
+                            "nodeType": "FunctionCall",
+                            "src": "1502:10:10",
+                            "tryCall": false,
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_magic_meta_type_t_contract$_IOFT_$37380",
+                              "typeString": "type(contract IOFT)"
+                            }
+                          },
+                          "id": 1956,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "lValueRequested": false,
+                          "memberLocation": "1513:11:10",
+                          "memberName": "interfaceId",
+                          "nodeType": "MemberAccess",
+                          "src": "1502:22:10",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes4",
+                            "typeString": "bytes4"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          },
+                          {
+                            "typeIdentifier": "t_bytes4",
+                            "typeString": "bytes4"
+                          }
+                        ],
+                        "expression": {
+                          "id": 1950,
+                          "name": "InterfaceChecker",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 14280,
+                          "src": "1469:16:10",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_type$_t_contract$_InterfaceChecker_$14280_$",
+                            "typeString": "type(library InterfaceChecker)"
+                          }
+                        },
+                        "id": 1951,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "1486:5:10",
+                        "memberName": "check",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 14279,
+                        "src": "1469:22:10",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_bytes4_$returns$_t_bool_$",
+                          "typeString": "function (address,bytes4) returns (bool)"
+                        }
+                      },
+                      "id": 1957,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "1469:56:10",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "src": "1442:83:10",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 1959,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1442:83:10"
                 }
               ]
             },
             "documentation": {
-              "id": 811,
+              "id": 1919,
               "nodeType": "StructuredDocumentation",
-              "src": "929:265:7",
+              "src": "929:265:10",
               "text": " @notice This function allows the owner to update the status of a currency.\n @param currency Currency address (address(0) for ETH)\n @param isAllowed Whether the currency should be allowed for trading\n @dev Only callable by owner."
             },
             "functionSelector": "1d3c4268",
@@ -2720,37 +3011,37 @@
             "kind": "function",
             "modifiers": [
               {
-                "id": 818,
+                "id": 1926,
                 "kind": "modifierInvocation",
                 "modifierName": {
-                  "id": 817,
+                  "id": 1925,
                   "name": "onlyOwner",
                   "nameLocations": [
-                    "1272:9:7"
+                    "1272:9:10"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 11542,
-                  "src": "1272:9:7"
+                  "referencedDeclaration": 16328,
+                  "src": "1272:9:10"
                 },
                 "nodeType": "ModifierInvocation",
-                "src": "1272:9:7"
+                "src": "1272:9:10"
               }
             ],
             "name": "updateCurrencyStatus",
-            "nameLocation": "1208:20:7",
+            "nameLocation": "1208:20:10",
             "parameters": {
-              "id": 816,
+              "id": 1924,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 813,
+                  "id": 1921,
                   "mutability": "mutable",
                   "name": "currency",
-                  "nameLocation": "1237:8:7",
+                  "nameLocation": "1237:8:10",
                   "nodeType": "VariableDeclaration",
-                  "scope": 832,
-                  "src": "1229:16:7",
+                  "scope": 1961,
+                  "src": "1229:16:10",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2758,10 +3049,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 812,
+                    "id": 1920,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1229:7:7",
+                    "src": "1229:7:10",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -2772,13 +3063,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 815,
+                  "id": 1923,
                   "mutability": "mutable",
                   "name": "isAllowed",
-                  "nameLocation": "1252:9:7",
+                  "nameLocation": "1252:9:10",
                   "nodeType": "VariableDeclaration",
-                  "scope": 832,
-                  "src": "1247:14:7",
+                  "scope": 1961,
+                  "src": "1247:14:10",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2786,10 +3077,10 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 814,
+                    "id": 1922,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1247:4:7",
+                    "src": "1247:4:10",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
@@ -2798,52 +3089,52 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1228:34:7"
+              "src": "1228:34:10"
             },
             "returnParameters": {
-              "id": 819,
+              "id": 1927,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "1282:0:7"
+              "src": "1282:0:10"
             },
-            "scope": 845,
+            "scope": 1974,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 844,
+            "id": 1973,
             "nodeType": "FunctionDefinition",
-            "src": "1410:116:7",
+            "src": "1539:116:10",
             "nodes": [],
             "body": {
-              "id": 843,
+              "id": 1972,
               "nodeType": "Block",
-              "src": "1478:48:7",
+              "src": "1607:48:10",
               "nodes": [],
               "statements": [
                 {
                   "expression": {
                     "baseExpression": {
-                      "id": 839,
+                      "id": 1968,
                       "name": "isCurrencyOmni",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 797,
-                      "src": "1495:14:7",
+                      "referencedDeclaration": 1905,
+                      "src": "1624:14:10",
                       "typeDescriptions": {
                         "typeIdentifier": "t_mapping$_t_address_$_t_bool_$",
                         "typeString": "mapping(address => bool)"
                       }
                     },
-                    "id": 841,
+                    "id": 1970,
                     "indexExpression": {
-                      "id": 840,
+                      "id": 1969,
                       "name": "currency",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 834,
-                      "src": "1510:8:7",
+                      "referencedDeclaration": 1963,
+                      "src": "1639:8:10",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
                         "typeString": "address"
@@ -2854,16 +3145,16 @@
                     "isPure": false,
                     "lValueRequested": false,
                     "nodeType": "IndexAccess",
-                    "src": "1495:24:7",
+                    "src": "1624:24:10",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
                     }
                   },
-                  "functionReturnParameters": 838,
-                  "id": 842,
+                  "functionReturnParameters": 1967,
+                  "id": 1971,
                   "nodeType": "Return",
-                  "src": "1488:31:7"
+                  "src": "1617:31:10"
                 }
               ]
             },
@@ -2872,20 +3163,20 @@
             "kind": "function",
             "modifiers": [],
             "name": "isOmniCurrency",
-            "nameLocation": "1419:14:7",
+            "nameLocation": "1548:14:10",
             "parameters": {
-              "id": 835,
+              "id": 1964,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 834,
+                  "id": 1963,
                   "mutability": "mutable",
                   "name": "currency",
-                  "nameLocation": "1442:8:7",
+                  "nameLocation": "1571:8:10",
                   "nodeType": "VariableDeclaration",
-                  "scope": 844,
-                  "src": "1434:16:7",
+                  "scope": 1973,
+                  "src": "1563:16:10",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2893,10 +3184,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 833,
+                    "id": 1962,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1434:7:7",
+                    "src": "1563:7:10",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -2906,21 +3197,21 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1433:18:7"
+              "src": "1562:18:10"
             },
             "returnParameters": {
-              "id": 838,
+              "id": 1967,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 837,
+                  "id": 1966,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 844,
-                  "src": "1472:4:7",
+                  "scope": 1973,
+                  "src": "1601:4:10",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2928,10 +3219,10 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 836,
+                    "id": 1965,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1472:4:7",
+                    "src": "1601:4:10",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
@@ -2940,9 +3231,9 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1471:6:7"
+              "src": "1600:6:10"
             },
-            "scope": 845,
+            "scope": 1974,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "public"
@@ -2952,74 +3243,74 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 785,
+              "id": 1893,
               "name": "ICurrencyManager",
               "nameLocations": [
-                "519:16:7"
+                "519:16:10"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 9068,
-              "src": "519:16:7"
+              "referencedDeclaration": 12361,
+              "src": "519:16:10"
             },
-            "id": 786,
+            "id": 1894,
             "nodeType": "InheritanceSpecifier",
-            "src": "519:16:7"
+            "src": "519:16:10"
           },
           {
             "baseName": {
-              "id": 787,
+              "id": 1895,
               "name": "AffiliateManager",
               "nameLocations": [
-                "537:16:7"
+                "537:16:10"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 322,
-              "src": "537:16:7"
+              "referencedDeclaration": 1430,
+              "src": "537:16:10"
             },
-            "id": 788,
+            "id": 1896,
             "nodeType": "InheritanceSpecifier",
-            "src": "537:16:7"
+            "src": "537:16:10"
           }
         ],
         "canonicalName": "CurrencyManager",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 784,
+          "id": 1892,
           "nodeType": "StructuredDocumentation",
-          "src": "329:152:7",
+          "src": "329:152:10",
           "text": " @title CurrencyManager\n @notice This contract manages the list of valid fungible currencies.\n @author LooksRare protocol team (👀,💎)"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          845,
-          322,
-          11514,
-          11286,
-          9294,
-          9263,
-          11731,
-          49368,
-          11330,
-          9024,
-          9068
+          1974,
+          1430,
+          16300,
+          16072,
+          12658,
+          12627,
+          16517,
+          83385,
+          16116,
+          12317,
+          12361
         ],
         "name": "CurrencyManager",
-        "nameLocation": "500:15:7",
-        "scope": 846,
+        "nameLocation": "500:15:10",
+        "scope": 1975,
         "usedErrors": [
-          9020,
-          9023,
-          11296,
-          11299,
-          11302,
-          11305,
-          11308,
-          11311
+          12313,
+          12316,
+          16082,
+          16085,
+          16088,
+          16091,
+          16094,
+          16097
         ]
       }
     ],
     "license": "MIT"
   },
-  "id": 7
+  "id": 10
 }

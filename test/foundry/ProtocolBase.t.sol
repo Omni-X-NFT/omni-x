@@ -42,6 +42,8 @@ contract ProtocolBase is MockOrderGenerator, IOmniXExchange {
     MockRoyaltyFeeRegistry public royaltyFeeRegistry;
     OrderValidatorV2A public orderValidator;
 
+    uint256 ethFork;
+    uint256 arbFork;
     uint256 public constant destAirdrop = 200000;
 
     uint16 public constant LZ_CHAIN_ID = 10121;
@@ -165,6 +167,8 @@ contract ProtocolBase is MockOrderGenerator, IOmniXExchange {
 
     function _setUp() internal {
         vm.startPrank(_owner);
+        ethFork = vm.createFork("https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161");
+        arbFork = vm.createFork("https://goerli-rollup.arbitrum.io/rpc/");
         weth = new WETH();
         looksRareToken = new MockERC20();
         mockERC721 = new MockERC721();
@@ -205,6 +209,41 @@ contract ProtocolBase is MockOrderGenerator, IOmniXExchange {
         vm.startPrank(_royaltyRecipient);
         weth.deposit{value: _initialWETHBalanceRoyaltyRecipient}();
         vm.stopPrank();
+      
+    }
+
+
+    function _deployOmniXExchange(uint16 chainId) internal {
+        vm.startPrank(_owner);
+        weth = new WETH();
+        looksRareToken = new MockERC20();
+        mockERC721 = new MockERC721();
+        mockERC1155 = new MockERC1155();
+        lzendpoint = new LZEndpointMock(chainId);
+
+        transferManager = new TransferManager(_owner);
+        royaltyFeeRegistry = new MockRoyaltyFeeRegistry(_owner, 9500);
+        protocolFeeRecipient = new ProtocolFeeRecipient(0x5924A28caAF1cc016617874a2f0C3710d881f3c1, address(weth));
+        omniXExchange = new OmniXExchange(
+            address(lzendpoint),
+            _owner,
+            address(protocolFeeRecipient),
+            address(transferManager),
+            address(weth)
+        );
+        mockERC721WithRoyalties = new MockERC721WithRoyalties(_royaltyRecipient, _standardRoyaltyFee);
+
+        // Operations
+        transferManager.allowOperator(address(omniXExchange));
+        omniXExchange.updateCurrencyStatus(ETH, true);
+        omniXExchange.updateCurrencyStatus(address(weth), true);
+
+        // Fetch domain separator and store it as one of the operators
+        _domainSeparator = omniXExchange.domainSeparator();
+        operators.push(address(omniXExchange));
+
+        // Deploy order validator contract
+        orderValidator = new OrderValidatorV2A(address(omniXExchange));
     }
 
     function _genericTakerOrder() internal pure returns (OrderStructs.Taker memory takerOrder) {

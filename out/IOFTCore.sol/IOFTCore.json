@@ -521,23 +521,23 @@
   },
   "ast": {
     "absolutePath": "contracts/token/oft/IOFTCore.sol",
-    "id": 37453,
+    "id": 37461,
     "exportedSymbols": {
       "IERC165": [
-        83985
+        83993
       ],
       "IERC20": [
-        81591
+        81599
       ],
       "IOFTCore": [
-        37452
+        37460
       ]
     },
     "nodeType": "SourceUnit",
     "src": "33:2572:155",
     "nodes": [
       {
-        "id": 37374,
+        "id": 37382,
         "nodeType": "PragmaDirective",
         "src": "33:23:155",
         "nodes": [],
@@ -549,43 +549,43 @@
         ]
       },
       {
-        "id": 37375,
+        "id": 37383,
         "nodeType": "ImportDirective",
         "src": "58:56:155",
         "nodes": [],
         "absolutePath": "node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "file": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 37453,
-        "sourceUnit": 81592,
+        "scope": 37461,
+        "sourceUnit": 81600,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 37376,
+        "id": 37384,
         "nodeType": "ImportDirective",
         "src": "115:65:155",
         "nodes": [],
         "absolutePath": "node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol",
         "file": "@openzeppelin/contracts/utils/introspection/IERC165.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 37453,
-        "sourceUnit": 83986,
+        "scope": 37461,
+        "sourceUnit": 83994,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 37452,
+        "id": 37460,
         "nodeType": "ContractDefinition",
         "src": "234:2370:155",
         "nodes": [
           {
-            "id": 37399,
+            "id": 37407,
             "nodeType": "FunctionDefinition",
             "src": "780:208:155",
             "nodes": [],
             "documentation": {
-              "id": 37380,
+              "id": 37388,
               "nodeType": "StructuredDocumentation",
               "src": "270:505:155",
               "text": " @dev estimate send token `_tokenId` to (`_dstChainId`, `_toAddress`)\n _dstChainId - L0 defined chain id to send tokens too\n _toAddress - dynamic bytes array which contains the address to whom you are sending tokens to on the dstChain\n _amount - amount of the tokens to transfer\n _useZro - indicates to use zro to pay L0 fees\n _adapterParam - flexible bytes array to indicate messaging adapter services in L0\n _payload - IOmniReceiver callback payload"
@@ -597,17 +597,17 @@
             "name": "estimateSendFee",
             "nameLocation": "789:15:155",
             "parameters": {
-              "id": 37393,
+              "id": 37401,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 37382,
+                  "id": 37390,
                   "mutability": "mutable",
                   "name": "_dstChainId",
                   "nameLocation": "812:11:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37399,
+                  "scope": 37407,
                   "src": "805:18:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -616,7 +616,7 @@
                     "typeString": "uint16"
                   },
                   "typeName": {
-                    "id": 37381,
+                    "id": 37389,
                     "name": "uint16",
                     "nodeType": "ElementaryTypeName",
                     "src": "805:6:155",
@@ -629,12 +629,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 37384,
+                  "id": 37392,
                   "mutability": "mutable",
                   "name": "_toAddress",
                   "nameLocation": "840:10:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37399,
+                  "scope": 37407,
                   "src": "825:25:155",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -643,7 +643,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 37383,
+                    "id": 37391,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "825:5:155",
@@ -656,12 +656,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 37386,
+                  "id": 37394,
                   "mutability": "mutable",
                   "name": "_amount",
                   "nameLocation": "857:7:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37399,
+                  "scope": 37407,
                   "src": "852:12:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -670,7 +670,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 37385,
+                    "id": 37393,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "852:4:155",
@@ -683,12 +683,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 37388,
+                  "id": 37396,
                   "mutability": "mutable",
                   "name": "_useZro",
                   "nameLocation": "871:7:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37399,
+                  "scope": 37407,
                   "src": "866:12:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -697,7 +697,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 37387,
+                    "id": 37395,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "866:4:155",
@@ -710,12 +710,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 37390,
+                  "id": 37398,
                   "mutability": "mutable",
                   "name": "_adapterParams",
                   "nameLocation": "895:14:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37399,
+                  "scope": 37407,
                   "src": "880:29:155",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -724,7 +724,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 37389,
+                    "id": 37397,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "880:5:155",
@@ -737,12 +737,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 37392,
+                  "id": 37400,
                   "mutability": "mutable",
                   "name": "_payload",
                   "nameLocation": "926:8:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37399,
+                  "scope": 37407,
                   "src": "911:23:155",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -751,7 +751,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 37391,
+                    "id": 37399,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "911:5:155",
@@ -766,17 +766,17 @@
               "src": "804:131:155"
             },
             "returnParameters": {
-              "id": 37398,
+              "id": 37406,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 37395,
+                  "id": 37403,
                   "mutability": "mutable",
                   "name": "nativeFee",
                   "nameLocation": "964:9:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37399,
+                  "scope": 37407,
                   "src": "959:14:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -785,7 +785,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 37394,
+                    "id": 37402,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "959:4:155",
@@ -798,12 +798,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 37397,
+                  "id": 37405,
                   "mutability": "mutable",
                   "name": "zroFee",
                   "nameLocation": "980:6:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37399,
+                  "scope": 37407,
                   "src": "975:11:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -812,7 +812,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 37396,
+                    "id": 37404,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "975:4:155",
@@ -826,18 +826,18 @@
               ],
               "src": "958:29:155"
             },
-            "scope": 37452,
+            "scope": 37460,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 37419,
+            "id": 37427,
             "nodeType": "FunctionDefinition",
             "src": "1624:227:155",
             "nodes": [],
             "documentation": {
-              "id": 37400,
+              "id": 37408,
               "nodeType": "StructuredDocumentation",
               "src": "994:625:155",
               "text": " @dev send `_amount` amount of token to (`_dstChainId`, `_toAddress`) from `_from`\n `_from` the owner of token\n `_dstChainId` the destination chain identifier\n `_toAddress` can be any size depending on the `dstChainId`.\n `_amount` the quantity of tokens in wei\n `_refundAddress` the address LayerZero refunds if too much message fee is sent\n `_zroPaymentAddress` set to address(0x0) if not paying in ZRO (LayerZero Token)\n `_adapterParams` is a flexible bytes array to indicate messaging adapter services\n `_payload` IOmniReceiver.omniReceive callback payload"
@@ -849,17 +849,17 @@
             "name": "sendFrom",
             "nameLocation": "1633:8:155",
             "parameters": {
-              "id": 37417,
+              "id": 37425,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 37402,
+                  "id": 37410,
                   "mutability": "mutable",
                   "name": "_from",
                   "nameLocation": "1650:5:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37419,
+                  "scope": 37427,
                   "src": "1642:13:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -868,7 +868,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 37401,
+                    "id": 37409,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "1642:7:155",
@@ -882,12 +882,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 37404,
+                  "id": 37412,
                   "mutability": "mutable",
                   "name": "_dstChainId",
                   "nameLocation": "1664:11:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37419,
+                  "scope": 37427,
                   "src": "1657:18:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -896,7 +896,7 @@
                     "typeString": "uint16"
                   },
                   "typeName": {
-                    "id": 37403,
+                    "id": 37411,
                     "name": "uint16",
                     "nodeType": "ElementaryTypeName",
                     "src": "1657:6:155",
@@ -909,12 +909,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 37406,
+                  "id": 37414,
                   "mutability": "mutable",
                   "name": "_toAddress",
                   "nameLocation": "1692:10:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37419,
+                  "scope": 37427,
                   "src": "1677:25:155",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -923,7 +923,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 37405,
+                    "id": 37413,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "1677:5:155",
@@ -936,12 +936,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 37408,
+                  "id": 37416,
                   "mutability": "mutable",
                   "name": "_amount",
                   "nameLocation": "1709:7:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37419,
+                  "scope": 37427,
                   "src": "1704:12:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -950,7 +950,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 37407,
+                    "id": 37415,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "1704:4:155",
@@ -963,12 +963,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 37410,
+                  "id": 37418,
                   "mutability": "mutable",
                   "name": "_refundAddress",
                   "nameLocation": "1734:14:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37419,
+                  "scope": 37427,
                   "src": "1718:30:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -977,7 +977,7 @@
                     "typeString": "address payable"
                   },
                   "typeName": {
-                    "id": 37409,
+                    "id": 37417,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "1718:15:155",
@@ -991,12 +991,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 37412,
+                  "id": 37420,
                   "mutability": "mutable",
                   "name": "_zroPaymentAddress",
                   "nameLocation": "1758:18:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37419,
+                  "scope": 37427,
                   "src": "1750:26:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1005,7 +1005,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 37411,
+                    "id": 37419,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "1750:7:155",
@@ -1019,12 +1019,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 37414,
+                  "id": 37422,
                   "mutability": "mutable",
                   "name": "_adapterParams",
                   "nameLocation": "1793:14:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37419,
+                  "scope": 37427,
                   "src": "1778:29:155",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -1033,7 +1033,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 37413,
+                    "id": 37421,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "1778:5:155",
@@ -1046,12 +1046,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 37416,
+                  "id": 37424,
                   "mutability": "mutable",
                   "name": "_payload",
                   "nameLocation": "1824:8:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37419,
+                  "scope": 37427,
                   "src": "1809:23:155",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -1060,7 +1060,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 37415,
+                    "id": 37423,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "1809:5:155",
@@ -1075,23 +1075,23 @@
               "src": "1641:192:155"
             },
             "returnParameters": {
-              "id": 37418,
+              "id": 37426,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1850:0:155"
             },
-            "scope": 37452,
+            "scope": 37460,
             "stateMutability": "payable",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 37425,
+            "id": 37433,
             "nodeType": "FunctionDefinition",
             "src": "1943:58:155",
             "nodes": [],
             "documentation": {
-              "id": 37420,
+              "id": 37428,
               "nodeType": "StructuredDocumentation",
               "src": "1857:81:155",
               "text": " @dev returns the circulating amount of tokens on current chain"
@@ -1103,23 +1103,23 @@
             "name": "circulatingSupply",
             "nameLocation": "1952:17:155",
             "parameters": {
-              "id": 37421,
+              "id": 37429,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1969:2:155"
             },
             "returnParameters": {
-              "id": 37424,
+              "id": 37432,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 37423,
+                  "id": 37431,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37425,
+                  "scope": 37433,
                   "src": "1995:4:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1128,7 +1128,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 37422,
+                    "id": 37430,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "1995:4:155",
@@ -1142,19 +1142,19 @@
               ],
               "src": "1994:6:155"
             },
-            "scope": 37452,
+            "scope": 37460,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 37438,
+            "id": 37446,
             "nodeType": "EventDefinition",
             "src": "2165:126:155",
             "nodes": [],
             "anonymous": false,
             "documentation": {
-              "id": 37426,
+              "id": 37434,
               "nodeType": "StructuredDocumentation",
               "src": "2007:153:155",
               "text": " @dev Emitted when `_amount` tokens are moved from the `_sender` to (`_dstChainId`, `_toAddress`)\n `_nonce` is the outbound nonce"
@@ -1163,18 +1163,18 @@
             "name": "SendToChain",
             "nameLocation": "2171:11:155",
             "parameters": {
-              "id": 37437,
+              "id": 37445,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 37428,
+                  "id": 37436,
                   "indexed": true,
                   "mutability": "mutable",
                   "name": "_sender",
                   "nameLocation": "2199:7:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37438,
+                  "scope": 37446,
                   "src": "2183:23:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1183,7 +1183,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 37427,
+                    "id": 37435,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "2183:7:155",
@@ -1197,13 +1197,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 37430,
+                  "id": 37438,
                   "indexed": true,
                   "mutability": "mutable",
                   "name": "_dstChainId",
                   "nameLocation": "2223:11:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37438,
+                  "scope": 37446,
                   "src": "2208:26:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1212,7 +1212,7 @@
                     "typeString": "uint16"
                   },
                   "typeName": {
-                    "id": 37429,
+                    "id": 37437,
                     "name": "uint16",
                     "nodeType": "ElementaryTypeName",
                     "src": "2208:6:155",
@@ -1225,13 +1225,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 37432,
+                  "id": 37440,
                   "indexed": true,
                   "mutability": "mutable",
                   "name": "_toAddress",
                   "nameLocation": "2250:10:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37438,
+                  "scope": 37446,
                   "src": "2236:24:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1240,7 +1240,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 37431,
+                    "id": 37439,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "2236:5:155",
@@ -1253,13 +1253,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 37434,
+                  "id": 37442,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "_amount",
                   "nameLocation": "2267:7:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37438,
+                  "scope": 37446,
                   "src": "2262:12:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1268,7 +1268,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 37433,
+                    "id": 37441,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "2262:4:155",
@@ -1281,13 +1281,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 37436,
+                  "id": 37444,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "_nonce",
                   "nameLocation": "2283:6:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37438,
+                  "scope": 37446,
                   "src": "2276:13:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1296,7 +1296,7 @@
                     "typeString": "uint64"
                   },
                   "typeName": {
-                    "id": 37435,
+                    "id": 37443,
                     "name": "uint64",
                     "nodeType": "ElementaryTypeName",
                     "src": "2276:6:155",
@@ -1312,13 +1312,13 @@
             }
           },
           {
-            "id": 37451,
+            "id": 37459,
             "nodeType": "EventDefinition",
             "src": "2467:135:155",
             "nodes": [],
             "anonymous": false,
             "documentation": {
-              "id": 37439,
+              "id": 37447,
               "nodeType": "StructuredDocumentation",
               "src": "2297:165:155",
               "text": " @dev Emitted when `_amount` tokens are received from `_srcChainId` into the `_toAddress` on the local chain.\n `_nonce` is the inbound nonce."
@@ -1327,18 +1327,18 @@
             "name": "ReceiveFromChain",
             "nameLocation": "2473:16:155",
             "parameters": {
-              "id": 37450,
+              "id": 37458,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 37441,
+                  "id": 37449,
                   "indexed": true,
                   "mutability": "mutable",
                   "name": "_srcChainId",
                   "nameLocation": "2505:11:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37451,
+                  "scope": 37459,
                   "src": "2490:26:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1347,7 +1347,7 @@
                     "typeString": "uint16"
                   },
                   "typeName": {
-                    "id": 37440,
+                    "id": 37448,
                     "name": "uint16",
                     "nodeType": "ElementaryTypeName",
                     "src": "2490:6:155",
@@ -1360,13 +1360,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 37443,
+                  "id": 37451,
                   "indexed": true,
                   "mutability": "mutable",
                   "name": "_srcAddress",
                   "nameLocation": "2532:11:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37451,
+                  "scope": 37459,
                   "src": "2518:25:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1375,7 +1375,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 37442,
+                    "id": 37450,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "2518:5:155",
@@ -1388,13 +1388,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 37445,
+                  "id": 37453,
                   "indexed": true,
                   "mutability": "mutable",
                   "name": "_toAddress",
                   "nameLocation": "2561:10:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37451,
+                  "scope": 37459,
                   "src": "2545:26:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1403,7 +1403,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 37444,
+                    "id": 37452,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "2545:7:155",
@@ -1417,13 +1417,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 37447,
+                  "id": 37455,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "_amount",
                   "nameLocation": "2578:7:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37451,
+                  "scope": 37459,
                   "src": "2573:12:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1432,7 +1432,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 37446,
+                    "id": 37454,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "2573:4:155",
@@ -1445,13 +1445,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 37449,
+                  "id": 37457,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "_nonce",
                   "nameLocation": "2594:6:155",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37451,
+                  "scope": 37459,
                   "src": "2587:13:155",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1460,7 +1460,7 @@
                     "typeString": "uint64"
                   },
                   "typeName": {
-                    "id": 37448,
+                    "id": 37456,
                     "name": "uint64",
                     "nodeType": "ElementaryTypeName",
                     "src": "2587:6:155",
@@ -1480,16 +1480,16 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 37378,
+              "id": 37386,
               "name": "IERC165",
               "nameLocations": [
                 "256:7:155"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 83985,
+              "referencedDeclaration": 83993,
               "src": "256:7:155"
             },
-            "id": 37379,
+            "id": 37387,
             "nodeType": "InheritanceSpecifier",
             "src": "256:7:155"
           }
@@ -1498,19 +1498,19 @@
         "contractDependencies": [],
         "contractKind": "interface",
         "documentation": {
-          "id": 37377,
+          "id": 37385,
           "nodeType": "StructuredDocumentation",
           "src": "182:51:155",
           "text": " @dev Interface of the IOFT core standard"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          37452,
-          83985
+          37460,
+          83993
         ],
         "name": "IOFTCore",
         "nameLocation": "244:8:155",
-        "scope": 37453,
+        "scope": 37461,
         "usedErrors": []
       }
     ],
