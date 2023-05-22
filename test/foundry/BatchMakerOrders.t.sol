@@ -376,8 +376,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
     function _createBatchMakerAsks(uint256 numberOrders) private view returns (OrderStructs.Maker[] memory makerAsks) {
         makerAsks = new OrderStructs.Maker[](numberOrders);
         for (uint256 i; i < numberOrders; i++) {
-            makerAsks[i] = _createSingleItemMakerOrder({
-                quoteType: QuoteType.Ask,
+            makerAsks[i] = _createSingleItemMakerOrderAsk({
                 globalNonce: 0,
                 subsetNonce: 0,
                 strategyId: STANDARD_SALE_FOR_FIXED_PRICE_STRATEGY,
@@ -396,8 +395,7 @@ contract BatchMakerOrdersTest is ProtocolBase {
     function _createBatchMakerBids(uint256 numberOrders) private view returns (OrderStructs.Maker[] memory makerBids) {
         makerBids = new OrderStructs.Maker[](numberOrders);
         for (uint256 i; i < numberOrders; i++) {
-            makerBids[i] = _createSingleItemMakerOrder({
-                quoteType: QuoteType.Bid,
+            makerBids[i] = _createSingleItemMakerOrderBid({
                 globalNonce: 0,
                 subsetNonce: 0,
                 strategyId: STANDARD_SALE_FOR_FIXED_PRICE_STRATEGY,

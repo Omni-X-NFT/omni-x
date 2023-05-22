@@ -294,8 +294,7 @@ contract StandardTransactionsTest is ProtocolBase {
             // Mint asset
             mockERC721.mint(makerUser, i);
 
-            makerAsks[i] = _createSingleItemMakerOrder({
-                quoteType: QuoteType.Ask,
+            makerAsks[i] = _createSingleItemMakerOrderAsk({
                 globalNonce: 0,
                 subsetNonce: 0,
                 strategyId: STANDARD_SALE_FOR_FIXED_PRICE_STRATEGY,
@@ -321,7 +320,7 @@ contract StandardTransactionsTest is ProtocolBase {
         // Execute taker bid transaction
         vm.prank(takerUser);
         omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
-            destAirdrop,
+   
             takerBids,
             makerAsks,
             signatures,
@@ -367,8 +366,7 @@ contract StandardTransactionsTest is ProtocolBase {
             // Mint asset
             mockERC721.mint(makerUser, i);
 
-            makerAsks[i] = _createSingleItemMakerOrder({
-                quoteType: QuoteType.Ask,
+            makerAsks[i] = _createSingleItemMakerOrderAsk({
                 globalNonce: 0,
                 subsetNonce: 0,
                 strategyId: STANDARD_SALE_FOR_FIXED_PRICE_STRATEGY,
@@ -403,7 +401,7 @@ contract StandardTransactionsTest is ProtocolBase {
             vm.expectRevert(abi.encodeWithSelector(ERC721TransferFromFail.selector));
             vm.prank(takerUser);
             omniXExchange.executeMultipleTakerBids{value: 1.4 ether * numberPurchases}(
-                destAirdrop,
+               
                 takerBids,
                 makerAsks,
                 signatures,
@@ -423,7 +421,7 @@ contract StandardTransactionsTest is ProtocolBase {
             vm.prank(takerUser);
             // Execute taker bid transaction
             omniXExchange.executeMultipleTakerBids{value: 1.4 ether * numberPurchases}(
-                destAirdrop,
+     
                 takerBids,
                 makerAsks,
                 signatures,
@@ -473,7 +471,7 @@ contract StandardTransactionsTest is ProtocolBase {
         vm.expectRevert(LengthsInvalid.selector);
         vm.prank(takerUser);
         omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
-            destAirdrop,
+   
             takerBids,
             makerAsks,
             signatures,
@@ -489,7 +487,7 @@ contract StandardTransactionsTest is ProtocolBase {
         vm.expectRevert(LengthsInvalid.selector);
         vm.prank(takerUser);
         omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
-            destAirdrop,
+         
             takerBids,
             makerAsks,
             signatures,
@@ -505,7 +503,7 @@ contract StandardTransactionsTest is ProtocolBase {
         vm.expectRevert(LengthsInvalid.selector);
         vm.prank(takerUser);
         omniXExchange.executeMultipleTakerBids{value: price * numberPurchases}(
-            destAirdrop,
+  
             takerBids,
             makerAsks,
             signatures,

@@ -149,12 +149,15 @@ contract OmniXExchange is
         _verifyMerkleProofOrOrderHash(merkleTree, makerAsk.hash(), makerSignature, makerAsk.signer);
 
         // Execute the transaction and fetch protocol fee amount
-       
-        uint256 totalProtocolFeeAmount = _executeTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, affiliate, makerAsk.hash());
+
+        
 
         // Pay protocol fee amount if same chain trading, else this will be done on the maker chain where the trade gets finalized (and affiliate fee if any) 
         if (makerAsk.lzChainId == takerBid.lzChainId) {
+            uint256 totalProtocolFeeAmount = _executeTakerBid(takerBid, makerAsk, msg.sender,makerAsk.hash());
             _payProtocolFeeAndAffiliateFee(currency, msg.sender, affiliate, msg.sender, totalProtocolFeeAmount);
+        } else {
+            _executeCrossChainTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, affiliate, makerAsk.hash());
         }
        
         // Return ETH if any
@@ -165,7 +168,6 @@ contract OmniXExchange is
 
 
     function executeMultipleTakerBids(
-        uint256 destAirdrop,
         OrderStructs.Taker[] calldata takerBids,
         OrderStructs.Maker[] calldata makerAsks,
         bytes[] calldata makerSignatures,
@@ -211,7 +213,7 @@ contract OmniXExchange is
                         _verifyMerkleProofOrOrderHash(merkleTrees[i], orderHash, makerSignatures[i], makerAsk.signer);
 
                         // Execute the transaction and add protocol fee
-                        totalProtocolFeeAmount += _executeTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, affiliate, orderHash);
+                        totalProtocolFeeAmount += _executeTakerBid(takerBid, makerAsk, msg.sender, orderHash);
 
                         unchecked {
                             ++i;
@@ -235,7 +237,7 @@ contract OmniXExchange is
                     {
                         _verifyMerkleProofOrOrderHash(merkleTrees[i], orderHash, makerSignatures[i], makerAsk.signer);
 
-                        try this.restrictedExecuteTakerBid(destAirdrop, takerBid, makerAsk, msg.sender, affiliate, orderHash) returns (
+                        try this.restrictedExecuteTakerBid(0, takerBid, makerAsk, msg.sender, affiliate, orderHash) returns (
                             uint256 protocolFeeAmount
                         ) {
                             totalProtocolFeeAmount += protocolFeeAmount;
@@ -277,7 +279,7 @@ contract OmniXExchange is
             revert CallerInvalid();
         }
 
-        protocolFeeAmount = _executeTakerBid(destAirdrop, takerBid, makerAsk, sender, affiliate, orderHash);
+        protocolFeeAmount = _executeTakerBid( takerBid, makerAsk, sender, orderHash);
     }
 
     /**
@@ -515,6 +517,67 @@ contract OmniXExchange is
         return payload;
     }  
 
+    function _executeCrossChainTakerBid(
+        uint destAirdrop,
+        OrderStructs.Taker calldata takerBid,
+        OrderStructs.Maker calldata makerAsk,
+        address sender,
+        address affiliate,
+        bytes32 orderHash
+    ) internal {
+        if (makerAsk.quoteType != QuoteType.Ask) {
+            revert QuoteTypeInvalid();
+        }
+
+        {
+            // Verify nonces
+            bytes32 userOrderNonceStatus = userOrderNonce[makerAsk.signer][makerAsk.orderNonce];
+
+            if (
+                userBidAskNonces[makerAsk.signer].askNonce != makerAsk.globalNonce ||
+                userSubsetNonce[makerAsk.signer][makerAsk.subsetNonce] ||
+                (userOrderNonceStatus != bytes32(0) && userOrderNonceStatus != orderHash)
+            ) {
+                revert NoncesInvalid();
+            }
+        }
+
+        (   ,
+            ,
+            address[2] memory recipients,
+            uint256[3] memory feeAmounts,
+            bool isNonceInvalidated
+        ) = this._executeStrategyForTakerOrder(takerBid, makerAsk, msg.sender);
+
+        // Order nonce status is updated
+        _updateUserOrderNonce(isNonceInvalidated, makerAsk.signer, makerAsk.orderNonce, orderHash);
+
+        (uint256 omnixMessageFee, uint256 crossChainCurrencyFee,) = getLzFees(
+                takerBid,
+                makerAsk,
+                destAirdrop,
+                affiliate
+                ); 
+        require(omnixMessageFee + crossChainCurrencyFee <= msg.value, "OmniXExchange: Insufficient value for cross chain transfer");
+
+        if (omnixMessageFee != 0) {
+            _sendCrossMessage(takerBid, makerAsk, 0);
+            _transferToAskRecipientAndCreatorIfAny(recipients, feeAmounts, makerAsk.currency, sender);
+        } else {
+            bytes memory sgPayload = _getSgPayload(takerBid, makerAsk, affiliate);
+            _transferProxyFunds(
+                takerBid.currency,
+                takerBid.recipient == address(0) ? sender : takerBid.recipient,
+                makerAsk.price,
+                takerBid.lzChainId,
+                makerAsk.lzChainId,
+                sgPayload
+            );
+        }
+    
+
+    }
+
     /**
      * @notice This function is internal and is used to execute a taker bid (against a maker ask).
      * @param takerBid Taker bid order struct
@@ -524,11 +587,9 @@ contract OmniXExchange is
      * @return protocolFeeAmount Protocol fee amount
      */
     function _executeTakerBid(
-        uint destAirdrop,
         OrderStructs.Taker calldata takerBid,
         OrderStructs.Maker calldata makerAsk,
         address sender,
-        address affiliate,
         bytes32 orderHash
     ) internal returns (uint256) {
         if (makerAsk.quoteType != QuoteType.Ask) {
@@ -560,51 +621,18 @@ contract OmniXExchange is
 
         // Order nonce status is updated
         _updateUserOrderNonce(isNonceInvalidated, makerAsk.signer, makerAsk.orderNonce, orderHash);
-
-
-        (uint16 makerChainId, uint16 takerChainId) = (makerAsk.lzChainId, takerBid.lzChainId);
-
-        if (makerChainId == takerChainId) {
-            // Taker action goes first
-            require(makerAsk.currency == takerBid.currency, "OmniXExchange: Currency mismatch");
-
-            _transferToAskRecipientAndCreatorIfAny(recipients, feeAmounts, makerAsk.currency, sender);
-            // Maker action goes second
-            _transferNFT(
-            makerAsk.collection,
-            makerAsk.collectionType,
-            makerAsk.signer,
-            takerBid.recipient == address(0) ? sender : takerBid.recipient,
-            itemIds,
-            amounts
-            );
-        } else {
-            (uint256 omnixMessageFee, uint256 crossChainCurrencyFee,) = getLzFees(
-                takerBid,
-                makerAsk,
-                destAirdrop,
-                affiliate
-                ); 
-            require(omnixMessageFee + crossChainCurrencyFee <= msg.value, "OmniXExchange: Insufficient value for cross chain transfer");
-
-            if (omnixMessageFee != 0) {
-                _sendCrossMessage(takerBid, makerAsk, 0);
-                _transferToAskRecipientAndCreatorIfAny(recipients, feeAmounts, makerAsk.currency, sender);
-            } else {
-                bytes memory sgPayload = _getSgPayload(takerBid, makerAsk, affiliate);
-                _transferProxyFunds(
-                    takerBid.currency,
-                    takerBid.recipient == address(0) ? sender : takerBid.recipient,
-                    makerAsk.price,
-                    takerChainId,
-                    makerChainId,
-                    sgPayload
-                );
-            }
-        }
-
        
-       
+        // Taker action goes first
+        _transferToAskRecipientAndCreatorIfAny(recipients, feeAmounts, makerAsk.currency, sender);
+        // Maker action goes second
+        _transferNFT(
+        makerAsk.collection,
+        makerAsk.collectionType,
+        makerAsk.signer,
+        takerBid.recipient == address(0) ? sender : takerBid.recipient,
+        itemIds,
+        amounts
+        );
 
         emit TakerBid(
             NonceInvalidationParameters({

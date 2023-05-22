@@ -123,7 +123,7 @@ contract LooksRareProtocolTest is ProtocolBase {
         vm.prank(takerUser);
         vm.expectRevert(CurrencyInvalid.selector);
         omniXExchange.executeMultipleTakerBids{value: price}(
-            destAirdrop,
+        
             takerBids,
             makerAsks,
             signatures,
@@ -135,7 +135,7 @@ contract LooksRareProtocolTest is ProtocolBase {
         vm.prank(takerUser);
         vm.expectRevert(CurrencyInvalid.selector);
         omniXExchange.executeMultipleTakerBids{value: price}(
-            destAirdrop,
+           
             takerBids,
             makerAsks,
             signatures,
@@ -256,8 +256,7 @@ contract LooksRareProtocolTest is ProtocolBase {
             // Mint asset
             mockERC721.mint(makerUser, i);
 
-            makerAsks[i] = _createSingleItemMakerOrder({
-                quoteType: QuoteType.Ask,
+            makerAsks[i] = _createSingleItemMakerOrderAsk({
                 globalNonce: 0,
                 subsetNonce: 0,
                 strategyId: STANDARD_SALE_FOR_FIXED_PRICE_STRATEGY,
@@ -287,7 +286,7 @@ contract LooksRareProtocolTest is ProtocolBase {
         vm.prank(takerUser);
         vm.expectRevert(CurrencyInvalid.selector);
         omniXExchange.executeMultipleTakerBids{value: price}(
-            destAirdrop,
+      
             takerBids,
             makerAsks,
             signatures,

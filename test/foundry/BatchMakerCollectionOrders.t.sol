@@ -96,8 +96,7 @@ contract BatchMakerCollectionOrdersTest is ProtocolBase {
     function _createBatchMakerBids(uint256 numberOrders) private view returns (OrderStructs.Maker[] memory makerBids) {
         makerBids = new OrderStructs.Maker[](numberOrders);
         for (uint256 i; i < numberOrders; i++) {
-            makerBids[i] = _createSingleItemMakerOrder({
-                quoteType: QuoteType.Bid,
+            makerBids[i] = _createSingleItemMakerOrderBid({
                 globalNonce: 0,
                 subsetNonce: 0,
                 strategyId: 1,

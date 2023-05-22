@@ -167,7 +167,6 @@ interface IOmniXExchange {
      *        i.e. whether it should revert if 1 or more transactions fail
      */
     function executeMultipleTakerBids(
-        uint256 destAirdrop,
         OrderStructs.Taker[] calldata takerBids,
         OrderStructs.Maker[] calldata makerAsks,
         bytes[] calldata makerSignatures,

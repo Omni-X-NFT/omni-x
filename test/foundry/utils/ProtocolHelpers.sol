@@ -22,8 +22,45 @@ contract ProtocolHelpers is TestHelpers, TestParameters {
 
     receive() external payable {}
 
-    function _createSingleItemMakerOrder(
-        QuoteType quoteType,
+
+    function _createSingleItemMakerOrderBid(
+        uint256 globalNonce,
+        uint256 subsetNonce,
+        uint256 strategyId,
+        CollectionType collectionType,
+        uint256 orderNonce,
+        address collection,
+        address currency,
+        address signer,
+        uint256 price,
+        uint16 lzChainId,
+        uint256 itemId
+    ) internal view returns (OrderStructs.Maker memory makerOrder) {
+       uint256[] memory itemIds = new uint256[](1);
+        itemIds[0] = itemId;
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = 1;
+
+        makerOrder = OrderStructs.Maker({
+            quoteType: QuoteType.Bid,
+            globalNonce: globalNonce,
+            subsetNonce: subsetNonce,
+            orderNonce: orderNonce,
+            strategyId: strategyId,
+            collectionType: collectionType,
+            collection: collection,
+            currency: currency,
+            signer: signer,
+            startTime: block.timestamp,
+            endTime: block.timestamp + 1,
+            price: price,
+            itemIds: itemIds,
+            amounts: amounts,
+            lzChainId: lzChainId,
+            additionalParameters: abi.encode()
+        });
+    }
+    function _createSingleItemMakerOrderAsk(
         uint256 globalNonce,
         uint256 subsetNonce,
         uint256 strategyId,
@@ -42,7 +79,7 @@ contract ProtocolHelpers is TestHelpers, TestParameters {
         amounts[0] = 1;
 
         makerOrder = OrderStructs.Maker({
-            quoteType: quoteType,
+            quoteType: QuoteType.Ask,
             globalNonce: globalNonce,
             subsetNonce: subsetNonce,
             orderNonce: orderNonce,
@@ -61,8 +98,7 @@ contract ProtocolHelpers is TestHelpers, TestParameters {
         });
     }
 
-    function _createMultiItemMakerOrder(
-        QuoteType quoteType,
+    function _createMultiItemMakerOrderBid(
         uint256 globalNonce,
         uint256 subsetNonce,
         uint256 strategyId,
@@ -77,7 +113,41 @@ contract ProtocolHelpers is TestHelpers, TestParameters {
         uint16 lzChainId
     ) internal view returns (OrderStructs.Maker memory newMakerBid) {
         newMakerBid = OrderStructs.Maker({
-            quoteType: quoteType,
+            quoteType: QuoteType.Bid,
+            globalNonce: globalNonce,
+            subsetNonce: subsetNonce,
+            orderNonce: orderNonce,
+            strategyId: strategyId,
+            collectionType: collectionType,
+            collection: collection,
+            currency: currency,
+            signer: signer,
+            startTime: block.timestamp,
+            endTime: block.timestamp + 1,
+            price: price,
+            itemIds: itemIds,
+            amounts: amounts,
+            lzChainId: lzChainId,
+            additionalParameters: abi.encode()
+        });
+    }
+
+        function _createMultiItemMakerOrderAsk(
+        uint256 globalNonce,
+        uint256 subsetNonce,
+        uint256 strategyId,
+        CollectionType collectionType,
+        uint256 orderNonce,
+        address collection,
+        address currency,
+        address signer,
+        uint256 price,
+        uint256[] memory itemIds,
+        uint256[] memory amounts,
+        uint16 lzChainId
+    ) internal view returns (OrderStructs.Maker memory newMakerBid) {
+        newMakerBid = OrderStructs.Maker({
+            quoteType: QuoteType.Ask,
             globalNonce: globalNonce,
             subsetNonce: subsetNonce,
             orderNonce: orderNonce,

@@ -46,8 +46,7 @@ contract ItemIdsRangeOrdersTest is ProtocolBase, IStrategyManager {
     ) private returns (OrderStructs.Maker memory newMakerBid, OrderStructs.Taker memory newTakerAsk) {
         uint256 mid = (lowerBound + upperBound) / 2;
 
-        newMakerBid = _createMultiItemMakerOrder({
-            quoteType: QuoteType.Bid,
+        newMakerBid = _createMultiItemMakerOrderBid({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: 1,
@@ -135,8 +134,7 @@ contract ItemIdsRangeOrdersTest is ProtocolBase, IStrategyManager {
         _setUpUsers();
         _setUpNewStrategy();
 
-        OrderStructs.Maker memory makerBid = _createMultiItemMakerOrder({
-            quoteType: QuoteType.Bid,
+        OrderStructs.Maker memory makerBid = _createMultiItemMakerOrderBid({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: 1,
@@ -454,8 +452,7 @@ contract ItemIdsRangeOrdersTest is ProtocolBase, IStrategyManager {
     function testInvalidSelector() public {
         _setUpNewStrategy();
 
-        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Bid,
+        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrderBid({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: 2,

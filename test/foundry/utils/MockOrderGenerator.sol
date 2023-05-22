@@ -20,8 +20,7 @@ contract MockOrderGenerator is ProtocolHelpers {
     ) internal view returns (OrderStructs.Maker memory newMakerAsk, OrderStructs.Taker memory newTakerBid) {
         CollectionType collectionType = _getCollectionType(collection);
 
-        newMakerAsk = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Ask,
+        newMakerAsk = _createSingleItemMakerOrderAsk({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: STANDARD_SALE_FOR_FIXED_PRICE_STRATEGY,
@@ -44,8 +43,7 @@ contract MockOrderGenerator is ProtocolHelpers {
     ) internal view returns (OrderStructs.Maker memory newMakerBid, OrderStructs.Taker memory newTakerAsk) {
         CollectionType collectionType = _getCollectionType(collection);
 
-        newMakerBid = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Bid,
+        newMakerBid = _createSingleItemMakerOrderBid({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: STANDARD_SALE_FOR_FIXED_PRICE_STRATEGY,
@@ -73,8 +71,7 @@ contract MockOrderGenerator is ProtocolHelpers {
             numberTokens
         );
 
-        newMakerAsk = _createMultiItemMakerOrder({
-            quoteType: QuoteType.Ask,
+        newMakerAsk = _createMultiItemMakerOrderAsk({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: STANDARD_SALE_FOR_FIXED_PRICE_STRATEGY,
@@ -104,8 +101,8 @@ contract MockOrderGenerator is ProtocolHelpers {
             numberTokens
         );
 
-        newMakerBid = _createMultiItemMakerOrder({
-            quoteType: QuoteType.Bid,
+        newMakerBid = _createMultiItemMakerOrderBid({
+
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: STANDARD_SALE_FOR_FIXED_PRICE_STRATEGY,

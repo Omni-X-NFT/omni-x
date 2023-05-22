@@ -56,8 +56,7 @@ contract SandboxTest is ProtocolBase {
         _setUpApprovalsForSandbox(takerUser);
         uint256 itemId = _transferItemIdToUser(takerUser);
 
-        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Bid,
+        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrderBid({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: STANDARD_SALE_FOR_FIXED_PRICE_STRATEGY,
@@ -104,8 +103,7 @@ contract SandboxTest is ProtocolBase {
         _setUpApprovalsForSandbox(makerUser);
         uint256 itemId = _transferItemIdToUser(makerUser);
 
-        OrderStructs.Maker memory makerAsk = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Ask,
+        OrderStructs.Maker memory makerAsk = _createSingleItemMakerOrderAsk({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: STANDARD_SALE_FOR_FIXED_PRICE_STRATEGY,

@@ -64,6 +64,6 @@ abstract contract MaliciousERC1271Wallet {
         bytes[] memory signatures = new bytes[](2);
         OrderStructs.MerkleTree[] memory merkleTrees = new OrderStructs.MerkleTree[](2);
 
-        omniXExchange.executeMultipleTakerBids(destAirdrop,takerBids, makerAsks, signatures, merkleTrees, address(this), false);
+        omniXExchange.executeMultipleTakerBids(takerBids, makerAsks, signatures, merkleTrees, address(this), false);
     }
 }

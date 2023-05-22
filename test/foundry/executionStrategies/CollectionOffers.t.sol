@@ -131,8 +131,7 @@ contract CollectionOrdersTest is ProtocolBase {
     function testTakerAskCollectionOrderERC721(uint256 tokenId) public {
         _setUpUsers();
 
-        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Bid,
+        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrderBid({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: 1,
@@ -171,8 +170,8 @@ contract CollectionOrdersTest is ProtocolBase {
     function testTakerAskCollectionOrderWithMerkleTreeERC721() public {
         _setUpUsers();
 
-        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Bid,
+        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrderBid({
+
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: 2,
@@ -216,8 +215,7 @@ contract CollectionOrdersTest is ProtocolBase {
         vm.assume(itemIdSold > 5);
         _setUpUsers();
 
-        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Bid,
+        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrderBid({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: 2,
@@ -258,8 +256,7 @@ contract CollectionOrdersTest is ProtocolBase {
     function testInvalidAmounts() public {
         _setUpUsers();
 
-        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Bid,
+        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrderBid({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: 1,
@@ -330,8 +327,7 @@ contract CollectionOrdersTest is ProtocolBase {
     }
 
     function testMerkleRootLengthIsNot32() public {
-        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Bid,
+        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrderBid({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: 2,
@@ -362,8 +358,7 @@ contract CollectionOrdersTest is ProtocolBase {
     }
 
     function testInvalidSelector() public {
-        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Bid,
+        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrderBid({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: 3,
@@ -383,8 +378,7 @@ contract CollectionOrdersTest is ProtocolBase {
     }
 
     function testWrongQuoteType() public {
-        OrderStructs.Maker memory makerAsk = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Ask,
+        OrderStructs.Maker memory makerAsk = _createSingleItemMakerOrderAsk({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: 2,

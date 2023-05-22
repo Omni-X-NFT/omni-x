@@ -60,8 +60,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
             }
         }
 
-        newMakerAsk = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Ask,
+        newMakerAsk = _createSingleItemMakerOrderAsk({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: 1,
@@ -356,8 +355,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
     function testWrongQuoteType() public {
         _setUpNewStrategy();
 
-        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Bid,
+        OrderStructs.Maker memory makerBid = _createSingleItemMakerOrderBid({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: 1,
@@ -380,8 +378,7 @@ contract DutchAuctionOrdersTest is ProtocolBase, IStrategyManager {
     function testInvalidSelector() public {
         _setUpNewStrategy();
 
-        OrderStructs.Maker memory makerAsk = _createSingleItemMakerOrder({
-            quoteType: QuoteType.Ask,
+        OrderStructs.Maker memory makerAsk = _createSingleItemMakerOrderAsk({
             globalNonce: 0,
             subsetNonce: 0,
             strategyId: 2,

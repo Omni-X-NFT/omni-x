@@ -313,7 +313,6 @@ contract ProtocolBase is MockOrderGenerator, IOmniXExchange {
     ) external payable {}
 
     function executeMultipleTakerBids(
-        uint256 destAirdrop,
         OrderStructs.Taker[] calldata takerBids,
         OrderStructs.Maker[] calldata makerAsks,
         bytes[] calldata makerSignatures,
