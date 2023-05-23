@@ -217,7 +217,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         OrderTypes.MakerOrder calldata makerAsk
     ) external payable override nonReentrant {
         require((makerAsk.isOrderAsk) && (!takerBid.isOrderAsk), "Order: Wrong sides");
-        require(msg.sender == takerBid.taker, "Order: Taker must be the sender");
+        require(msg.sender == takerBid.taker || msg.sender == address(this), "Order: Taker or OmniXExchange must be the sender");
 
         // Check the maker ask order
         bytes32 askHash = makerAsk.hash();
@@ -238,7 +238,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
 
             uint256 totalValue = takerBid.price + omnixFee + currencyFee;
 
-            require(totalValue <= msg.value, "Order: Msg.value too high");
+            require(totalValue <= msg.value, "Order: Msg.value too low");
             
             if (makerChainId == takerChainId) {
                 (,,,address strategy,) = takerBid.decodeParams();
@@ -302,7 +302,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         nonReentrant
     {
         require((makerAsk.isOrderAsk) && (!takerBid.isOrderAsk), "Order: Wrong sides");
-        require(msg.sender == takerBid.taker, "Order: Taker must be the sender");
+        require(msg.sender == takerBid.taker || msg.sender == address(this), "Order: Taker or OmniXExchange must be the sender");
 
         // Check the maker ask order
         bytes32 askHash = makerAsk.hash();
@@ -436,6 +436,53 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
             toChainId
         );
     }
+
+    /**
+     * @notice executes batch taker bids
+     * @dev Each taker order, maker order, and destAirdrop must be at same index in their respective arrays. 
+     *
+     * @param destAirdrops gas fees which are consumed by maker chain to transfer NFT and to send lz message to taker chain
+     * @param takerBids taker bid orders
+     * @param makerAsks maker ask orders
+     */
+
+    function executeMultipleTakerBids(
+        uint[] calldata destAirdrops,
+        OrderTypes.TakerOrder[] calldata takerBids,
+        OrderTypes.MakerOrder[] calldata makerAsks
+    ) external payable override nonReentrant{
+        require(makerAsks.length == takerBids.length && takerBids.length == destAirdrops.length, "OmniXExchange: invalid order quantity match");
+        require(makerAsks.length != 0, "OmniXExchange: no orders");
+        uint totalPrice;
+        
+        for (uint i = 0; i < makerAsks.length; ++i) {
+            
+            {
+                (, address currency,,,) = takerBids[i].decodeParams();
+
+                (uint16 makerChainId) = makerAsks[i].decodeParams();
+                (uint16 takerChainId,,,,) = takerBids[i].decodeParams();
+
+                if (makerChainId == takerChainId) {
+                    require(destAirdrops[i] == 0, "OmniXExchange: airdrop is 0 for same chain trades"); 
+                }
+
+                if (currency == WETH) {
+                    require(totalPrice + takerBids[i].price + destAirdrops[i] >=  msg.value, "OmniXExchange: not enough funds");
+                    this.matchAskWithTakerBidUsingETHAndWETH{value: takerBids[i].price + destAirdrops[i]}(destAirdrops[i], takerBids[i], makerAsks[i]);
+                    totalPrice = totalPrice + takerBids[i].price;
+                } else {
+                    require(totalPrice + destAirdrops[i] >= msg.value, "OmniXExchange: not enough funds");
+                    this.matchAskWithTakerBid{value: destAirdrops[i]}(destAirdrops[i], takerBids[i], makerAsks[i]);
+                }
+                totalPrice = totalPrice + destAirdrops[i];
+                
+            }
+            
+        }
+
+    }
+    
 
     /**
     * @notice get stargate payload
