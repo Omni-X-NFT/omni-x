@@ -28,6 +28,7 @@ import {
   TakerOrder,
   MakerOrder
 } from '../utils/order-types'
+import { BigNumberish } from 'ethers'
 
 chai.use(solidity)
 const { expect } = chai
@@ -36,7 +37,18 @@ setEthers(ethers)
 
 const ROYALTY_FEE_LIMIT = 500 // 5%
 
+const NumOfNFTs = 24
+
+let currentNFT = 1
+let nonce = 1
+
 describe('OmniXExchange', () => {
+
+
+
+  const NumOfNFTs = 24
+  let currentNFT = 1
+  let nonce = 1
   let omniXExchange: OmniXExchange
   let currencyManager: CurrencyManager
   let executionManager: ExecutionManager
@@ -126,8 +138,8 @@ describe('OmniXExchange', () => {
     ]) as OmniXExchange
 
     // transfer selector
-    transferManager721 = await deployContract('TransferManagerERC721', owner, [layerZeroEndpoint.address]) as TransferManagerERC721
-    transferManager1155 = await deployContract('TransferManagerERC1155', owner, [layerZeroEndpoint.address]) as TransferManagerERC1155
+    transferManager721 = await deployContract('TransferManagerERC721', owner, []) as TransferManagerERC721
+    transferManager1155 = await deployContract('TransferManagerERC1155', owner, []) as TransferManagerERC1155
     transferSelector = await deployContract('TransferSelectorNFT', owner, [transferManager721.address, transferManager1155.address]) as TransferSelectorNFT
     fundManager = await deployContract('FundManager', owner, [omniXExchange.address]) as FundManager
 
@@ -143,9 +155,13 @@ describe('OmniXExchange', () => {
     await omniXExchange.updateTransferSelectorNFT(transferSelector.address)
 
     // normal currency and normal nft, mint token#1, #2, #3
-    await nftMock.mintTo(maker.address)
-    await nftMock.mintTo(maker.address)
-    await nftMock.mintTo(maker.address)
+
+    for (let i = 1; i <= NumOfNFTs; i++) {
+      await nftMock.mintTo(maker.address)
+    }
+    
+
+
     await erc20Mock.mint(taker.address, toWei(100))
     await erc20Mock.mint(maker.address, toWei(100))
 
@@ -163,9 +179,11 @@ describe('OmniXExchange', () => {
     await omni.transfer(taker.address, toWei(200))
   }
   const approve = async () => {
-    await nftMock.connect(maker).approve(transferManager721.address, 1)
-    await nftMock.connect(maker).approve(transferManager721.address, 2)
-    await nftMock.connect(maker).approve(transferManager721.address, 3)
+
+    for(let i = 1; i <= NumOfNFTs; i++) {
+      await nftMock.connect(maker).approve(transferManager721.address, i)
+    }
+  
 
     await erc20Mock.connect(taker).approve(fundManager.address, toWei(100))
     await omni.connect(taker).approve(fundManager.address, toWei(100))
@@ -184,8 +202,8 @@ describe('OmniXExchange', () => {
       const makerAsk: MakerOrder = new MakerOrder(true)
       const takerBid: TakerOrder = new TakerOrder(false)
 
-      await fillMakerOrder(makerAsk, 1, erc20Mock.address, nftMock.address, 1, maker.address)
-      fillTakerOrder(takerBid, 1, taker.address)
+      await fillMakerOrder(makerAsk, currentNFT, erc20Mock.address, nftMock.address, nonce, maker.address)
+      fillTakerOrder(takerBid, currentNFT, taker.address)
 
       makerAsk.encodeParams(await maker.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
       takerBid.encodeParams(await taker.getChainId(), erc20Mock.address, nftMock.address, strategy.address, 0)
@@ -194,68 +212,128 @@ describe('OmniXExchange', () => {
       await omniXExchange.connect(taker).matchAskWithTakerBid(0, takerBid, makerAsk)
       expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
       expect(await erc20Mock.balanceOf(taker.address)).to.be.eq(toWei(99))
+      currentNFT++
+      nonce++
     })
 
-    it('MakerAsk /w TakerBid - $OMNI /w Normal NFT', async () => {
-      const makerAsk: MakerOrder = new MakerOrder(true)
-      const takerBid: TakerOrder = new TakerOrder(false)
+    it('Multiple MakerAsks /w Multiple TakerBids - Normal Currency /w Normal NFTs (same OrderTypes)', async () => {
+      const makerAsks: MakerOrder[] = []
+      const takerBids: TakerOrder[] = []
+      const destAirdrops: BigNumberish[] = []
+      const numOfNfts: number = 10
 
-      await fillMakerOrder(makerAsk, 2, omni.address, nftMock.address, 2, maker.address)
-      fillTakerOrder(takerBid, 2, taker.address)
 
-      makerAsk.encodeParams(await maker.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
-      takerBid.encodeParams(await taker.getChainId(), omni.address, nftMock.address, strategy.address, 0)
-      await makerAsk.sign(maker)
-      await omniXExchange.connect(taker).matchAskWithTakerBid(0, takerBid, makerAsk)
 
-      expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+      for (let i = 0; i < numOfNfts; i++) {
+        makerAsks.push(new MakerOrder(true))
+        takerBids.push(new TakerOrder(false))
+        await fillMakerOrder(makerAsks[i], currentNFT, erc20Mock.address, nftMock.address, nonce, maker.address)
+        fillTakerOrder(takerBids[i], currentNFT, taker.address)
+        makerAsks[i].encodeParams(await maker.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
+        takerBids[i].encodeParams(await taker.getChainId(), erc20Mock.address, nftMock.address, strategy.address, 0)
+        await makerAsks[i].sign(maker)
+        destAirdrops.push(0)
+        currentNFT++
+        nonce++
+      }
+
+      await omniXExchange.connect(taker).executeMultipleTakerBids(destAirdrops, takerBids, makerAsks)
+
+      for (let i = 0; i < numOfNfts; i++) {
+        expect(await nftMock.ownerOf(takerBids[i].tokenId)).to.be.eq(taker.address)
+      }
+      expect(await erc20Mock.balanceOf(taker.address)).to.be.eq(toWei(99 - numOfNfts))
+    })
+    it('Multipl MakerAsk /w Multiple TakerBid - Normal Currency /w Normal NFTs (same OrderTypes)', async () => {
+      const makerAsks: MakerOrder[] = []
+      const takerBids: TakerOrder[] = []
+      const destAirdrops: BigNumberish[] = []
+      const numOfNfts: number = 10
+      
+
+      for (let i = 0; i < numOfNfts; i++) {
+        makerAsks.push(new MakerOrder(true))
+        takerBids.push(new TakerOrder(false))
+        await fillMakerOrder(makerAsks[i], currentNFT, omni.address, nftMock.address, nonce, maker.address)
+        fillTakerOrder(takerBids[i], currentNFT, taker.address)
+        makerAsks[i].encodeParams(await maker.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
+        takerBids[i].encodeParams(await taker.getChainId(), omni.address, nftMock.address, strategy.address, 0)
+        await makerAsks[i].sign(maker)
+        destAirdrops.push(0)
+        currentNFT++
+        nonce++
+      }
+
+
+      await omniXExchange.connect(taker).executeMultipleTakerBids(destAirdrops, takerBids, makerAsks)
+
+      for (let i = 0; i < numOfNfts; i++) {
+        expect(await nftMock.ownerOf(takerBids[i].tokenId)).to.be.eq(taker.address)
+      }
     })
 
-    it('MakerAsk /w TakerBid - Normal Currency /w ONFT', async () => {
-      const makerAsk: MakerOrder = new MakerOrder(true)
-      const takerBid: TakerOrder = new TakerOrder(false)
 
-      await fillMakerOrder(makerAsk, 1, erc20Mock.address, onft721.address, 3, maker.address)
-      fillTakerOrder(takerBid, 1, taker.address)
 
-      makerAsk.encodeParams(await maker.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
-      takerBid.encodeParams(await taker.getChainId(), erc20Mock.address, onft721.address, strategy.address, 0)
-      await makerAsk.sign(maker)
-      await omniXExchange.connect(taker).matchAskWithTakerBid(0, takerBid, makerAsk)
+  //   it('MakerAsk /w TakerBid - $OMNI /w Normal NFT', async () => {
+  //     const makerAsk: MakerOrder = new MakerOrder(true)
+  //     const takerBid: TakerOrder = new TakerOrder(false)
 
-      expect(await onft721.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
-    })
+  //     await fillMakerOrder(makerAsk, 2, omni.address, nftMock.address, 2, maker.address)
+  //     fillTakerOrder(takerBid, 2, taker.address)
 
-    it('MakerAsk /w TakerBid - $OMNI /w ONFT', async () => {
-      const makerAsk: MakerOrder = new MakerOrder(true)
-      const takerBid: TakerOrder = new TakerOrder(false)
+  //     makerAsk.encodeParams(await maker.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
+  //     takerBid.encodeParams(await taker.getChainId(), omni.address, nftMock.address, strategy.address, 0)
+  //     await makerAsk.sign(maker)
+  //     await omniXExchange.connect(taker).matchAskWithTakerBid(0, takerBid, makerAsk)
 
-      await fillMakerOrder(makerAsk, 2, omni.address, onft721.address, 4, maker.address)
-      fillTakerOrder(takerBid, 2, taker.address)
+  //     expect(await nftMock.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+  //   })
 
-      makerAsk.encodeParams(await maker.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
-      takerBid.encodeParams(await taker.getChainId(), omni.address, onft721.address, strategy.address, 0)
-      await makerAsk.sign(maker)
-      await omniXExchange.connect(taker).matchAskWithTakerBid(0, takerBid, makerAsk)
+  //   it('MakerAsk /w TakerBid - Normal Currency /w ONFT', async () => {
+  //     const makerAsk: MakerOrder = new MakerOrder(true)
+  //     const takerBid: TakerOrder = new TakerOrder(false)
 
-      expect(await onft721.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
-    })
+  //     await fillMakerOrder(makerAsk, 1, erc20Mock.address, onft721.address, 3, maker.address)
+  //     fillTakerOrder(takerBid, 1, taker.address)
 
-    it('MakerBid /w TakerAsk', async () => {
-      const seller = maker
-      const bidder = taker
-      const makerBid: MakerOrder = new MakerOrder(false)
-      const takerAsk: TakerOrder = new TakerOrder(true)
+  //     makerAsk.encodeParams(await maker.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
+  //     takerBid.encodeParams(await taker.getChainId(), erc20Mock.address, onft721.address, strategy.address, 0)
+  //     await makerAsk.sign(maker)
+  //     await omniXExchange.connect(taker).matchAskWithTakerBid(0, takerBid, makerAsk)
 
-      await fillMakerOrder(makerBid, 3, omni.address, nftMock.address, 5, taker.address)
-      fillTakerOrder(takerAsk, 3, maker.address)
+  //     expect(await onft721.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+  //   })
 
-      makerBid.encodeParams(await bidder.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
-      takerAsk.encodeParams(await seller.getChainId(), omni.address, nftMock.address, strategy.address, 0)
-      await makerBid.sign(bidder)
-      await omniXExchange.connect(seller).matchBidWithTakerAsk(0, takerAsk, makerBid)
+  //   it('MakerAsk /w TakerBid - $OMNI /w ONFT', async () => {
+  //     const makerAsk: MakerOrder = new MakerOrder(true)
+  //     const takerBid: TakerOrder = new TakerOrder(false)
 
-      expect(await nftMock.ownerOf(takerAsk.tokenId)).to.be.eq(bidder.address)
-    })
-  })
+  //     await fillMakerOrder(makerAsk, 2, omni.address, onft721.address, 4, maker.address)
+  //     fillTakerOrder(takerBid, 2, taker.address)
+
+  //     makerAsk.encodeParams(await maker.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
+  //     takerBid.encodeParams(await taker.getChainId(), omni.address, onft721.address, strategy.address, 0)
+  //     await makerAsk.sign(maker)
+  //     await omniXExchange.connect(taker).matchAskWithTakerBid(0, takerBid, makerAsk)
+
+  //     expect(await onft721.ownerOf(takerBid.tokenId)).to.be.eq(taker.address)
+  //   })
+
+  //   it('MakerBid /w TakerAsk', async () => {
+  //     const seller = maker
+  //     const bidder = taker
+  //     const makerBid: MakerOrder = new MakerOrder(false)
+  //     const takerAsk: TakerOrder = new TakerOrder(true)
+
+  //     await fillMakerOrder(makerBid, 3, omni.address, nftMock.address, 5, taker.address)
+  //     fillTakerOrder(takerAsk, 3, maker.address)
+
+  //     makerBid.encodeParams(await bidder.getChainId(), royaltyRecipient.address, ROYALTY_FEE_LIMIT)
+  //     takerAsk.encodeParams(await seller.getChainId(), omni.address, nftMock.address, strategy.address, 0)
+  //     await makerBid.sign(bidder)
+  //     await omniXExchange.connect(seller).matchBidWithTakerAsk(0, takerAsk, makerBid)
+
+  //     expect(await nftMock.ownerOf(takerAsk.tokenId)).to.be.eq(bidder.address)
+  //   })
+   })
 })

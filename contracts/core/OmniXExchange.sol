@@ -216,77 +216,23 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         OrderTypes.TakerOrder calldata takerBid,
         OrderTypes.MakerOrder calldata makerAsk
     ) external payable override nonReentrant {
-        require((makerAsk.isOrderAsk) && (!takerBid.isOrderAsk), "Order: Wrong sides");
-        require(msg.sender == takerBid.taker || msg.sender == address(this), "Order: Taker or OmniXExchange must be the sender");
-
-        // Check the maker ask order
-        bytes32 askHash = makerAsk.hash();
-        _validateOrder(makerAsk, askHash);
-
+     
+        require(msg.sender == takerBid.taker, "Order: Taker must be the sender");
         (, address currency,,,) = takerBid.decodeParams();
         require(currency == WETH, "Order: Currency must be WETH");
+        (uint256 omnixFee, uint256 currencyFee,) = getLzFeesForTrading(takerBid, makerAsk, destAirdrop);
+        uint256 totalValue = takerBid.price + omnixFee + currencyFee;
+        require(totalValue <= msg.value, "Order: Msg.value too low");
 
-        _canExecuteTakerBid(takerBid, makerAsk);
+        _executeTakerBid(omnixFee, currencyFee, takerBid, makerAsk, true);
 
-        (uint16 makerChainId) = makerAsk.decodeParams();
-        (uint16 takerChainId,,,,) = takerBid.decodeParams();
+       
 
-        // validate value
-        {
-            // nft fee is zero
-            (uint256 omnixFee, uint256 currencyFee,) = getLzFeesForTrading(takerBid, makerAsk, destAirdrop);
+      
 
-            uint256 totalValue = takerBid.price + omnixFee + currencyFee;
+       
 
-            require(totalValue <= msg.value, "Order: Msg.value too low");
-            
-            if (makerChainId == takerChainId) {
-                (,,,address strategy,) = takerBid.decodeParams();
-
-                fundManager.transferFeesAndFundsWithWETH{value: takerBid.price}(strategy, makerAsk.signer, takerBid.price, makerAsk.getRoyaltyInfo());
-                _transferNFT(makerAsk.collection, makerAsk.signer, takerBid.taker, takerBid.tokenId, makerAsk.amount);
-            }
-            else {
-                if (omnixFee != 0) {
-                    (,,,address strategy,) = takerBid.decodeParams();
-                    // currency is not swappable or omni so cross message to send nft and funds instantly
-                    _sendCrossMessage(takerBid, makerAsk, 0);
-                    fundManager.transferFeesAndFundsWithWETH{value: takerBid.price}(strategy, makerAsk.signer, takerBid.price, makerAsk.getRoyaltyInfo());
-                }
-                else {
-                    // cross funds to maker chain's omnixexchange.
-                    // once sgReceive received, actual trading will be made.
-                    bytes memory sgPayload = _getSgPayload(takerBid, makerAsk);
-                    fundManager.transferProxyFunds{value: currencyFee + takerBid.price}(
-                        currency,
-                        takerBid.taker,
-                        takerBid.price,
-                        takerChainId,
-                        makerChainId,
-                        sgPayload
-                    );
-                }
-            }
-        }
-
-        // Update maker ask order status to true (prevents replay)
         
-        _isUserOrderNonceExecutedOrCancelled[makerAsk.signer][makerChainId][makerAsk.nonce] = true;
-
-        emit TakerBid(
-            askHash,
-            makerAsk.nonce,
-            takerBid.taker,
-            makerAsk.signer,
-            makerAsk.strategy,
-            makerAsk.currency,
-            makerAsk.collection,
-            takerBid.tokenId,
-            makerAsk.amount,
-            takerBid.price,
-            makerChainId,
-            takerChainId
-        );
     }
 
     /**
@@ -301,52 +247,92 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         override
         nonReentrant
     {
-        require((makerAsk.isOrderAsk) && (!takerBid.isOrderAsk), "Order: Wrong sides");
-        require(msg.sender == takerBid.taker || msg.sender == address(this), "Order: Taker or OmniXExchange must be the sender");
+        require(msg.sender == takerBid.taker, "Order: Taker must be the sender");
+        (uint256 omnixFee, uint256 currencyFee, ) = getLzFeesForTrading(takerBid, makerAsk, destAirdrop);
+        require (omnixFee+ currencyFee <= msg.value, "Order: Insufficient value");
+        _executeTakerBid(omnixFee, currencyFee, takerBid, makerAsk, false);
+    }
 
-        // Check the maker ask order
-        bytes32 askHash = makerAsk.hash();
-        _validateOrder(makerAsk, askHash);
 
-        _canExecuteTakerBid(takerBid, makerAsk);
+    function _executeTakerBid( 
+        uint omnixFee,
+        uint currencyFee,
+        OrderTypes.TakerOrder calldata takerBid,
+        OrderTypes.MakerOrder calldata makerAsk,
+        bool usingETHandWETH
+        ) internal {
 
-        (uint16 makerChainId) = makerAsk.decodeParams();
-        (uint16 takerChainId,,,,) = takerBid.decodeParams();
+            require((makerAsk.isOrderAsk) && (!takerBid.isOrderAsk), "Order: Wrong sides");
+            bytes32 askHash = makerAsk.hash();
+            _validateOrder(makerAsk, askHash);
 
-        {
-            // check fees, nft fee is zero
-            (uint256 omnixFee, uint256 currencyFee, ) = getLzFeesForTrading(takerBid, makerAsk, destAirdrop);
-            require (omnixFee+ currencyFee <= msg.value, "Order: Insufficient value");
+            _canExecuteTakerBid(takerBid, makerAsk);
 
+            (uint16 makerChainId) = makerAsk.decodeParams();
+            (uint16 takerChainId,,,,) = takerBid.decodeParams();
+
+            {
             (, address takerCurrency,, address takerStrategy,) = takerBid.decodeParams();
             if (makerChainId == takerChainId) {
-                // direct transfer funds
-                fundManager.transferFeesAndFunds(takerStrategy, takerCurrency, takerBid.price, takerBid.taker, makerAsk.signer, makerAsk.getRoyaltyInfo());
-                _transferNFT(makerAsk.collection, makerAsk.signer, takerBid.taker, takerBid.tokenId, makerAsk.amount);
+
+                if (usingETHandWETH){
+                    (,,,address strategy,) = takerBid.decodeParams();
+
+                    fundManager.transferFeesAndFundsWithWETH{value: takerBid.price}(strategy, makerAsk.signer, takerBid.price, makerAsk.getRoyaltyInfo());
+                    _transferNFT(makerAsk.collection, makerAsk.signer, takerBid.taker, takerBid.tokenId, makerAsk.amount);
+                } else {
+                    fundManager.transferFeesAndFunds(takerStrategy, takerCurrency, takerBid.price, takerBid.taker, makerAsk.signer, makerAsk.getRoyaltyInfo());
+                    _transferNFT(makerAsk.collection, makerAsk.signer, takerBid.taker, takerBid.tokenId, makerAsk.amount);
+                }
+    
+  
             }
             else {
                 if (omnixFee != 0) {
-                    // currency is not swappable or omni so cross message to send nft and funds instantly
-                    _sendCrossMessage(takerBid, makerAsk, 0);
-                    fundManager.transferFeesAndFunds(takerStrategy, takerCurrency, takerBid.price, takerBid.taker, makerAsk.signer, makerAsk.getRoyaltyInfo());
+
+                    if (usingETHandWETH) {
+                        (,,,address strategy,) = takerBid.decodeParams();
+                        // currency is not swappable or omni so cross message to send nft and funds instantly
+                        _sendCrossMessage(takerBid, makerAsk, 0);
+                        fundManager.transferFeesAndFundsWithWETH{value: takerBid.price}(strategy, makerAsk.signer, takerBid.price, makerAsk.getRoyaltyInfo());
+                    } else {
+                        // currency is not swappable or omni so cross message to send nft and funds instantly
+                        _sendCrossMessage(takerBid, makerAsk, 0);
+                        fundManager.transferFeesAndFunds(takerStrategy, takerCurrency, takerBid.price, takerBid.taker, makerAsk.signer, makerAsk.getRoyaltyInfo());
+                    }
+
                 }
                 else {
-                    // cross funds to maker chain's omnixexchange.
-                    // once sgReceive received, actual trading will be made.
-                    bytes memory sgPayload = _getSgPayload(takerBid, makerAsk);
-                    fundManager.transferProxyFunds{value: currencyFee}(
-                        takerCurrency,
+
+                    if (usingETHandWETH) {
+                        bytes memory sgPayload = _getSgPayload(takerBid, makerAsk);
+                        fundManager.transferProxyFunds{value: currencyFee + takerBid.price}(
+                        WETH,
                         takerBid.taker,
                         takerBid.price,
                         takerChainId,
                         makerChainId,
                         sgPayload
-                    );
+                        );
+                    } else {
+
+                        // cross funds to maker chain's omnixexchange.
+                        // once sgReceive received, actual trading will be made.
+                        bytes memory sgPayload = _getSgPayload(takerBid, makerAsk);
+                        fundManager.transferProxyFunds{value: currencyFee}(
+                            takerCurrency,
+                            takerBid.taker,
+                            takerBid.price,
+                            takerChainId,
+                            makerChainId,
+                            sgPayload
+                        );
+                    }
+                    
                 }
             }
         }
-        
-        // Update maker ask order status to true (prevents replay)
+
         _isUserOrderNonceExecutedOrCancelled[makerAsk.signer][makerChainId][makerAsk.nonce] = true;
 
         emit TakerBid(
@@ -364,7 +350,6 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
             takerChainId
         );
     }
-
     /**
      * @notice Match a takerAsk with a makerBid
      *         This function is being used for auction and be called on maker chain.
@@ -453,32 +438,37 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
     ) external payable override nonReentrant{
         require(makerAsks.length == takerBids.length && takerBids.length == destAirdrops.length, "OmniXExchange: invalid order quantity match");
         require(makerAsks.length != 0, "OmniXExchange: no orders");
+      
         uint totalPrice;
         
         for (uint i = 0; i < makerAsks.length; ++i) {
+
+           
             
             {
+                (uint omnixFee, uint currencyFee, ) = getLzFeesForTrading(takerBids[i], makerAsks[i], destAirdrops[i]);
                 (, address currency,,,) = takerBids[i].decodeParams();
 
                 (uint16 makerChainId) = makerAsks[i].decodeParams();
                 (uint16 takerChainId,,,,) = takerBids[i].decodeParams();
+
+                require(msg.sender == takerBids[i].taker, "OmiXExchange: Taker must be the sender");
 
                 if (makerChainId == takerChainId) {
                     require(destAirdrops[i] == 0, "OmniXExchange: airdrop is 0 for same chain trades"); 
                 }
 
                 if (currency == WETH) {
-                    require(totalPrice + takerBids[i].price + destAirdrops[i] >=  msg.value, "OmniXExchange: not enough funds");
-                    this.matchAskWithTakerBidUsingETHAndWETH{value: takerBids[i].price + destAirdrops[i]}(destAirdrops[i], takerBids[i], makerAsks[i]);
-                    totalPrice = totalPrice + takerBids[i].price;
+                    totalPrice = totalPrice + takerBids[i].price + omnixFee + currencyFee; 
+                    require(totalPrice >= msg.value, "OmniXExchange: Insufficient value");
+                     _executeTakerBid(omnixFee, currencyFee, takerBids[i], makerAsks[i], true);
+
                 } else {
-                    require(totalPrice + destAirdrops[i] >= msg.value, "OmniXExchange: not enough funds");
-                    this.matchAskWithTakerBid{value: destAirdrops[i]}(destAirdrops[i], takerBids[i], makerAsks[i]);
+                    totalPrice = totalPrice + omnixFee + currencyFee;
+                    require(totalPrice >= msg.value, "OmniXExchange: Insufficient value");
+                     _executeTakerBid(omnixFee, currencyFee, takerBids[i], makerAsks[i], false);
                 }
-                totalPrice = totalPrice + destAirdrops[i];
-                
             }
-            
         }
 
     }
