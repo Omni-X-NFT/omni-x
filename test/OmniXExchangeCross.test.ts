@@ -17,6 +17,7 @@ import {
   MakerOrder
 } from '../utils/order-types'
 import { fillMakerOrder, fillTakerOrder } from '../tasks/shared'
+import { BigNumber, BigNumberish } from 'ethers'
 
 chai.use(solidity)
 const { expect } = chai
@@ -26,6 +27,7 @@ setEthers(ethers)
 const SRC_CHAIN_ID = 10001
 const DST_CHAIN_ID = 10002
 let nonce = 0
+let tokenId = 1
 
 describe('OmniXExchangeCross', () => {
   let makerChain: Chain
@@ -52,7 +54,7 @@ describe('OmniXExchangeCross', () => {
     it('MakerAsk /w TakerBid - Normal Currency /w Normal NFT', async () => {
       const makerAsk: MakerOrder = new MakerOrder(true)
       const takerBid: TakerOrder = new TakerOrder(false)
-      const tokenId = 1
+
       const price = toWei(1)
       const blockTime = await getBlockTime()
       nonce++
@@ -83,12 +85,61 @@ describe('OmniXExchangeCross', () => {
       const tx = await takerChain.omniXExchange.connect(taker).matchAskWithTakerBid(destAirdrop, takerBid, makerAsk, { value: omnixFee.add(currencyFee).add(nftFee) })
       await tx.wait()
       expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
+      tokenId++
+    })
+    it(' Multiple MakerAsks /w TakerBids - Normal Currency /w Normal NFT (Same Order Types)', async () => {
+      const makerAsks: MakerOrder[] = []
+      const takerBids: TakerOrder[] = []
+      const destAirdrops: number[] = []
+      const price = toWei(1)
+      const blockTime = await getBlockTime()
+      const numOfNFTS = 4
+      let value: string = '0'
+      nonce++
+      for (let i = 0; i < numOfNFTS; i++) {
+        const makerAsk: MakerOrder = new MakerOrder(true)
+        const takerBid: TakerOrder = new TakerOrder(false)
+        fillMakerOrder(
+          makerAsk,
+          tokenId,
+          makerChain.erc20Mock.address,
+          makerChain.nftMock.address,
+          makerChain.strategy.address,
+          maker.address,
+          blockTime,
+          price,
+          nonce
+        )
+        fillTakerOrder(takerBid, taker.address, tokenId, price)
+  
+        makerAsk.encodeParams(makerChain.lzChainId, ethers.constants.AddressZero, 0)
+        takerBid.encodeParams(takerChain.lzChainId, takerChain.erc20Mock.address, takerChain.nftMock.address, takerChain.strategy.address, 0)
+        await makerAsk.sign(maker)
+  
+        await makerChain.nftMock.connect(maker).approve(makerChain.transferManager721.address, tokenId)
+        await takerChain.erc20Mock.connect(taker).approve(takerChain.fundManager.address, price)
+  
+        const destAirdrop = 0
+        const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.connect(taker).getLzFeesForTrading(takerBid, makerAsk, destAirdrop)
+        value = (ethers.BigNumber.from(value).add(omnixFee.add(currencyFee).add(nftFee))).toString()
+        makerAsks.push(makerAsk)
+        takerBids.push(takerBid)
+        destAirdrops.push(destAirdrop)
+      
+      }
+     
+      const tx = await takerChain.omniXExchange.connect(taker).executeMultipleTakerBids(destAirdrops, takerBids, makerAsks, { value: ethers.BigNumber.from(value) })
+      await tx.wait()
+      for (let i = 0; i < numOfNFTS; i++) {
+        expect(await makerChain.nftMock.ownerOf(takerBids[i].tokenId)).to.eq(taker.address)
+      }
+
+
     })
 
     it('MakerAsk /w TakerBid - $OMNI /w Normal NFT', async () => {
       const makerAsk: MakerOrder = new MakerOrder(true)
       const takerBid: TakerOrder = new TakerOrder(false)
-      const tokenId = 2
       const price = toWei(1)
       const blockTime = await getBlockTime()
 
@@ -122,12 +173,13 @@ describe('OmniXExchangeCross', () => {
 
       expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
       expect(await makerChain.omni.balanceOf(maker.address)).to.eq(oldBalance.add(toWei(0.98)))
+      tokenId++
     })
 
     it('MakerBid /w TakerAsk - Normal Currency /w Normal NFT', async () => {
       const makerBid: MakerOrder = new MakerOrder(false)
       const takerAsk: TakerOrder = new TakerOrder(true)
-      const tokenId = 1
+      const tokenid = 1
       const price = toWei(1)
       const blockTime = await getBlockTime()
 
@@ -135,7 +187,7 @@ describe('OmniXExchangeCross', () => {
 
       fillMakerOrder(
         makerBid,
-        tokenId,
+        tokenid,
         makerChain.erc20Mock.address,
         makerChain.nftMock.address,
         makerChain.strategy.address,
@@ -144,13 +196,13 @@ describe('OmniXExchangeCross', () => {
         price,
         nonce
       )
-      fillTakerOrder(takerAsk, taker.address, tokenId, price)
+      fillTakerOrder(takerAsk, taker.address, tokenid, price)
 
       makerBid.encodeParams(makerChain.lzChainId, ethers.constants.AddressZero, 0)
       takerAsk.encodeParams(takerChain.lzChainId, takerChain.erc20Mock.address, takerChain.nftMock.address, takerChain.strategy.address, 0)
       await makerBid.sign(maker)
 
-      await takerChain.nftMock.connect(taker).approve(takerChain.transferManager721.address, tokenId)
+      await takerChain.nftMock.connect(taker).approve(takerChain.transferManager721.address, tokenid)
       await makerChain.erc20Mock.connect(maker).approve(makerChain.fundManager.address, price)
 
       const oldBalance = await makerChain.erc20Mock.balanceOf(taker.address)
@@ -172,7 +224,6 @@ describe('OmniXExchangeCross', () => {
     it('MakerAsk /w TakerBid - Native ETH /w Normal NFT', async () => {
       const makerAsk: MakerOrder = new MakerOrder(true)
       const takerBid: TakerOrder = new TakerOrder(false)
-      const tokenId = 3
       const price = toWei(1)
       const blockTime = await getBlockTime()
       nonce++
@@ -207,14 +258,14 @@ describe('OmniXExchangeCross', () => {
     it('MakerAsk /w TakerBid - Royalty - Normal Currency /w Normal NFT', async () => {
       const makerAsk: MakerOrder = new MakerOrder(true)
       const takerBid: TakerOrder = new TakerOrder(false)
-      const tokenId = 4
+      const tokenid = 4
       const price = toWei(1)
       const blockTime = await getBlockTime()
       nonce++
 
       fillMakerOrder(
         makerAsk,
-        tokenId,
+        tokenid,
         makerChain.erc20Mock.address,
         makerChain.nftMock.address,
         makerChain.strategy.address,
@@ -223,13 +274,13 @@ describe('OmniXExchangeCross', () => {
         price,
         nonce
       )
-      fillTakerOrder(takerBid, taker.address, tokenId, price)
+      fillTakerOrder(takerBid, taker.address, tokenid, price)
 
       makerAsk.encodeParams(makerChain.lzChainId, royaltyRecipient.address, 500)
       takerBid.encodeParams(takerChain.lzChainId, takerChain.erc20Mock.address, takerChain.nftMock.address, takerChain.strategy.address, 0)
       await makerAsk.sign(maker)
 
-      await makerChain.nftMock.connect(maker).approve(makerChain.transferManager721.address, tokenId)
+      await makerChain.nftMock.connect(maker).approve(makerChain.transferManager721.address, tokenid)
       await takerChain.erc20Mock.connect(taker).approve(takerChain.fundManager.address, price)
 
       const destAirdrop = 0
@@ -239,6 +290,7 @@ describe('OmniXExchangeCross', () => {
       await tx.wait()
       expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
       expect(await takerChain.erc20Mock.balanceOf(royaltyRecipient.address)).to.eq(price.mul(500).div(10000))
+     
     })
   })
 })

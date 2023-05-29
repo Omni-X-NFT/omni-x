@@ -167,6 +167,10 @@ export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
   await chain.nftMock.mintTo(maker.address)
   await chain.nftMock.mintTo(maker.address)
   await chain.nftMock.mintTo(maker.address)
+  await chain.nftMock.mintTo(maker.address)
+  await chain.nftMock.mintTo(maker.address)
+  await chain.nftMock.mintTo(maker.address)
+  await chain.nftMock.mintTo(maker.address)
 
   await chain.onft721.mint(maker.address, 1)
   await chain.onft721.mint(maker.address, 2)
@@ -286,7 +290,7 @@ export const setupSeaportListings = async (listings: SeaportListing[], chain: Ch
       startTime: await getBlockTime(),
       endTime: (await getBlockTime()) + 60,
     });
-    await order.signWithAddress(seller, chain.seaport.address);
+   // await order.signWithAddress(seller, chain.seaport.address);
 
     listing.order = order;
   }

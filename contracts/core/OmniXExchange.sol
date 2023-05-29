@@ -460,12 +460,12 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
 
                 if (currency == WETH) {
                     totalPrice = totalPrice + takerBids[i].price + omnixFee + currencyFee; 
-                    require(totalPrice >= msg.value, "OmniXExchange: Insufficient value");
+                    require(totalPrice <= msg.value, "OmniXExchange: Insufficient value");
                      _executeTakerBid(omnixFee, currencyFee, takerBids[i], makerAsks[i], true);
 
                 } else {
                     totalPrice = totalPrice + omnixFee + currencyFee;
-                    require(totalPrice >= msg.value, "OmniXExchange: Insufficient value");
+                    require(totalPrice <= msg.value, "OmniXExchange: Insufficient value");
                      _executeTakerBid(omnixFee, currencyFee, takerBids[i], makerAsks[i], false);
                 }
             }
