@@ -95,8 +95,9 @@ describe('OmniXExchangeCross', () => {
       const blockTime = await getBlockTime()
       const numOfNFTS = 4
       let value: string = '0'
-      nonce++
       for (let i = 0; i < numOfNFTS; i++) {
+        nonce++
+        tokenId++
         const makerAsk: MakerOrder = new MakerOrder(true)
         const takerBid: TakerOrder = new TakerOrder(false)
         fillMakerOrder(
@@ -121,20 +122,28 @@ describe('OmniXExchangeCross', () => {
   
         const destAirdrop = 0
         const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.connect(taker).getLzFeesForTrading(takerBid, makerAsk, destAirdrop)
+        console.log(' OmnixFee:  ' + omnixFee)
+        console.log(' CurrencyFee: ' + currencyFee)
+        console.log(' NFTFee: ' + nftFee)
         value = (ethers.BigNumber.from(value).add(omnixFee.add(currencyFee).add(nftFee))).toString()
         makerAsks.push(makerAsk)
         takerBids.push(takerBid)
         destAirdrops.push(destAirdrop)
-      
+    
       }
-     
+      
+      console.log(taker.address)
+      console.log(maker.address)
       const tx = await takerChain.omniXExchange.connect(taker).executeMultipleTakerBids(destAirdrops, takerBids, makerAsks, { value: ethers.BigNumber.from(value) })
-      await tx.wait()
+      const receipt = await tx.wait()
+      console.log(receipt.events)
       for (let i = 0; i < numOfNFTS; i++) {
+        console.log(takerBids[i].tokenId)
         expect(await makerChain.nftMock.ownerOf(takerBids[i].tokenId)).to.eq(taker.address)
       }
 
-
+      nonce++
+      tokenId++
     })
 
     it('MakerAsk /w TakerBid - $OMNI /w Normal NFT', async () => {

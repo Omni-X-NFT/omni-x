@@ -266,7 +266,7 @@ describe('OmniXExchange', () => {
 
 
       await omniXExchange.connect(taker).executeMultipleTakerBids(destAirdrops, takerBids, makerAsks)
-
+  
       for (let i = 0; i < numOfNfts; i++) {
         expect(await nftMock.ownerOf(takerBids[i].tokenId)).to.be.eq(taker.address)
       }

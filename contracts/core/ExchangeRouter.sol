@@ -59,7 +59,8 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
 
     /**
      * receive fallback
-     */
+    */
+
     receive() external payable {}
 
     /**
@@ -110,6 +111,7 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
         ExecutionInfo[] calldata executionInfos,
         AmountCheckInfo calldata amountCheckInfo
     ) external payable nonReentrant refundETH {
+
         // Cache some data for efficiency
         address target = amountCheckInfo.target;
         bytes calldata data = amountCheckInfo.data;
@@ -117,6 +119,7 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
 
         uint256 length = executionInfos.length;
         for (uint256 i = 0; i < length; ) {
+            
             // Check the amount and break if it exceeds the threshold
             uint256 amount = _getAmount(target, data);
             if (amount >= threshold) {
@@ -252,6 +255,7 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
     /**
     * @notice stargate swap receive callback
     */
+
     function sgReceive(
         uint16 ,                // the remote chainId sending the tokens
         bytes memory,           // the remote Bridge address

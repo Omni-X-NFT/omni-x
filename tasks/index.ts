@@ -12,6 +12,7 @@ import { prepareAdvancedONFT, prepareAllAdvancedONFT } from './prepareAdvancedON
 import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './deployAdvancedONFT721Gasless'
 import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
 import { deployReservoirRouter } from './deployReservoirRouter'
+import { executeBatchOrder } from './executeBatchOrder'
 
 
 task(
@@ -116,4 +117,6 @@ task('prepareAllAdvancedONFTGasless', 'prepareAllAdvancedONFTGasless')
 
 task('deployReservoirRouter', 'deployReservoirRouter')
   .setAction(deployReservoirRouter)
-  
+
+task('executeBatchOrder', 'executeBatchOrder')
+  .setAction(executeBatchOrder)

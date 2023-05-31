@@ -61,6 +61,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
     mapping(address => mapping(uint16 => mapping(uint256 => bool))) private _isUserOrderNonceExecutedOrCancelled;
 
     event CancelAllOrders(address indexed user, uint16 chainId, uint256 newMinNonce);
+
     event NewCurrencyManager(address indexed currencyManager);
     event NewExecutionManager(address indexed executionManager);
     event NewProtocolFeeRecipient(address indexed protocolFeeRecipient);
@@ -84,6 +85,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         uint16 takerChainId  // chain id
     );
 
+    
+
+
     event TakerBid(
         bytes32 orderHash, // ask hash of the maker order
         uint256 orderNonce, // user order nonce
@@ -99,7 +103,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         uint16 takerChainId  // chain id
     );
 
-    /**
+
+    /**_
      * @notice Constructor
      * @param _currencyManager currency manager address
      * @param _executionManager execution manager address
@@ -128,6 +133,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
     /**
     * @notice set stargate pool manager
     */
+   
     function setStargatePoolManager(address manager) external onlyOwner {
         stargatePoolManager = IStargatePoolManager(manager);
     }
@@ -225,13 +231,6 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         require(totalValue <= msg.value, "Order: Msg.value too low");
 
         _executeTakerBid(omnixFee, currencyFee, takerBid, makerAsk, true);
-
-       
-
-      
-
-       
-
         
     }
 
@@ -437,7 +436,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         OrderTypes.MakerOrder[] calldata makerAsks
     ) external payable override nonReentrant{
         require(makerAsks.length == takerBids.length && takerBids.length == destAirdrops.length, "OmniXExchange: invalid order quantity match");
-        require(makerAsks.length != 0, "OmniXExchange: no orders");
+    
       
         uint totalPrice;
         
@@ -445,35 +444,54 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
 
            
             
+            
+            (uint omnixFee, uint currencyFee, ) = getLzFeesForTrading(takerBids[i], makerAsks[i], destAirdrops[i]);
+            (, address currency,,,) = takerBids[i].decodeParams();
+
+            (uint16 makerChainId) = makerAsks[i].decodeParams();
+            (uint16 takerChainId,,,,) = takerBids[i].decodeParams();
+
+            require(msg.sender == takerBids[i].taker, "OmiXExchange: Taker must be the sender");
+
+            if (makerChainId == takerChainId) {
+                require(destAirdrops[i] == 0, "OmniXExchange: zero destairdop required"); 
+            }
+
             {
-                (uint omnixFee, uint currencyFee, ) = getLzFeesForTrading(takerBids[i], makerAsks[i], destAirdrops[i]);
-                (, address currency,,,) = takerBids[i].decodeParams();
-
-                (uint16 makerChainId) = makerAsks[i].decodeParams();
-                (uint16 takerChainId,,,,) = takerBids[i].decodeParams();
-
-                require(msg.sender == takerBids[i].taker, "OmiXExchange: Taker must be the sender");
-
-                if (makerChainId == takerChainId) {
-                    require(destAirdrops[i] == 0, "OmniXExchange: airdrop is 0 for same chain trades"); 
-                }
 
                 if (currency == WETH) {
                     totalPrice = totalPrice + takerBids[i].price + omnixFee + currencyFee; 
                     require(totalPrice <= msg.value, "OmniXExchange: Insufficient value");
-                     _executeTakerBid(omnixFee, currencyFee, takerBids[i], makerAsks[i], true);
+                    try this.restrictedExecuteTakerBid(omnixFee, currencyFee, takerBids[i], makerAsks[i], true) {
+                
+                    } catch {
+                    } 
+                   
 
                 } else {
                     totalPrice = totalPrice + omnixFee + currencyFee;
                     require(totalPrice <= msg.value, "OmniXExchange: Insufficient value");
-                     _executeTakerBid(omnixFee, currencyFee, takerBids[i], makerAsks[i], false);
+
+                    try this.restrictedExecuteTakerBid(omnixFee, currencyFee, takerBids[i], makerAsks[i], false) {
+
+                    } catch {}
+                    
                 }
             }
         }
 
     }
     
-
+    function restrictedExecuteTakerBid(
+            uint omnixFee,
+            uint currencyFee,
+            OrderTypes.TakerOrder calldata takerBid,
+            OrderTypes.MakerOrder calldata makerAsk,
+            bool usingETHandWETH
+        ) external {
+            require(msg.sender == address(this), "OmniXExchange: Caller Invalid");
+            _executeTakerBid(omnixFee, currencyFee, takerBid, makerAsk, usingETHandWETH);
+        }
     /**
     * @notice get stargate payload
     * @param takerBid taker bid
@@ -850,10 +868,10 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
     * @notice stargate swap receive callback
     */
     function sgReceive(
-        uint16 ,                // the remote chainId sending the tokens
-        bytes memory,           // the remote Bridge address
+        uint16 ,                
+        bytes memory,           
         uint256,                  
-        address,                // the token contract on the local chain
+        address,                
         uint256 _price,         // the qty of local _token contract tokens  
         bytes memory _payload
     ) external override {
@@ -878,7 +896,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
     }
 
     receive() external payable {
-        // nothing to do
+
     }
 
     function withdraw() external onlyOwner {
