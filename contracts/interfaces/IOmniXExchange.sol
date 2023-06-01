@@ -15,6 +15,7 @@ interface IOmniXExchange {
 
     function matchBidWithTakerAsk(uint destAirdrop, OrderTypes.TakerOrder calldata takerAsk, OrderTypes.MakerOrder calldata makerBid)
         external payable;
+
     function executeMultipleTakerBids(uint[] calldata destAirdrops, OrderTypes.TakerOrder[] calldata takerBids, OrderTypes.MakerOrder[] calldata makerAsks)
         external payable;
 }
