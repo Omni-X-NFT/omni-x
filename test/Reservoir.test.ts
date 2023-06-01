@@ -52,8 +52,8 @@ describe("[ExchangeRouter] Seaport listings", () => {
     await linkChains(makerChain, takerChain)
     await linkChains(takerChain, makerChain)
 
-    await prepareMaker(makerChain, alice)
-    await prepareTaker(takerChain, carol)
+    await prepareMaker(makerChain, takerChain, alice)
+    await prepareTaker(takerChain, makerChain, carol)
 
     // for same chain trading, need to send the funds to carol.
     await makerChain.erc20Mock.mint(carol.address, toWei(100));

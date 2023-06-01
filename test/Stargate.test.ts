@@ -44,21 +44,26 @@ describe('Stargate', () => {
 
     makerChain = await deploy(owner, SRC_CHAIN_ID)
     takerChain = await deploy(owner, DST_CHAIN_ID)
-
+    
     await linkChains(makerChain, takerChain)
     await linkChains(takerChain, makerChain)
-
-    await prepareMaker(makerChain, maker)
-    await prepareTaker(takerChain, taker)
+    
+  
+    await prepareMaker(makerChain, takerChain, maker)
+    await prepareTaker(takerChain, makerChain, taker)
+    
 
     await prepareStargate(makerChain, SRC_POOL_ID, owner)
     await prepareStargate(takerChain, DST_POOL_ID, owner)
+    
 
     await setupBridge(makerChain, takerChain)
     await setupBridge(takerChain, makerChain)
+ 
 
     await setupChainPath(makerChain, DST_CHAIN_ID, SRC_POOL_ID, DST_POOL_ID, owner)
     await setupChainPath(takerChain, SRC_CHAIN_ID, DST_POOL_ID, SRC_POOL_ID, owner)
+ 
 
     await setupPool(makerChain, DST_CHAIN_ID, SRC_POOL_ID, DST_POOL_ID, maker)
     await setupPool(takerChain, SRC_CHAIN_ID, DST_POOL_ID, SRC_POOL_ID, taker)

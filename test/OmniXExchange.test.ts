@@ -149,8 +149,8 @@ describe('OmniXExchange', () => {
   const prepare = async () => {
     await executionManager.addStrategy(strategy.address)
 
-    await currencyManager.addCurrency(erc20Mock.address)
-    await currencyManager.addCurrency(omni.address)
+    await currencyManager.addCurrency(erc20Mock.address, [], [])
+    await currencyManager.addCurrency(omni.address, [], [])
 
     await omniXExchange.updateTransferSelectorNFT(transferSelector.address)
 

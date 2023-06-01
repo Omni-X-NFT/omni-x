@@ -132,8 +132,8 @@ export const deploy = async (owner: SignerWithAddress, lzChainId: number) => {
   const conduitsController = await deployContract('ConduitController', owner, [])
   chain.seaport = await deployContract('Seaport', owner, [conduitsController.address]) as Seaport
 
-  chain.router = await deployContract("ExchangeRouter", owner, [chain.layerZeroEndpoint.address]) as ExchangeRouter;
-  chain.seaportModule = await deployContract("SeaportModule", owner, [owner.address, chain.router.address]) as SeaportModule;
+  chain.router = await deployContract('ExchangeRouter', owner, [chain.layerZeroEndpoint.address]) as ExchangeRouter;
+  chain.seaportModule = await deployContract('SeaportModule', owner, [owner.address, chain.router.address]) as SeaportModule;
   await (await chain.seaportModule.setExchange(chain.seaport.address)).wait();
   return chain
 }
@@ -154,51 +154,44 @@ export const linkChains = async (src: Chain, dst: Chain) => {
   await src.omniXExchange.setTrustedRemoteAddress(await dst.lzChainId, dst.omniXExchange.address)
 }
 
-export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
-  await chain.executionManager.addStrategy(chain.strategy.address)
-  await chain.currencyManager.addCurrency(chain.erc20Mock.address)
-  await chain.currencyManager.addCurrency(chain.omni.address)
-  await chain.omniXExchange.updateTransferSelectorNFT(chain.transferSelector.address)
-
-  // normal currency and normal nft, mint token#1, #2, #3
-  await chain.nftMock.mintTo(maker.address)
-  await chain.nftMock.mintTo(maker.address)
-  await chain.nftMock.mintTo(maker.address)
-  await chain.nftMock.mintTo(maker.address)
-  await chain.nftMock.mintTo(maker.address)
-  await chain.nftMock.mintTo(maker.address)
-  await chain.nftMock.mintTo(maker.address)
-  await chain.nftMock.mintTo(maker.address)
-  await chain.nftMock.mintTo(maker.address)
-  await chain.nftMock.mintTo(maker.address)
-
-  await chain.onft721.mint(maker.address, 1)
-  await chain.onft721.mint(maker.address, 2)
-  await chain.onft721.mint(maker.address, 3)
-  await chain.onft721.mint(maker.address, 4)
-  await chain.ghosts.connect(maker).mint(1)
-
-  await chain.erc20Mock.mint(maker.address, toWei(200))
-  await chain.omni.transfer(maker.address, toWei(200))
-  await chain.weth.deposit({ value: toWei(1) })
+export const prepareMaker = async (srcChain: Chain, dstChain: Chain, maker: SignerWithAddress) => {
+  await srcChain.executionManager.addStrategy(srcChain.strategy.address)
+  await srcChain.currencyManager.addCurrency(srcChain.erc20Mock.address, [dstChain.lzChainId], [dstChain.erc20Mock.address])
+  await srcChain.currencyManager.addCurrency(srcChain.omni.address, [dstChain.lzChainId], [dstChain.omni.address])
+  await srcChain.omniXExchange.updateTransferSelectorNFT(srcChain.transferSelector.address)
+ // normal currency and normal nft, mint token#1, #2, #3
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.onft721.mint(maker.address, 1)
+  await srcChain.onft721.mint(maker.address, 2)
+  await srcChain.onft721.mint(maker.address, 3)
+  await srcChain.onft721.mint(maker.address, 4)
+  await srcChain.ghosts.connect(maker).mint(1)
+  await srcChain.erc20Mock.mint(maker.address, toWei(200))
+  await srcChain.omni.transfer(maker.address, toWei(200))
+  await srcChain.weth.deposit({ value: toWei(1) })
 }
 
-export const prepareTaker = async (chain: Chain, taker: SignerWithAddress) => {
-  await chain.executionManager.addStrategy(chain.strategy.address)
-
-  await chain.currencyManager.addCurrency(chain.erc20Mock.address)
-  await chain.currencyManager.addCurrency(chain.omni.address)
-  await chain.omniXExchange.updateTransferSelectorNFT(chain.transferSelector.address)
-
-  // normal currency and normal nft, mint token#1, #2, #3
-  await chain.erc20Mock.mint(taker.address, toWei(200))
-  await chain.omni.transfer(taker.address, toWei(200))
-
-  await chain.nftMock.mintTo(taker.address)
-  await chain.nftMock.mintTo(taker.address)
-
-  await chain.onft721.mint(taker.address, 10001)
-  await chain.onft721.mint(taker.address, 10002)
+export const prepareTaker = async (srcChain: Chain, dstChain: Chain, taker: SignerWithAddress) => {
+  await srcChain.executionManager.addStrategy(srcChain.strategy.address)
+  await srcChain.currencyManager.addCurrency(srcChain.erc20Mock.address, [dstChain.lzChainId], [dstChain.erc20Mock.address])
+  await srcChain.currencyManager.addCurrency(srcChain.omni.address, [dstChain.lzChainId], [dstChain.omni.address])
+  await srcChain.omniXExchange.updateTransferSelectorNFT(srcChain.transferSelector.address)
+   // normal currency and normal nft, mint token#1, #2, #3
+  await srcChain.erc20Mock.mint(taker.address, toWei(200))
+  await srcChain.omni.transfer(taker.address, toWei(200))
+  await srcChain.nftMock.mintTo(taker.address)
+  await srcChain.nftMock.mintTo(taker.address)
+  await srcChain.onft721.mint(taker.address, 10001)
+  await srcChain.onft721.mint(taker.address, 10002)
 }
 
 export const prepareStargate = async (chain: Chain, poolId: number, owner: SignerWithAddress) => {
@@ -225,8 +218,6 @@ export const prepareStargate = async (chain: Chain, poolId: number, owner: Signe
   // save stargate router address
   chain.stargateRouter = stargateRouter
   chain.stargateBridge = stargateBridge
-
-  
   await (await chain.router.setStargatePoolManager(chain.stargatePoolManager.address)).wait();
 }
 
