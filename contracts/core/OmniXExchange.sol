@@ -25,6 +25,7 @@ import {IOFT} from "../token/oft/IOFT.sol";
 import {OrderTypes} from "../libraries/OrderTypes.sol";
 import {BytesLib} from "../libraries/BytesLib.sol";
 
+
 /**
  * @title OmniXExchange
  * @notice It is the core contract of the OmniX exchange.
@@ -160,9 +161,8 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         override
         nonReentrant
     {
-
         require(msg.sender == takerBid.taker, "Order: Taker must be the sender");
-    
+   
         (, uint256 currencyFee, ) = getLzFeesForTrading(takerBid, makerAsk, destAirdrop);
         require (currencyFee <= msg.value, "Order: Insufficient value");
         _executeTakerBid(currencyFee, takerBid, makerAsk, false);
@@ -437,8 +437,14 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         (uint16 makerChainId) = maker.decodeParams();
         (uint16 takerChainId, address currency,,,) = taker.decodeParams();
         
+        if (makerChainId == takerChainId) {
+            return (uint256(0), uint256(0), uint256(0));
+        }
+
         if (maker.isOrderAsk) {
+         
             bytes memory sgPayload = _getSgPayload(taker, maker);
+
             uint256 currencyFee = fundManager.lzFeeTransferCurrency(
                 currency,
                 maker.signer,
@@ -447,6 +453,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
                 makerChainId,
                 sgPayload
             );
+            
 
             return (uint256(0), currencyFee, uint256(0));
         }
@@ -461,7 +468,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
             return (omnixFee, uint256(0), uint256(0));
         }
     }
-    
+
     /**
     * @notice get stargate payload
     * @param takerBid taker bid

@@ -206,9 +206,14 @@ contract FundManager is IFundManager, Ownable {
             }
         }
         else {
+          
                 (uint256 fee, ) = stargatePoolManager.getSwapFee(toChainId, to, payload);
+      
                 return fee;
+            
         }
+
+       
     }
 
     /**
