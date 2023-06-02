@@ -1,7 +1,6 @@
 import Moralis from "moralis";
 import { EvmChain } from '@moralisweb3/common-evm-utils';
 import { loadAbi, getContractAddrByName } from '../tasks/shared'
-import GregAddresses from '../constants/gregAddresses.json'
 import snapshotArgs from '../constants/snapshotArgs.json'
 import { Network, Alchemy } from "alchemy-sdk";
 import fs from 'fs'
