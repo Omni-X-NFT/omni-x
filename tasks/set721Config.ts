@@ -21,17 +21,18 @@ export const set721Config = async function (taskArgs: any, hre: any) {
   const advancedONFT721Gasless = createContractByName(hre, 'AdvancedONFT721Gasless', AdvancedONFT721GaslessAbi().abi, owner)
 
   try {
-    if (network.name === 'polygon') {
-      await tx(await advancedONFT721Gasless.setDstChainIdToBatchLimit(dstChainId, args.batchLimit, { gasLimit: '30000' }))
-      await tx(await advancedONFT721Gasless.setDstChainIdToTransferGas(dstChainId, args.transferGas, { gasLimit: '30000' }))
-      await tx(await advancedONFT721Gasless.setMinDstGas(dstChainId, 1, args.minDstGas, { gasLimit: '30000' }))
-    } else {
-      await tx(await advancedONFT721Gasless.setDstChainIdToBatchLimit(dstChainId, args.batchLimit))
-      await tx(await advancedONFT721Gasless.setDstChainIdToTransferGas(dstChainId, args.transferGas))
-      await tx(await advancedONFT721Gasless.setMinDstGas(dstChainId, 1, args.minDstGas))
-    }
+    // if (network.name === 'polygon') {
+    //   await tx(await advancedONFT721Gasless.setDstChainIdToBatchLimit(dstChainId, args.batchLimit, { gasLimit: '30000' }))
+    //   await tx(await advancedONFT721Gasless.setDstChainIdToTransferGas(dstChainId, args.transferGas, { gasLimit: '30000' }))
+    //   await tx(await advancedONFT721Gasless.setMinDstGas(dstChainId, 1, args.minDstGas, { gasLimit: '30000' }))
+    // } else {
+    await tx(await advancedONFT721Gasless.setDstChainIdToBatchLimit(dstChainId, 20))
+    await tx(await advancedONFT721Gasless.setMinGasToTransferAndStore(1))
+    // await tx(await advancedONFT721Gasless.setDstChainIdToTransferGas(dstChainId, args.transferGas))
+    // await tx(await advancedONFT721Gasless.setMinDstGas(dstChainId, 1, args.minDstGas))
+    // }
     
-    // await tx(await advancedONFT721Gasless.setMinGasToTransferAndStore(200000))
+    
     console.log(`${hre.network.name}`)
     console.log(`✅ set batch limit for (${dstChainId}) to ${args.batchLimit} `)
     console.log(`✅ set transfer gas for (${dstChainId}) to ${args.transferGas} `)
