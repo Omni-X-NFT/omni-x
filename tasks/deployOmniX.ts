@@ -72,10 +72,10 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
   // await (await omniXExchange.setFundManager(fundManager.address)).wait()
 
   // deploy stargate
-  let stargateRouter = stargateEndpoint?.router
+   let stargateRouter = stargateEndpoint?.router
 
   // if (stargateRouter) {
-  const poolManager = await deployContract(hre, 'StargatePoolManager', owner, [stargateRouter, getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero])
+   const poolManager = await deployContract(hre, 'StargatePoolManager', owner, [stargateRouter, getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero, { gasPrice: 10000000000 }])
 
   //   await (await omniXExchange.setStargatePoolManager(poolManager.address)).wait()
   // }
@@ -97,7 +97,7 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
 
   await (await omniXExchange.updateTransferSelectorNFT(transferSelector.address)).wait()
   await (await omniXExchange.setFundManager(fundManager.address)).wait()
-  await (await omniXExchange.setStargatePoolManager(poolManager.address)).wait()
+   await (await omniXExchange.setStargatePoolManager(poolManager.address, { gasPrice: 10000000000 })).wait()
 }
 
 export const deployGhosts = async (taskArgs: any, hre: any) => {
@@ -110,8 +110,8 @@ export const deployGhosts = async (taskArgs: any, hre: any) => {
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
-  // testnet: ['fuji', 'mumbai', 'bsc-testnet', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
-  testnet: ['goerli', 'optimism-goerli']
+  testnet: ['fuji', 'mumbai', 'bsc-testnet', 'goerli', 'arbitrum-goerli', 'optimism-goerli', 'moonbeam_testnet', 'fantom-testnet']
+  //testnet: ['goerli', 'optimism-goerli']
 }
 
 export const deployOmnixAll = async function (taskArgs: any) {

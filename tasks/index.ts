@@ -13,7 +13,9 @@ import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from '.
 import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
 import { deployReservoirRouter } from './deployReservoirRouter'
 import { executeBatchOrder } from './executeBatchOrder'
-
+import { addSingleChainCurrency, addCurrency } from './addCurrencies'
+import { deployAllNFTMock, deployNFTMock } from './deployNFTMock'
+import { testSgReceive } from './testSgReceive'
 
 task(
   'setTrustedRemote',
@@ -120,3 +122,20 @@ task('deployReservoirRouter', 'deployReservoirRouter')
 
 task('executeBatchOrder', 'executeBatchOrder')
   .setAction(executeBatchOrder)
+
+task('addSingleChainCurrency', 'addSingleChainCurrency')
+  .addParam('token', 'token name')
+  .setAction(addSingleChainCurrency)
+task('addCurrency', 'addCurrency')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('token', 'token name')
+  .setAction(addCurrency)
+task('deployNFTMock', 'deployNFTMock')
+  .addParam('amount', 'amount of nfts to mint')
+  .setAction(deployNFTMock)
+task('deployAllNFTMock', 'deployAllNFTMock')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('amount', 'amount of nfts to mint')
+  .setAction(deployAllNFTMock)
+task('testSgReceive', 'testSgReceive')
+  .setAction(testSgReceive)

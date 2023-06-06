@@ -221,7 +221,7 @@ describe('OmniXExchangeCross', () => {
         '0x'
       )
       const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.getLzFeesForTrading(takerAsk, makerBid, destAirdrop)
-      await takerChain.omniXExchange.connect(taker).matchBidWithTakerAsk(destAirdrop, takerAsk, makerBid, { value: omnixFee.add(currencyFee).add(nftFee).add(300000000000000) })
+      await takerChain.omniXExchange.connect(taker).matchBidWithTakerAsk(destAirdrop, takerAsk, makerBid, { value: omnixFee.add(currencyFee).add(nftFee) })
 
       expect(await takerChain.nftMock.ownerOf(takerAsk.tokenId)).to.eq(maker.address)
     })

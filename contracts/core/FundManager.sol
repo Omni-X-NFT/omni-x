@@ -352,6 +352,7 @@ contract FundManager is IFundManager, Ownable {
         uint16 toChainId,
         bytes memory payload
     ) external payable override onlyOmnix() {
+
         if (currency == omnixExchange.WETH()) {
             transferEth(
                 from,

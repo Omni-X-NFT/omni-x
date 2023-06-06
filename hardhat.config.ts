@@ -64,7 +64,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     'bsc-testnet': {
-      url: 'https://rpc.ankr.com/bsc_testnet_chapel',
+      url: process.env.BSC_TESTNET_RPC !== undefined ? process.env.BSC_TESTNET_RPC : 'https://data-seed-prebsc-2-s2.binance.org:8545',
       chainId: 97,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
@@ -74,7 +74,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     mumbai: {
-      url: 'https://rpc.ankr.com/polygon_mumbai',
+      url: process.env.MUMBAI_RPC !== undefined ? process.env.MUMBAI_RPC : 'https://rpc.ankr.com/polygon_mumbai',
       chainId: 80001,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
@@ -94,7 +94,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     'optimism-goerli': {
-      url: 'https://goerli.optimism.io/',
+      url: process.env.OP_GOERLI_RPC !== undefined ? process.env.OP_GOERLI_RPC : 'https://goerli.optimism.io/',
       chainId: 420,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },

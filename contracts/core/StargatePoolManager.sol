@@ -140,6 +140,10 @@ contract StargatePoolManager is IStargatePoolManager, Ownable {
     return getSwapFee(dstChainId, to, bytes(""));
   }
 
+  function getStargateRouter() external view returns(address) {
+    return address(stargateRouter);
+  }
+
   /**
     * @notice swap WETH
     * @param dstChainId address of the execution strategy

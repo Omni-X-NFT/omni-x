@@ -782,6 +782,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
                     sgPayload
                 );
             } else {
+                
                 fundManager.transferProxyFunds{value: currencyFee}(
                     makerParty.currency,
                     makerParty.party,
@@ -858,6 +859,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         uint256 _price,         // the qty of local _token contract tokens  
         bytes memory _payload
     ) external override {
+        require(msg.sender == stargatePoolManager.getStargateRouter(), "Stargate Router must be caller");
         if (_payload.length == 0) return;
 
         _tokenReceived(_price, _payload);
@@ -873,7 +875,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         uint256 _price,         // the qty of local _token contract tokens  
         bytes memory _payload
     ) external override {
+        require(currencyManager.isCurrencyWhitelisted(msg.sender), "omni token must be whitelisted");
         if (_payload.length == 0) return;
+        
 
         _tokenReceived(_price, _payload);
     }

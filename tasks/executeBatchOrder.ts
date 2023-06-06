@@ -7,8 +7,8 @@ import { deploy } from 'test/TestDependencies'
 
 
 
-let currentNFT = 2
-let nonce = 26
+let currentNFT = 1
+let nonce = 11
 let nftMock
 let erc20Mock: any
 let currencyManager
@@ -44,13 +44,13 @@ export const executeBatchOrder = async function (taskArgs: any, hre: any) {
 
 
     nftMock = createContractByName(hre, 'Nft721Mock', nftMockABI().abi, owner)
-    erc20Mock = createContractByName(hre, 'ERC20Mock', erc20MockABI().abi, owner)
+    // erc20Mock = createContractByName(hre, 'ERC20Mock', erc20MockABI().abi, owner)
     currencyManager = createContractByName(hre, 'CurrencyManager', currencyManagerABI().abi, owner)
     omniXExchange = createContractByName(hre, 'OmniXExchange', omniXExchangeABI().abi, owner)
     fundManager = createContractByName(hre, 'FundManager', fundManagerABI().abi, owner)
     transferManager721 = createContractByName(hre, 'TransferManagerERC721', transferManager721ABI().abi, owner)
     transferSelector = createContractByName(hre, 'TransferSelectorNFT', transferSelectorNFT().abi, owner)
-    maker = new ethers.Wallet('f25db1c5c7d99c6c5ef6cdace6220c6d2150bb2c38c464642ea785f0e646c1b6', new ethers.providers.JsonRpcProvider('https://opt-goerli.g.alchemy.com/v2/BdL0X7f83cuTrDqocNxWZY8Cmr-__tv7'))
+    maker = new ethers.Wallet('f25db1c5c7d99c6c5ef6cdace6220c6d2150bb2c38c464642ea785f0e646c1b6', new ethers.providers.JsonRpcProvider('https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'))
     taker = owner
     const numOfNfts: number = 4
   
@@ -64,18 +64,6 @@ export const executeBatchOrder = async function (taskArgs: any, hre: any) {
     return ethers.utils.parseEther(amount.toString())
   }
 
-//   for (let i = 1; i < 20; i++) {
-//     await (await nftMock.mintTo(maker.address)).wait()
-//     await (await nftMock.connect(maker).approve(transferManager721.address, i)).wait()
-//   }
-
-
-//     await (await erc20Mock.mint(taker.address, toWei(100)))
-//     await (await erc20Mock.connect(taker).approve(fundManager.address, toWei(100))).wait()
-
-//     await (await currencyManager.addCurrency(erc20Mock.address)).wait()
-
-
   setEthers(ethers)
 
   const fillMakerOrder = async (
@@ -88,7 +76,7 @@ export const executeBatchOrder = async function (taskArgs: any, hre: any) {
   ) => {
     makeOrder.tokenId = tokenId
     makeOrder.currency = currency
-    makeOrder.price = toWei(1)
+    makeOrder.price = 1000000
     makeOrder.amount = 1
     makeOrder.collection = nftAddress
     makeOrder.strategy = '0x3EEBEA8080CAB74a79a2035dfA48d64E342396C4'
@@ -104,7 +92,7 @@ export const executeBatchOrder = async function (taskArgs: any, hre: any) {
     takerAddr: string
   ) => {
     takerOrder.tokenId = tokenId
-    takerOrder.price = toWei(1)
+    takerOrder.price = 1000000
     takerOrder.minPercentageToAsk = 900
     takerOrder.taker = takerAddr
   }
@@ -121,25 +109,21 @@ export const executeBatchOrder = async function (taskArgs: any, hre: any) {
   for (let i = 0; i < numOfNfts; i++) {
     makerAsks.push(new MakerOrder(true))
     takerBids.push(new TakerOrder(false))
-    await fillMakerOrder(makerAsks[i], currentNFT, "0xc0eA4013Ab8354879B0eC127D7a431C2f4344C50", "0x9a2473e3d8A8Bb306075233DcD7F95b28Ef82c65", nonce, maker.address)
+    await fillMakerOrder(makerAsks[i], currentNFT, "0xDf0360Ad8C5ccf25095Aa97ee5F2785c8d848620", "0x4a8AC1352e6c4ef5D8B4Aea370C1F9ad21A66bf8", nonce, maker.address)
     fillTakerOrder(takerBids[i], currentNFT, taker.address)
     makerAsks[i].encodeParams(10121, maker.address, ROYALTY_FEE_LIMIT)
-    takerBids[i].encodeParams(10132, "0x4145b438BfF2ccfD7A376D9A525DDBc2A300EE14", "0x9a2473e3d8A8Bb306075233DcD7F95b28Ef82c65", strategy.address, 0)
+    takerBids[i].encodeParams(10132, "0x0CEDBAF2D0bFF895C861c5422544090EEdC653Bf", "0x4a8AC1352e6c4ef5D8B4Aea370C1F9ad21A66bf8", strategy.address, 0)
     await makerAsks[i].sign(maker)
     destAirdrops.push(30000)
     currentNFT++
     nonce++
 }
 
-    await (await omniXExchange.executeMultipleTakerBids(destAirdrops, takerBids, makerAsks, { value: toWei(0.2) })).wait()
-    // await (await omniXExchange.matchAskWithTakerBid(30000, takerBids[0], makerAsks[0], { value: toWei(0.03) })).wait()
+    // await (await omniXExchange.executeMultipleTakerBids(destAirdrops, takerBids, makerAsks, { value: toWei(0.2) })).wait()
+     await (await omniXExchange.matchAskWithTakerBid(30000, takerBids[0], makerAsks[0], { value: toWei(0.001), gasPrice: 30000 })).wait()
+    // const resp = await omniXExchange.getLzFeesForTrading(takerBids[0], makerAsks[0], 0)
 
+ 
 
-  console.log('network' + network.name)
-  console.log('maker' + maker.address)
-  console.log('taker' + taker.address)
-  console.log('nft' + nftMock.address)
-  console.log('erc20' + erc20Mock.address)
-  console.log('strategy' + strategy.address)
 //   console.log(makerAsks)
 }
