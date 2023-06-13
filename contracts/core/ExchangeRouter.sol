@@ -59,8 +59,7 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
 
     /**
      * receive fallback
-    */
-
+     */
     receive() external payable {}
 
     /**
@@ -111,7 +110,6 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
         ExecutionInfo[] calldata executionInfos,
         AmountCheckInfo calldata amountCheckInfo
     ) external payable nonReentrant refundETH {
-
         // Cache some data for efficiency
         address target = amountCheckInfo.target;
         bytes calldata data = amountCheckInfo.data;
@@ -119,7 +117,6 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
 
         uint256 length = executionInfos.length;
         for (uint256 i = 0; i < length; ) {
-            
             // Check the amount and break if it exceeds the threshold
             uint256 amount = _getAmount(target, data);
             if (amount >= threshold) {
@@ -139,13 +136,14 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
     * @param executionInfos execution infos
     * @dev this function is used only for makerAskWithTakerBid
      */
-    function _getSgPayload(address allowedModule, bool isNative, ExecutionInfo[] calldata executionInfos)
+    function _getSgPayload(address allowedModule, bool isNative, ExecutionInfo[] calldata executionInfos, address taker)
         internal pure returns (bytes memory)
     {
         bytes memory payload = abi.encode(
             allowedModule,
             isNative,
-            executionInfos
+            executionInfos,
+            taker
         );
 
         return payload;
@@ -166,7 +164,7 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
         if (address(stargatePoolManager) == address(0)) return 0;
         if (!stargatePoolManager.isSwappable(crossInfo.currency, crossInfo.toChainId)) return 0;
 
-        bytes memory payload = _getSgPayload(crossInfo.allowedModule, crossInfo.isNative, executionInfos);
+        bytes memory payload = _getSgPayload(crossInfo.allowedModule, crossInfo.isNative, executionInfos, crossInfo.from);
         (uint256 fee, ) = stargatePoolManager.getSwapFee(crossInfo.toChainId, crossInfo.to, payload);
 
         return fee;
@@ -187,7 +185,7 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
         require (address(stargatePoolManager) != address(0), "ExechangeRouter: stargate pool manager is null");
         require (stargatePoolManager.isSwappable(crossInfo.currency, crossInfo.toChainId), "ExechangeRouter: currency is not swappable");
 
-        bytes memory payload = _getSgPayload(crossInfo.allowedModule, crossInfo.isNative, executionInfos);
+        bytes memory payload = _getSgPayload(crossInfo.allowedModule, crossInfo.isNative, executionInfos, crossInfo.from);
 
         if (!crossInfo.isNative) {
             stargatePoolManager.swap{value: msg.value}(
@@ -252,26 +250,20 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
     function _nonblockingLzReceive(uint16, bytes memory, uint64, bytes memory _payload) internal virtual override {
     }
 
-    /**
-    * @notice stargate swap receive callback
-    */
-
-    function sgReceive(
-        uint16 ,                // the remote chainId sending the tokens
-        bytes memory,           // the remote Bridge address
-        uint256,                  
-        address token,                // the token contract on the local chain
-        uint256 _price,         // the qty of local _token contract tokens  
-        bytes memory _payload
-    ) external override {
-        (address allowedModule, bool isNative, ExecutionInfo[] memory executionInfos) = abi.decode(_payload, (address, bool, ExecutionInfo[]));
-        
+    function tokenReceived(
+        address allowedModule,
+        bool isNative,
+        ExecutionInfo[] calldata executionInfos,
+        address token,
+        uint256 price
+    ) external {
+        require(msg.sender == address(this));
         // transfer funds to allowedModule
         if (allowedModule != address(0)) {
             if (isNative) {
-                payable(allowedModule).transfer(_price);
+                payable(allowedModule).transfer(price);
             } else {
-                IERC20(token).transfer(allowedModule, _price);
+                IERC20(token).transfer(allowedModule, price);
             }
         }
 
@@ -282,5 +274,31 @@ contract ExchangeRouter is IExchangeRouter, IStargateReceiver, NonblockingLzApp,
                 ++i;
             }
         }
+
+    }
+
+    /**
+    * @notice stargate swap receive callback
+    */
+    function sgReceive(
+        uint16 ,                // the remote chainId sending the tokens
+        bytes memory,           // the remote Bridge address
+        uint256,                  
+        address token,                // the token contract on the local chain
+        uint256 _price,         // the qty of local _token contract tokens  
+        bytes memory _payload
+    ) external override {
+        require(msg.sender == stargatePoolManager.getStargateRouter());
+        (address allowedModule, bool isNative, ExecutionInfo[] memory executionInfos, address taker) = abi.decode(_payload, (address, bool, ExecutionInfo[], address));
+        
+       try this.tokenReceived(allowedModule, isNative, executionInfos, token, _price) {
+
+       } catch {
+            if (isNative) {
+                payable(taker).transfer(_price);
+            } else {
+                IERC20(token).transfer(taker, _price);
+            }
+       }
     }
 }
