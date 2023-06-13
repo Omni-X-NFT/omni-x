@@ -142,7 +142,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         (, address currency,,,) = takerBid.decodeParams();
         require(currency == WETH, "Order: Currency must be WETH");
         (,uint256 currencyFee,) = getLzFeesForTrading(takerBid, makerAsk, destAirdrop);
-        uint256 totalValue = takerBid.price + currencyFee;
+        uint256 totalValue = takerBid.price + currencyFee; //ATTENTION: CHECK THIS
         require(totalValue <= msg.value, "Order: Msg.value too low");
 
         _executeTakerBid(currencyFee, takerBid, makerAsk, true);
@@ -185,8 +185,11 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
             (uint16 makerChainId) = makerAsk.decodeParams();
             (uint16 takerChainId,,,,) = takerBid.decodeParams();
 
+            
+
             {
             (, address takerCurrency,, address takerStrategy,) = takerBid.decodeParams();
+            checkCurrencies(takerCurrency, makerAsk.currency, takerChainId, makerChainId);
             
             if (makerChainId == takerChainId) {
 
@@ -196,7 +199,6 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
                     fundManager.transferFeesAndFundsWithWETH{value: takerBid.price}(strategy, makerAsk.signer, takerBid.price, makerAsk.getRoyaltyInfo());
                     _transferNFT(makerAsk.collection, makerAsk.signer, takerBid.taker, takerBid.tokenId, makerAsk.amount);
                 } else {
-                    checkCurrencies(takerCurrency, makerAsk.currency, takerChainId, makerChainId);
                     fundManager.transferFeesAndFunds(takerStrategy, takerCurrency, takerBid.price, takerBid.taker, makerAsk.signer, makerAsk.getRoyaltyInfo());
                     _transferNFT(makerAsk.collection, makerAsk.signer, takerBid.taker, takerBid.tokenId, makerAsk.amount);
                 }
@@ -214,7 +216,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
                     sgPayload
                     );
                 } else {
-                    checkCurrencies(takerCurrency, makerAsk.currency, takerChainId, makerChainId);
+                    
                     // cross funds to maker chain's omnixexchange.
                     // once sgReceive received, actual trading will be made.
                     bytes memory sgPayload = _getSgPayload(takerBid, makerAsk);
