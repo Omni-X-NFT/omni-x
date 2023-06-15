@@ -89,60 +89,60 @@ describe('OmniXExchangeCross', () => {
       expect(await makerChain.nftMock.ownerOf(takerBid.tokenId)).to.eq(taker.address)
       tokenId++
     })
-    // it(' Multiple MakerAsks /w TakerBids - Normal Currency /w Normal NFT (Same Order Types)', async () => {
-    //   const makerAsks: MakerOrder[] = []
-    //   const takerBids: TakerOrder[] = []
-    //   const destAirdrops: number[] = []
-    //   const price = toWei(1)
-    //   const blockTime = await getBlockTime()
-    //   const numOfNFTS = 4
-    //   let value: string = '0'
-    //   for (let i = 0; i < numOfNFTS; i++) {
-    //     nonce++
-    //     tokenId++
-    //     const makerAsk: MakerOrder = new MakerOrder(true)
-    //     const takerBid: TakerOrder = new TakerOrder(false)
-    //     fillMakerOrder(
-    //       makerAsk,
-    //       tokenId,
-    //       makerChain.omni.address,
-    //       makerChain.nftMock.address,
-    //       makerChain.strategy.address,
-    //       maker.address,
-    //       blockTime,
-    //       price,
-    //       nonce
-    //     )
-    //     fillTakerOrder(takerBid, taker.address, tokenId, price)
+    it(' Multiple MakerAsks /w TakerBids - Normal Currency /w Normal NFT (Same Order Types)', async () => {
+      const makerAsks: MakerOrder[] = []
+      const takerBids: TakerOrder[] = []
+      const destAirdrops: number[] = []
+      const price = toWei(1)
+      const blockTime = await getBlockTime()
+      const numOfNFTS = 4
+      let value: string = '0'
+      for (let i = 0; i < numOfNFTS; i++) {
+        nonce++
+        tokenId++
+        const makerAsk: MakerOrder = new MakerOrder(true)
+        const takerBid: TakerOrder = new TakerOrder(false)
+        fillMakerOrder(
+          makerAsk,
+          tokenId,
+          makerChain.omni.address,
+          makerChain.nftMock.address,
+          makerChain.strategy.address,
+          maker.address,
+          blockTime,
+          price,
+          nonce
+        )
+        fillTakerOrder(takerBid, taker.address, tokenId, price)
   
-    //     makerAsk.encodeParams(makerChain.lzChainId, ethers.constants.AddressZero, 0)
-    //     takerBid.encodeParams(takerChain.lzChainId, takerChain.omni.address, takerChain.nftMock.address, takerChain.strategy.address, 0)
-    //     await makerAsk.sign(maker)
+        makerAsk.encodeParams(makerChain.lzChainId, ethers.constants.AddressZero, 0)
+        takerBid.encodeParams(takerChain.lzChainId, takerChain.omni.address, takerChain.nftMock.address, takerChain.strategy.address, 0)
+        await makerAsk.sign(maker)
   
-    //     await makerChain.nftMock.connect(maker).approve(makerChain.transferManager721.address, tokenId)
-    //     await takerChain.omni.connect(taker).approve(takerChain.fundManager.address, price)
+        await makerChain.nftMock.connect(maker).approve(makerChain.transferManager721.address, tokenId)
+        await takerChain.omni.connect(taker).approve(takerChain.fundManager.address, price.add(toWei(100)))
   
-    //     const destAirdrop = 0
-    //     const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.connect(taker).getLzFeesForTrading(takerBid, makerAsk, destAirdrop)
+        const destAirdrop = 0
+        const [omnixFee, currencyFee, nftFee] = await takerChain.omniXExchange.connect(taker).getLzFeesForTrading(takerBid, makerAsk, destAirdrop)
       
-    //     value = (ethers.BigNumber.from(value).add(omnixFee.add(currencyFee).add(nftFee))).toString()
-    //     makerAsks.push(makerAsk)
-    //     takerBids.push(takerBid)
-    //     destAirdrops.push(destAirdrop)
+        value = (ethers.BigNumber.from(value).add(omnixFee.add(currencyFee).add(nftFee))).toString()
+        makerAsks.push(makerAsk)
+        takerBids.push(takerBid)
+        destAirdrops.push(destAirdrop)
     
-    //   }
+      }
       
 
-    //   const tx = await takerChain.omniXExchange.connect(taker).executeMultipleTakerBids(destAirdrops, takerBids, makerAsks, { value: ethers.BigNumber.from(value) })
+      const tx = await takerChain.omniXExchange.connect(taker).executeMultipleTakerBids(destAirdrops, takerBids, makerAsks, { value: ethers.BigNumber.from(value) })
 
      
-    //   for (let i = 0; i < numOfNFTS; i++) {
-    //     expect(await makerChain.nftMock.ownerOf(takerBids[i].tokenId)).to.eq(taker.address)
-    //   }
+      for (let i = 0; i < numOfNFTS; i++) {
+        expect(await makerChain.nftMock.ownerOf(takerBids[i].tokenId)).to.eq(taker.address)
+      }
 
-    //   nonce++
-    //   tokenId++
-    // })
+      nonce++
+      tokenId++
+    })
 
     it('MakerAsk /w TakerBid - $OMNI /w Normal NFT', async () => {
       const makerAsk: MakerOrder = new MakerOrder(true)

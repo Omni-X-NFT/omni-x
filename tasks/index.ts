@@ -16,6 +16,7 @@ import { executeBatchOrder } from './executeBatchOrder'
 import { addSingleChainCurrency, addCurrency } from './addCurrencies'
 import { deployAllNFTMock, deployNFTMock } from './deployNFTMock'
 import { testSgReceive } from './testSgReceive'
+import { lzScan } from './lzScan' 
 
 task(
   'setTrustedRemote',
@@ -139,3 +140,6 @@ task('deployAllNFTMock', 'deployAllNFTMock')
   .setAction(deployAllNFTMock)
 task('testSgReceive', 'testSgReceive')
   .setAction(testSgReceive)
+task('lzScan', 'lzScan')
+  .addParam('hash', 'source tx hash')
+  .setAction(lzScan)
