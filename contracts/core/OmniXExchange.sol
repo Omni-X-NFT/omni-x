@@ -65,6 +65,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
     event SentFunds(address indexed seller, address indexed buyer, uint price, address currency);
     event RevertFunds(address indexed seller, address indexed buyer, uint price, address currency, bytes reason);
     event NewTransferSelectorNFT(address indexed transferSelectorNFT);
+    event FailureInBatch(string message);
 
     event TakerAsk(
         bytes32 orderHash, // bid hash of the maker order
@@ -347,10 +348,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
       
         uint totalPrice;
         
-        for (uint i = 0; i < makerAsks.length; ++i) {
+        for (uint i = 0; i < makerAsks.length; i++) {
 
-           
-            
+            require(msg.sender == takerBids[i].taker, "OmiXExchange: Taker must be the sender");
             
             (, uint currencyFee, ) = getLzFeesForTrading(takerBids[i], makerAsks[i], destAirdrops[i]);
             (, address currency,,,) = takerBids[i].decodeParams();
@@ -358,11 +358,12 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
             (uint16 makerChainId) = makerAsks[i].decodeParams();
             (uint16 takerChainId,,,,) = takerBids[i].decodeParams();
 
-            require(msg.sender == takerBids[i].taker, "OmiXExchange: Taker must be the sender");
+            
 
             if (makerChainId == takerChainId) {
                 require(destAirdrops[i] == 0, "OmniXExchange: zero destairdop required"); 
             }
+
 
             {
 
@@ -371,7 +372,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
                     require(totalPrice <= msg.value, "OmniXExchange: Insufficient value");
                     try this.restrictedExecuteTakerBid(currencyFee, takerBids[i], makerAsks[i], true) {
                 
-                    } catch {
+                    } catch Error(string memory message) {
+                        emit FailureInBatch(message);
+                        
                     } 
                    
 
@@ -381,7 +384,9 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
 
                     try this.restrictedExecuteTakerBid(currencyFee, takerBids[i], makerAsks[i], false) {
 
-                    } catch {}
+                    } catch Error(string memory message) {
+                        emit FailureInBatch(message);
+                    }
                     
                 }
             }
