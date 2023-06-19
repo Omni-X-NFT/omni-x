@@ -31,8 +31,6 @@ export const set721Config = async function (taskArgs: any, hre: any) {
     // await tx(await advancedONFT721Gasless.setDstChainIdToTransferGas(dstChainId, args.transferGas))
     // await tx(await advancedONFT721Gasless.setMinDstGas(dstChainId, 1, args.minDstGas))
     // }
-    
-    
     console.log(`${hre.network.name}`)
     console.log(`✅ set batch limit for (${dstChainId}) to ${args.batchLimit} `)
     console.log(`✅ set transfer gas for (${dstChainId}) to ${args.transferGas} `)

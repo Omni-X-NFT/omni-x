@@ -11,7 +11,7 @@ const tx = async (tx1: any) => {
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'polygon', 'moonbeam', 'arbitrum'],
-  testnet: ['goerli', 'bsc-testnet', 'mumbai', 'arbitrum-goerli', 'moonbeam_testnet']
+  testnet: ['arbitrum-goerli', 'optimism-goerli', 'fantom-testnet']
 }
 
 export const prepareAdvancedONFTGasless = async function (taskArgs: any, hre: any) {
@@ -20,8 +20,9 @@ export const prepareAdvancedONFTGasless = async function (taskArgs: any, hre: an
   const args = (omniElementArgs as any)[network.name]
 
   const advancedONFT721Gasless = createContractByName(hre, 'AdvancedONFT721Gasless', AdvancedONFT721GaslessAbi().abi, owner)
-  await tx(await advancedONFT721Gasless.setPrice(args.price))
-  await tx(await advancedONFT721Gasless.flipPublicSaleStarted())
+  await tx(await advancedONFT721Gasless.flipRevealed())
+  // await tx(await advancedONFT721Gasless.setPrice(args.price))
+  // await tx(await advancedONFT721Gasless.flipPublicSaleStarted())
   // if (network.name === 'ethereum' || network.name === 'bsc' || network.name === 'polygon' || network.name === 'moonbeam') {
   //   await tx(await advancedONFT721Gasless.setMerkleRoot(args.merkleRoot))
   // }
