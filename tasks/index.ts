@@ -13,10 +13,12 @@ import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from '.
 import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
 import { deployReservoirRouter } from './deployReservoirRouter'
 import { executeBatchOrder } from './executeBatchOrder'
-import { addSingleChainCurrency, addCurrency } from './addCurrencies'
+import { addSingleChainCurrency, addCurrency, removeAllUSDC, removeCurrency } from './addCurrencies'
 import { deployAllNFTMock, deployNFTMock } from './deployNFTMock'
 import { testSgReceive } from './testSgReceive'
 import { lzScan } from './lzScan' 
+import { convertToBytes } from './convertToBytes'
+
 
 task(
   'setTrustedRemote',
@@ -143,3 +145,13 @@ task('testSgReceive', 'testSgReceive')
 task('lzScan', 'lzScan')
   .addParam('hash', 'source tx hash')
   .setAction(lzScan)
+task('convertToBytes', 'convertToBytes')
+  .addParam('adr', 'address to convert')
+  .setAction(convertToBytes)
+task('removeCurrency', 'removeCurrency')
+  .addParam('token', 'token address')
+  .setAction(removeCurrency)
+task('removeAllUSDC', 'removeAllUSDC')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(removeAllUSDC)
+  
