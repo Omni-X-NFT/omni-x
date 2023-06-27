@@ -39,6 +39,15 @@ contract CurrencyManager is ICurrencyManager, Ownable {
         emit CurrencyWhitelisted(currency);
     }
 
+    function modifyCorrespondingCurrency(address currency, uint16[] calldata lzChainIds, address[] calldata newDependentCurrencies) external override onlyOwner {
+        require(_whitelistedCurrencies.contains(currency), "currency not whitelisted");
+        require(lzChainIds.length == newDependentCurrencies.length, "Currency: Invalid input");
+
+        for (uint16 i=0; i < lzChainIds.length; i++) {
+            correspondingCurrencies[currency][lzChainIds[i]] = newDependentCurrencies[i];
+        }
+    }
+
 
     /**
      * @notice Remove a currency from the system
