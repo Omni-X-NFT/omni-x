@@ -18,7 +18,7 @@ import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
 import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
 import { analyzeStuckTx } from './analyzeStuckTx'
-
+import { deployAdvancedONFT721A, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross } from './AdvancedONFTASuite'
 
 
 task(
@@ -154,3 +154,35 @@ task('analyzeStuckTx', 'analyze stuck transaction lz')
   .setAction(analyzeStuckTx)
 task('changeAmounts', 'change amount of wl')
   .setAction(changeAmounts)
+task('deployAdvancedONFT721A', 'deployAdvancedONFT721A')
+  .addParam('collection', 'collection name')
+  .setAction(deployAdvancedONFT721A)
+task('deployAllAdvancedONFT721A', 'deployAllAdvancedONFT721A')
+  .addParam('collection', 'collection name')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(deployAllAdvancedONFT721A)
+task('prepareAdvancedONFT721A', 'prepareAdvancedONFT721A')
+  .addParam('collection', 'collection name')
+  .addParam('target', 'target dst network')
+  .addParam('lzconfig', 'true or false for lz config')
+  .addParam('startmint', 'true or false for sale started')
+  .addParam('reveal', 'true or false for revealed metadata')
+  .setAction(prepareAdvancedONFT721A)
+task('prepareAllAdvancedONFT721A', 'prepareAllAdvancedONFT721A')
+  .addParam('lzconfig', 'true or false for lz config')
+  .addParam('startmint', 'true or false for sale started')
+  .addParam('reveal', 'true or false for revealed metadata')
+  .addParam('collection', 'collection name')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(prepareAllAdvancedONFT721A)
+task('mint721A', 'mint721A')
+  .addParam('amount', 'amount of tokens')
+  .setAction(mint)
+task('mintAll721A', 'mintAll721A')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('amount', 'amount of tokens')
+  .setAction(mintAll)
+task('sendCross' , 'sendCross')
+  .addParam('tokenid', 'tokenid')
+  .addParam('target', 'target dst network')
+  .setAction(sendCross)

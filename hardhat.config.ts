@@ -170,10 +170,8 @@ const config: HardhatUserConfig = {
       ftmTestnet: process.env.FANTOM_API_KEY || '',
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
       'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
-      'moonbeam_testnet': process.env.MOONBEAM_API_KEY || '',
-      metis: process.env.METIS_API_KEY || '',
-      zksync: process.env.ZKSYNC_API_KEY || '',
-      klaytn: process.env.KLAYTN_API_KEY || ''
+      'moonbeam_testnet': process.env.MOONBEAM_API_KEY || ''
+     
     },
     customChains: [
       {
