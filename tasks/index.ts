@@ -18,7 +18,7 @@ import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
 import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
 import { analyzeStuckTx } from './analyzeStuckTx'
-import { deployAdvancedONFT721A, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross } from './AdvancedONFTASuite'
+import { deployAdvancedONFT721A, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
 
 
 task(
@@ -182,7 +182,14 @@ task('mintAll721A', 'mintAll721A')
   .addParam('e', 'testnet or mainnet')
   .addParam('amount', 'amount of tokens')
   .setAction(mintAll)
-task('sendCross' , 'sendCross')
+task('sendCross', 'sendCross')
   .addParam('tokenid', 'tokenid')
   .addParam('target', 'target dst network')
   .setAction(sendCross)
+task('deployCollection', 'deployCollection')
+  .addParam('collection', 'collection name')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('lzconfig', 'true or false for lz config')
+  .addParam('startmint', 'true or false for sale started')
+  .addParam('reveal', 'true or false for revealed metadata')
+  .setAction(deployCollection)

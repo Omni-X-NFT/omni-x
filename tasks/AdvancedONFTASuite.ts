@@ -5,7 +5,7 @@ import * as CHAIN_ID from '../constants/chainIds.json'
 import { loadAbi, createContractByName, deployContract } from './shared'
 
 const environments: any = {
-    mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom'],
+    mainnet: ['arbitrum', 'optimism'],
     testnet: ['fuji', 'fantom-testnet']
 }
 
@@ -18,14 +18,14 @@ const tx = async (tx1: any) => {
 }
 const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
-const AdvancedONFT721AAbi = loadAbi('../artifacts/contracts/token/onft721A/extension/AdvancedONFT721A.sol/AdvancedONFT721A.json')
+const AdvancedONFT721AAbi = loadAbi('../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json')
 
 export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
     const { ethers, network } = hre
     const [owner] = await ethers.getSigners()
     const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
     const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
-    await deployContract(hre, 'AdvancedONFT721A', owner, [
+    await deployContract(hre, 'OmnichainAdventures', owner, [
         args.name,
         args.symbol,
         lzEndpoint,
@@ -64,14 +64,14 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
     const dstChainId = CHAIN_IDS[taskArgs.target]
 
 
-    const onft721A = createContractByName(hre, 'AdvancedONFT721A', AdvancedONFT721AAbi().abi, owner)
+    const onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
 
     if (taskArgs.lzconfig === 'true') {
         try {
            
               await tx(await onft721A.setDstChainIdToBatchLimit(dstChainId, args.batchLimit))
               await tx(await onft721A.setDstChainIdToTransferGas(dstChainId, args.transferGas))
-              await tx(await onft721A.setMinDstGas(dstChainId, 1, args.minDstGas ))
+              await tx(await onft721A.setMinDstGas(dstChainId, 1, args.minDstGas))
            
          
             console.log(`${hre.network.name}`)
@@ -92,6 +92,7 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
                 mintLength: 604800
             }
             await tx(await onft721A.setNftState(nftState))
+            console.log(`✅ set nft state`)
         } catch (e: any) {
             console.log(e)
         }
@@ -125,7 +126,7 @@ export const sendCross = async (taskArgs: any, hre: any) => {
     const { ethers, network } = hre
     const [owner] = await ethers.getSigners()
     const dstChainId = CHAIN_IDS[taskArgs.target]
-    const onft = createContractByName(hre, 'AdvancedONFT721A', AdvancedONFT721AAbi().abi, owner)
+    const onft = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
     const adapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 400000])
     const gas = await onft.estimateSendFee(dstChainId, owner.address, taskArgs.tokenid, false, adapterParams)
     await tx(await onft.sendFrom(owner.address, dstChainId, owner.address, taskArgs.tokenid, owner.address, ethers.constants.AddressZero, adapterParams, { value: gas[0].toString() }))
@@ -135,7 +136,7 @@ export const sendCross = async (taskArgs: any, hre: any) => {
 export const mint = async (taskArgs: any, hre: any) => {
     const { ethers, network } = hre
     const [owner] = await ethers.getSigners()
-    const onft = createContractByName(hre, 'AdvancedONFT721A', AdvancedONFT721AAbi().abi, owner)
+    const onft = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
     await tx(await onft.mint(taskArgs.amount, { value: taskArgs.amount }))
     console.log(`✅ minted ${taskArgs.amount} to ${owner.address}`)
 }
@@ -153,3 +154,26 @@ export const mintAll = async (taskArgs: any) => {
       })
     )
   }
+
+export const deployCollection = async (taskArgs: any, hre: any) => {
+  const networks = environments[taskArgs.e]
+  if (!taskArgs.e || networks.length === 0) {
+    console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+  
+    let checkWireUpCommand = `npx hardhat deployAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection}`
+    console.log(checkWireUpCommand)
+    shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+    checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal}`
+    console.log(checkWireUpCommand)
+    shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+    checkWireUpCommand = `npx hardhat setAllTrustedRemote --e ${taskArgs.e} --contract OmnichainAdventures`
+    console.log(checkWireUpCommand)
+    shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+    checkWireUpCommand = `npx hardhat verifyAll --e ${taskArgs.e} --tags OmnichainAdventures`
+    console.log(checkWireUpCommand)
+    shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+
+  
+}
+
