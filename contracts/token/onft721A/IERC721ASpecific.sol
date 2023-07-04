@@ -93,12 +93,7 @@ interface IERC721ASpecific {
     //                         TOKEN COUNTERS
     // =============================================================
 
-    /**
-     * @dev Returns the total number of tokens in existence.
-     * Burned tokens will reduce the count.
-     * To get the total number of tokens minted, please see {_totalMinted}.
-     */
-    function totalSupply() external view returns (uint256);
+
 
     // =============================================================
     //                            IERC165

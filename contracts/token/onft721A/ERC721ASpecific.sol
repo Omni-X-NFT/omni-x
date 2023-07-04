@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-// ERC721A Contracts v4.2.3
-// Creator: Chiru Labs
+// ERC721ASpecific Contracts v4.2.3
+// Creator: Omni-X
 
 pragma solidity ^0.8.4;
 
@@ -19,14 +19,16 @@ interface ERC721A__IERC721Receiver {
 }
 
 /**
- * @title ERC721A
+ * @title ERC721ASpecific
  *
  * @dev Implementation of the [ERC721](https://eips.ethereum.org/EIPS/eip-721)
  * Non-Fungible Token Standard, including the Metadata extension.
  * Optimized for lower gas during batch mints.
  *
- * Token IDs are minted in sequential order (e.g. 0, 1, 2, 3, ...)
- * starting from `_startTokenId()`.
+ * Token IDs in the mint range (_startTokenId <= tokenId < _getMaxId()), will be treated in storage 
+ * as ERC721A, while tokenIds in the global range but outside the mint range will be treated as OZ 721 in storage.
+ * This hybrid mechanic is to allow layerZero logic to mint a specific Id on another chain if a user bridges.
+ * 
  *
  * Assumptions:
  *
@@ -173,19 +175,7 @@ contract ERC721ASpecific is IERC721ASpecific {
     function _nextTokenId() internal view virtual returns (uint256) {
         return _currentIndex;
     }
-
-    /**
-     * @dev Returns the total number of tokens in existence.
-     * Burned tokens will reduce the count.
-     * To get the total number of tokens minted, please see {_totalMinted}.
-     */
-    function totalSupply() public view virtual override returns (uint256) {
-        // Counter underflow is impossible as _burnCounter cannot be incremented
-        // more than `_currentIndex - _startTokenId()` times.
-        unchecked {
-            return _currentIndex - _burnCounter - _startTokenId();
-        }
-    }
+   
 
     /**
      * @dev Returns the total amount of tokens minted in the contract.
@@ -331,6 +321,7 @@ contract ERC721ASpecific is IERC721ASpecific {
     /**
      * @dev Gas spent here starts off proportional to the maximum mint batch size.
      * It gradually moves to O(1) as tokens get transferred around over time.
+     * This will only hold valid values for nextInitialized and burned if tokenId is within mint range (_startTokenId <= tokenId <= maxId)
      */
     function _ownershipOf(uint256 tokenId) internal view virtual returns (TokenOwnership memory) {
         return _unpackedOwnership(_packedOwnershipOf(tokenId));
@@ -395,9 +386,8 @@ contract ERC721ASpecific is IERC721ASpecific {
             // If the token is not burned, return `packed`. Otherwise, revert.
             if (packed & _BITMASK_BURNED == 0) return packed;
         } else if (tokenId > 0 && tokenId <= _getMaxGlobalId()) {
-            if (_packedOwnerships[tokenId] != 0) {
-                return _packedOwnerships[tokenId];
-            }
+            packed = _packedOwnerships[tokenId];
+            if (packed != 0) return packed;
         }
         _revert(OwnerQueryForNonexistentToken.selector);
     }
@@ -548,33 +538,81 @@ contract ERC721ASpecific is IERC721ASpecific {
     //                      TRANSFER OPERATIONS
     // =============================================================
 
+
+    /**
+     * @dev This function is called by and only by LayerZero ONFT721A
+     * 
+     * This function bypasses token approvals because of the above assumption 
+     *
+     * This function should act just as transferFrom (minus the approval) for tokenIds in this chains mint range
+     * Otherwise this function should act just as transferFrom minus adjusting nextInitialized because Ids in this 
+     * range are treated as OZ 721.
+     */
     function bridgeTransfer(
         address from,
         address to,
         uint256 tokenId
     ) internal {
-        uint256 ownershipPacked = _packedOwnershipOf(tokenId);
+    
+        uint256 prevOwnershipPacked = _packedOwnershipOf(tokenId);
         from = address(uint160(uint256(uint160(from)) & _BITMASK_ADDRESS));
-        if (address(uint160(ownershipPacked)) != from) _revert(TransferFromIncorrectOwner.selector);
+        if (address(uint160(prevOwnershipPacked)) != from) _revert(TransferFromIncorrectOwner.selector);
 
+        if (_startTokenId() <= tokenId && tokenId <= _getMaxId()) {
+            unchecked {
+                // We can directly increment and decrement the balances.
+                --_packedAddressData[from]; // Updates: `balance -= 1`.
+                ++_packedAddressData[to]; // Updates: `balance += 1`.
 
-        unchecked {
-            // We can directly increment and decrement the balances.
-            --_packedAddressData[from]; // Updates: `balance -= 1`.
-            ++_packedAddressData[to]; // Updates: `balance += 1`.
+                // Updates:
+                // - `address` to the next owner.
+                // - `startTimestamp` to the timestamp of transfering.
+                // - `burned` to `false`.
+                // - `nextInitialized` to `true`.
+                _packedOwnerships[tokenId] = _packOwnershipData(
+                    to,
+                    0
+                );
 
-            // Updates:
-            // - `address` to the next owner.
-            // - `startTimestamp` to the timestamp of transfering.
-            // - `burned` to `false`.
-            // - `nextInitialized` to `true`.
-            _packedOwnerships[tokenId] = _packOwnershipData(
-                to,
-                0
-            );
+                // If the next slot may not have been initialized (i.e. `nextInitialized == false`) .
+                if (prevOwnershipPacked & _BITMASK_NEXT_INITIALIZED == 0) {
+                    uint256 nextTokenId = tokenId + 1;
+                    // If the next slot's address is zero and not burned (i.e. packed value is zero).
+                    if (_packedOwnerships[nextTokenId] == 0) {
+                        // If the next slot is within bounds.
+                        if (nextTokenId != _currentIndex) {
+                            // Initialize the next slot to maintain correctness for `ownerOf(tokenId + 1)`.
+                            _packedOwnerships[nextTokenId] = prevOwnershipPacked;
+                        }
+                    }
+                }
+
+            }
+
+        } else {
+
+            unchecked {
+                // We can directly increment and decrement the balances.
+                --_packedAddressData[from]; // Updates: `balance -= 1`.
+                ++_packedAddressData[to]; // Updates: `balance += 1`.
+
+                // Updates:
+                // - `address` to the next owner.
+                // - `startTimestamp` to the timestamp of transfering.
+                // - `burned` to `false`.
+                // - `nextInitialized` to `true`.
+                _packedOwnerships[tokenId] = _packOwnershipData(
+                    to,
+                    0
+                );
+
+                // no need to adjust next initialized value since tokenIds not in the mint are mapped one to one with an owner (like OZ) unlike tokenIds in the mintRange
+
+            }
+
 
         }
-
+       
         uint256 toMasked = uint256(uint160(to)) & _BITMASK_ADDRESS;
         assembly {
             // Emit the `Transfer` event.
@@ -803,7 +841,13 @@ contract ERC721ASpecific is IERC721ASpecific {
     // =============================================================
     //                        MINT OPERATIONS
     // =============================================================
-
+    /**
+     * @dev minting function only used by LZ ONFT721A contract. This 
+     * function is only called in the case someone bridge to this chain
+     * and the tokenId doesn't already exist and is owned by the NFT contract
+     *
+     *
+     */
     function bridgeMint(
         address to,
         uint256 tokenId
@@ -822,7 +866,8 @@ contract ERC721ASpecific is IERC721ASpecific {
                 to,
                 0
             );
-
+            
+            // I believe these operations are unecessary since quantity is always 1
             _packedAddressData[to] += 1 * ((1 << _BITPOS_NUMBER_MINTED) | 1);
 
             // Mask `to` to the lower 160 bits, in case the upper bits somehow aren't clean.
@@ -841,7 +886,7 @@ contract ERC721ASpecific is IERC721ASpecific {
                         tokenId // `tokenId`.
                     )
             }
-         }
+        }
           _afterTokenTransfers(address(0), to, tokenId, 1);
 
     }
