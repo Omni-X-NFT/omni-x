@@ -6,6 +6,9 @@ import "../AdvancedONFT721ATimed.sol";
 contract OmnichainAdventures is AdvancedONFT721ATimed {
 
 
+    uint64 public maxTokensPerMint = 20;
+
+
     constructor(
         string memory _name,
         string memory _symbol,
@@ -28,5 +31,32 @@ contract OmnichainAdventures is AdvancedONFT721ATimed {
         }
         return metadata.baseURI;
     }
+
+    function setMaxTokensPerMint(uint64 _maxTokensPerMint ) external onlyBenficiaryAndOwner {
+        maxTokensPerMint = _maxTokensPerMint;
+    }
+
+   function mint(uint256 _nbTokens) external override payable {
+        require(state.saleStarted, "Sale hasn't started");
+
+        require(_nbTokens != 0);
+
+
+        require(_nextTokenId() + _nbTokens - 1 <= maxId, "max supply reached");
+
+
+        require(_nbTokens * _financeDetails.price <= msg.value, "not enough value");
+
+
+        require(state.startTime + state.mintLength >= block.timestamp, "minting expired");
+
+        require (_nbTokens <= maxTokensPerMint, "exceeded max minting limit");
+
+
+        _safeMint(msg.sender, _nbTokens);
+
+
+    }
+
 }
 

@@ -31,7 +31,7 @@ contract AdvancedONFT721ATimed is ONFT721A {
     uint256 public maxId;
     uint256 public maxGlobalId;
 
-    FinanceDetails private _financeDetails;
+    FinanceDetails public _financeDetails;
     Metadata public metadata;
     NFTState public state;
 
@@ -60,7 +60,7 @@ contract AdvancedONFT721ATimed is ONFT721A {
         metadata = Metadata(_baseTokenURI, _hiddenURI);
     }
 
-    function mint(uint256 _nbTokens) external payable {
+    function mint(uint256 _nbTokens) external virtual payable {
         require(state.saleStarted, "Sale hasn't started");
 
         require(_nbTokens != 0);

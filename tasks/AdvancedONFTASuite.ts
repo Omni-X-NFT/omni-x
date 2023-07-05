@@ -84,12 +84,17 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
           }
     }
     if (taskArgs.startmint === 'true' || taskArgs.reveal === 'true') {
+        const provider = hre.ethers.getDefaultProvider()
+
+        const block = await provider.getBlock('latest')
+        const timestamp = block.timestamp
+        console.log(`timestamp: ${timestamp}`)
         try {
             const nftState = {
                 saleStarted: taskArgs.startmint === 'true',
                 revealed: taskArgs.reveal === 'true',
-                startTime: 0,
-                mintLength: 604800 * 2
+                startTime: timestamp,
+                mintLength: 1209600 // 2 weeks
             }
             await tx(await onft721A.setNftState(nftState))
             console.log(`✅ set nft state`)
@@ -164,13 +169,16 @@ export const deployCollection = async (taskArgs: any, hre: any) => {
     let checkWireUpCommand = `npx hardhat deployAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection}`
     console.log(checkWireUpCommand)
     shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
-    checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal}`
+    checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint false --reveal false`
     console.log(checkWireUpCommand)
     shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
     checkWireUpCommand = `npx hardhat setAllTrustedRemote --e ${taskArgs.e} --contract OmnichainAdventures`
     console.log(checkWireUpCommand)
     shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
     checkWireUpCommand = `npx hardhat verifyAll --e ${taskArgs.e} --tags OmnichainAdventures`
+    console.log(checkWireUpCommand)
+    shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+    checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig false --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal}`
     console.log(checkWireUpCommand)
     shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
 
