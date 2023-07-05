@@ -89,17 +89,19 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
         const block = await provider.getBlock('latest')
         const timestamp = block.timestamp
         console.log(`timestamp: ${timestamp}`)
-        try {
-            const nftState = {
-                saleStarted: taskArgs.startmint === 'true',
-                revealed: taskArgs.reveal === 'true',
-                startTime: timestamp,
-                mintLength: 1209600 // 2 weeks
-            }
-            await tx(await onft721A.setNftState(nftState))
-            console.log(`✅ set nft state`)
-        } catch (e: any) {
-            console.log(e)
+        if (args.startId !== args.endId) {
+          try {
+              const nftState = {
+                  saleStarted: taskArgs.startmint === 'true',
+                  revealed: taskArgs.reveal === 'true',
+                  startTime: timestamp,
+                  mintLength: 1209600 // 2 weeks
+              }
+              await tx(await onft721A.setNftState(nftState))
+              console.log(`✅ set nft state`)
+          } catch (e: any) {
+              console.log(e)
+          }
         }
     }
 
