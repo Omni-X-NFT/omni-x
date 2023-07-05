@@ -89,7 +89,7 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
                 saleStarted: taskArgs.startmint === 'true',
                 revealed: taskArgs.reveal === 'true',
                 startTime: 0,
-                mintLength: 604800
+                mintLength: 604800 * 2
             }
             await tx(await onft721A.setNftState(nftState))
             console.log(`✅ set nft state`)
