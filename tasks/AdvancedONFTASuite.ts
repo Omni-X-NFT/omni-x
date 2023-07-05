@@ -3,10 +3,11 @@ import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import ONFT_ARGS from '../constants/ONFT721AArgs.json'
 import * as CHAIN_ID from '../constants/chainIds.json'
 import { loadAbi, createContractByName, deployContract } from './shared'
-
+import * as ContractArtifact from "../artifacts-zk/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json";
 const environments: any = {
     mainnet: ['arbitrum', 'optimism'],
-    testnet: ['fuji', 'fantom-testnet']
+    // testnet: ['fuji', 'fantom-testnet']
+    testnet: ['zksync-testnet']
 }
 
 type CHAINIDTYPE = {
@@ -19,25 +20,27 @@ const tx = async (tx1: any) => {
 const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
 const AdvancedONFT721AAbi = loadAbi('../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json')
-
+con
 export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
     const { ethers, network } = hre
     const [owner] = await ethers.getSigners()
     const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
     const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
-    await deployContract(hre, 'OmnichainAdventures', owner, [
-        args.name,
-        args.symbol,
-        lzEndpoint,
-        args.startId,
-        args.endId,
-        args.maxGlobalId,
-        args.baseURI,
-        args.hiddenURI,
-        args.tax,
-        args.price,
-        args.taxRecipient
-    ])
+    if (network.name !== 'zksync' && network.name !== 'zksync-testnet') {
+      await deployContract(hre, 'OmnichainAdventures', owner, [
+          args.name,
+          args.symbol,
+          lzEndpoint,
+          args.startId,
+          args.endId,
+          args.maxGlobalId,
+          args.baseURI,
+          args.hiddenURI,
+          args.tax,
+          args.price,
+          args.taxRecipient
+      ])
+  }
 }
 
 export const deployAllAdvancedONFT721A = async (taskArgs: any) => {
@@ -47,9 +50,12 @@ export const deployAllAdvancedONFT721A = async (taskArgs: any) => {
     }
     await Promise.all(
         networks.map(async (network: string) => {
-            const checkWireUpCommand = `npx hardhat deployAdvancedONFT721A --network ${network} --collection ${taskArgs.collection}`
-            console.log(checkWireUpCommand)
-            shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+           
+              const checkWireUpCommand = `npx hardhat deployAdvancedONFT721A --network ${network} --collection ${taskArgs.collection}`
+              console.log(checkWireUpCommand)
+              shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+          
+            
         })
     )
 }
@@ -64,7 +70,12 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
     const dstChainId = CHAIN_IDS[taskArgs.target]
 
 
-    const onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
+    let onft721A 
+    if (network.name === 'zksync' || network.name === 'zksync-testnet') {
+     onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
+    } else {
+      onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
+    }
 
     if (taskArgs.lzconfig === 'true') {
         try {
