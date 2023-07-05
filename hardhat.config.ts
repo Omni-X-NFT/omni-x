@@ -97,6 +97,31 @@ const config: HardhatUserConfig = {
       chainId: 8217,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
+    'arbitrum-nova': {
+      url: process.env.ARB_NOVA_RPC !== undefined ? process.env.ARB_NOVA_RPC : 'https://arbitrum-nova.publicnode.com',
+      chainId: 42170,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    'polygon-zkevm': {
+      url: process.env.POLYGON_ZKEVM_RPC !== undefined ? process.env.POLYGON_ZKEVM_RPC : 'https://zkevm-rpc.com',
+      chainId: 1101,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    canto: {
+      url: process.env.CANTO_RPC !== undefined ? process.env.CANTO_RPC : 'https://mainnode.plexnode.org:8545',
+      chainId: 7700,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    kava: {
+      url: process.env.KAVA_RPC !== undefined ? process.env.KAVA_RPC : 'https://evm.kava.io',
+      chainId: 2222,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
+    tenet: {
+      url: process.env.TENET_RPC !== undefined ? process.env.TENET_RPC : 'https://rpc.tenet.org',
+      chainId: 1559,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+    },
     rinkeby: {
       url: 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
       chainId: 4,
