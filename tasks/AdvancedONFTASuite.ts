@@ -20,7 +20,7 @@ const tx = async (tx1: any) => {
 const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
 const AdvancedONFT721AAbi = loadAbi('../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json')
-con
+
 export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
     const { ethers, network } = hre
     const [owner] = await ethers.getSigners()

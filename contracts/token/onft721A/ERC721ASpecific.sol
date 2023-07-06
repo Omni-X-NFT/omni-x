@@ -626,8 +626,6 @@ contract ERC721ASpecific is IERC721ASpecific {
             )
         }
         if (toMasked == 0) _revert(TransferToZeroAddress.selector);
-
-        _afterTokenTransfers(from, to, tokenId, 1);
         
     }
 
@@ -854,7 +852,7 @@ contract ERC721ASpecific is IERC721ASpecific {
     ) internal {
         require(tokenId > 0 && tokenId <= _getMaxGlobalId());
         require(tokenId < _startTokenId() || tokenId > _getMaxId());
-        _beforeTokenTransfers(address(0), to, tokenId, 1);
+        
 
          unchecked {
             // Updates:
@@ -887,7 +885,7 @@ contract ERC721ASpecific is IERC721ASpecific {
                     )
             }
         }
-          _afterTokenTransfers(address(0), to, tokenId, 1);
+        
 
     }
     
