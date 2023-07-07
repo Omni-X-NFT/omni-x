@@ -11,7 +11,8 @@ const tx = async (tx1: any) => {
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'polygon', 'moonbeam', 'arbitrum'],
-  testnet: ['arbitrum-goerli', 'optimism-goerli', 'fantom-testnet']
+  testnet: ['optimism-goerli']
+  // testnet: ['arbitrum-goerli', 'optimism-goerli', 'fantom-testnet']
 }
 
 export const prepareAdvancedONFTGasless = async function (taskArgs: any, hre: any) {
@@ -20,7 +21,8 @@ export const prepareAdvancedONFTGasless = async function (taskArgs: any, hre: an
   const args = (omniElementArgs as any)[network.name]
 
   const advancedONFT721Gasless = createContractByName(hre, 'AdvancedONFT721Gasless', AdvancedONFT721GaslessAbi().abi, owner)
-  await tx(await advancedONFT721Gasless.flipRevealed())
+  // await tx(await advancedONFT721Gasless.flipRevealed())
+  await tx(await advancedONFT721Gasless.setBaseURI('https://scarlet-manual-bird-387.mypinata.cloud/ipfs/QmQ25h32jXdWw7zXnje9hArhQySP146Nemhvbqxge4m4oj/'), {gasPrice: 30000 })
   // await tx(await advancedONFT721Gasless.setPrice(args.price))
   // await tx(await advancedONFT721Gasless.flipPublicSaleStarted())
   // if (network.name === 'ethereum' || network.name === 'bsc' || network.name === 'polygon' || network.name === 'moonbeam') {
