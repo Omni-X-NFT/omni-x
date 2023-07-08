@@ -41,7 +41,6 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
 
   // await (await omniXExchange.updateTransferSelectorNFT(transferSelector.address)).wait()
 
-  // const fundManager = await deployContract(hre, 'FundManager', owner, [omniXExchange.address])
   // await (await omniXExchange.setFundManager(fundManager.address)).wait()
 
   // // deploy stargate
@@ -57,34 +56,6 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
   // }
 
 
-  // const omniXExchange = await deployContract(hre, 'OmniXExchange', owner, [
-  //   getContractAddrByName(network.name, 'CurrencyManager'),
-  //   getContractAddrByName(network.name, 'ExecutionManager'),
-  //   getContractAddrByName(network.name, 'RoyaltyFeeManager'),
-  //   getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero,
-  //   owner.address,
-  //   lzEndpoint
-  // ])
-
-  // await (await omniXExchange.updateTransferSelectorNFT(getContractAddrByName(network.name, 'TransferSelectorNFT'))).wait()
-
-  // const fundManager = await deployContract(hre, 'FundManager', owner, [omniXExchange.address])
-  // await (await omniXExchange.setFundManager(fundManager.address)).wait()
-
-  // // deploy stargate
-  // let stargateRouter = stargateEndpoint?.router
-
-  // if (stargateRouter) {
-  //   const poolManager = await deployContract(hre, 'StargatePoolManager', owner, [stargateRouter, getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero])
-
-  //   await (await omniXExchange.setStargatePoolManager(poolManager.address)).wait()
-  // }
-
-  // const OmniXExchangeAbi = loadAbi('../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json')
-  // const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
-  // const fundManager = await deployContract(hre, 'FundManager', owner, [omniXExchange.address])
-  // await (await omniXExchange.setFundManager(fundManager.address)).wait()
-
   const omniXExchange = await deployContract(hre, 'OmniXExchange', owner, [
     getContractAddrByName(network.name, 'CurrencyManager'),
     getContractAddrByName(network.name, 'ExecutionManager'),
@@ -95,8 +66,38 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
   ])
 
   await (await omniXExchange.updateTransferSelectorNFT(getContractAddrByName(network.name, 'TransferSelectorNFT'))).wait()
-  await (await omniXExchange.setFundManager(getContractAddrByName(network.name, 'FundManager'))).wait()
+
+  const fundManager = await deployContract(hre, 'FundManager', owner, [omniXExchange.address])
+  await (await omniXExchange.setFundManager(fundManager.address)).wait()
   await (await omniXExchange.setStargatePoolManager(getContractAddrByName(network.name, 'StargatePoolManager'))).wait()
+
+  // deploy stargate
+  // let stargateRouter = stargateEndpoint?.router
+
+  // if (stargateRouter) {
+ // const poolManager = await deployContract(hre, 'StargatePoolManager', owner, [stargateRouter, getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero, { gasPrice: 10000000000 }])
+
+  //   await (await omniXExchange.setStargatePoolManager(poolManager.address)).wait()
+  // }
+
+  // const OmniXExchangeAbi = loadAbi('../artifacts/contracts/core/OmniXExchange.sol/OmniXExchange.json')
+  // const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
+  // const fundManager = await deployContract(hre, 'FundManager', owner, [omniXExchange.address])
+  // await (await omniXExchange.setFundManager(fundManager.address)).wait()
+
+  // const omniXExchange = await deployContract(hre, 'OmniXExchange', owner, [
+  //   currencyManager.address,
+  //   executionManager.address,
+  //   royaltyFeeManager.address,
+  //   getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero,
+  //   owner.address,
+  //   lzEndpoint
+  // ])
+  // const fundManager = await deployContract(hre, 'FundManager', owner, [omniXExchange.address])
+
+  // await (await omniXExchange.updateTransferSelectorNFT(transferSelector.address)).wait()
+  // await (await omniXExchange.setFundManager(fundManager.address)).wait()
+  //  await (await omniXExchange.setStargatePoolManager(poolManager.address, { gasPrice: 10000000000 })).wait()
 }
 
 export const deployGhosts = async (taskArgs: any, hre: any) => {
@@ -109,8 +110,8 @@ export const deployGhosts = async (taskArgs: any, hre: any) => {
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
-  // testnet: ['fuji', 'mumbai', 'bsc-testnet', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
-  testnet: ['mumbai', 'bsc-testnet', 'fuji', 'goerli', 'arbitrum-goerli', 'optimism-goerli']
+ // testnet: ['fuji', 'mumbai', 'bsc-testnet', 'goerli', 'arbitrum-goerli', 'optimism-goerli', 'moonbeam_testnet', 'fantom-testnet']
+  testnet: ['goerli', 'arbitrum-goerli']
 }
 
 export const deployOmnixAll = async function (taskArgs: any) {

@@ -8,9 +8,12 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "operator-filter-registry/src/DefaultOperatorFilterer.sol";
 
 
+
 // NOTE: this ONFT contract has no public minting logic.
 // must implement your own minting logic in child classes
 contract ONFT721 is ONFT721Core, ERC721, IONFT721, DefaultOperatorFilterer{
+    
+
     constructor(string memory _name, string memory _symbol, address _lzEndpoint, uint256 _minGasToTransferAndStore) ERC721(_name, _symbol) ONFT721Core(_minGasToTransferAndStore,_lzEndpoint) {}
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ONFT721Core, ERC721, IERC165) returns (bool) {

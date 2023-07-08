@@ -12,6 +12,7 @@ contract ONFT721A is ONFT721ACore, ERC721ASpecific, IONFT721A, DefaultOperatorFi
     constructor(string memory _name, string memory _symbol, uint256 _minGasToTransfer, address _lzEndpoint, uint256 _startId) ERC721ASpecific(_name, _symbol, _startId) ONFT721ACore(_minGasToTransfer, _lzEndpoint) {}
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ONFT721ACore, ERC721ASpecific, IONFT721A) returns (bool) {
+
         return interfaceId == type(IONFT721A).interfaceId || super.supportsInterface(interfaceId);
     }
 

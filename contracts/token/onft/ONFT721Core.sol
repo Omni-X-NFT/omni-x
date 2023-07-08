@@ -11,6 +11,7 @@ abstract contract ONFT721Core is NonblockingLzApp, ERC165, IONFT721Core {
  
     uint16 public constant FUNCTION_TYPE_SEND = 1;
 
+
     struct StoredCredit {
         uint16 srcChainId;
         address toAddress;
@@ -26,6 +27,7 @@ abstract contract ONFT721Core is NonblockingLzApp, ERC165, IONFT721Core {
     constructor(uint256 _minGasToTransferAndStore, address _lzEndpoint) NonblockingLzApp(_lzEndpoint) {
         require(_minGasToTransferAndStore > 0, "ONFT721: minGasToTransferAndStore must be > 0");
         minGasToTransferAndStore = _minGasToTransferAndStore;
+       
     }
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
@@ -40,6 +42,7 @@ abstract contract ONFT721Core is NonblockingLzApp, ERC165, IONFT721Core {
         bytes memory payload = abi.encode(_toAddress, _tokenIds);
         return lzEndpoint.estimateFees(_dstChainId, address(this), payload, _useZro, _adapterParams);
     }
+
 
     function sendFrom(address _from, uint16 _dstChainId, bytes memory _toAddress, uint _tokenId, address payable _refundAddress, address _zroPaymentAddress, bytes memory _adapterParams) public payable virtual override {
         _send(_from, _dstChainId, _toAddress, _toSingletonArray(_tokenId), _refundAddress, _zroPaymentAddress, _adapterParams);

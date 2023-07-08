@@ -32,7 +32,7 @@ export const verifyAll = async function (taskArgs: any, hre: any) {
   await Promise.all(
     networks.map(async (network: string) => {
       // @ts-ignore
-      const aonftArgs = GREG_ARGS['Omnichain-Adventures'][network]
+      const aonftArgs = GREG_ARGS['OmnichainAdventures'][network]
       const address = getDeploymentAddresses(network)[taskArgs.tags]
       console.log(address)
       const endpointAddr = ENDPOINTS[network]

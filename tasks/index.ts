@@ -18,8 +18,7 @@ import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
 import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
 import { analyzeStuckTx } from './analyzeStuckTx'
-import { deployAdvancedONFT721A, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
-
+import { deployAdvancedONFT721A, estimateSendFee, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
 
 task(
   'setTrustedRemote',
@@ -193,3 +192,5 @@ task('deployCollection', 'deployCollection')
   .addParam('startmint', 'true or false for sale started')
   .addParam('reveal', 'true or false for revealed metadata')
   .setAction(deployCollection)
+task('estimateSendFee', 'estimateSendFee')
+  .setAction(estimateSendFee)
