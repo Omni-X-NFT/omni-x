@@ -16,10 +16,10 @@ if (!PRIVATE_KEY)
 export default async function (hre: any) {
     const wallet = new Wallet(PRIVATE_KEY);
     const deployer = new Deployer(hre, wallet);
-    const lzEndpoint = (LZ_ENDPOINT as any)['zksync-testnet']
+    const lzEndpoint = (LZ_ENDPOINT as any)['zksync']
 
     const artifact = await deployer.loadArtifact("OmnichainAdventures")
-    const args = OmnichainAdventureArgs['Omnichain-Adventures']['zksync-testnet']
+    const args = OmnichainAdventureArgs['Omnichain-Adventures']['zksync']
 
     const constructorArgs = [
         args.name,

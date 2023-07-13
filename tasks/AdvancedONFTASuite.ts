@@ -6,7 +6,7 @@ import { loadAbi, createContractByName, deployContract } from './shared'
 import * as ContractArtifact from '../artifacts-zk/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json';
 import LZEndpointABI from '../constants/LZEndpointABI.json'
 const environments: any = {
-  mainnet: ['arbitrum', 'optimism'],
+  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis', 'zksync', 'canto', 'arbitrum-nova', 'tenet', 'gnosis', 'polygon-zkevm', 'klaytn'],
   // testnet: ['fuji', 'fantom-testnet']
   testnet: ['arbitrum-goerli']
 }
@@ -28,7 +28,7 @@ export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
   const [owner] = await ethers.getSigners()
   const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
   const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
-  if (network.name !== 'zksync' && network.name !== 'zksync-testnet') {
+  if (network.name !== 'zksync' && network.name !== 'zksync-testnet' && network.name !== 'arbitrum' && network.name !== 'optimism') {
     await deployContract(hre, 'OmnichainAdventures', owner, [
       args.name,
       args.symbol,
@@ -176,9 +176,9 @@ export const deployCollection = async (taskArgs: any, hre: any) => {
   checkWireUpCommand = `npx hardhat verifyAll --e ${taskArgs.e} --tags OmnichainAdventures`
   console.log(checkWireUpCommand)
   shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
-  checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig false --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal}`
-  console.log(checkWireUpCommand)
-  shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+  // checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig false --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal}`
+  // console.log(checkWireUpCommand)
+  // shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
 }
 
 export const estimateSendFee = async (taskArgs: any, hre: any) => {

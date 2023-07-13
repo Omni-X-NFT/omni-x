@@ -111,6 +111,12 @@ const config: HardhatUserConfig = {
       zksync: true,
       ethNetwork: 'ethereum'
     },
+    gnosis: {
+      url: process.env.GNOSIS_RPC !== undefined ? process.env.GNOSIS_RPC : 'https://rpc.ankr.com/gnosis',
+      chainId: 100,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
+    },
     klaytn: {
       url: process.env.KLAYTN_RPC !== undefined ? process.env.KLAYTN_RPC : 'https://public-node-api.klaytnapi.com/v1/cypress',
       chainId: 8217,
