@@ -10,7 +10,7 @@ error InvalidAmount();
 error MaxSupplyReached();
 error InsufficientValue();
 
-contract AdvancedONFT721A is ONFT721A {
+contract AdvancedONFT721APro is ONFT721A {
     using OmniLinearCurve for OmniLinearCurve.OmniCurve;
     using Strings for uint;
 
@@ -87,6 +87,7 @@ contract AdvancedONFT721A is ONFT721A {
         pricing.spotPrice = newSpotPrice;
     }
 
+    // returns (newSpotPrice, totalCost)
     function getPriceInfo(uint256 amount) public view returns (uint128, uint256) {
       OmniLinearCurve.OmniCurve memory curve;
       curve = OmniLinearCurve.OmniCurve({
