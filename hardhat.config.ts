@@ -25,9 +25,10 @@ const config: HardhatUserConfig = {
   solidity: {
     version: '0.8.17',
     settings: {
+      viaIR: true,
       optimizer: {
         enabled: true,
-        runs: 10
+        runs: 5
       }
     }
   },
@@ -39,7 +40,7 @@ const config: HardhatUserConfig = {
 
   namedAccounts: {
     deployer: {
-      default: process.env.PRIVATE_KEY || 0 // wallet address 0, of the mnemonic in .env
+      default: `privatekey://${process.env.PRIVATE_KEY}`
     }
   },
 
@@ -173,7 +174,7 @@ const config: HardhatUserConfig = {
       ethNetwork: 'goerli'
     },
     'bsc-testnet': {
-      url: 'https://rpc.ankr.com/bsc_testnet_chapel',
+      url: process.env.BSC_TESTNET_RPC !== undefined ? process.env.BSC_TESTNET_RPC : 'https://data-seed-prebsc-2-s2.binance.org:8545',
       chainId: 97,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
@@ -185,7 +186,7 @@ const config: HardhatUserConfig = {
       zksync: false
     },
     mumbai: {
-      url: 'https://rpc.ankr.com/polygon_mumbai',
+      url: process.env.MUMBAI_RPC !== undefined ? process.env.MUMBAI_RPC : 'https://rpc.ankr.com/polygon_mumbai',
       chainId: 80001,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
@@ -209,7 +210,7 @@ const config: HardhatUserConfig = {
       zksync: false
     },
     'optimism-goerli': {
-      url: 'https://opt-goerli.g.alchemy.com/v2/BdL0X7f83cuTrDqocNxWZY8Cmr-__tv7',
+      url: 'https://goerli.optimism.io/',
       chainId: 420,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false

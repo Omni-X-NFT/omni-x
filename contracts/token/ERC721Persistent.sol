@@ -18,6 +18,10 @@ contract ERC721Persistent is IERC721Persistent, ERC721, ERC721URIStorage, Ownabl
         bridgeAddress = _bridgeAddress;
     }
 
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721URIStorage) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+
     function safeMint(address to, uint256 tokenId, string memory uri)
         external
         override

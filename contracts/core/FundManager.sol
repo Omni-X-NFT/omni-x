@@ -206,17 +206,13 @@ contract FundManager is IFundManager, Ownable {
             }
         }
         else {
-            if (
-                fromChainId != toChainId && 
-                address(stargatePoolManager) != address(0) && 
-                stargatePoolManager.isSwappable(currency, toChainId)
-            ) {
+          
                 (uint256 fee, ) = stargatePoolManager.getSwapFee(toChainId, to, payload);
                 return fee;
-            }
+            
         }
 
-        return 0;
+       
     }
 
     /**
@@ -355,6 +351,7 @@ contract FundManager is IFundManager, Ownable {
         uint16 toChainId,
         bytes memory payload
     ) external payable override onlyOmnix() {
+
         if (currency == omnixExchange.WETH()) {
             transferEth(
                 from,

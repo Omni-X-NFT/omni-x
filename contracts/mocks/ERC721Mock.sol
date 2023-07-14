@@ -7,6 +7,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract ERC721Mock is ERC721, ERC721URIStorage, Ownable {
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721URIStorage) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;

@@ -2,7 +2,10 @@
 pragma solidity ^0.8.0;
 
 interface ICurrencyManager {
-    function addCurrency(address currency) external;
+
+    function getCorrespondingCurrency(address currency, uint16 lzChainId) external view  returns (address);
+    
+    function addCurrency(address currency, uint16[] calldata lzChainIds, address[] calldata currencies) external;
 
     function removeCurrency(address currency) external;
 

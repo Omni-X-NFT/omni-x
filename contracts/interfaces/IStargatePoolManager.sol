@@ -15,6 +15,8 @@ interface IStargatePoolManager {
         bytes memory payload
     ) external view returns (uint256, uint256);
 
+    function getStargateRouter() external view returns(address);
+
     function swap(
         address token,
         uint16 dstChainId,

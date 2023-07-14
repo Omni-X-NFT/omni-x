@@ -10,8 +10,12 @@ contract Nft721Mock is ERC721
     _currentIndex = 0;
   }
 
-  function mint(address to) external {
+  function mintTo(address to) external {
     _currentIndex = _currentIndex + 1;
     _mint(to, _currentIndex);
+  }
+
+  function mint(uint256 nftId) external {
+    _mint(msg.sender, nftId);
   }
 }
