@@ -2,7 +2,7 @@ import shell from 'shelljs'
 
 const environments: any = {
   // mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis'],
-  mainnet: ['optimism', 'arbitrum'],
+  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis', 'zksync', 'canto', 'arbitrum-nova', 'tenet', 'gnosis', 'polygon-zkevm', 'klaytn'],
  // testnet: ['goerli', 'bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'mumbai']
   testnet: ['fuji', 'fantom-testnet']
 }
