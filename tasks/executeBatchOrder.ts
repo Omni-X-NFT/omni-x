@@ -39,11 +39,13 @@ export const executeBatchOrder = async function (taskArgs: any, hre: any) {
 
 
 
-    const strategy = createContractByName(hre, 'StrategyStargateSale', strategyABI().abi, owner)
+   const strategy = createContractByName(hre, 'StrategyStargateSale', strategyABI().abi, owner)
 
 
 
-    nftMock = createContractByName(hre, 'Nft721Mock', nftMockABI().abi, owner)
+    // nftMock = await createContractByName(hre, 'Nft721Mock', nftMockABI().abi, owner)
+    
+
     // erc20Mock = createContractByName(hre, 'ERC20Mock', erc20MockABI().abi, owner)
     currencyManager = createContractByName(hre, 'CurrencyManager', currencyManagerABI().abi, owner)
     omniXExchange = createContractByName(hre, 'OmniXExchange', omniXExchangeABI().abi, owner)
@@ -58,6 +60,16 @@ export const executeBatchOrder = async function (taskArgs: any, hre: any) {
   const blockNumber = await provider.getBlockNumber()
   const block = await provider.getBlock(blockNumber)
   const blockTime = block.timestamp
+
+  // for (let i = 1; i < 11; i++) {
+  //   await nftMock.mintTo(maker.address)
+  // }
+  // await nftMock.connect(maker).setApprovalForAll(transferManager721.address, true)
+
+ // await transferSelector.addCollectionTransferManager(nftMock.address, transferManager721.address)
+
+  
+
 
 
   const toWei = (amount: number | string): BigNumberish => {
@@ -79,7 +91,7 @@ export const executeBatchOrder = async function (taskArgs: any, hre: any) {
     makeOrder.price = 1000000
     makeOrder.amount = 1
     makeOrder.collection = nftAddress
-    makeOrder.strategy = '0x3EEBEA8080CAB74a79a2035dfA48d64E342396C4'
+    makeOrder.strategy = '0x842ccFeDbA534CE9C6D9B0CA58FB3447fCC976A7'
     makeOrder.nonce = nonce
     makeOrder.startTime = blockTime
     makeOrder.endTime = (parseInt((makeOrder.startTime).toString()) + 3600 * 30)
@@ -109,21 +121,22 @@ export const executeBatchOrder = async function (taskArgs: any, hre: any) {
   for (let i = 0; i < numOfNfts; i++) {
     makerAsks.push(new MakerOrder(true))
     takerBids.push(new TakerOrder(false))
-    await fillMakerOrder(makerAsks[i], currentNFT, "0xDf0360Ad8C5ccf25095Aa97ee5F2785c8d848620", "0x4a8AC1352e6c4ef5D8B4Aea370C1F9ad21A66bf8", nonce, maker.address)
+    await fillMakerOrder(makerAsks[i], currentNFT, "0xDf0360Ad8C5ccf25095Aa97ee5F2785c8d848620", "0x998ECFf723CDFC83b76796A0Af4dDa7d143da762", nonce, maker.address)
     fillTakerOrder(takerBids[i], currentNFT, taker.address)
     makerAsks[i].encodeParams(10121, maker.address, ROYALTY_FEE_LIMIT)
-    takerBids[i].encodeParams(10132, "0x0CEDBAF2D0bFF895C861c5422544090EEdC653Bf", "0x4a8AC1352e6c4ef5D8B4Aea370C1F9ad21A66bf8", strategy.address, 0)
+    takerBids[i].encodeParams(10143, "0x6aAd876244E7A1Ad44Ec4824Ce813729E5B6C291", "0x998ECFf723CDFC83b76796A0Af4dDa7d143da762", strategy.address, 0)
     await makerAsks[i].sign(maker)
-    destAirdrops.push(30000)
+    destAirdrops.push(0)
     currentNFT++
     nonce++
+
 }
 
-    // await (await omniXExchange.executeMultipleTakerBids(destAirdrops, takerBids, makerAsks, { value: toWei(0.2) })).wait()
-     await (await omniXExchange.matchAskWithTakerBid(30000, takerBids[0], makerAsks[0], { value: toWei(0.001), gasPrice: 30000 })).wait()
+     // await (await omniXExchange.executeMultipleTakerBids(destAirdrops, takerBids, makerAsks, { value: toWei(0.002) })).wait()
+     // await (await omniXExchange.matchAskWithTakerBid(0, takerBids[0], makerAsks[0], { value: toWei(0.001) })).wait()
     // const resp = await omniXExchange.getLzFeesForTrading(takerBids[0], makerAsks[0], 0)
 
  
 
-//   console.log(makerAsks)
+   // console.log(makerAsks)
 }

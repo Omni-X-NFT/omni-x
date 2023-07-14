@@ -11,14 +11,14 @@ import { deployAdvancedONFT721, deployAllAdvancedONFT721 } from './deployAdvance
 import { prepareAdvancedONFT, prepareAllAdvancedONFT } from './prepareAdvancedONFT'
 import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './deployAdvancedONFT721Gasless'
 import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
-import { deployReservoirRouter } from './deployReservoirRouter'
-import { executeBatchOrder } from './executeBatchOrder'
-import { addSingleChainCurrency, addCurrency, removeAllUSDC, removeCurrency } from './addCurrencies'
-import { deployAllNFTMock, deployNFTMock } from './deployNFTMock'
-import { testSgReceive } from './testSgReceive'
-import { lzScan } from './lzScan' 
-import { convertToBytes } from './convertToBytes'
-
+import { MerkleGen } from './merkle'
+import { mintGasless721 } from './mintGasless'
+import { sendBatch721 } from './sendBatch721'
+import { set721Config } from './set721Config'
+import { setAll721Config } from './setAll721Config'
+import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
+import { analyzeStuckTx } from './analyzeStuckTx'
+import { deployAdvancedONFT721A, estimateSendFee, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
 
 task(
   'setTrustedRemote',
@@ -98,8 +98,6 @@ task('deployAllAdvancedONFT721', 'deployAllAdvancedONFT721')
   .setAction(deployAllAdvancedONFT721)
 
 task('prepareAdvancedONFT', 'prepareAdvancedONFT')
-  .addParam('start', 'starting mint Id')
-  .addParam('end', 'ending mint Id')
   .setAction(prepareAdvancedONFT)
 
 task('prepareAllAdvancedONFT', 'prepareAllAdvancedONFT')
@@ -120,38 +118,79 @@ task('prepareAllAdvancedONFTGasless', 'prepareAllAdvancedONFTGasless')
   .addParam('e', 'testnet or mainnet')
   .setAction(prepareAllAdvancedONFTGasless)
 
-task('deployReservoirRouter', 'deployReservoirRouter')
-  .setAction(deployReservoirRouter)
+task('merkle', 'generate merkle tree')
+  .addParam('adr', 'minter address')
+  .addParam('amt', 'amount of wl token')
+  .setAction(MerkleGen)
+task('mintGasless721', 'mintGasless721')
+  .addParam('adr', 'address to mint to')
+  .addParam('amt', 'amount of tokens')
+  .addParam('gregs', 'amount of gregs for address')
+  .setAction(mintGasless721)
 
-task('executeBatchOrder', 'executeBatchOrder')
-  .setAction(executeBatchOrder)
+task('sendBatch721', 'sendBatch721')
+  .setAction(sendBatch721)
 
-task('addSingleChainCurrency', 'addSingleChainCurrency')
-  .addParam('token', 'token name')
-  .setAction(addSingleChainCurrency)
-task('addCurrency', 'addCurrency')
+task('set721Config', 'set layer zero config for ONFT721')
+  .addParam('target', 'target dst network')
+  .setAction(set721Config)
+
+task('setAll721Config', 'sets layer zero config on all chain for ONF721')
   .addParam('e', 'testnet or mainnet')
-  .addParam('token', 'token name')
-  .setAction(addCurrency)
-task('deployNFTMock', 'deployNFTMock')
-  .addParam('amount', 'amount of nfts to mint')
-  .setAction(deployNFTMock)
-task('deployAllNFTMock', 'deployAllNFTMock')
+  .setAction(setAll721Config)
+
+task('snap', 'take snapshot')
+  .addParam('api', 'nft api provider')
+  .addParam('target', 'target colleection')
+  .setAction(snap)
+task('convertFormat', 'convertFormat')
+  .setAction(convertFormat)
+task('addSTG', 'add stargate')
+  .setAction(addSTG)
+task('analyzeStuckTx', 'analyze stuck transaction lz')
+  .addParam('adr', 'address of contract')
+  .addParam('topic', 'event topic')
+  .setAction(analyzeStuckTx)
+task('changeAmounts', 'change amount of wl')
+  .setAction(changeAmounts)
+task('deployAdvancedONFT721A', 'deployAdvancedONFT721A')
+  .addParam('collection', 'collection name')
+  .setAction(deployAdvancedONFT721A)
+task('deployAllAdvancedONFT721A', 'deployAllAdvancedONFT721A')
+  .addParam('collection', 'collection name')
   .addParam('e', 'testnet or mainnet')
-  .addParam('amount', 'amount of nfts to mint')
-  .setAction(deployAllNFTMock)
-task('testSgReceive', 'testSgReceive')
-  .setAction(testSgReceive)
-task('lzScan', 'lzScan')
-  .addParam('hash', 'source tx hash')
-  .setAction(lzScan)
-task('convertToBytes', 'convertToBytes')
-  .addParam('adr', 'address to convert')
-  .setAction(convertToBytes)
-task('removeCurrency', 'removeCurrency')
-  .addParam('token', 'token address')
-  .setAction(removeCurrency)
-task('removeAllUSDC', 'removeAllUSDC')
+  .setAction(deployAllAdvancedONFT721A)
+task('prepareAdvancedONFT721A', 'prepareAdvancedONFT721A')
+  .addParam('collection', 'collection name')
+  .addParam('target', 'target dst network')
+  .addParam('lzconfig', 'true or false for lz config')
+  .addParam('startmint', 'true or false for sale started')
+  .addParam('reveal', 'true or false for revealed metadata')
+  .setAction(prepareAdvancedONFT721A)
+task('prepareAllAdvancedONFT721A', 'prepareAllAdvancedONFT721A')
+  .addParam('lzconfig', 'true or false for lz config')
+  .addParam('startmint', 'true or false for sale started')
+  .addParam('reveal', 'true or false for revealed metadata')
+  .addParam('collection', 'collection name')
   .addParam('e', 'testnet or mainnet')
-  .setAction(removeAllUSDC)
-  
+  .setAction(prepareAllAdvancedONFT721A)
+task('mint721A', 'mint721A')
+  .addParam('amount', 'amount of tokens')
+  .setAction(mint)
+task('mintAll721A', 'mintAll721A')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('amount', 'amount of tokens')
+  .setAction(mintAll)
+task('sendCross', 'sendCross')
+  .addParam('tokenid', 'tokenid')
+  .addParam('target', 'target dst network')
+  .setAction(sendCross)
+task('deployCollection', 'deployCollection')
+  .addParam('collection', 'collection name')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('lzconfig', 'true or false for lz config')
+  .addParam('startmint', 'true or false for sale started')
+  .addParam('reveal', 'true or false for revealed metadata')
+  .setAction(deployCollection)
+task('estimateSendFee', 'estimateSendFee')
+  .setAction(estimateSendFee)

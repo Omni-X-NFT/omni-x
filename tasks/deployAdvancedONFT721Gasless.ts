@@ -2,10 +2,10 @@ import shell from 'shelljs'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import { deployContract } from './shared'
 
-import omniElementArgs from '../constants/omniElementArgs.json'
+import omniElementArgs from '../constants/omniElementMainnetArgs.json'
 
 const environments: any = {
-  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom'],
+  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis', 'zksync'],
   testnet: ['goerli', 'bsc-testnet', 'mumbai', 'arbitrum-goerli', 'moonbeam_testnet', 'fantom-testnet', 'optimism-goerli', 'fuji']
 }
 

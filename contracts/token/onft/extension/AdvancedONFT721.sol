@@ -35,7 +35,7 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
 
 
     modifier onlyBeneficiaryAndOwner() {
-        require(msg.sender == beneficiary || msg.sender == owner() , "AdvancedONFT1155Gasless: caller is not the beneficiary");
+        require(msg.sender == beneficiary || msg.sender == owner() , "AdvancedONFT721: caller is not the beneficiary");
         _;
     }
 
@@ -59,7 +59,7 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
         string memory _hiddenURI,
         uint _tax,
         address _taxRecipient
-    ) ONFT721(_name, _symbol, _layerZeroEndpoint) {
+    ) ONFT721(_name, _symbol, _layerZeroEndpoint, 200000) {
         nextMintId = _startMintId;
         maxMintId = _endMintId;
         maxTokensPerMint = _maxTokensPerMint;
@@ -178,4 +178,5 @@ contract AdvancedONFT721 is ONFT721, ReentrancyGuard {
         }
         return string(abi.encodePacked(_baseURI(), tokenId.toString()));
     }
+    
 }

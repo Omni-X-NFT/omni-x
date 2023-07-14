@@ -140,6 +140,7 @@ describe('OmniXExchange', () => {
     // transfer selector
     transferManager721 = await deployContract('TransferManagerERC721', owner, []) as TransferManagerERC721
     transferManager1155 = await deployContract('TransferManagerERC1155', owner, []) as TransferManagerERC1155
+
     transferSelector = await deployContract('TransferSelectorNFT', owner, [transferManager721.address, transferManager1155.address]) as TransferSelectorNFT
     fundManager = await deployContract('FundManager', owner, [omniXExchange.address]) as FundManager
 
@@ -187,6 +188,11 @@ describe('OmniXExchange', () => {
 
     await erc20Mock.connect(taker).approve(fundManager.address, toWei(100))
     await omni.connect(taker).approve(fundManager.address, toWei(100))
+
+    onft721.connect(maker).approve(transferManager721.address, 1)
+    onft721.connect(maker).approve(transferManager721.address, 2)
+
+
   }
 
   before(async () => {

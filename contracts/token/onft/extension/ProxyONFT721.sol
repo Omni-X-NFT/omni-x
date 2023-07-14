@@ -12,7 +12,7 @@ contract ProxyONFT721 is ONFT721Core, IERC721Receiver {
 
     IERC721 public immutable token;
 
-    constructor(address _lzEndpoint, address _proxyToken) ONFT721Core(_lzEndpoint) {
+    constructor(address _lzEndpoint, address _proxyToken) ONFT721Core(30000, _lzEndpoint) {
         require(_proxyToken.supportsInterface(type(IERC721).interfaceId), "ProxyONFT721: invalid ERC721 token");
         token = IERC721(_proxyToken);
     }
