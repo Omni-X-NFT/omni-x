@@ -12,6 +12,8 @@
     "lint": "eslint . --ext .js,.ts --ignore-path .eslintignore"
   },
   "devDependencies": {
+    "@matterlabs/hardhat-zksync-deploy": "^0.6.3",
+    "@matterlabs/hardhat-zksync-solc": "^0.4.1",
     "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
@@ -24,6 +26,7 @@
     "@typescript-eslint/parser": "^5.21.0",
     "chai": "^4.3.6",
     "dotenv": "^16.0.0",
+    "erc721a": "^4.2.3",
     "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-standard": "^17.0.0",
@@ -33,7 +36,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-promise": "^6.0.0",
     "ethereum-waffle": "^3.4.4",
-    "ethers": "^5.6.4",
+    "ethers": "^5.7.2",
     "hardhat": "^2.9.3",
     "hardhat-contract-sizer": "^2.5.1",
     "hardhat-deploy": "^0.10.5",
@@ -42,16 +45,25 @@
     "prettier": "^2.6.2",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "solidity-coverage": "^0.7.21",
+    "solmate": "^6.1.0",
     "ts-node": "^10.8.0",
+    "tsconfig-paths": "^4.2.0",
     "typechain": "^8.0.0",
-    "typescript": "^4.7.2"
+    "typescript": "^4.7.2",
+    "zksync-web3": "^0.14.3"
   },
   "dependencies": {
+    "@ethersproject/abstract-provider": "^5.7.0",
+    "@ethersproject/abstract-signer": "^5.7.0",
+    "@ethersproject/bignumber": "^5.7.0",
+    "@ethersproject/contracts": "^5.7.0",
+    "@ethersproject/providers": "^5.7.2",
     "@gelatonetwork/relay-context": "^2.1.0",
     "@gelatonetwork/relay-sdk": "^3.5.0",
     "@layerzerolabs/solidity-examples": "^0.0.8",
     "@moralisweb3/common-evm-utils": "^2.18.0",
     "@nomicfoundation/hardhat-foundry": "^1.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@nomicfoundation/hardhat-toolbox": "^2.0.1",
     "@openzeppelin/contracts": "^4.5.0",
     "@types/shelljs": "^0.8.11",
@@ -62,5 +74,8 @@
     "moralis": "^2.18.0",
     "operator-filter-registry": "^1.4.0",
     "xdeployer": "^1.1.27"
+  },
+  "_moduleAliases": {
+    "@reservoir0x": "./lib/reservoirprotocol/packages"
   }
 }

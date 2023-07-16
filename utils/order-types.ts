@@ -37,13 +37,13 @@ const zeroPad = (value: any, length: number) => {
 
 export class MakerOrder {
   isOrderAsk: boolean = false
-  signer: string = ethers.constants.AddressZero
-  collection: string = ethers.constants.AddressZero
+  signer: string = "0x0000000000000000000000000000000000000000"
+  collection: string = "0x0000000000000000000000000000000000000000"
   price: BigNumberish = 0
   tokenId: BigNumberish = 0
   amount: BigNumberish = 0
-  strategy: string = ethers.constants.AddressZero
-  currency: string = ethers.constants.AddressZero
+  strategy: string = "0x0000000000000000000000000000000000000000"
+  currency: string = "0x0000000000000000000000000000000000000000"
   nonce: BigNumberish = 0
   startTime: BigNumberish = 0
   endTime: BigNumberish = 0
@@ -102,7 +102,7 @@ export class MakerOrder {
 
 export class TakerOrder {
   isOrderAsk: boolean = false
-  taker: string = ethers.constants.AddressZero
+  taker: string = "0x0000000000000000000000000000000000000000"
   price: BigNumberish = 0
   tokenId: BigNumberish = 0
   params: BytesLike = []

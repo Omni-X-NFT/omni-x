@@ -3,7 +3,8 @@ import { getContractAddrByName } from './shared'
 import { getDeploymentAddresses } from '../utils/readStatic'
 import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
-import GREG_ARGS from '../constants/omniElementMainnetArgs.json'
+import GREG_ARGS from '../constants/ONFT721AArgs.json'
+
 
 type ENDPOINT_TYPE = {
   [key: string]: string
@@ -13,7 +14,8 @@ const ENDPOINTS: ENDPOINT_TYPE = LZ_ENDPOINTS
 
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis'],
-  testnet: ['arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'bsc-testnet', 'mumbai', 'goerli', 'fuji']
+  // testnet: ['arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'bsc-testnet', 'mumbai', 'goerli', 'fuji']
+  testnet: ['fantom-testnet', 'fuji']
 }
 
 export const verifyAll = async function (taskArgs: any, hre: any) {
@@ -29,13 +31,13 @@ export const verifyAll = async function (taskArgs: any, hre: any) {
   await Promise.all(
     networks.map(async (network: string) => {
       // @ts-ignore
-      const aonftArgs = GREG_ARGS[network]
+      const aonftArgs = GREG_ARGS['OmnichainAdventures'][network]
       const address = getDeploymentAddresses(network)[taskArgs.tags]
       console.log(address)
       const endpointAddr = ENDPOINTS[network]
       if (address) {
         // const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} ${endpointAddr}`
-        const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} "${aonftArgs.name}" "${aonftArgs.symbol}" ${endpointAddr} ${aonftArgs.startMintId} ${aonftArgs.endMintId} ${aonftArgs.maxTokensPerMint} "${aonftArgs.baseTokenURI}" "${aonftArgs.hiddenURI}" ${aonftArgs.stableCoin} ${aonftArgs.tax} ${aonftArgs.taxRecipient}`
+        const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} "${aonftArgs.name}" "${aonftArgs.symbol}" ${endpointAddr} ${aonftArgs.startId} ${aonftArgs.endId} ${aonftArgs.maxGlobalId} "${aonftArgs.baseURI}" "${aonftArgs.hiddenURI}" ${aonftArgs.tax} ${aonftArgs.price} ${aonftArgs.taxRecipient}`
         // const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} "${aonftArgs.name}" ${aonftArgs.symbol} ${endpointAddr} ${aonftArgs.startMintId} ${aonftArgs.endMintId} ${aonftArgs.maxTokensPerMint} "${aonftArgs.baseTokenURI}"`
         console.log(checkWireUpCommand)
         shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
@@ -65,18 +67,24 @@ export const verifyOmni = async () => {
     contract: 'contracts/core/OmniXExchange.sol:OmniXExchange'
   })
 
-  await run('verify:verify', {
-    address: getContractAddrByName(network.name, 'FundManager'),
-    constructorArguments: [
-      getContractAddrByName(network.name, 'OmniXExchange')
-    ],
-    contract: 'contracts/core/FundManager.sol:FundManager'
-  })
+  // await run('verify:verify', {
+  //   address: getContractAddrByName(network.name, 'FundManager'),
+  //   constructorArguments: [
+  //     getContractAddrByName(network.name, 'OmniXExchange')
+  //   ],
+  //   contract: 'contracts/core/FundManager.sol:FundManager'
+  // })
 
-  const stargateEndpoint = (STARGATE as any)[network.name]
-  await run('verify:verify', {
-    address: getContractAddrByName(network.name, 'StargatePoolManager'),
-    constructorArguments: [stargateEndpoint.router, getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero],
-    contract: 'contracts/core/StargatePoolManager.sol:StargatePoolManager'
-  })
+  // const stargateEndpoint = (STARGATE as any)[network.name]
+  // await run('verify:verify', {
+  //   address: getContractAddrByName(network.name, 'StargatePoolManager'),
+  //   constructorArguments: [stargateEndpoint.router, getContractAddrByName(network.name, 'SGETH') || ethers.constants.AddressZero],
+  //   contract: 'contracts/core/StargatePoolManager.sol:StargatePoolManager'
+  // })
+
+  // await run('verify:verify', {
+  //   address: getContractAddrByName(network.name, 'ExchangeRouter'),
+  //   constructorArguments: [lzEndpoint],
+  //   contract: 'contracts/core/ExchangeRouter.sol:ExchangeRouter'
+  // })
 }

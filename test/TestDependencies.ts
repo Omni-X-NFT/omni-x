@@ -25,8 +25,13 @@ import {
   WETH9,
   Router,
   Pool,
-  Factory
+  Factory,
+  Seaport,
+  SeaportModule,
+  ExchangeRouter
 } from '../typechain-types'
+import { SeaportListing } from '@reservoir0x/contracts/test/router/v6/helpers/seaport'
+import * as Sdk from "@reservoir0x/sdk/src";
 
 export type Chain = {
   omniXExchange: OmniXExchange
@@ -49,10 +54,15 @@ export type Chain = {
   layerZeroEndpoint: LZEndpointMock
   stargateRouter: IStargateRouter
   stargateBridge: Bridge
+  lzChainId: number   // lz chain id
   chainId: number
 
   stargatePool: Pool
   stargateFactory: Factory
+
+  seaport: Seaport
+  router: ExchangeRouter
+  seaportModule: Contract
 }
 
 export const toWei = (amount: number | string): BigNumber => {
@@ -69,10 +79,10 @@ export const getBlockTime = async () => {
   return (await waffle.provider.getBlock('latest')).timestamp
 }
 
-export const deploy = async (owner: SignerWithAddress, chainId: number) => {
+export const deploy = async (owner: SignerWithAddress, lzChainId: number) => {
   const chain: any = {}
   // layerzero endpoint
-  chain.layerZeroEndpoint = await deployContract('LZEndpointMock', owner, [chainId]) as LZEndpointMock
+  chain.layerZeroEndpoint = await deployContract('LZEndpointMock', owner, [lzChainId]) as LZEndpointMock
   // normal currency
   chain.erc20Mock = await deployContract('ERC20Mock', owner, []) as ERC20Mock
   chain.weth = await deployContract('WETH9', owner, []) as WETH9
@@ -113,11 +123,18 @@ export const deploy = async (owner: SignerWithAddress, chainId: number) => {
   chain.transferManager1155 = await deployContract('TransferManagerERC1155', owner, []) as TransferManagerERC1155
   chain.transferSelector = await deployContract('TransferSelectorNFT', owner, [chain.transferManager721.address, chain.transferManager1155.address]) as TransferSelectorNFT
   chain.fundManager = await deployContract('FundManager', owner, [chain.omniXExchange.address]) as FundManager
-  chain.chainId = chainId
+  chain.lzChainId = lzChainId
+  chain.chainId = await owner.getChainId()
 
   await (await chain.omniXExchange.setFundManager(chain.fundManager.address)).wait()
   await (await chain.omniXExchange.setGasForLzReceive(350000)).wait();
 
+  const conduitsController = await deployContract('ConduitController', owner, [])
+  chain.seaport = await deployContract('Seaport', owner, [conduitsController.address]) as Seaport
+
+  chain.router = await deployContract('ExchangeRouter', owner, [chain.layerZeroEndpoint.address]) as ExchangeRouter;
+  chain.seaportModule = await deployContract('SeaportModule', owner, [owner.address, chain.router.address]) as SeaportModule;
+  await (await chain.seaportModule.setExchange(chain.seaport.address)).wait();
   return chain
 }
 
@@ -130,54 +147,51 @@ export const linkChains = async (src: Chain, dst: Chain) => {
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.transferManager1155.address, dst.layerZeroEndpoint.address)
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.omniXExchange.address, dst.layerZeroEndpoint.address)
 
-  await src.omni.setTrustedRemoteAddress(await dst.chainId, dst.omni.address)
-  await src.onft721.setTrustedRemoteAddress(await dst.chainId, dst.onft721.address)
-  await src.ghosts.setTrustedRemoteAddress(await dst.chainId, dst.ghosts.address)
-  await src.onft1155.setTrustedRemoteAddress(await dst.chainId, dst.onft1155.address)
-  await src.omniXExchange.setTrustedRemoteAddress(await dst.chainId, dst.omniXExchange.address)
+  await src.omni.setTrustedRemoteAddress(await dst.lzChainId, dst.omni.address)
+  await src.onft721.setTrustedRemoteAddress(await dst.lzChainId, dst.onft721.address)
+  await src.ghosts.setTrustedRemoteAddress(await dst.lzChainId, dst.ghosts.address)
+  await src.onft1155.setTrustedRemoteAddress(await dst.lzChainId, dst.onft1155.address)
+  await src.omniXExchange.setTrustedRemoteAddress(await dst.lzChainId, dst.omniXExchange.address)
 }
 
-export const prepareMaker = async (chain: Chain, maker: SignerWithAddress) => {
-  await chain.executionManager.addStrategy(chain.strategy.address)
-  await chain.currencyManager.addCurrency(chain.erc20Mock.address)
-  await chain.currencyManager.addCurrency(chain.omni.address)
-  await chain.omniXExchange.updateTransferSelectorNFT(chain.transferSelector.address)
-
-  // normal currency and normal nft, mint token#1, #2, #3
-  await chain.nftMock.mint(maker.address)
-  await chain.nftMock.mint(maker.address)
-  await chain.nftMock.mint(maker.address)
-  await chain.nftMock.mint(maker.address)
-  await chain.nftMock.mint(maker.address)
-  await chain.nftMock.mint(maker.address)
-
-  await chain.onft721.mint(maker.address, 1)
-  await chain.onft721.mint(maker.address, 2)
-  await chain.onft721.mint(maker.address, 3)
-  await chain.onft721.mint(maker.address, 4)
-  await chain.ghosts.connect(maker).mint(1)
-
-  await chain.erc20Mock.mint(maker.address, toWei(200))
-  await chain.omni.transfer(maker.address, toWei(200))
-  await chain.weth.deposit({ value: toWei(1) })
+export const prepareMaker = async (srcChain: Chain, dstChain: Chain, maker: SignerWithAddress) => {
+  await srcChain.executionManager.addStrategy(srcChain.strategy.address)
+  await srcChain.currencyManager.addCurrency(srcChain.erc20Mock.address, [dstChain.lzChainId], [dstChain.erc20Mock.address])
+  await srcChain.currencyManager.addCurrency(srcChain.omni.address, [dstChain.lzChainId], [dstChain.omni.address])
+  await srcChain.omniXExchange.updateTransferSelectorNFT(srcChain.transferSelector.address)
+ // normal currency and normal nft, mint token#1, #2, #3
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.nftMock.mintTo(maker.address)
+  await srcChain.onft721.mint(maker.address, 1)
+  await srcChain.onft721.mint(maker.address, 2)
+  await srcChain.onft721.mint(maker.address, 3)
+  await srcChain.onft721.mint(maker.address, 4)
+  await srcChain.ghosts.connect(maker).mint(1)
+  await srcChain.erc20Mock.mint(maker.address, toWei(200))
+  await srcChain.omni.transfer(maker.address, toWei(200))
+  await srcChain.weth.deposit({ value: toWei(1) })
 }
 
-export const prepareTaker = async (chain: Chain, taker: SignerWithAddress) => {
-  await chain.executionManager.addStrategy(chain.strategy.address)
-
-  await chain.currencyManager.addCurrency(chain.erc20Mock.address)
-  await chain.currencyManager.addCurrency(chain.omni.address)
-  await chain.omniXExchange.updateTransferSelectorNFT(chain.transferSelector.address)
-
-  // normal currency and normal nft, mint token#1, #2, #3
-  await chain.erc20Mock.mint(taker.address, toWei(200))
-  await chain.omni.transfer(taker.address, toWei(200))
-
-  await chain.nftMock.mint(taker.address)
-  await chain.nftMock.mint(taker.address)
-
-  await chain.onft721.mint(taker.address, 10001)
-  await chain.onft721.mint(taker.address, 10002)
+export const prepareTaker = async (srcChain: Chain, dstChain: Chain, taker: SignerWithAddress) => {
+  await srcChain.executionManager.addStrategy(srcChain.strategy.address)
+  await srcChain.currencyManager.addCurrency(srcChain.erc20Mock.address, [dstChain.lzChainId], [dstChain.erc20Mock.address])
+  await srcChain.currencyManager.addCurrency(srcChain.omni.address, [dstChain.lzChainId], [dstChain.omni.address])
+  await srcChain.omniXExchange.updateTransferSelectorNFT(srcChain.transferSelector.address)
+   // normal currency and normal nft, mint token#1, #2, #3
+  await srcChain.erc20Mock.mint(taker.address, toWei(200))
+  await srcChain.omni.transfer(taker.address, toWei(200))
+  await srcChain.nftMock.mintTo(taker.address)
+  await srcChain.nftMock.mintTo(taker.address)
+  await srcChain.onft721.mint(taker.address, 10001)
+  await srcChain.onft721.mint(taker.address, 10002)
 }
 
 export const prepareStargate = async (chain: Chain, poolId: number, owner: SignerWithAddress) => {
@@ -204,6 +218,7 @@ export const prepareStargate = async (chain: Chain, poolId: number, owner: Signe
   // save stargate router address
   chain.stargateRouter = stargateRouter
   chain.stargateBridge = stargateBridge
+  await (await chain.router.setStargatePoolManager(chain.stargatePoolManager.address)).wait();
 }
 
 export const setupChainPath = async (chain: Chain, dstChainId: number, srcPoolId: number, dstPoolId: number, owner: SignerWithAddress) => {
@@ -218,9 +233,9 @@ export const setupChainPath = async (chain: Chain, dstChainId: number, srcPoolId
 
 export const setupBridge = async (src: Chain, dst: Chain) => {
   await src.layerZeroEndpoint.setDestLzEndpoint(dst.stargateBridge.address, dst.layerZeroEndpoint.address)
-  await src.stargateBridge.setBridge(dst.chainId, ethers.utils.solidityPack(['address', 'address'], [dst.stargateBridge.address, src.stargateBridge.address]))
-  await src.stargateBridge.setGasAmount(dst.chainId, 1, 350000)
-  await src.stargateBridge.setGasAmount(dst.chainId, 2, 350000)
+  await src.stargateBridge.setBridge(dst.lzChainId, ethers.utils.solidityPack(['address', 'address'], [dst.stargateBridge.address, src.stargateBridge.address]))
+  await src.stargateBridge.setGasAmount(dst.lzChainId, 1, 350000)
+  await src.stargateBridge.setGasAmount(dst.lzChainId, 2, 350000)
 }
 
 export const setupPool = async (chain: Chain, dstChainId: number, srcPoolId: number, dstPoolId: number, owner: SignerWithAddress) => {
@@ -231,3 +246,43 @@ export const setupPool = async (chain: Chain, dstChainId: number, srcPoolId: num
 
   await stargateRouter.sendCredits(dstChainId, srcPoolId, dstPoolId, owner.address, { value: toWei(3) })
 }
+
+export const setupSeaportListings = async (listings: SeaportListing[], chain: Chain) => {
+  const chainId = chain.chainId;
+
+  for (const listing of listings) {
+    const { seller, nft, paymentToken, price } = listing;
+
+    // Approve the exchange contract
+    if (nft.kind === "erc721") {
+      await nft.contract.connect(seller).mint(nft.id);
+      await nft.contract
+        .connect(seller)
+        .setApprovalForAll(chain.seaport.address, true);
+    } else {
+      await nft.contract.connect(seller).mintMany(nft.id, nft.amount ?? 1);
+      await nft.contract
+        .connect(seller)
+        .setApprovalForAll(chain.seaport.address, true);
+    }
+
+    // Build and sign the order
+    const builder = new Sdk.Seaport.Builders.SingleToken(chainId);
+    const order = builder.build({
+      side: "sell",
+      tokenKind: nft.kind,
+      offerer: seller.address,
+      contract: nft.contract.address,
+      tokenId: nft.id,
+      amount: nft.amount ?? 1,
+      paymentToken: paymentToken ?? chain.erc20Mock.address,
+      price,
+      counter: 0,
+      startTime: await getBlockTime(),
+      endTime: (await getBlockTime()) + 60,
+    });
+   // await order.signWithAddress(seller, chain.seaport.address);
+
+    listing.order = order;
+  }
+};

@@ -17,6 +17,7 @@ contract CurrencyManager is ICurrencyManager, Ownable {
 
     EnumerableSet.AddressSet private _whitelistedCurrencies;
     mapping (address => bool) private _omniCurrencies;
+    mapping (address => mapping (uint16 => address)) private correspondingCurrencies;
 
     event CurrencyRemoved(address indexed currency);
     event CurrencyWhitelisted(address indexed currency);
@@ -24,13 +25,29 @@ contract CurrencyManager is ICurrencyManager, Ownable {
     /**
      * @notice Add a currency in the system
      * @param currency address of the currency to add
+     * @param lzChainIds lz chain ids (order in comparison to currencies matters)
+     * @param currencies corresponding currencies (order in comparison to lz chain ids matters)
      */
-    function addCurrency(address currency) external override onlyOwner {
+    function addCurrency(address currency, uint16[] calldata lzChainIds, address[] calldata currencies) external override onlyOwner {
         require(!_whitelistedCurrencies.contains(currency), "Currency: Already whitelisted");
+        require(lzChainIds.length == currencies.length, "Currency: Invalid input");
         _whitelistedCurrencies.add(currency);
         _omniCurrencies[currency] = InterfaceChecker.check(currency, type(IOFT).interfaceId);
+        for (uint16 i = 0; i < lzChainIds.length; i++) {
+            correspondingCurrencies[currency][lzChainIds[i]] = currencies[i];
+        }
         emit CurrencyWhitelisted(currency);
     }
+
+    function modifyCorrespondingCurrency(address currency, uint16[] calldata lzChainIds, address[] calldata newDependentCurrencies) external override onlyOwner {
+        require(_whitelistedCurrencies.contains(currency), "currency not whitelisted");
+        require(lzChainIds.length == newDependentCurrencies.length, "Currency: Invalid input");
+
+        for (uint16 i=0; i < lzChainIds.length; i++) {
+            correspondingCurrencies[currency][lzChainIds[i]] = newDependentCurrencies[i];
+        }
+    }
+
 
     /**
      * @notice Remove a currency from the system
@@ -40,7 +57,6 @@ contract CurrencyManager is ICurrencyManager, Ownable {
         require(_whitelistedCurrencies.contains(currency), "Currency: Not whitelisted");
         _whitelistedCurrencies.remove(currency);
         delete _omniCurrencies[currency];
-
         emit CurrencyRemoved(currency);
     }
 
@@ -52,8 +68,15 @@ contract CurrencyManager is ICurrencyManager, Ownable {
         return _whitelistedCurrencies.contains(currency);
     }
 
+
+
     function isOmniCurrency(address currency) external view override returns (bool) {
         return _omniCurrencies[currency];
+    }
+
+
+    function getCorrespondingCurrency(address currency, uint16 lzChainId) external view override returns (address) {
+        return correspondingCurrencies[currency][lzChainId];
     }
 
     /**

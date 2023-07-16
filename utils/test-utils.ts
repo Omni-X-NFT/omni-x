@@ -1,4 +1,4 @@
-import { ethers, waffle } from 'hardhat'
+import { ethers, waffle, network } from 'hardhat'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from 'ethers'
 
@@ -14,4 +14,8 @@ export const deployContract = async (name: string, owner: any, initParams: Array
 
 export const getBlockTime = async () => {
   return (await waffle.provider.getBlock('latest')).timestamp
+}
+
+export const getChainId = () => {
+  return (network.config as any).forking?.url.includes("goerli") ? 5 : 1;
 }
