@@ -19,7 +19,7 @@ export default async function (hre: any) {
     const lzEndpoint = (LZ_ENDPOINT as any)['zksync']
 
     const artifact = await deployer.loadArtifact("OmnichainAdventures")
-    const args = OmnichainAdventureArgs['Omnichain-Adventures']['zksync']
+    const args = OmnichainAdventureArgs['OmnichainAdventures']['zksync']
 
     const constructorArgs = [
         args.name,
