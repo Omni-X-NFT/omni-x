@@ -96,7 +96,7 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
 
   await (await omniXExchange.updateTransferSelectorNFT(getContractAddrByName(network.name, 'TransferSelectorNFT'))).wait()
 
-  const fundManager = await deployContract(hre, 'FundManager', owner, [omniXExchange.address])
+ 
   await (await omniXExchange.setFundManager(fundManager.address)).wait()
   await (await omniXExchange.setStargatePoolManager(getContractAddrByName(network.name, 'StargatePoolManager'))).wait()
 

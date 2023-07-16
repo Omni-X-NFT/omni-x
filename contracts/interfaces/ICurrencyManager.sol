@@ -16,4 +16,6 @@ interface ICurrencyManager {
     function viewWhitelistedCurrencies(uint256 cursor, uint256 size) external view returns (address[] memory, uint256);
 
     function viewCountWhitelistedCurrencies() external view returns (uint256);
+
+    function modifyCorrespondingCurrency(address currency, uint16[] calldata lzChainIds, address[] calldata newDependentCurrencies) external;
 }

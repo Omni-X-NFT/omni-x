@@ -143,7 +143,7 @@ contract OmniXExchange is NonblockingLzApp, EIP712, IOmniXExchange, IStargateRec
         (, address currency,,,) = takerBid.decodeParams();
         require(currency == WETH, "Order: Currency must be WETH");
         (,uint256 currencyFee,) = getLzFeesForTrading(takerBid, makerAsk, destAirdrop);
-        uint256 totalValue = takerBid.price + currencyFee; //ATTENTION: CHECK THIS
+        uint256 totalValue = takerBid.price + currencyFee;
         require(totalValue <= msg.value, "Order: Msg.value too low");
 
         _executeTakerBid(currencyFee, takerBid, makerAsk, true);
