@@ -3,11 +3,11 @@ import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import ONFT_ARGS from '../constants/ONFT721AArgs.json'
 import * as CHAIN_ID from '../constants/chainIds.json'
 import { loadAbi, createContractByName, deployContract } from './shared'
-// import * as ContractArtifact from '../artifacts-zk/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json';
+import * as ContractArtifact from '../artifacts-zk/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json';
 import LZEndpointABI from '../constants/LZEndpointABI.json'
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis', 'zksync', 'canto', 'arbitrum-nova', 'tenet', 'gnosis', 'polygon-zkevm', 'klaytn'],
-  // testnet: ['fuji', 'fantom-testnet']
+  //  testnet: ['fuji', 'fantom-testnet']
   testnet: ['arbitrum-goerli']
 }
 
@@ -69,8 +69,8 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
   if (network.name === 'zksync' || network.name === 'zksync-testnet') {
     onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
   } else {
-    // onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
-    onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
+    onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
+    // onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
   }
 
   if (taskArgs.lzconfig === 'true') {
@@ -104,6 +104,20 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
       } catch (e: any) {
         console.log(e)
       }
+    }
+  }
+
+  if (taskArgs.seturi === 'true') {
+    const metadata = {
+      baseURI: args.baseURI,
+      hiddenMetadataURI: args.hiddenURI
+    }
+
+    try {
+      await tx(await onft721A.setMetadata(metadata))
+      console.log('✅ set metadata')
+    } catch (e: any) {
+      console.log(e)
     }
   }
 }
