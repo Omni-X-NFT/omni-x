@@ -3,7 +3,7 @@ import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import ONFT_ARGS from '../constants/ONFT721AArgs.json'
 import * as CHAIN_ID from '../constants/chainIds.json'
 import { loadAbi, createContractByName, deployContract } from './shared'
-import * as ContractArtifact from '../artifacts-zk/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json';
+import * as ContractArtifact from '../artifacts-zk/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json'
 import LZEndpointABI from '../constants/LZEndpointABI.json'
 const environments: any = {
   mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis', 'zksync', 'canto', 'arbitrum-nova', 'tenet', 'gnosis', 'polygon-zkevm', 'klaytn'],
@@ -106,21 +106,47 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
       }
     }
   }
+}
 
-  if (taskArgs.seturi === 'true') {
-    const metadata = {
-      baseURI: args.baseURI,
-      hiddenMetadataURI: args.hiddenURI
-    }
+export const setMetadata = async (taskArgs: any, hre: any) => {
+  const { ethers, network } = hre
+  const [owner] = await ethers.getSigners()
+  const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
+  let onft721A
+  if (network.name === 'zksync' || network.name === 'zksync-testnet') {
+    onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
+  } else {
+    onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
+    // onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
+  }
 
-    try {
-      await tx(await onft721A.setMetadata(metadata))
-      console.log('✅ set metadata')
-    } catch (e: any) {
-      console.log(e)
-    }
+  const metadata = {
+    baseURI: args.baseURI,
+    hiddenMetadataURI: args.hiddenURI
+  }
+
+  try {
+    await tx(await onft721A.setMetadata(metadata))
+    console.log('✅ set metadata')
+  } catch (e: any) {
+    console.log(e)
   }
 }
+
+export const setAllMetadata = async (taskArgs: any) => {
+  const networks = environments[taskArgs.e]
+  if (!taskArgs.e || networks.length === 0) {
+    console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+  await Promise.all(
+    networks.map(async (network: string) => {
+      const checkWireUpCommand = `npx hardhat --network ${network} setMetadata --collection ${taskArgs.collection}`
+      console.log(checkWireUpCommand)
+      shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+    })
+  )
+}
+
 
 export const prepareAllAdvancedONFT721A = async (taskArgs: any) => {
   const networks = environments[taskArgs.e]
@@ -132,7 +158,7 @@ export const prepareAllAdvancedONFT721A = async (taskArgs: any) => {
     networks.map(async (network: string) => {
       networks.map(async (target: string) => {
         if (network !== target && network !== 'ethereum') {
-          const checkWireUpCommand = `npx hardhat --network ${network} prepareAdvancedONFT721A --target ${target} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal} --seturi ${taskArgs.seturi}`
+          const checkWireUpCommand = `npx hardhat --network ${network} prepareAdvancedONFT721A --target ${target} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal}`
           console.log(checkWireUpCommand)
           shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
         }
