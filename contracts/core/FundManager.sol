@@ -129,7 +129,7 @@ contract FundManager is IFundManager, Ownable {
                 bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
 
                 IOFT(currency).sendFrom{value: lzFee}(
-                    from, toChainId, toAddress, amount, payable(address(omnixExchange)), address(0x0), adapterParams, payload
+                    from, toChainId, toAddress, amount, payable(address(omnixExchange)), address(0x0), adapterParams
                 );
             }
         }
@@ -201,7 +201,7 @@ contract FundManager is IFundManager, Ownable {
                 bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
                 bytes memory toAddress = abi.encodePacked(to);
                 // get the fees we need to pay to LayerZero for message delivery
-                (uint256 messageFee, ) = IOFT(currency).estimateSendFee(toChainId, toAddress, amount, false, adapterParams, payload);
+                (uint256 messageFee, ) = IOFT(currency).estimateSendFee(toChainId, toAddress, amount, false, adapterParams);
                 return messageFee;
             }
         }
