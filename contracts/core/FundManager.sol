@@ -12,7 +12,7 @@ import {IRoyaltyFeeManager} from "../interfaces/IRoyaltyFeeManager.sol";
 import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
 import {IFundManager} from "../interfaces/IFundManager.sol";
 import {OmniXExchange} from "./OmniXExchange.sol";
-import {IOFT} from "../token/oft/IOFT.sol";
+import {IOFT} from "@layerzerolabs/solidity-examples/contracts/token/oft/IOFT.sol";
 import {OrderTypes} from "../libraries/OrderTypes.sol";
 import {BytesLib} from "../libraries/BytesLib.sol";
 
