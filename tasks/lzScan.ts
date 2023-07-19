@@ -13,7 +13,5 @@ export const lzScan = async function(taskArgs: any, hre: any) {
     const {messages} = await client.getMessagesBySrcTxHash(
     taskArgs.hash,
     );
-
-
     console.log(messages)
 }

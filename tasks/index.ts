@@ -17,7 +17,7 @@ import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
 import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
 import { deployAdvancedONFT721A, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
-
+import { lzScan } from './lzScan'
 task(
   'setTrustedRemote',
   'setTrustedRemote(chainId, sourceAddr) to enable inbound/outbound messages with your other contracts',
@@ -190,3 +190,6 @@ task('setAllMetadata', 'setAllMetadata')
   .addParam('collection', 'collection name')
   .addParam('e', 'testnet or mainnet')
   .setAction(setAllMetadata)
+task('lzScan', 'lzScan')
+  .addParam('hash', 'tx hash')
+  .setAction(lzScan)
