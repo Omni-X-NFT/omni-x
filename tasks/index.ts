@@ -4,7 +4,6 @@ import { deployGhosts, deployOmniX, deployOmnixAll } from './deployOmniX'
 import { linkOmniX, linkOmnixAll, prepareOmniX, prepareOmnixAll, prepareStargate, setupBridge } from './prepareOmniX'
 import { verifyOmni, verifyAll } from './verify'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
-import { checkNonce } from './checkNonce'
 import { deployAll } from './deploy'
 import { migrate } from './migrate'
 import { deployAdvancedONFT721, deployAllAdvancedONFT721 } from './deployAdvancedONFT721'
@@ -17,7 +16,6 @@ import { sendBatch721 } from './sendBatch721'
 import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
 import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
-import { analyzeStuckTx } from './analyzeStuckTx'
 import { deployAdvancedONFT721A, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
 
 task(
@@ -70,11 +68,6 @@ task(
   verifyAll
 ).addParam('e', 'testnet or mainnet')
   .addParam('tags', 'Contract file name')
-
-task(
-  'checkNonce',
-  'check the transaction count of the wallet'
-).setAction(checkNonce)
 
 task(
   'prepareStargate',
@@ -147,10 +140,6 @@ task('convertFormat', 'convertFormat')
   .setAction(convertFormat)
 task('addSTG', 'add stargate')
   .setAction(addSTG)
-task('analyzeStuckTx', 'analyze stuck transaction lz')
-  .addParam('adr', 'address of contract')
-  .addParam('topic', 'event topic')
-  .setAction(analyzeStuckTx)
 task('changeAmounts', 'change amount of wl')
   .setAction(changeAmounts)
 task('deployAdvancedONFT721A', 'deployAdvancedONFT721A')

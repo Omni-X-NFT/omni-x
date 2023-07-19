@@ -10,6 +10,13 @@ import CHAIN_IDS from '../constants/chainIds.json'
 import STARGATE from '../constants/stargate.json'
 import PANDA from '../constants/kanpaiPanda.json'
 
+export const environments: any = {
+  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis', 'zksync', 'canto', 'arbitrum-nova', 'tenet', 'gnosis', 'polygon-zkevm', 'klaytn'],
+  testnet: ['goerli', 'bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'mumbai']
+}
+
+
+
 export const ROYALTY_FEE_LIMIT = 500 // 5%
 export const CONTRACTS = {
   rinkeby: {

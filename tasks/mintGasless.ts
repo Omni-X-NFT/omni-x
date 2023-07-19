@@ -1,7 +1,6 @@
 import { loadAbi, createContractByName } from './shared'
-import snapshotData from '../constants/greg_holders_snapshot_final.json'
-import { MerkleTree } from 'merkletreejs'
-import keccak256 from 'keccak256'
+// import { MerkleTree } from 'merkletreejs'
+// import keccak256 from 'keccak256'
 import { GelatoRelay, CallWithSyncFeeRequest } from '@gelatonetwork/relay-sdk'
 
 
@@ -13,13 +12,13 @@ const AdvancedONFT721GaslessAbi = loadAbi('../artifacts/contracts/token/onft/ext
 export const mintGasless721 = async function (taskArgs: any, hre: any) {
   const { ethers, network } = hre
   const [owner] = await ethers.getSigners()
-  const leaves = snapshotData.map((holder) => keccak256(ethers.utils.solidityPack(['address', 'uint256'], [holder.address, holder.count])))
-  const tree = new MerkleTree(leaves, keccak256, { sortPairs: true })
-  const leaf = keccak256(ethers.utils.solidityPack(['address', 'uint256'], [taskArgs.adr, taskArgs.gregs]))
-  const proof = tree.getHexProof(leaf)
+  // const leaves = snapshotData.map((holder) => keccak256(ethers.utils.solidityPack(['address', 'uint256'], [holder.address, holder.count])))
+  // const tree = new MerkleTree(leaves, keccak256, { sortPairs: true })
+  // const leaf = keccak256(ethers.utils.solidityPack(['address', 'uint256'], [taskArgs.adr, taskArgs.gregs]))
+  // const proof = tree.getHexProof(leaf)
 
   const advancedONFT721Gasless = createContractByName(hre, 'AdvancedONFT721Gasless', AdvancedONFT721GaslessAbi().abi, owner)
-  const { data } = await advancedONFT721Gasless.populateTransaction.mintGasless(taskArgs.amt, taskArgs.adr, proof, taskArgs.gregs)
+  const { data } = await advancedONFT721Gasless.populateTransaction.mintGasless(taskArgs.amt, taskArgs.adr, '', taskArgs.gregs)
   const request: CallWithSyncFeeRequest = {
     chainId: network.config.chainId,
     target: advancedONFT721Gasless.address,

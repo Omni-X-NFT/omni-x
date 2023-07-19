@@ -1,7 +1,9 @@
 import {
   createContractByName,
-  loadAbi
+  loadAbi,
+  environments
 } from './shared'
+
 
 import shell from 'shelljs'
 
@@ -11,10 +13,7 @@ const tx = async (tx1: any) => {
 }
 const CurrencyManagerAbi = loadAbi('../artifacts/contracts/core/CurrencyManager.sol/CurrencyManager.json')
 const StargatePoolManagerAbi = loadAbi('../artifacts/contracts/core/StargatePoolManager.sol/StargatePoolManager.json')
-const environments: any = {
-  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom'],
-  testnet: ['arbitrum-goerli', 'goerli', 'optimism-goerli', 'mumbai', 'bsc-testnet', 'fuji', 'fantom-testnet']
-}
+
 
 export const addSingleChainCurrency = async (taskArgs: any, hre: any) => {
   const { ethers, network } = hre
@@ -31,9 +30,8 @@ export const addSingleChainCurrency = async (taskArgs: any, hre: any) => {
     // } else {
     //   await tx(await currencyManager.addCurrency(dependencies.address, dependencies.lzChainIds, dependencies.complimentTokens))
     // }
-   
     for (let i = 0; i < dependencies.lzChainIds.length; i++) {
-      if (network.name === 'optimism-goerli') { 
+      if (network.name === 'optimism-goerli') {
         await tx(await stargatePoolManager.setPoolId(dependencies.address, dependencies.lzChainIds[i], dependencies.poolIds[dependencies.lzChainIds[i]][0], dependencies.poolIds[dependencies.lzChainIds[i]][1], {gasPrice: 30000}))
       } else {
         await tx(await stargatePoolManager.setPoolId(dependencies.address, dependencies.lzChainIds[i], dependencies.poolIds[dependencies.lzChainIds[i]][0], dependencies.poolIds[dependencies.lzChainIds[i]][1]))
