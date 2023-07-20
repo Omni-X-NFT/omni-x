@@ -5,7 +5,8 @@ import {
   getContractAddrByName,
   getPoolId,
   loadAbi,
-  toWei
+  toWei,
+  environments
 } from './shared'
 import STARGATE from '../constants/stargate.json'
 import shell from 'shelljs'
@@ -33,30 +34,7 @@ const tx = async (tx1: any) => {
   await tx1.wait()
 }
 
-export const prepareOmniX = async (taskArgs: any, hre: any) => {
-  const { ethers, network } = hre
-  const [owner] = await ethers.getSigners()
 
-  // const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
-  // const executionManager = createContractByName(hre, 'ExecutionManager', ExecutionManagerAbi().abi, owner)
-
-  // await tx(await currencyManager.addCurrency(getContractAddrByName(network.name, 'OFTMock')))
-  // await tx(await currencyManager.addCurrency(getContractAddrByName(network.name, 'USDC')))
-  // if (getContractAddrByName(network.name, 'SGETH')) {
-  //   await tx(await currencyManager.addCurrency(getContractAddrByName(network.name, 'SGETH')))
-  // }
-  // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSale')))
-  // await tx(await executionManager.addStrategy(getContractAddrByName(network.name, 'StrategyStargateSaleForCollection')))
-
-  // const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
-  // await tx(await omniXExchange.setGasForLzReceive(600000))
-
-  const omniXExchange = createContractByName(hre, 'OmniXExchange', OmniXExchangeAbi().abi, owner)
-  await (await omniXExchange.setFundManager(getContractAddrByName(network.name, 'FundManager'), { gasPrice: 30000 })).wait()
-
-  const fundManager = createContractByName(hre, 'FundManager', FundManagerAbi().abi, owner)
-  await tx(await fundManager.setOmnixExchange(getContractAddrByName(network.name, 'OmniXExchange'), { gasPrice: 30000 }))
-}
 
 const packTrustedRemote = (hre: any, srcNetwork: string, dstNetwork: string, contractName: string) => {
   const dstAddr = getContractAddrByName(dstNetwork, contractName)
@@ -159,25 +137,8 @@ export const setupBridge = async (taskArgs: any, hre: any) => {
   await stargatePoolManager.setPoolId(getContractAddrByName(network.name, 'USDC'), dstChainId, srcPoolId, dstPoolId)
 }
 
-const environments: any = {
-  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'fantom'],
-  testnet: ['goerli', 'arbitrum-goerli', 'fantom-testnet', 'mumbai', 'fuji', 'moonbeam_testnet', 'bsc-testnet', 'optimism-goerli']
-}
 
-export const prepareOmnixAll = async function (taskArgs: any) {
-  const networks = environments[taskArgs.e]
-  if (!taskArgs.e || networks.length === 0) {
-    console.log(`Invalid environment argument: ${taskArgs.e}`)
-  }
 
-  await Promise.all(
-    networks.map(async (network: string) => {
-      const checkWireUpCommand = `npx hardhat prepareOmniX --network ${network}`
-      console.log(checkWireUpCommand)
-      shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
-    })
-  )
-}
 
 export const linkOmnixAll = async function (taskArgs: any) {
   const networks = environments[taskArgs.e]

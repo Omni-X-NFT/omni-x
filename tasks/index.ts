@@ -1,7 +1,7 @@
 import { task } from 'hardhat/config'
 import { setTrustedRemote } from './setTrustedRemote'
-import { deployGhosts, deployOmniX, deployOmnixAll } from './deployOmniX'
-import { linkOmniX, linkOmnixAll, prepareOmniX, prepareOmnixAll, prepareStargate, setupBridge } from './prepareOmniX'
+import { deployOmniX, deployOmnixAll } from './OmniXSuite'
+import { linkOmniX, linkOmnixAll, prepareStargate, setupBridge } from './prepareOmniX'
 import { verifyOmni, verifyAll } from './verify'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
 import { deployAll } from './deploy'
@@ -26,20 +26,15 @@ task(
   .addParam('contract', 'Contract Name')
 
 task('deployOmniX', 'deploys an OmniX exchange')
+  .addParam('dependencies', 'true or false to redeploy dependent contracts')
   .setAction(deployOmniX)
-task('deployGhosts', 'deploys an OmniX exchange')
-  .setAction(deployGhosts)
-task('prepareOmniX', 'deploys an OmniX exchange')
-  .setAction(prepareOmniX)
 task('linkOmniX', 'deploys an OmniX exchange')
   .addParam('dstchainname', 'destination chain name. ex: rinkeby')
   .setAction(linkOmniX)
 task('deployAllX', 'deploys an OmniX exchange')
   .addParam('e', 'testnet or mainnet')
+  .addParam('dependencies', 'true or false to redeploy dependent contracts')
   .setAction(deployOmnixAll)
-task('prepareAllX', 'deploys an OmniX exchange')
-  .addParam('e', 'testnet or mainnet')
-  .setAction(prepareOmnixAll)
 task('linkAllX', 'deploys an OmniX exchange')
   .addParam('e', 'testnet or mainnet')
   .setAction(linkOmnixAll)
@@ -193,3 +188,9 @@ task('setAllMetadata', 'setAllMetadata')
 task('lzScan', 'lzScan')
   .addParam('hash', 'tx hash')
   .setAction(lzScan)
+task('compile:solidity:solc:get-build', async (_, __, runSuper) => {
+  const solcBuild = await runSuper()
+  console.log(solcBuild)
+
+  return solcBuild
+})

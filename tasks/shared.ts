@@ -15,6 +15,11 @@ export const environments: any = {
   testnet: ['goerli', 'bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'mumbai']
 }
 
+export const stargateCompatibleChains: any = {
+  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'metis'],
+  testnet: ['goerli', 'arbitrum-goerli', 'optimism-goerli']
+}
+
 
 
 export const ROYALTY_FEE_LIMIT = 500 // 5%
