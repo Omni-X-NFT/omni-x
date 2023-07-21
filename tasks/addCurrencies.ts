@@ -3,8 +3,6 @@ import {
   loadAbi,
   environments
 } from './shared'
-
-
 import shell from 'shelljs'
 
 import tokenDependencies from '../constants/crossChainTokens.json'

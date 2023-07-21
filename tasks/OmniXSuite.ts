@@ -4,7 +4,8 @@ import {
   createContractByName,
   loadAbi,
   stargateCompatibleChains,
-  environments
+  environments,
+  getChainId
 } from './shared'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
@@ -113,6 +114,8 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
   }
 }
 
+
+
 export const deployOmnixAll = async function (taskArgs: any) {
   const networks = environments[taskArgs.e]
   if (!taskArgs.e || networks.length === 0) {
@@ -127,4 +130,5 @@ export const deployOmnixAll = async function (taskArgs: any) {
     })
   )
 }
+
 

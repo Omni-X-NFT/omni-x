@@ -1,11 +1,6 @@
 import shell from 'shelljs'
 
-const environments: any = {
-  // mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis'],
-  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis', 'zksync', 'canto', 'arbitrum-nova', 'tenet', 'gnosis', 'polygon-zkevm', 'klaytn'],
- // testnet: ['goerli', 'bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'mumbai']
-  testnet: ['fuji', 'fantom-testnet']
-}
+import { environments } from './shared'
 
 export const setAllTrustedRemote = async function (taskArgs: any, hre: any) {
   const networks = environments[taskArgs.e]
@@ -16,7 +11,7 @@ export const setAllTrustedRemote = async function (taskArgs: any, hre: any) {
   await Promise.all(
     networks.map(async (network: string) => {
       networks.map(async (target: string) => {
-        if (network !== target) {
+        if ((network !== target && target === 'moonbeam') || (network !== target && network === 'moonbeam')) {
           const checkWireUpCommand = `npx hardhat --network ${network} setTrustedRemote --target ${target} --contract ${taskArgs.contract}`
           shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
         }

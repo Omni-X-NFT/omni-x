@@ -13,7 +13,7 @@ type ENDPOINT_TYPE = {
 const ENDPOINTS: ENDPOINT_TYPE = LZ_ENDPOINTS
 
 const environments: any = {
-  mainnet: ['ethereum', 'bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis'],
+  mainnet: ['moonbeam'],
   // testnet: ['arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'bsc-testnet', 'mumbai', 'goerli', 'fuji']
   testnet: ['fantom-testnet', 'fuji']
 }
@@ -31,7 +31,7 @@ export const verifyAll = async function (taskArgs: any, hre: any) {
   await Promise.all(
     networks.map(async (network: string) => {
       // @ts-ignore
-      const aonftArgs = GREG_ARGS['OmnichainAdventures'][network]
+      const aonftArgs = GREG_ARGS[taskArgs.tags][network]
       const address = getDeploymentAddresses(network)[taskArgs.tags]
       console.log(address)
       const endpointAddr = ENDPOINTS[network]

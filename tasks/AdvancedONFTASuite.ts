@@ -112,8 +112,8 @@ export const setMetadata = async (taskArgs: any, hre: any) => {
   if (network.name === 'zksync' || network.name === 'zksync-testnet') {
     onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
   } else {
-    onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
-    // onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
+    // onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
+    onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
   }
 
   const metadata = {
@@ -153,7 +153,7 @@ export const prepareAllAdvancedONFT721A = async (taskArgs: any) => {
   await Promise.all(
     networks.map(async (network: string) => {
       networks.map(async (target: string) => {
-        if (network !== target && network !== 'ethereum') {
+        if ((network !== target && target === 'moonbeam') || (network !== target && network === 'moonbeam')) {
           const checkWireUpCommand = `npx hardhat --network ${network} prepareAdvancedONFT721A --target ${target} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal}`
           console.log(checkWireUpCommand)
           shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
