@@ -1,20 +1,14 @@
 import { loadAbi, createContractByName } from './shared'
 
-
-
-
 const AdvancedONFT721GaslessAbi = loadAbi('../artifacts/contracts/token/onft/extension/AdvancedONFT721Gasless.sol/AdvancedONFT721Gasless.json')
 const tx = async (tx1: any) => {
-    await tx1.wait()
-  }
-  
-
+  await tx1.wait()
+}
 
 export const sendBatch721 = async function (taskArgs: any, hre: any) {
   const { ethers, network } = hre
   const [owner] = await ethers.getSigners()
   const dstChainId = 101
-
 
   const advancedONFT721Gasless = createContractByName(hre, 'AdvancedONFT721Gasless', AdvancedONFT721GaslessAbi().abi, owner)
 
@@ -32,5 +26,4 @@ export const sendBatch721 = async function (taskArgs: any, hre: any) {
 
   const gas = await advancedONFT721Gasless.estimateSendFee(dstChainId, owner.address, 4, false, ethers.utils.solidityPack(['uint16', 'uint256'], [1, 200000 + 120000]))
   console.log(gas)
-
 }
