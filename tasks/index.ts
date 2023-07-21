@@ -17,7 +17,7 @@ import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
 import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
 import { deployAdvancedONFT721A, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
-import { lzScan, forceResume } from './lzScan'
+import { lzScan, forceResume, convertToBytes, hasStoredPayload } from './lzScan'
 task(
   'setTrustedRemote',
   'setTrustedRemote(chainId, sourceAddr) to enable inbound/outbound messages with your other contracts',
@@ -199,3 +199,10 @@ task('forceResume', 'forceResume')
   .addParam('target', 'target network')
   .addParam('srcua', 'source user address')
   .setAction(forceResume)
+task('convertToBytes', 'convertToBytes')
+  .addParam('address', 'address')
+  .setAction(convertToBytes)
+task('hasStoredPayload', 'hasStoredPayload')
+  .addParam('target', 'target network')
+  .addParam('srcua', 'source user address')
+  .setAction(hasStoredPayload)
