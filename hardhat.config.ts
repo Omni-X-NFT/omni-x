@@ -148,6 +148,18 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
     },
+    base: {
+      url: process.env.BASE_RPC !== undefined ? process.env.BASE_RPC : 'https://developer-access-mainnet.base.org',
+      chainId: 8453,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
+    },
+    mantle: {
+      url: process.env.MANTLE_RPC !== undefined ? process.env.MANTLE_RPC : 'https://rpc.mantle.xyz',
+      chainId: 5000,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
+    },
     tenet: {
       url: process.env.TENET_RPC !== undefined ? process.env.TENET_RPC : 'https://rpc.tenet.org',
       chainId: 1559,
