@@ -187,6 +187,7 @@ task('setAllMetadata', 'setAllMetadata')
   .setAction(setAllMetadata)
 task('lzScan', 'lzScan')
   .addParam('hash', 'tx hash')
+  .addParam('e', 'testnet or mainnet')
   .setAction(lzScan)
 task('compile:solidity:solc:get-build', async (_, __, runSuper) => {
   const solcBuild = await runSuper()

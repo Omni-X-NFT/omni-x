@@ -3,7 +3,7 @@ import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import ONFT_ARGS from '../constants/ONFT721AArgs.json'
 import * as CHAIN_ID from '../constants/chainIds.json'
 import { loadAbi, createContractByName, deployContract, environments } from './shared'
-// import * as ContractArtifact from '../artifacts-zk/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json'
+import * as ContractArtifact from '../artifacts-zk/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json'
 import LZEndpointABI from '../constants/LZEndpointABI.json'
 
 
@@ -63,7 +63,7 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
   const dstChainId = CHAIN_IDS[taskArgs.target]
   let onft721A
   if (network.name === 'zksync' || network.name === 'zksync-testnet') {
-    onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
+    onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
   } else {
     // onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
     onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
