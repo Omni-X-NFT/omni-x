@@ -83,7 +83,7 @@ const config: HardhatUserConfig = {
     },
     moonbeam: {
       url: process.env.MOONBEAM_RPC !== undefined ? process.env.MOONBEAM_RPC : 'https://rpc.api.moonbeam.network',
-      chainId: 1287,
+      chainId: 1284,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
     },
@@ -245,7 +245,7 @@ const config: HardhatUserConfig = {
       ftmTestnet: process.env.FANTOM_API_KEY || '',
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
       'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
-      'moonbeam_testnet': process.env.MOONBEAM_API_KEY || ''
+      moonbeam: process.env.MOONBEAM_API_KEY || ''
     },
     customChains: [
       {
