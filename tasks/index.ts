@@ -5,7 +5,6 @@ import { linkOmniX, linkOmnixAll, prepareStargate, setupBridge } from './prepare
 import { verifyOmni, verifyAll } from './verify'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
 import { deployAll } from './deploy'
-import { migrate } from './migrate'
 import { deployAdvancedONFT721, deployAllAdvancedONFT721 } from './deployAdvancedONFT721'
 import { prepareAdvancedONFT, prepareAllAdvancedONFT } from './prepareAdvancedONFT'
 import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './deployAdvancedONFT721Gasless'
@@ -17,7 +16,7 @@ import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
 import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
 import { deployAdvancedONFT721A, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
-import { lzScan, forceResume, convertToBytes, hasStoredPayload } from './lzScan'
+import { lzScan, forceResume, convertToBytes, hasStoredPayload } from './lzSuite'
 task(
   'setTrustedRemote',
   'setTrustedRemote(chainId, sourceAddr) to enable inbound/outbound messages with your other contracts',
@@ -72,11 +71,6 @@ task(
 task('setupBridge', 'setup chain and add liquidity to the pool')
   .addParam('dstchainname', 'destination chain name. ex: rinkeby')
   .setAction(setupBridge)
-
-task(
-  'migrate',
-  'update or check configuration of omnixexchange contracts'
-).setAction(migrate)
 
 task('deployAdvancedONFT721', 'deployAdvancedONFT721')
   .setAction(deployAdvancedONFT721)
