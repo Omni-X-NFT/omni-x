@@ -9,12 +9,12 @@ import { deployAdvancedONFT721, deployAllAdvancedONFT721 } from './deployAdvance
 import { prepareAdvancedONFT, prepareAllAdvancedONFT } from './prepareAdvancedONFT'
 import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './deployAdvancedONFT721Gasless'
 import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
-import { MerkleGen } from './merkle'
+// import { MerkleGen } from './merkle'
 import { mintGasless721 } from './mintGasless'
 import { sendBatch721 } from './sendBatch721'
 import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
-import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
+// import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
 import { deployAdvancedONFT721A, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
 import { lzScan, forceResume, convertToBytes, hasStoredPayload } from './lzSuite'
 task(
@@ -100,10 +100,10 @@ task('prepareAllAdvancedONFTGasless', 'prepareAllAdvancedONFTGasless')
   .addParam('e', 'testnet or mainnet')
   .setAction(prepareAllAdvancedONFTGasless)
 
-task('merkle', 'generate merkle tree')
-  .addParam('adr', 'minter address')
-  .addParam('amt', 'amount of wl token')
-  .setAction(MerkleGen)
+// task('merkle', 'generate merkle tree')
+//   .addParam('adr', 'minter address')
+//   .addParam('amt', 'amount of wl token')
+//   .setAction(MerkleGen)
 task('mintGasless721', 'mintGasless721')
   .addParam('adr', 'address to mint to')
   .addParam('amt', 'amount of tokens')
@@ -121,16 +121,16 @@ task('setAll721Config', 'sets layer zero config on all chain for ONF721')
   .addParam('e', 'testnet or mainnet')
   .setAction(setAll721Config)
 
-task('snap', 'take snapshot')
-  .addParam('api', 'nft api provider')
-  .addParam('target', 'target colleection')
-  .setAction(snap)
-task('convertFormat', 'convertFormat')
-  .setAction(convertFormat)
-task('addSTG', 'add stargate')
-  .setAction(addSTG)
-task('changeAmounts', 'change amount of wl')
-  .setAction(changeAmounts)
+// task('snap', 'take snapshot')
+//   .addParam('api', 'nft api provider')
+//   .addParam('target', 'target colleection')
+//   .setAction(snap)
+// task('convertFormat', 'convertFormat')
+//   .setAction(convertFormat)
+// task('addSTG', 'add stargate')
+//   .setAction(addSTG)
+// task('changeAmounts', 'change amount of wl')
+//   .setAction(changeAmounts)
 task('deployAdvancedONFT721A', 'deployAdvancedONFT721A')
   .addParam('collection', 'collection name')
   .setAction(deployAdvancedONFT721A)
