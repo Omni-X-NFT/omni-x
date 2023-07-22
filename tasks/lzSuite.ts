@@ -54,8 +54,8 @@ export const hasStoredPayload = async function(taskArgs: any, hre: any) {
   const lzEndpointAddress = (LZ_ENDPOINT as any)[network.name]
   const lzEndpoint = new ethers.Contract(lzEndpointAddress, LZEndpointABI, owner)
   try {
-   let val = await lzEndpoint.hasStoredPayload(targetDstChainId, ethers.utils.arryify(taskArgs.srcua))
-   console.log(val)
+    const val = await lzEndpoint.hasStoredPayload(targetDstChainId, ethers.utils.arryify(taskArgs.srcua))
+    console.log(val)
   } catch (e: any) {
     console.log(e.message)
   }

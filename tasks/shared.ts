@@ -20,8 +20,6 @@ export const stargateCompatibleChains: any = {
   testnet: ['goerli', 'arbitrum-goerli', 'optimism-goerli']
 }
 
-
-
 export const ROYALTY_FEE_LIMIT = 500 // 5%
 export const CONTRACTS = {
   rinkeby: {

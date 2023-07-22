@@ -153,7 +153,7 @@ export const prepareAllAdvancedONFT721A = async (taskArgs: any) => {
   await Promise.all(
     networks.map(async (network: string) => {
       networks.map(async (target: string) => {
-        if ((network !== target && target === 'moonbeam') || (network !== target && network === 'moonbeam')) {
+        if ((network !== target && network === 'polygon')) {
           const checkWireUpCommand = `npx hardhat --network ${network} prepareAdvancedONFT721A --target ${target} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal}`
           console.log(checkWireUpCommand)
           shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
