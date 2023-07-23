@@ -32,10 +32,7 @@ export const setTrustedRemote = async function (taskArgs: any, hre: any) {
     console.log(`✅ [${hre.network.name}] setTrustedRemote(${dstChainId}, ${dstAddr})`)
     console.log(` tx: ${tx.transactionHash}`)
   } catch (e: any) {
-    if (e.error.message.includes('The chainId + address is already trusted')) {
-      console.log('*source already set*')
-    } else {
-      console.log(e)
-    }
+    console.log(e)
   }
 }
+
