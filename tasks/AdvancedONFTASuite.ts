@@ -132,7 +132,11 @@ export const setMetadata = async (taskArgs: any, hre: any) => {
   }
 
   try {
-    await tx(await onft721A.setMetadata(metadata))
+    if (network.name === 'polygon') {
+      await tx(await onft721A.setMetadata(metadata, { maxFeePerGas: 1600000000000, maxPriorityFeePerGas: 30000000000 }))
+    } else {
+      await tx(await onft721A.setMetadata(metadata))
+    }
     console.log('✅ set metadata')
   } catch (e: any) {
     console.log(e)
