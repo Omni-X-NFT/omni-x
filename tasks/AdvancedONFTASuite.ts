@@ -3,9 +3,8 @@ import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import ONFT_ARGS from '../constants/ONFT721AArgs.json'
 import * as CHAIN_ID from '../constants/chainIds.json'
 import { loadAbi, createContractByName, deployContract, environments } from './shared'
-import * as ContractArtifact from '../artifacts-zk/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json'
+import fs from 'fs';
 import LZEndpointABI from '../constants/LZEndpointABI.json'
-
 
 type CHAINIDTYPE = {
     [key: string]: number
@@ -24,7 +23,7 @@ export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
   const [owner] = await ethers.getSigners()
   const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
   const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
-  if (network.name !== 'zksync' && network.name !== 'zksync-testnet' && network.name !== 'arbitrum' && network.name !== 'optimism') {
+  if (network.name !== 'zksync' && network.name !== 'zksync-testnet') {
     await deployContract(hre, 'OmnichainAdventures', owner, [
       args.name,
       args.symbol,
@@ -63,6 +62,12 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
   const dstChainId = CHAIN_IDS[taskArgs.target]
   let onft721A
   if (network.name === 'zksync' || network.name === 'zksync-testnet') {
+    const path = '../artifacts-zk/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json'
+    if (!fs.existsSync(path)) {
+      console.log('zk aritfact not found please run npx hardhat compile --network zksync')
+      return
+    }
+    const ContractArtifact = require(path)
     onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
   } else {
     // onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
@@ -71,9 +76,9 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
 
   if (taskArgs.lzconfig === 'true') {
     try {
-      await tx(await onft721A.setDstChainIdToBatchLimit(dstChainId, args.batchLimit, { gasPrice: 80000000000 }))
-      await tx(await onft721A.setDstChainIdToTransferGas(dstChainId, args.transferGas, { gasPrice: 80000000000 }))
-      await tx(await onft721A.setMinDstGas(dstChainId, 1, args.minDstGas, { gasPrice: 80000000000 }))
+      await tx(await onft721A.setDstChainIdToBatchLimit(dstChainId, args.batchLimit, { gasPrice: 80000000000, maxPriorityFeePerGas: 30000000000 }))
+      await tx(await onft721A.setDstChainIdToTransferGas(dstChainId, args.transferGas, { gasPrice: 80000000000, maxPriorityFeePerGas: 30000000000 }))
+      await tx(await onft721A.setMinDstGas(dstChainId, 1, args.minDstGas, { gasPrice: 80000000000, maxPriorityFeePerGas: 30000000000 }))
       console.log(`${hre.network.name}`)
       console.log(`✅ set batch limit for (${dstChainId}) to ${args.batchLimit} `)
       console.log(`✅ set transfer gas for (${dstChainId}) to ${args.transferGas} `)
@@ -110,9 +115,14 @@ export const setMetadata = async (taskArgs: any, hre: any) => {
   const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
   let onft721A
   if (network.name === 'zksync' || network.name === 'zksync-testnet') {
-    onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
+    const path = '../artifacts-zk/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json'
+    if (!fs.existsSync(path)) {
+      console.log('zk aritfact not found please run npx hardhat compile --network zksync')
+      return
+    }
+    const ContractArtifact = require(path)
+    onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
   } else {
-    // onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
     onft721A = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
   }
 

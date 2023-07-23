@@ -11,7 +11,6 @@ import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from '.
 import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
 // import { MerkleGen } from './merkle'
 import { mintGasless721 } from './mintGasless'
-import { sendBatch721 } from './sendBatch721'
 import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
 // import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
@@ -109,10 +108,6 @@ task('mintGasless721', 'mintGasless721')
   .addParam('amt', 'amount of tokens')
   .addParam('gregs', 'amount of gregs for address')
   .setAction(mintGasless721)
-
-task('sendBatch721', 'sendBatch721')
-  .setAction(sendBatch721)
-
 task('set721Config', 'set layer zero config for ONFT721')
   .addParam('target', 'target dst network')
   .setAction(set721Config)
