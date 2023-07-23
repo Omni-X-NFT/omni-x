@@ -76,9 +76,9 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
 
   if (taskArgs.lzconfig === 'true') {
     try {
-      await tx(await onft721A.setDstChainIdToBatchLimit(dstChainId, args.batchLimit, { gasPrice: 80000000000, maxPriorityFeePerGas: 30000000000 }))
-      await tx(await onft721A.setDstChainIdToTransferGas(dstChainId, args.transferGas, { gasPrice: 80000000000, maxPriorityFeePerGas: 30000000000 }))
-      await tx(await onft721A.setMinDstGas(dstChainId, 1, args.minDstGas, { gasPrice: 80000000000, maxPriorityFeePerGas: 30000000000 }))
+      await tx(await onft721A.setDstChainIdToBatchLimit(dstChainId, args.batchLimit, { maxFeePerGas: 1600000000000, maxPriorityFeePerGas: 30000000000 }))
+      await tx(await onft721A.setDstChainIdToTransferGas(dstChainId, args.transferGas, { maxFeePerGas: 1600000000000, maxPriorityFeePerGas: 30000000000 }))
+      await tx(await onft721A.setMinDstGas(dstChainId, 1, args.minDstGas, { maxFeePerGas: 1600000000000, maxPriorityFeePerGas: 30000000000 }))
       console.log(`${hre.network.name}`)
       console.log(`✅ set batch limit for (${dstChainId}) to ${args.batchLimit} `)
       console.log(`✅ set transfer gas for (${dstChainId}) to ${args.transferGas} `)
