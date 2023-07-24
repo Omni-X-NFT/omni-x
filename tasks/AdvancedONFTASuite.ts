@@ -39,13 +39,13 @@ export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
 }
 
 export const deployAllAdvancedONFT721A = async (taskArgs: any) => {
-  const networks = environments[taskArgs.e]
+  let networks = environments[taskArgs.e]
   if (!taskArgs.e || networks.length === 0) {
     console.log(`Invalid environment argument: ${taskArgs.e}`)
   }
   if (taskArgs.exclude !== 'none') {
-    const exclude = taskArgs.exclude.split(' ')
-    networks.filter((n: string) => !exclude.includes(n))
+    const exclude = taskArgs.exclude.split(',')
+    networks = networks.filter((n: string) => !exclude.includes(n))
   }
   await Promise.all(
     networks.map(async (network: string) => {
@@ -142,13 +142,13 @@ export const setMetadata = async (taskArgs: any, hre: any) => {
 }
 
 export const setAllMetadata = async (taskArgs: any) => {
-  const networks = environments[taskArgs.e]
+  let networks = environments[taskArgs.e]
   if (!taskArgs.e || networks.length === 0) {
     console.log(`Invalid environment argument: ${taskArgs.e}`)
   }
   if (taskArgs.exclude !== 'none') {
-    const exclude = taskArgs.exclude.split(' ')
-    networks.filter((n: string) => !exclude.includes(n))
+    const exclude = taskArgs.exclude.split(',')
+    networks = networks.filter((n: string) => !exclude.includes(n))
   }
   await Promise.all(
     networks.map(async (network: string) => {
@@ -160,21 +160,22 @@ export const setAllMetadata = async (taskArgs: any) => {
 }
 
 export const prepareAllAdvancedONFT721A = async (taskArgs: any) => {
-  const networks = environments[taskArgs.e]
-  const targets = environments[taskArgs.target]
+  let networks = environments[taskArgs.e]
+  let targets = environments[taskArgs.e]
   if (!taskArgs.e || networks.length === 0) {
     console.log(`Invalid environment argument: ${taskArgs.e}`)
   }
 
   if (taskArgs.netexclude !== 'none') {
-    const exclude = taskArgs.exclude.split(' ')
-    networks.filter((n: string) => !exclude.includes(n))
+    const exclude = taskArgs.netexclude.split(',')
+    networks = networks.filter((n: string) => !exclude.includes(n))
   }
   if (taskArgs.exclude !== 'none') {
-    const exclude = taskArgs.exclude.split(' ')
-    targets.filter((n: string) => !exclude.includes(n))
+    const exclude = taskArgs.exclude.split(',')
+    targets = targets.filter((n: string) => !exclude.includes(n))
   }
-
+  console.log(networks)
+  console.log(targets)
   await Promise.all(
     networks.map(async (network: string) => {
       targets.map(async (target: string) => {

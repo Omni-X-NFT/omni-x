@@ -78,18 +78,18 @@ export const setTrustedRemote = async function (taskArgs: any, hre: any) {
 }
 
 export const setAllTrustedRemote = async function (taskArgs: any, hre: any) {
-  const networks = environments[taskArgs.e]
-  const targets = environments[taskArgs.target]
+  let networks = environments[taskArgs.e]
+  let targets = environments[taskArgs.e]
   if (!taskArgs.e || networks.length === 0) {
     console.log(`Invalid environment argument: ${taskArgs.e}`)
   }
   if (taskArgs.netexclude !== 'none') {
-    const exclude = taskArgs.exclude.split(' ')
-    networks.filter((n: string) => !exclude.includes(n))
+    const exclude = taskArgs.netexclude.split(',')
+    networks = networks.filter((n: string) => !exclude.includes(n))
   }
   if (taskArgs.exclude !== 'none') {
-    const exclude = taskArgs.exclude.split(' ')
-    targets.filter((n: string) => !exclude.includes(n))
+    const exclude = taskArgs.exclude.split(',')
+    targets = targets.filter((n: string) => !exclude.includes(n))
   }
 
   await Promise.all(
