@@ -1,7 +1,6 @@
 import { task } from 'hardhat/config'
 import { setTrustedRemote } from './setTrustedRemote'
-import { deployOmniX, deployOmnixAll } from './OmniXSuite'
-import { linkOmniX, linkOmnixAll, prepareStargate, setupBridge } from './prepareOmniX'
+import { deployOmniX, deployOmnixAll, addSingleChainCurrency, addCurrency, removeAllUSDC, removeCurrency, omnix, setupBridge, prepareStargate } from './OmniXSuite'
 import { verifyOmni, verifyAll } from './verify'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
 import { deployAll } from './deploy'
@@ -9,33 +8,41 @@ import { deployAdvancedONFT721, deployAllAdvancedONFT721 } from './deployAdvance
 import { prepareAdvancedONFT, prepareAllAdvancedONFT } from './prepareAdvancedONFT'
 import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './deployAdvancedONFT721Gasless'
 import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
-// import { MerkleGen } from './merkle'
-import { mintGasless721 } from './mintGasless'
 import { set721Config } from './set721Config'
 import { setAll721Config } from './setAll721Config'
-// import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
 import { deployAdvancedONFT721A, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
 import { lzScan, forceResume, convertToBytes, hasStoredPayload } from './lzSuite'
+
 task(
   'setTrustedRemote',
   'setTrustedRemote(chainId, sourceAddr) to enable inbound/outbound messages with your other contracts',
   setTrustedRemote
 ).addParam('target', 'the target network name, ie: fuji, or mumbai, etc (from hardhat.config.js)')
   .addParam('contract', 'Contract Name')
-
+task('addSingleChainCurrency', 'addSingleChainCurrency')
+  .addParam('token', 'token name')
+  .setAction(addSingleChainCurrency)
+task('addCurrency', 'addCurrency')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('token', 'token name')
+  .setAction(addCurrency)
+task('removeCurrency', 'removeCurrency')
+  .addParam('token', 'token name')
+  .setAction(removeCurrency)
+task('removeAllUSDC', 'removeAllUSDC')
+  .addParam('e', 'testnet or mainnet')
+  .setAction(removeAllUSDC)
+task('omnix', 'omnix')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('dependencies', 'true or false to redeploy dependent contracts')
+  .setAction(omnix)
 task('deployOmniX', 'deploys an OmniX exchange')
   .addParam('dependencies', 'true or false to redeploy dependent contracts')
   .setAction(deployOmniX)
-task('linkOmniX', 'deploys an OmniX exchange')
-  .addParam('dstchainname', 'destination chain name. ex: rinkeby')
-  .setAction(linkOmniX)
 task('deployAllX', 'deploys an OmniX exchange')
   .addParam('e', 'testnet or mainnet')
   .addParam('dependencies', 'true or false to redeploy dependent contracts')
   .setAction(deployOmnixAll)
-task('linkAllX', 'deploys an OmniX exchange')
-  .addParam('e', 'testnet or mainnet')
-  .setAction(linkOmnixAll)
 
 task('verifyOmniX', 'verify an omni')
   .setAction(verifyOmni)
@@ -99,15 +106,6 @@ task('prepareAllAdvancedONFTGasless', 'prepareAllAdvancedONFTGasless')
   .addParam('e', 'testnet or mainnet')
   .setAction(prepareAllAdvancedONFTGasless)
 
-// task('merkle', 'generate merkle tree')
-//   .addParam('adr', 'minter address')
-//   .addParam('amt', 'amount of wl token')
-//   .setAction(MerkleGen)
-task('mintGasless721', 'mintGasless721')
-  .addParam('adr', 'address to mint to')
-  .addParam('amt', 'amount of tokens')
-  .addParam('gregs', 'amount of gregs for address')
-  .setAction(mintGasless721)
 task('set721Config', 'set layer zero config for ONFT721')
   .addParam('target', 'target dst network')
   .setAction(set721Config)
@@ -116,23 +114,15 @@ task('setAll721Config', 'sets layer zero config on all chain for ONF721')
   .addParam('e', 'testnet or mainnet')
   .setAction(setAll721Config)
 
-// task('snap', 'take snapshot')
-//   .addParam('api', 'nft api provider')
-//   .addParam('target', 'target colleection')
-//   .setAction(snap)
-// task('convertFormat', 'convertFormat')
-//   .setAction(convertFormat)
-// task('addSTG', 'add stargate')
-//   .setAction(addSTG)
-// task('changeAmounts', 'change amount of wl')
-//   .setAction(changeAmounts)
 task('deployAdvancedONFT721A', 'deployAdvancedONFT721A')
   .addParam('collection', 'collection name')
   .setAction(deployAdvancedONFT721A)
+
 task('deployAllAdvancedONFT721A', 'deployAllAdvancedONFT721A')
   .addParam('collection', 'collection name')
   .addParam('e', 'testnet or mainnet')
   .setAction(deployAllAdvancedONFT721A)
+
 task('prepareAdvancedONFT721A', 'prepareAdvancedONFT721A')
   .addParam('collection', 'collection name')
   .addParam('target', 'target dst network')
@@ -140,6 +130,7 @@ task('prepareAdvancedONFT721A', 'prepareAdvancedONFT721A')
   .addParam('startmint', 'true or false for sale started')
   .addParam('reveal', 'true or false for revealed metadata')
   .setAction(prepareAdvancedONFT721A)
+
 task('prepareAllAdvancedONFT721A', 'prepareAllAdvancedONFT721A')
   .addParam('lzconfig', 'true or false for lz config')
   .addParam('startmint', 'true or false for sale started')
@@ -147,17 +138,21 @@ task('prepareAllAdvancedONFT721A', 'prepareAllAdvancedONFT721A')
   .addParam('collection', 'collection name')
   .addParam('e', 'testnet or mainnet')
   .setAction(prepareAllAdvancedONFT721A)
+
 task('mint721A', 'mint721A')
   .addParam('amount', 'amount of tokens')
   .setAction(mint)
+
 task('mintAll721A', 'mintAll721A')
   .addParam('e', 'testnet or mainnet')
   .addParam('amount', 'amount of tokens')
   .setAction(mintAll)
+
 task('sendCross', 'sendCross')
   .addParam('tokenid', 'tokenid')
   .addParam('target', 'target dst network')
   .setAction(sendCross)
+
 task('deployCollection', 'deployCollection')
   .addParam('collection', 'collection name')
   .addParam('e', 'testnet or mainnet')
@@ -165,32 +160,40 @@ task('deployCollection', 'deployCollection')
   .addParam('startmint', 'true or false for sale started')
   .addParam('reveal', 'true or false for revealed metadata')
   .setAction(deployCollection)
+
 task('estimateSendFee', 'estimateSendFee')
   .setAction(estimateSendFee)
+
 task('setMetadata', 'setMetadata')
   .addParam('collection', 'collection name')
   .setAction(setMetadata)
+
 task('setAllMetadata', 'setAllMetadata')
   .addParam('collection', 'collection name')
   .addParam('e', 'testnet or mainnet')
   .setAction(setAllMetadata)
+
 task('lzScan', 'lzScan')
   .addParam('hash', 'tx hash')
   .addParam('e', 'testnet or mainnet')
   .setAction(lzScan)
+
 task('compile:solidity:solc:get-build', async (_, __, runSuper) => {
   const solcBuild = await runSuper()
   console.log(solcBuild)
 
   return solcBuild
 })
+
 task('forceResume', 'forceResume')
   .addParam('target', 'target network')
   .addParam('srcua', 'source user address')
   .setAction(forceResume)
+
 task('convertToBytes', 'convertToBytes')
   .addParam('address', 'address')
   .setAction(convertToBytes)
+
 task('hasStoredPayload', 'hasStoredPayload')
   .addParam('target', 'target network')
   .addParam('srcua', 'source user address')

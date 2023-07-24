@@ -88,7 +88,7 @@ const config: HardhatUserConfig = {
       zksync: false
     },
     arbitrum: {
-      url: process.env.ARB_RPC !== undefined ? process.env.ARB_RPC :'https://rpc.ankr.com/arbitrum',
+      url: process.env.ARB_RPC !== undefined ? process.env.ARB_RPC : 'https://rpc.ankr.com/arbitrum',
       chainId: 42161,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false

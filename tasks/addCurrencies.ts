@@ -22,21 +22,25 @@ export const addSingleChainCurrency = async (taskArgs: any, hre: any) => {
   const dependencies: any = tokensObj[token]
   const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
   const stargatePoolManager = createContractByName(hre, 'StargatePoolManager', StargatePoolManagerAbi().abi, owner)
-  try {
-    // if (network.name === 'optimism-goerli') {
-    //   await tx(await currencyManager.addCurrency(dependencies.address, dependencies.lzChainIds, dependencies.complimentTokens, {gasPrice: 30000}))
-    // } else {
-    //   await tx(await currencyManager.addCurrency(dependencies.address, dependencies.lzChainIds, dependencies.complimentTokens))
-    // }
-    for (let i = 0; i < dependencies.lzChainIds.length; i++) {
+  if (tokensObj && dependencies) {
+    try {
       if (network.name === 'optimism-goerli') {
-        await tx(await stargatePoolManager.setPoolId(dependencies.address, dependencies.lzChainIds[i], dependencies.poolIds[dependencies.lzChainIds[i]][0], dependencies.poolIds[dependencies.lzChainIds[i]][1], {gasPrice: 30000}))
+        await tx(await currencyManager.addCurrency(dependencies.address, dependencies.lzChainIds, dependencies.complimentTokens, {gasPrice: 30000}))
       } else {
-        await tx(await stargatePoolManager.setPoolId(dependencies.address, dependencies.lzChainIds[i], dependencies.poolIds[dependencies.lzChainIds[i]][0], dependencies.poolIds[dependencies.lzChainIds[i]][1]))
+        await tx(await currencyManager.addCurrency(dependencies.address, dependencies.lzChainIds, dependencies.complimentTokens))
       }
+      for (let i = 0; i < dependencies.lzChainIds.length; i++) {
+        if (network.name === 'optimism-goerli') {
+          await tx(await stargatePoolManager.setPoolId(dependencies.address, dependencies.lzChainIds[i], dependencies.poolIds[dependencies.lzChainIds[i]][0], dependencies.poolIds[dependencies.lzChainIds[i]][1], {gasPrice: 30000}))
+        } else {
+          await tx(await stargatePoolManager.setPoolId(dependencies.address, dependencies.lzChainIds[i], dependencies.poolIds[dependencies.lzChainIds[i]][0], dependencies.poolIds[dependencies.lzChainIds[i]][1]))
+        }
+      }
+    } catch (e) {
+      console.log(e)
     }
-  } catch (e) {
-    console.log(e)
+  } else {
+    console.log('Invalid token')
   }
 }
 
