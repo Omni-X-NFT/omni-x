@@ -17,7 +17,6 @@ import STARGATE from '../constants/stargate.json'
 import shell from 'shelljs'
 import tokenDependencies from '../constants/crossChainTokens.json'
 
-
 const FundManagerAbi = loadAbi('../artifacts/contracts/core/FundManager.sol/FundManager.json')
 const CurrencyManagerAbi = loadAbi('../artifacts/contracts/core/CurrencyManager.sol/CurrencyManager.json')
 const StargatePoolManagerAbi = loadAbi('../artifacts/contracts/core/StargatePoolManager.sol/StargatePoolManager.json')
