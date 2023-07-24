@@ -79,14 +79,23 @@ export const setTrustedRemote = async function (taskArgs: any, hre: any) {
 
 export const setAllTrustedRemote = async function (taskArgs: any, hre: any) {
   const networks = environments[taskArgs.e]
+  const targets = environments[taskArgs.target]
   if (!taskArgs.e || networks.length === 0) {
     console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+  if (taskArgs.netexclude !== 'none') {
+    const exclude = taskArgs.exclude.split(' ')
+    networks.filter((n: string) => !exclude.includes(n))
+  }
+  if (taskArgs.exclude !== 'none') {
+    const exclude = taskArgs.exclude.split(' ')
+    targets.filter((n: string) => !exclude.includes(n))
   }
 
   await Promise.all(
     networks.map(async (network: string) => {
-      networks.map(async (target: string) => {
-        if ((network !== target && network === 'polygon')) {
+      targets.map(async (target: string) => {
+        if ((network !== target)) {
           const checkWireUpCommand = `npx hardhat --network ${network} setTrustedRemote --target ${target} --contract ${taskArgs.contract}`
           shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
         }

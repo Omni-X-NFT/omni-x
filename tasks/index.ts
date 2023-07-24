@@ -2,7 +2,7 @@ import { task } from 'hardhat/config'
 import { deployOmniX, deployOmnixAll, addSingleChainCurrency, addCurrency, removeAllUSDC, removeCurrency, omnix, setupBridge, prepareStargate } from './OmniXSuite'
 import { verifyOmni, verifyAll } from './verify'
 import { deployAll } from './deploy'
-import { deployAdvancedONFT721, prepareAdvancedONFT, set721Config, set721GaslessConfig, setAll721Config, setAll721GaslessConfig, prepareAllAdvancedONFT, prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless, deployAllAdvancedONFT721, deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './AdvancedONFTSuite'
+import { deployAdvancedONFT721, prepareAdvancedONFT, set721Config, set721GaslessConfig, setAll721Config, setAll721GaslessConfig, prepareAllAdvancedONFT, prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless, expandCollection, deployAllAdvancedONFT721, deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './AdvancedONFTSuite'
 import { deployAdvancedONFT721A, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
 import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
 
@@ -53,6 +53,8 @@ task(
   setAllTrustedRemote
 ).addParam('e', 'testnet or mainnet')
   .addParam('contract', 'Contract Name')
+  .addParam('exclude', 'exclude chain name separated by single spaces. Use none to ignore')
+  .addParam('netexclude', 'exclude chain name separated by single spaces. Use none to ignore')
 
 task(
   'deployAll',
@@ -85,6 +87,7 @@ task('deployAdvancedONFT721', 'deployAdvancedONFT721')
 task('deployAllAdvancedONFT721', 'deployAllAdvancedONFT721')
   .addParam('e', 'testnet or mainnet')
   .addParam('collection', 'collection name')
+  .addParam('exclude', 'exclude chain name separated by single spaces. Use none to ignore')
   .setAction(deployAllAdvancedONFT721)
 
 task('prepareAdvancedONFT', 'prepareAdvancedONFT')
@@ -157,6 +160,8 @@ task('prepareAllAdvancedONFT721A', 'prepareAllAdvancedONFT721A')
   .addParam('reveal', 'true or false for revealed metadata')
   .addParam('collection', 'collection name')
   .addParam('e', 'testnet or mainnet')
+  .addParam('netexclude', 'exclude chain name separated by single spaces. Use none to ignore')
+  .addParam('exclude', 'exclude chain name separated by single spaces. Use none to ignore')
   .setAction(prepareAllAdvancedONFT721A)
 
 task('mint721A', 'mint721A')
@@ -191,7 +196,15 @@ task('setMetadata', 'setMetadata')
 task('setAllMetadata', 'setAllMetadata')
   .addParam('collection', 'collection name')
   .addParam('e', 'testnet or mainnet')
+  .addParam('exclude', 'exclude chain name separated by single spaces. Use none to ignore')
   .setAction(setAllMetadata)
+
+task('expandCollection', 'expandCollection')
+  .addParam('collection', 'collection name')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('oldchains', 'exclude chain name separated by single spaces. Use none to ignore')
+  .addParam('newchains')
+  .addParam('lzconfig', 'true or false for lz config')
 
 task('lzScan', 'lzScan')
   .addParam('hash', 'tx hash')

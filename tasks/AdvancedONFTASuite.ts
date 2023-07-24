@@ -22,7 +22,7 @@ export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
   const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
   const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
   if (network.name !== 'zksync' && network.name !== 'zksync-testnet') {
-    await deployContract(hre, 'OmnichainAdventures', owner, [
+    await deployContract(hre, taskArgs.collection, owner, [
       args.name,
       args.symbol,
       lzEndpoint,
@@ -42,6 +42,10 @@ export const deployAllAdvancedONFT721A = async (taskArgs: any) => {
   const networks = environments[taskArgs.e]
   if (!taskArgs.e || networks.length === 0) {
     console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+  if (taskArgs.exclude !== 'none') {
+    const exclude = taskArgs.exclude.split(' ')
+    networks.filter((n: string) => !exclude.includes(n))
   }
   await Promise.all(
     networks.map(async (network: string) => {
@@ -142,6 +146,10 @@ export const setAllMetadata = async (taskArgs: any) => {
   if (!taskArgs.e || networks.length === 0) {
     console.log(`Invalid environment argument: ${taskArgs.e}`)
   }
+  if (taskArgs.exclude !== 'none') {
+    const exclude = taskArgs.exclude.split(' ')
+    networks.filter((n: string) => !exclude.includes(n))
+  }
   await Promise.all(
     networks.map(async (network: string) => {
       const checkWireUpCommand = `npx hardhat --network ${network} setMetadata --collection ${taskArgs.collection}`
@@ -153,14 +161,24 @@ export const setAllMetadata = async (taskArgs: any) => {
 
 export const prepareAllAdvancedONFT721A = async (taskArgs: any) => {
   const networks = environments[taskArgs.e]
+  const targets = environments[taskArgs.target]
   if (!taskArgs.e || networks.length === 0) {
     console.log(`Invalid environment argument: ${taskArgs.e}`)
   }
 
+  if (taskArgs.netexclude !== 'none') {
+    const exclude = taskArgs.exclude.split(' ')
+    networks.filter((n: string) => !exclude.includes(n))
+  }
+  if (taskArgs.exclude !== 'none') {
+    const exclude = taskArgs.exclude.split(' ')
+    targets.filter((n: string) => !exclude.includes(n))
+  }
+
   await Promise.all(
     networks.map(async (network: string) => {
-      networks.map(async (target: string) => {
-        if ((network !== target && network === 'polygon')) {
+      targets.map(async (target: string) => {
+        if ((network !== target)) {
           const checkWireUpCommand = `npx hardhat --network ${network} prepareAdvancedONFT721A --target ${target} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal}`
           console.log(checkWireUpCommand)
           shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
@@ -202,6 +220,35 @@ export const mintAll = async (taskArgs: any) => {
   )
 }
 
+export const expandCollection = async (taskArgs: any, hre: any) => {
+  const networks = environments[taskArgs.e]
+  if (!taskArgs.e || networks.length === 0) {
+    console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+
+  let checkWireUpCommand = `npx hardhat deployAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --exclude ${taskArgs.oldchains}`
+  console.log(checkWireUpCommand)
+  shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+  checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint false --reveal false --netexclude ${taskArgs.oldchains} --exclude none`
+  console.log(checkWireUpCommand)
+  shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+  checkWireUpCommand = `npx hardhat setAllTrustedRemote --e ${taskArgs.e} --contract OmnichainAdventures --netexclude ${taskArgs.oldchains} --exclude none`
+  console.log(checkWireUpCommand)
+  shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+  checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint false --reveal false --netexclude ${taskArgs.newchains} --exclude ${taskArgs.oldchains}`
+  console.log(checkWireUpCommand)
+  shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+  checkWireUpCommand = `npx hardhat setAllTrustedRemote --e ${taskArgs.e} --contract OmnichainAdventures --netexclude ${taskArgs.newchains} --exclude ${taskArgs.oldchains}`
+  console.log(checkWireUpCommand)
+  shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+  // checkWireUpCommand = `npx hardhat verifyAll --e ${taskArgs.e} --tags OmnichainAdventures`
+  // console.log(checkWireUpCommand)
+  // shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+  // checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig false --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal}`
+  // console.log(checkWireUpCommand)
+  // shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+}
+
 export const deployCollection = async (taskArgs: any, hre: any) => {
   const networks = environments[taskArgs.e]
   if (!taskArgs.e || networks.length === 0) {
@@ -224,7 +271,6 @@ export const deployCollection = async (taskArgs: any, hre: any) => {
   // console.log(checkWireUpCommand)
   // shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
 }
-
 export const estimateSendFee = async (taskArgs: any, hre: any) => {
   const { ethers } = hre
   const [owner] = await ethers.getSigners()
