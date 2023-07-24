@@ -4,14 +4,9 @@ import { deployOmniX, deployOmnixAll, addSingleChainCurrency, addCurrency, remov
 import { verifyOmni, verifyAll } from './verify'
 import { setAllTrustedRemote } from './setAllTrustedRemote'
 import { deployAll } from './deploy'
-import { deployAdvancedONFT721, deployAllAdvancedONFT721 } from './deployAdvancedONFT721'
-import { prepareAdvancedONFT, prepareAllAdvancedONFT } from './prepareAdvancedONFT'
-import { deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './deployAdvancedONFT721Gasless'
-import { prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless } from './prepareAdvancedONFTGasless'
-import { set721Config } from './set721Config'
-import { setAll721Config } from './setAll721Config'
+import { deployAdvancedONFT721, prepareAdvancedONFT, set721Config, set721GaslessConfig, setAll721Config, setAll721GaslessConfig, prepareAllAdvancedONFT, prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless, deployAllAdvancedONFT721, deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './AdvancedONFTSuite'
 import { deployAdvancedONFT721A, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
-import { lzScan, forceResume, convertToBytes, hasStoredPayload } from './lzSuite'
+import { lzScan, forceResume, hasStoredPayload } from './lzSuite'
 
 task(
   'setTrustedRemote',
@@ -36,7 +31,7 @@ task('removeCurrency', 'removeCurrency')
 task('removeAllUSDC', 'removeAllUSDC')
   .addParam('e', 'testnet or mainnet')
   .setAction(removeAllUSDC)
-  
+
 task('omnix', 'omnix')
   .addParam('e', 'testnet or mainnet')
   .addParam('dependencies', 'true or false to redeploy dependent contracts')
@@ -86,40 +81,60 @@ task('setupBridge', 'setup chain and add liquidity to the pool')
   .setAction(setupBridge)
 
 task('deployAdvancedONFT721', 'deployAdvancedONFT721')
+  .addParam('collection', 'collection name')
   .setAction(deployAdvancedONFT721)
 
 task('deployAllAdvancedONFT721', 'deployAllAdvancedONFT721')
   .addParam('e', 'testnet or mainnet')
+  .addParam('collection', 'collection name')
   .setAction(deployAllAdvancedONFT721)
 
 task('prepareAdvancedONFT', 'prepareAdvancedONFT')
+  .addParam('collection', 'collection name')
   .setAction(prepareAdvancedONFT)
 
 task('prepareAllAdvancedONFT', 'prepareAllAdvancedONFT')
   .addParam('e', 'testnet or mainnet')
+  .addParam('collection', 'collection name')
   .setAction(prepareAllAdvancedONFT)
 
 task('deployAdvancedONFT721Gasless', 'deployAdvancedONFT721Gasless')
+  .addParam('collection', 'collection name')
   .setAction(deployAdvancedONFT721Gasless)
 
 task('deployAllAdvancedONFT721Gasless', 'deployAllAdvancedONFT721Gasless')
   .addParam('e', 'testnet or mainnet')
+  .addParam('collection', 'collection name')
   .setAction(deployAllAdvancedONFT721Gasless)
 
 task('prepareAdvancedONFTGasless', 'prepareAdvancedONFTGasless')
+  .addParam('collection', 'collection name')
   .setAction(prepareAdvancedONFTGasless)
 
 task('prepareAllAdvancedONFTGasless', 'prepareAllAdvancedONFTGasless')
   .addParam('e', 'testnet or mainnet')
+  .addParam('collection', 'collection name')
   .setAction(prepareAllAdvancedONFTGasless)
 
 task('set721Config', 'set layer zero config for ONFT721')
   .addParam('target', 'target dst network')
+  .addParam('collection', 'collection name')
   .setAction(set721Config)
 
 task('setAll721Config', 'sets layer zero config on all chain for ONF721')
   .addParam('e', 'testnet or mainnet')
+  .addParam('collection', 'collection name')
   .setAction(setAll721Config)
+
+task('set721GaslessConfig', 'set layer zero config for ONFT721')
+  .addParam('target', 'target dst network')
+  .addParam('collection', 'collection name')
+  .setAction(set721GaslessConfig)
+
+task('setAll721GaslessConfig', 'sets layer zero config on all chain for ONF721')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('collection', 'collection name')
+  .setAction(setAll721GaslessConfig)
 
 task('deployAdvancedONFT721A', 'deployAdvancedONFT721A')
   .addParam('collection', 'collection name')
@@ -196,10 +211,6 @@ task('forceResume', 'forceResume')
   .addParam('target', 'target network')
   .addParam('srcua', 'source user address')
   .setAction(forceResume)
-
-task('convertToBytes', 'convertToBytes')
-  .addParam('address', 'address')
-  .setAction(convertToBytes)
 
 task('hasStoredPayload', 'hasStoredPayload')
   .addParam('target', 'target network')

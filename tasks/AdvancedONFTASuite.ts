@@ -3,7 +3,7 @@ import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import ONFT_ARGS from '../constants/ONFT721AArgs.json'
 import * as CHAIN_ID from '../constants/chainIds.json'
 import { loadAbi, createContractByName, deployContract, environments } from './shared'
-import fs from 'fs';
+import fs from 'fs'
 import LZEndpointABI from '../constants/LZEndpointABI.json'
 
 type CHAINIDTYPE = {
@@ -156,7 +156,6 @@ export const setAllMetadata = async (taskArgs: any) => {
     })
   )
 }
-
 
 export const prepareAllAdvancedONFT721A = async (taskArgs: any) => {
   const networks = environments[taskArgs.e]
