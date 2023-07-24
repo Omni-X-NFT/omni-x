@@ -19,26 +19,33 @@ task(
   setTrustedRemote
 ).addParam('target', 'the target network name, ie: fuji, or mumbai, etc (from hardhat.config.js)')
   .addParam('contract', 'Contract Name')
+
 task('addSingleChainCurrency', 'addSingleChainCurrency')
   .addParam('token', 'token name')
   .setAction(addSingleChainCurrency)
+
 task('addCurrency', 'addCurrency')
   .addParam('e', 'testnet or mainnet')
   .addParam('token', 'token name')
   .setAction(addCurrency)
+
 task('removeCurrency', 'removeCurrency')
   .addParam('token', 'token name')
   .setAction(removeCurrency)
+
 task('removeAllUSDC', 'removeAllUSDC')
   .addParam('e', 'testnet or mainnet')
   .setAction(removeAllUSDC)
+  
 task('omnix', 'omnix')
   .addParam('e', 'testnet or mainnet')
   .addParam('dependencies', 'true or false to redeploy dependent contracts')
   .setAction(omnix)
+
 task('deployOmniX', 'deploys an OmniX exchange')
   .addParam('dependencies', 'true or false to redeploy dependent contracts')
   .setAction(deployOmniX)
+
 task('deployAllX', 'deploys an OmniX exchange')
   .addParam('e', 'testnet or mainnet')
   .addParam('dependencies', 'true or false to redeploy dependent contracts')

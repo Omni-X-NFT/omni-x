@@ -5,7 +5,11 @@ import {
   loadAbi,
   stargateCompatibleChains,
   environments,
-  getChainId
+  getChainId,
+  getPoolId,
+  createContract,
+  toWei
+
 } from './shared'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
@@ -19,6 +23,8 @@ const tx = async (tx1: any) => {
 const FundManagerAbi = loadAbi('../artifacts/contracts/core/FundManager.sol/FundManager.json')
 const CurrencyManagerAbi = loadAbi('../artifacts/contracts/core/CurrencyManager.sol/CurrencyManager.json')
 const StargatePoolManagerAbi = loadAbi('../artifacts/contracts/core/StargatePoolManager.sol/StargatePoolManager.json')
+const StargateRouterAbi = loadAbi('../artifacts/contracts/stargate/Router.sol/Router.json')
+const LRTokenMockAbi = loadAbi('../artifacts/contracts/mocks/LRTokenMock.sol/LRTokenMock.json')
 
 export const deployOmniX = async (taskArgs: any, hre: any) => {
   const { ethers, network } = hre
@@ -226,3 +232,59 @@ export const omnix = async (taskArgs: any, hre: any) => {
     shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
   }
 }
+
+export const prepareStargate = async (taskArgs: any, hre: any) => {
+  const { ethers, network } = hre
+  const [owner] = await ethers.getSigners()
+
+  const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
+  await currencyManager.addCurrency(getContractAddrByName(network.name, 'USDC'))
+}
+
+export const setupBridge = async (taskArgs: any, hre: any) => {
+  const { ethers, network } = hre
+  const [owner] = await ethers.getSigners()
+
+  const { dstchainname: dstNetwork } = taskArgs
+
+  const dstChainId = getChainId(dstNetwork)
+  const srcPoolId = getPoolId(network.name)
+  const dstPoolId = getPoolId(dstNetwork)
+
+  const stargateEndpoint = (STARGATE as any)[network.name]
+  const isTest = stargateEndpoint.isTest
+
+  if (isTest) {
+    const router = createContract(ethers, stargateEndpoint.router, StargateRouterAbi().abi, owner)
+
+    const erc20 = createContractByName(hre, 'USDC', LRTokenMockAbi().abi, owner)
+    await (await erc20.mint(owner.address, toWei(ethers, 100000000000))).wait()
+    await (await erc20.connect(owner).approve(router.address, toWei(ethers, 100000000000))).wait()
+
+    console.log('--1--', router.address, erc20.address, srcPoolId, dstPoolId, network.name, dstNetwork)
+    await (await router.connect(owner).addLiquidity(srcPoolId, toWei(ethers, 100000000000), owner.address)).wait()
+    const quoteData = await router.quoteLayerZeroFee(
+      dstChainId, // destination chainId
+      2, // function type: see Bridge.sol for all types
+      owner.address, // destination of tokens
+      '0x', // payload, using abi.encode()
+      ({
+        dstGasForCall: 0, // extra gas, if calling smart contract,
+        dstNativeAmount: 0, // amount of dust dropped in destination wallet
+        dstNativeAddr: '0x' // destination wallet for dust
+      })
+    )
+    let credits = quoteData[0] // toWei(ethers, '0.1')
+    if (credits.lt(quoteData[0])) {
+      credits = quoteData[0]
+    }
+    console.log('--2--', ethers.utils.formatEther(quoteData[0]))
+    await (await router.callDelta(srcPoolId, true)).wait()
+    await (await router.sendCredits(dstChainId, srcPoolId, dstPoolId, owner.address, { value: credits })).wait()
+    console.log('--3--')
+  }
+
+  const stargatePoolManager = createContractByName(hre, 'StargatePoolManager', StargatePoolManagerAbi().abi, owner)
+  await stargatePoolManager.setPoolId(getContractAddrByName(network.name, 'USDC'), dstChainId, srcPoolId, dstPoolId)
+}
+
