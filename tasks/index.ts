@@ -1,12 +1,10 @@
 import { task } from 'hardhat/config'
-import { setTrustedRemote } from './setTrustedRemote'
 import { deployOmniX, deployOmnixAll, addSingleChainCurrency, addCurrency, removeAllUSDC, removeCurrency, omnix, setupBridge, prepareStargate } from './OmniXSuite'
 import { verifyOmni, verifyAll } from './verify'
-import { setAllTrustedRemote } from './setAllTrustedRemote'
 import { deployAll } from './deploy'
 import { deployAdvancedONFT721, prepareAdvancedONFT, set721Config, set721GaslessConfig, setAll721Config, setAll721GaslessConfig, prepareAllAdvancedONFT, prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless, deployAllAdvancedONFT721, deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './AdvancedONFTSuite'
 import { deployAdvancedONFT721A, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
-import { lzScan, forceResume, hasStoredPayload } from './lzSuite'
+import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
 
 task(
   'setTrustedRemote',

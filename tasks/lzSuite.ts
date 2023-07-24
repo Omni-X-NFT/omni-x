@@ -2,7 +2,9 @@ import { createClient } from '@layerzerolabs/scan-client'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import LZEndpointABI from '../constants/LZEndpointABI.json'
 import * as CHAIN_ID from '../constants/chainIds.json'
-import { createContractByName, loadAbi } from './shared'
+import { getDeploymentAddresses } from '../utils/readStatic'
+import shell from 'shelljs'
+import { createContractByName, loadAbi, submitReturnTx, submitTx, environments } from './shared'
 type CHAINIDTYPE = {
     [key: string]: number
 }
@@ -28,7 +30,7 @@ export const forceResume = async function (taskArgs: any, hre: any) {
   const targetDstChainId = CHAIN_IDS[taskArgs.target]
   const onft = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
   try {
-    await (await onft.forceResumeReceive(targetDstChainId, ethers.utils.arrayify(taskArgs.srcua))).wait()
+    await submitTx(hre, onft, 'forceResumeReceive', [targetDstChainId, ethers.utils.arrayify(taskArgs.srcua)])
   } catch (e: any) {
     console.log(e.message)
   }
@@ -41,9 +43,54 @@ export const hasStoredPayload = async function (taskArgs: any, hre: any) {
   const lzEndpointAddress = (LZ_ENDPOINT as any)[network.name]
   const lzEndpoint = new ethers.Contract(lzEndpointAddress, LZEndpointABI, owner)
   try {
-    const val = await lzEndpoint.hasStoredPayload(targetDstChainId, ethers.utils.arryify(taskArgs.srcua))
+    const val = await submitReturnTx(hre, lzEndpoint, 'hasStoredPayload', [targetDstChainId, ethers.utils.arrayify(taskArgs.srcua)])
     console.log(val)
   } catch (e: any) {
     console.log(e.message)
   }
+}
+
+export const setTrustedRemote = async function (taskArgs: any, hre: any) {
+  const [deployer] = await hre.ethers.getSigners()
+
+  let srcContractName = 'OmniNFT'
+  let dstContractName = srcContractName
+  if (taskArgs.contract) {
+    srcContractName = taskArgs.contract
+    dstContractName = srcContractName
+  }
+
+  const dstChainId = CHAIN_IDS[taskArgs.target]
+  const dstAddr = getDeploymentAddresses(taskArgs.target)[dstContractName]
+  // get local contract instance
+  const addresses = getDeploymentAddresses(hre.network.name)[srcContractName]
+  const contractInstance = await hre.ethers.getContractAt(srcContractName, addresses, deployer)
+  console.log(`[source] contract address: ${contractInstance.address}`)
+
+  // setTrustedRemote() on the local contract, so it can receive message from the source contract
+  try {
+    const trustedRemote = hre.ethers.utils.solidityPack(['address', 'address'], [dstAddr, addresses])
+    await submitTx(hre, contractInstance, 'setTrustedRemote', [dstChainId, trustedRemote])
+    console.log(`✅ [${hre.network.name}] setTrustedRemote(${dstChainId}, ${dstAddr})`)
+  } catch (e: any) {
+    console.log(e)
+  }
+}
+
+export const setAllTrustedRemote = async function (taskArgs: any, hre: any) {
+  const networks = environments[taskArgs.e]
+  if (!taskArgs.e || networks.length === 0) {
+    console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+
+  await Promise.all(
+    networks.map(async (network: string) => {
+      networks.map(async (target: string) => {
+        if ((network !== target && network === 'polygon')) {
+          const checkWireUpCommand = `npx hardhat --network ${network} setTrustedRemote --target ${target} --contract ${taskArgs.contract}`
+          shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+        }
+      })
+    })
+  )
 }

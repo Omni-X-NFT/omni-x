@@ -168,3 +168,95 @@ export const waitFor = (ms: number) => {
     setTimeout(() => resolve(0), ms)
   })
 }
+
+
+export const submitTx = async (hre: any, contract: any, methodName: any, args: any[], overrides?: any) => {
+  const { network } = hre
+  const method = contract[methodName]
+  if (!method) {
+    throw new Error(`method ${methodName} not found in contract ${contract.address}`)
+  }
+  let tx
+  let funcOverrides
+  if (network.name === 'optimism-goerli') {
+    if (overrides) {
+      funcOverrides = {
+        ...overrides,
+        gasPrice: 30000
+      }
+    } else {
+      funcOverrides = {
+        gasPrice: 30000
+      }
+    }
+    tx = await method(...args, funcOverrides)
+  } else if (network.name === 'polygon') {
+    if (overrides) {
+      funcOverrides = {
+        ...overrides,
+        maxFeePerGas: 1600000000000,
+        maxPriorityFeePerGas: 30000000000
+      }
+    } else {
+      funcOverrides = {
+        maxFeePerGas: 1600000000000,
+        maxPriorityFeePerGas: 30000000000
+      }
+    }
+    tx = await method(...args, funcOverrides)
+  } else {
+    if (overrides) {
+      tx = await method(...args, overrides)
+    } else {
+      tx = await method(...args)
+    }
+  }
+  const txReceipt = await tx.wait()
+  if (txReceipt.status === 0) {
+    throw new Error(`tx ${tx.hash} failed`)
+  }
+}
+
+export const submitReturnTx = async (hre: any, contract: any, methodName: any, args: any[], overrides?: any): Promise<any> => {
+  const { network } = hre
+  const method = contract[methodName]
+  if (!method) {
+    throw new Error(`method ${methodName} not found in contract ${contract.address}`)
+  }
+  let tx
+  let funcOverrides
+  if (network.name === 'optimism-goerli') {
+    if (overrides) {
+      funcOverrides = {
+        ...overrides,
+        gasPrice: 30000
+      }
+    } else {
+      funcOverrides = {
+        gasPrice: 30000
+      }
+    }
+    tx = await method(...args, funcOverrides)
+  } else if (network.name === 'polygon') {
+    if (overrides) {
+      funcOverrides = {
+        ...overrides,
+        maxFeePerGas: 1600000000000,
+        maxPriorityFeePerGas: 30000000000
+      }
+    } else {
+      funcOverrides = {
+        maxFeePerGas: 1600000000000,
+        maxPriorityFeePerGas: 30000000000
+      }
+    }
+    tx = await method(...args, funcOverrides)
+  } else {
+    if (overrides) {
+      tx = await method(...args, overrides)
+    } else {
+      tx = await method(...args)
+    }
+  }
+  return tx
+}

@@ -8,7 +8,8 @@ import {
   getChainId,
   getPoolId,
   createContract,
-  toWei
+  toWei,
+  submitTx
 
 } from './shared'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
@@ -16,9 +17,6 @@ import STARGATE from '../constants/stargate.json'
 import shell from 'shelljs'
 import tokenDependencies from '../constants/crossChainTokens.json'
 
-const tx = async (tx1: any) => {
-  await tx1.wait()
-}
 
 const FundManagerAbi = loadAbi('../artifacts/contracts/core/FundManager.sol/FundManager.json')
 const CurrencyManagerAbi = loadAbi('../artifacts/contracts/core/CurrencyManager.sol/CurrencyManager.json')
@@ -78,23 +76,22 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
     _fundManager = await deployContract(hre, 'FundManager', owner, [_omniXExchange.address])
     console.log('deployed fund manager to ', _fundManager.address)
 
-    await (await _fundManager.setOmnixExchange(_omniXExchange.address)).wait()
-
-    await (await _omniXExchange.setFundManager(_fundManager.address)).wait()
+    await submitTx(hre, _fundManager, 'setOmnixExchange', [_omniXExchange.address])
+    await submitTx(hre, _omniXExchange, 'setFundManager', [_fundManager.address])
 
     if (_stargatePoolManager) {
-      await (await _omniXExchange.setStargatePoolManager(_stargatePoolManager.address)).wait()
+      await submitTx(hre, _omniXExchange, 'setStargatePoolManager', [_stargatePoolManager.address])
     }
 
-    await (await _omniXExchange.updateTransferSelectorNFT(_transferSelector.address)).wait()
+    await submitTx(hre, _omniXExchange, 'updateTransferSelectorNFT', [_transferSelector.address])
 
     _strategyStargateSale = await deployContract(hre, 'StrategyStargateSale', owner, [])
     console.log('deployed strategy stargate sale to ', _strategyStargateSale.address)
     _strategyStargateSaleForCollection = await deployContract(hre, 'StrategyStargateSaleForCollection', owner, [])
     console.log('deployed strategy stargate sale for collection to ', _strategyStargateSaleForCollection.address)
 
-    await (await _executionManager.addStrategy(_strategyStargateSale.address)).wait()
-    await (await _executionManager.addStrategy(_strategyStargateSaleForCollection.address)).wait()
+    await submitTx(hre, _executionManager, 'addStrategy', [_strategyStargateSale.address])
+    await submitTx(hre, _executionManager, 'addStrategy', [_strategyStargateSaleForCollection.address])
 
     console.log('deployed OmniXExchange to ', _omniXExchange.address)
   } else {
@@ -111,17 +108,17 @@ export const deployOmniX = async (taskArgs: any, hre: any) => {
       lzEndpoint
     ])
     _fundManager = getContractAddrByName(network.name, 'FundManager')
-    await (await _omniXExchange.setFundManager(_fundManager)).wait()
+    await submitTx(hre, _fundManager, 'setOmnixExchange', [_omniXExchange.address])
 
     if (stargateCompatibleChains.mainnet.includes(network.name) || stargateCompatibleChains.testnet.includes(network.name)) {
       _stargatePoolManager = getContractAddrByName(network.name, 'StargatePoolManager')
-      await (await _omniXExchange.setStargatePoolManager(_stargatePoolManager)).wait()
+      await submitTx(hre, _omniXExchange, 'setStargatePoolManager', [_stargatePoolManager])
     }
 
-    await (await _omniXExchange.updateTransferSelectorNFT(_transferSelector)).wait()
+    await submitTx(hre, _omniXExchange, 'updateTransferSelectorNFT', [_transferSelector])
 
     _fundManager = createContractByName(hre, _fundManager, FundManagerAbi().abi, owner)
-    await (await _fundManager.setOmnixExchange(_omniXExchange.address)).wait()
+    await submitTx(hre, _fundManager, 'setOmnixExchange', [_omniXExchange.address])
 
     console.log('deployed OmniXExchange to ', _omniXExchange.address)
   }
@@ -137,17 +134,9 @@ export const addSingleChainCurrency = async (taskArgs: any, hre: any) => {
   const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
   const stargatePoolManager = createContractByName(hre, 'StargatePoolManager', StargatePoolManagerAbi().abi, owner)
   try {
-    if (network.name === 'optimism-goerli') {
-      await tx(await currencyManager.addCurrency(dependencies.address, dependencies.lzChainIds, dependencies.complimentTokens, {gasPrice: 30000}))
-    } else {
-      await tx(await currencyManager.addCurrency(dependencies.address, dependencies.lzChainIds, dependencies.complimentTokens))
-    }
+    await submitTx(hre, currencyManager, 'addCurrency', [dependencies.address, dependencies.lzChainIds, dependencies.complimentTokens])
     for (let i = 0; i < dependencies.lzChainIds.length; i++) {
-      if (network.name === 'optimism-goerli') {
-        await tx(await stargatePoolManager.setPoolId(dependencies.address, dependencies.lzChainIds[i], dependencies.poolIds[dependencies.lzChainIds[i]][0], dependencies.poolIds[dependencies.lzChainIds[i]][1], {gasPrice: 30000}))
-      } else {
-        await tx(await stargatePoolManager.setPoolId(dependencies.address, dependencies.lzChainIds[i], dependencies.poolIds[dependencies.lzChainIds[i]][0], dependencies.poolIds[dependencies.lzChainIds[i]][1]))
-      }
+      await submitTx(hre, stargatePoolManager, 'setPoolId', [dependencies.address, dependencies.lzChainIds[i], dependencies.poolIds[dependencies.lzChainIds[i]][0], dependencies.poolIds[dependencies.lzChainIds[i]][1]])
     }
   } catch (e) {
     console.log(e)
@@ -161,7 +150,7 @@ export const removeCurrency = async (taskArgs: any, hre: any) => {
   const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
 
   try {
-    await tx(await currencyManager.removeCurrency(token))
+    await submitTx(hre, currencyManager, 'removeCurrency', [token])
   } catch (e) {
     console.log(e)
   }
@@ -238,7 +227,8 @@ export const prepareStargate = async (taskArgs: any, hre: any) => {
   const [owner] = await ethers.getSigners()
 
   const currencyManager = createContractByName(hre, 'CurrencyManager', CurrencyManagerAbi().abi, owner)
-  await currencyManager.addCurrency(getContractAddrByName(network.name, 'USDC'))
+
+  await submitTx(hre, currencyManager, 'addCurrency', [getContractAddrByName(network.name, 'USDC')])
 }
 
 export const setupBridge = async (taskArgs: any, hre: any) => {

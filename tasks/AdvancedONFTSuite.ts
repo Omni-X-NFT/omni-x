@@ -2,15 +2,12 @@ import shell from 'shelljs'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import ONFT_ARGS from '../constants/ONFT721Args.json'
 import * as CHAIN_ID from '../constants/chainIds.json'
-import { loadAbi, createContractByName, deployContract, environments } from './shared'
+import { loadAbi, createContractByName, deployContract, environments, submitTx } from './shared'
 
 type CHAINIDTYPE = {
     [key: string]: number
 }
 
-const tx = async (tx1: any) => {
-  await tx1.wait()
-}
 const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
 const AdvancedONFT721Abi = loadAbi('../artifacts/contracts/token/onft/extension/AdvancedONFT721.sol/AdvancedONFT721.json')
@@ -94,10 +91,9 @@ export const prepareAdvancedONFT = async function (taskArgs: any, hre: any) {
   const [owner] = await ethers.getSigners()
   const advancedONFT721 = createContractByName(hre, 'AdvancedONFT721', AdvancedONFT721Abi().abi, owner)
   const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
-
-  await tx(await advancedONFT721.flipPublicSaleStarted())
-  await tx(await advancedONFT721.setPrice(args.price))
-  await tx(await advancedONFT721.flipSaleStarted())
+  await submitTx(hre, advancedONFT721, 'flipPublicSaleStarted', [])
+  await submitTx(hre, advancedONFT721, 'setPrice', [args.price])
+  await submitTx(hre, advancedONFT721, 'flipSaleStarted', [])
 }
 
 export const prepareAllAdvancedONFT = async function (taskArgs: any) {
@@ -119,9 +115,9 @@ export const prepareAdvancedONFTGasless = async function (taskArgs: any, hre: an
   const [owner] = await ethers.getSigners()
   const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
   const advancedONFT721Gasless = createContractByName(hre, 'AdvancedONFT721Gasless', AdvancedONFT721GaslessAbi().abi, owner)
-  await tx(await advancedONFT721Gasless.flipRevealed())
-  await tx(await advancedONFT721Gasless.setPrice(args.price))
-  await tx(await advancedONFT721Gasless.flipPublicSaleStarted())
+  await submitTx(hre, advancedONFT721Gasless, 'flipRevealed', [])
+  await submitTx(hre, advancedONFT721Gasless, 'setPrice', [args.price])
+  await submitTx(hre, advancedONFT721Gasless, 'flipPublicSaleStarted', [])
 }
 
 export const prepareAllAdvancedONFTGasless = async function (taskArgs: any) {
@@ -146,9 +142,9 @@ export const set721GaslessConfig = async function (taskArgs: any, hre: any) {
   const advancedONFT721Gasless = createContractByName(hre, 'AdvancedONFT721Gasless', AdvancedONFT721GaslessAbi().abi, owner)
 
   try {
-    await tx(await advancedONFT721Gasless.setDstChainIdToBatchLimit(dstChainId, 20))
-    await tx(await advancedONFT721Gasless.setMinGasToTransferAndStore(1))
-    await tx(await advancedONFT721Gasless.setDstChainIdToTransferGas(dstChainId, args.transferGas))
+    await submitTx(hre, advancedONFT721Gasless, 'setDstChainIdToBatchLimit', [dstChainId, 20])
+    await submitTx(hre, advancedONFT721Gasless, 'setMinGasToTransferAndStore', [1])
+    await submitTx(hre, advancedONFT721Gasless, 'setDstChainIdToTransferGas', [dstChainId, args.transferGas])
     console.log(`${hre.network.name}`)
     console.log(`✅ set batch limit for (${dstChainId}) to ${args.batchLimit} `)
     console.log(`✅ set transfer gas for (${dstChainId}) to ${args.transferGas} `)
@@ -184,9 +180,9 @@ export const set721Config = async function (taskArgs: any, hre: any) {
   const advancedONFT721 = createContractByName(hre, 'AdvancedONFT721', AdvancedONFT721Abi().abi, owner)
 
   try {
-    await tx(await advancedONFT721.setDstChainIdToBatchLimit(dstChainId, 20))
-    await tx(await advancedONFT721.setMinGasToTransferAndStore(1))
-    await tx(await advancedONFT721.setDstChainIdToTransferGas(dstChainId, args.transferGas))
+    await submitTx(hre, advancedONFT721, 'setDstChainIdToBatchLimit', [dstChainId, 20])
+    await submitTx(hre, advancedONFT721, 'setMinGasToTransferAndStore', [1])
+    await submitTx(hre, advancedONFT721, 'setDstChainIdToTransferGas', [dstChainId, args.transferGas])
     console.log(`${hre.network.name}`)
     console.log(`✅ set batch limit for (${dstChainId}) to ${args.batchLimit} `)
     console.log(`✅ set transfer gas for (${dstChainId}) to ${args.transferGas} `)

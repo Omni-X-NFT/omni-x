@@ -2,17 +2,15 @@ import shell from 'shelljs'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import ONFT_ARGS from '../constants/ONFT721AArgs.json'
 import * as CHAIN_ID from '../constants/chainIds.json'
-import { loadAbi, createContractByName, deployContract, environments } from './shared'
+import { loadAbi, createContractByName, deployContract, environments, submitTx, submitReturnTx } from './shared'
 import fs from 'fs'
 import LZEndpointABI from '../constants/LZEndpointABI.json'
+
 
 type CHAINIDTYPE = {
     [key: string]: number
 }
 
-const tx = async (tx1: any) => {
-  await tx1.wait()
-}
 const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
 const AdvancedONFT721AAbi = loadAbi('../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json')
@@ -76,9 +74,9 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
 
   if (taskArgs.lzconfig === 'true') {
     try {
-      await tx(await onft721A.setDstChainIdToBatchLimit(dstChainId, args.batchLimit, { maxFeePerGas: 1600000000000, maxPriorityFeePerGas: 30000000000 }))
-      await tx(await onft721A.setDstChainIdToTransferGas(dstChainId, args.transferGas, { maxFeePerGas: 1600000000000, maxPriorityFeePerGas: 30000000000 }))
-      await tx(await onft721A.setMinDstGas(dstChainId, 1, args.minDstGas, { maxFeePerGas: 1600000000000, maxPriorityFeePerGas: 30000000000 }))
+      await submitTx(hre, onft721A, 'setDstChainIdToBatchLimit', [dstChainId, args.batchLimit])
+      await submitTx(hre, onft721A, 'setDstChainIdToTransferGas', [dstChainId, args.transferGas])
+      await submitTx(hre, onft721A, 'setMinDstGas', [dstChainId, 1, args.minDstGas])
       console.log(`${hre.network.name}`)
       console.log(`✅ set batch limit for (${dstChainId}) to ${args.batchLimit} `)
       console.log(`✅ set transfer gas for (${dstChainId}) to ${args.transferGas} `)
@@ -100,7 +98,7 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
           startTime: timestamp,
           mintLength: 1209600 // 2 weeks
         }
-        await tx(await onft721A.setNftState(nftState))
+        await submitTx(hre, onft721A, 'setNftState', [nftState])
         console.log('✅ set nft state')
       } catch (e: any) {
         console.log(e)
@@ -132,11 +130,7 @@ export const setMetadata = async (taskArgs: any, hre: any) => {
   }
 
   try {
-    if (network.name === 'polygon') {
-      await tx(await onft721A.setMetadata(metadata, { maxFeePerGas: 1600000000000, maxPriorityFeePerGas: 30000000000 }))
-    } else {
-      await tx(await onft721A.setMetadata(metadata))
-    }
+    await submitTx(hre, onft721A, 'setMetadata', [metadata])
     console.log('✅ set metadata')
   } catch (e: any) {
     console.log(e)
@@ -182,15 +176,15 @@ export const sendCross = async (taskArgs: any, hre: any) => {
   const dstChainId = CHAIN_IDS[taskArgs.target]
   const onft = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
   const adapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 400000])
-  const gas = await onft.estimateSendFee(dstChainId, owner.address, taskArgs.tokenid, false, adapterParams)
-  await tx(await onft.sendFrom(owner.address, dstChainId, owner.address, taskArgs.tokenid, owner.address, ethers.constants.AddressZero, adapterParams, { value: gas[0].toString() }))
+  const gas = await submitReturnTx(hre, onft, 'estimateSendFee', [dstChainId, owner.address, taskArgs.tokenid, false, adapterParams])
+  await submitTx(hre, onft, 'sendFrom', [owner.address, dstChainId, owner.address, taskArgs.tokenid, owner.address, ethers.constants.AddressZero, adapterParams], { value: gas[0].toString() })
 }
 
 export const mint = async (taskArgs: any, hre: any) => {
   const { ethers } = hre
   const [owner] = await ethers.getSigners()
   const onft = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
-  await tx(await onft.mint(taskArgs.amount, { value: taskArgs.amount }))
+  await submitTx(hre, onft, 'mint', [taskArgs.amount], { value: taskArgs.amount })
   console.log(`✅ minted ${taskArgs.amount} to ${owner.address}`)
 }
 
