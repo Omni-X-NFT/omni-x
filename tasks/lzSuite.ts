@@ -30,7 +30,7 @@ export const forceResume = async function (taskArgs: any, hre: any) {
   const targetDstChainId = CHAIN_IDS[taskArgs.target]
   const onft = createContractByName(hre, 'OmnichainAdventures', AdvancedONFT721AAbi().abi, owner)
   try {
-    await submitTx(hre, onft, 'forceResumeReceive', [targetDstChainId, ethers.utils.arrayify(taskArgs.srcua)])
+    await submitTx(hre, onft, 'forceResumeReceive', [targetDstChainId, taskArgs.srcua])
   } catch (e: any) {
     console.log(e.message)
   }
@@ -43,7 +43,7 @@ export const hasStoredPayload = async function (taskArgs: any, hre: any) {
   const lzEndpointAddress = (LZ_ENDPOINT as any)[network.name]
   const lzEndpoint = new ethers.Contract(lzEndpointAddress, LZEndpointABI, owner)
   try {
-    const val = await submitReturnTx(hre, lzEndpoint, 'hasStoredPayload', [targetDstChainId, ethers.utils.arrayify(taskArgs.srcua)])
+    const val = await submitReturnTx(hre, lzEndpoint, 'hasStoredPayload', [targetDstChainId, taskArgs.srcua])
     console.log(val)
   } catch (e: any) {
     console.log(e.message)
