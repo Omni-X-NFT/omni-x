@@ -29,7 +29,6 @@ export default async function (hre: any) {
     args.taxRecipient,
     args.premint
   ]
-  console.log(constructorArgs)
   if (args) {
     const deploymentFee = await deployer.estimateDeployFee(artifact, constructorArgs)
     const parsedFee = ethers.utils.formatEther(deploymentFee.toString())
