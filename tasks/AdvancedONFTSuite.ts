@@ -88,7 +88,14 @@ export const deployAllAdvancedONFT721Gasless = async function (taskArgs: any) {
 export const prepareAdvancedONFT = async function (taskArgs: any, hre: any) {
   const { ethers, network } = hre
   const [owner] = await ethers.getSigners()
-  const advancedONFT721 = createContractByName(hre, 'CC2AccessPass', AdvancedONFT721Abi().abi, owner)
+  let advancedONFT721
+  if (network.name === 'zksync' || network.name === 'zksync-testnet') {
+    const path = '../artifacts-zk/contracts/token/onft/extension/CC2/CC2AccessPass.sol/CC2AccessPass.json'
+    const ContractArtifact = require(path)
+    advancedONFT721 = createContractByName(hre, 'CC2AccessPass', ContractArtifact.abi, owner)
+  } else {
+    advancedONFT721 = createContractByName(hre, 'CC2AccessPass', AdvancedONFT721Abi().abi, owner)
+  }
   const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
   // await submitTx(hre, advancedONFT721, 'flipPublicSaleStarted', [])
   // await submitTx(hre, advancedONFT721, 'setPrice', [args.price])
@@ -176,7 +183,15 @@ export const set721Config = async function (taskArgs: any, hre: any) {
   const [owner] = await ethers.getSigners()
   const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
   const dstChainId = CHAIN_IDS[taskArgs.target]
-  const advancedONFT721 = createContractByName(hre, 'CC2AccessPass', AdvancedONFT721Abi().abi, owner)
+  let advancedONFT721
+  if (network.name === 'zksync' || network.name === 'zksync-testnet') {
+    const path = '../artifacts-zk/contracts/token/onft/extension/CC2/CC2AccessPass.sol/CC2AccessPass.json'
+    const ContractArtifact = require(path)
+    advancedONFT721 = createContractByName(hre, 'CC2AccessPass', ContractArtifact.abi, owner)
+  } else {
+    advancedONFT721 = createContractByName(hre, 'CC2AccessPass', AdvancedONFT721Abi().abi, owner)
+  }
+
 
   try {
     await submitTx(hre, advancedONFT721, 'setDstChainIdToBatchLimit', [dstChainId, 20])
