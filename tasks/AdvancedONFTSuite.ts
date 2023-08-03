@@ -191,12 +191,16 @@ export const set721Config = async function (taskArgs: any, hre: any) {
   } else {
     advancedONFT721 = createContractByName(hre, 'CC2AccessPass', AdvancedONFT721Abi().abi, owner)
   }
-
-
   try {
-    await submitTx(hre, advancedONFT721, 'setDstChainIdToBatchLimit', [dstChainId, 20])
-    await submitTx(hre, advancedONFT721, 'setMinGasToTransferAndStore', [1])
-    await submitTx(hre, advancedONFT721, 'setDstChainIdToTransferGas', [dstChainId, args.transferGas])
+    if (network.name === 'arbitrum') {
+      await submitTx(hre, advancedONFT721, 'setDstChainIdToBatchLimit', [dstChainId, 20], { nonce: 252 })
+      await submitTx(hre, advancedONFT721, 'setMinGasToTransferAndStore', [1], { nonce: 253 })
+      await submitTx(hre, advancedONFT721, 'setDstChainIdToTransferGas', [dstChainId, args.transferGas], { nonce: 254 })
+    } else {
+      await submitTx(hre, advancedONFT721, 'setDstChainIdToBatchLimit', [dstChainId, 20])
+      await submitTx(hre, advancedONFT721, 'setMinGasToTransferAndStore', [1])
+      await submitTx(hre, advancedONFT721, 'setDstChainIdToTransferGas', [dstChainId, args.transferGas])
+    }
     console.log(`${hre.network.name}`)
     console.log(`✅ set batch limit for (${dstChainId}) to ${args.batchLimit} `)
     console.log(`✅ set transfer gas for (${dstChainId}) to ${args.transferGas} `)
