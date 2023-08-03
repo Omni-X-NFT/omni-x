@@ -10,7 +10,7 @@ type CHAINIDTYPE = {
 
 const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
-const AdvancedONFT721Abi = loadAbi('../artifacts/contracts/token/onft/extension/AdvancedONFT721.sol/AdvancedONFT721.json')
+const AdvancedONFT721Abi = loadAbi('../artifacts/contracts/token/onft/extension/CC2/CC2AccessPass.sol/CC2AccessPass.json')
 const AdvancedONFT721GaslessAbi = loadAbi('../artifacts/contracts/token/onft/extension/AdvancedONFT721Gasless.sol/AdvancedONFT721Gasless.json')
 
 export const deployAdvancedONFT721 = async function (taskArgs: any, hre: any) {
@@ -88,10 +88,10 @@ export const deployAllAdvancedONFT721Gasless = async function (taskArgs: any) {
 export const prepareAdvancedONFT = async function (taskArgs: any, hre: any) {
   const { ethers, network } = hre
   const [owner] = await ethers.getSigners()
-  const advancedONFT721 = createContractByName(hre, 'AdvancedONFT721', AdvancedONFT721Abi().abi, owner)
+  const advancedONFT721 = createContractByName(hre, 'CC2AccessPass', AdvancedONFT721Abi().abi, owner)
   const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
-  await submitTx(hre, advancedONFT721, 'flipPublicSaleStarted', [])
-  await submitTx(hre, advancedONFT721, 'setPrice', [args.price])
+  // await submitTx(hre, advancedONFT721, 'flipPublicSaleStarted', [])
+  // await submitTx(hre, advancedONFT721, 'setPrice', [args.price])
   await submitTx(hre, advancedONFT721, 'flipSaleStarted', [])
 }
 
@@ -176,7 +176,7 @@ export const set721Config = async function (taskArgs: any, hre: any) {
   const [owner] = await ethers.getSigners()
   const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
   const dstChainId = CHAIN_IDS[taskArgs.target]
-  const advancedONFT721 = createContractByName(hre, 'AdvancedONFT721', AdvancedONFT721Abi().abi, owner)
+  const advancedONFT721 = createContractByName(hre, 'CC2AccessPass', AdvancedONFT721Abi().abi, owner)
 
   try {
     await submitTx(hre, advancedONFT721, 'setDstChainIdToBatchLimit', [dstChainId, 20])
