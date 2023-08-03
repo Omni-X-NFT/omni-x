@@ -27,9 +27,9 @@ export const deployAdvancedONFT721 = async function (taskArgs: any, hre: any) {
       args.startMintId,
       args.endMintId,
       args.baseTokenURI,
-      args.hiddenURI,
-      args.tax,
-      args.taxRecipient
+      args.beneficiary,
+      args.taxRecipient,
+      args.premint
     ])
   }
 }
