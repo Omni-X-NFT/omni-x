@@ -20,13 +20,12 @@ export const deployAdvancedONFT721 = async function (taskArgs: any, hre: any) {
   const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
   const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
   if (network.name !== 'zksync' && network.name !== 'zksync-testnet') {
-    await deployContract(hre, 'AdvancedONFT721', owner, [
+    await deployContract(hre, 'CC2AccessPass', owner, [
       args.name,
       args.symbol,
       lzEndpoint,
       args.startMintId,
       args.endMintId,
-      args.maxTokensPerMint,
       args.baseTokenURI,
       args.hiddenURI,
       args.tax,

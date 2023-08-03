@@ -1,7 +1,7 @@
 import { Wallet } from 'zksync-web3'
 import * as ethers from 'ethers'
 import { Deployer } from '@matterlabs/hardhat-zksync-deploy'
-import OmnichainAdventureArgs from '../constants/ONFT721AArgs.json'
+import CC2Args from '../constants/ONFT721Args.json'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 
 // load env file
@@ -15,8 +15,8 @@ export default async function (hre: any) {
   const deployer = new Deployer(hre, wallet)
   const lzEndpoint = (LZ_ENDPOINT as any).zksync
 
-  const artifact = await deployer.loadArtifact('OmnichainAdventures')
-  const args = OmnichainAdventureArgs.OmnichainAdventures.zksync
+  const artifact = await deployer.loadArtifact('CC2AccessPass')
+  const args = CC2Args.CC2AccessPass.zksync
 
   const constructorArgs = [
     args.name,
@@ -24,13 +24,12 @@ export default async function (hre: any) {
     lzEndpoint,
     args.startId,
     args.endId,
-    args.maxGlobalId,
-    args.baseURI,
-    args.hiddenURI,
-    args.tax,
-    args.price,
-    args.taxRecipient
+    args.baseTokenURI,
+    args.beneficiary,
+    args.taxRecipient,
+    args.premint
   ]
+  console.log(constructorArgs)
   if (args) {
     const deploymentFee = await deployer.estimateDeployFee(artifact, constructorArgs)
     const parsedFee = ethers.utils.formatEther(deploymentFee.toString())
