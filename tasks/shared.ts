@@ -13,7 +13,7 @@ import STARGATE from '../constants/stargate.json'
 
 
 export const environments: any = {
-  mainnet: ['arbitrum', 'zksync'],
+  mainnet: ['arbitrum'],
   // mainnet: ['bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis', 'zksync', 'canto', 'arbitrum-nova', 'gnosis', 'base', 'mantle', 'tenet', 'klaytn', 'polygon-zkevm'],
   testnet: ['goerli', 'bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'mumbai']
 }
@@ -208,6 +208,7 @@ export const submitTx = async (hre: any, contract: any, methodName: any, args: a
       tx = await method(...args)
     }
   }
+
   const txReceipt = await tx.wait()
   if (txReceipt.status === 0) {
     throw new Error(`tx ${tx.hash} failed`)
