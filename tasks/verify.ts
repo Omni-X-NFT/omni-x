@@ -13,7 +13,7 @@ type ENDPOINT_TYPE = {
 const ENDPOINTS: ENDPOINT_TYPE = LZ_ENDPOINTS
 
 const environments: any = {
-  mainnet: ['moonbeam'],
+  mainnet: ['arbitrum'],
   // testnet: ['arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'bsc-testnet', 'mumbai', 'goerli', 'fuji']
   testnet: ['fantom-testnet', 'fuji']
 }
