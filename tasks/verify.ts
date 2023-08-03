@@ -37,7 +37,7 @@ export const verifyAll = async function (taskArgs: any, hre: any) {
       const endpointAddr = ENDPOINTS[network]
       if (address) {
         // const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} ${endpointAddr}`
-        const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} "${aonftArgs.name}" "${aonftArgs.symbol}" ${endpointAddr} ${aonftArgs.startMindId} ${aonftArgs.endMintId}  "${aonftArgs.baseTokenURI}" ${aonftArgs.beneficiary} ${aonftArgs.taxRecipient} ${aonftArgs.premint}}`
+        const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} "${aonftArgs.name}" "${aonftArgs.symbol}" ${endpointAddr} ${aonftArgs.startMindId} ${aonftArgs.endMintId}  "${aonftArgs.baseTokenURI}" ${aonftArgs.beneficiary} ${aonftArgs.taxRecipient} ${aonftArgs.premint}`
         // const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} "${aonftArgs.name}" ${aonftArgs.symbol} ${endpointAddr} ${aonftArgs.startMintId} ${aonftArgs.endMintId} ${aonftArgs.maxTokensPerMint} "${aonftArgs.baseTokenURI}"`
         console.log(checkWireUpCommand)
         shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
