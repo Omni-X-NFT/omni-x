@@ -167,8 +167,8 @@ export const prepareAllAdvancedONFT721A = async (taskArgs: any) => {
   }
 
   if (taskArgs.netexclude !== 'none') {
-    const exclude = taskArgs.netexclude.split(',')
-    networks = networks.filter((n: string) => !exclude.includes(n))
+    const netExclude = taskArgs.netexclude.split(',')
+    networks = networks.filter((n: string) => !netExclude.includes(n))
   }
   if (taskArgs.exclude !== 'none') {
     const exclude = taskArgs.exclude.split(',')
@@ -226,10 +226,11 @@ export const expandCollection = async (taskArgs: any, hre: any) => {
   if (!taskArgs.e || networks.length === 0) {
     console.log(`Invalid environment argument: ${taskArgs.e}`)
   }
+  let checkWireUpCommand
 
-  let checkWireUpCommand = `npx hardhat deployAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --exclude ${taskArgs.oldchains}`
-  console.log(checkWireUpCommand)
-  shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+  // checkWireUpCommand = `npx hardhat deployAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --exclude ${taskArgs.oldchains}`
+  // console.log(checkWireUpCommand)
+  // shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
   checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint false --reveal false --netexclude ${taskArgs.oldchains} --exclude none`
   console.log(checkWireUpCommand)
   shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
