@@ -14,7 +14,7 @@ import STARGATE from '../constants/stargate.json'
 
 export const environments: any = {
   mainnet: ['bsc', 'avalanche', 'polygon', 'arbitrum', 'optimism', 'fantom', 'moonbeam', 'metis', 'zksync', 'canto', 'arbitrum-nova', 'gnosis', 'base', 'mantle', 'tenet', 'klaytn', 'polygon-zkevm'],
-  testnet: ['goerli', 'bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'mumbai']
+  testnet: ['arbitrum-goerli', 'optimism-goerli']
 }
 
 export const stargateCompatibleChains: any = {
