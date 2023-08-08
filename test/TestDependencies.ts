@@ -30,8 +30,8 @@ import {
   SeaportModule,
   ExchangeRouter
 } from '../typechain-types'
-import { SeaportListing } from '@reservoir0x/contracts/test/router/v6/helpers/seaport'
-import * as Sdk from "@reservoir0x/sdk/src";
+// import { SeaportListing } from '@reservoir0x/contracts/test/router/v6/helpers/seaport'
+// import * as Sdk from "@reservoir0x/sdk/src";
 
 export type Chain = {
   omniXExchange: OmniXExchange
@@ -247,42 +247,42 @@ export const setupPool = async (chain: Chain, dstChainId: number, srcPoolId: num
   await stargateRouter.sendCredits(dstChainId, srcPoolId, dstPoolId, owner.address, { value: toWei(3) })
 }
 
-export const setupSeaportListings = async (listings: SeaportListing[], chain: Chain) => {
-  const chainId = chain.chainId;
+// export const setupSeaportListings = async (listings: SeaportListing[], chain: Chain) => {
+//   const chainId = chain.chainId;
 
-  for (const listing of listings) {
-    const { seller, nft, paymentToken, price } = listing;
+//   for (const listing of listings) {
+//     const { seller, nft, paymentToken, price } = listing;
 
-    // Approve the exchange contract
-    if (nft.kind === "erc721") {
-      await nft.contract.connect(seller).mint(nft.id);
-      await nft.contract
-        .connect(seller)
-        .setApprovalForAll(chain.seaport.address, true);
-    } else {
-      await nft.contract.connect(seller).mintMany(nft.id, nft.amount ?? 1);
-      await nft.contract
-        .connect(seller)
-        .setApprovalForAll(chain.seaport.address, true);
-    }
+//     // Approve the exchange contract
+//     if (nft.kind === "erc721") {
+//       await nft.contract.connect(seller).mint(nft.id);
+//       await nft.contract
+//         .connect(seller)
+//         .setApprovalForAll(chain.seaport.address, true);
+//     } else {
+//       await nft.contract.connect(seller).mintMany(nft.id, nft.amount ?? 1);
+//       await nft.contract
+//         .connect(seller)
+//         .setApprovalForAll(chain.seaport.address, true);
+//     }
 
-    // Build and sign the order
-    const builder = new Sdk.Seaport.Builders.SingleToken(chainId);
-    const order = builder.build({
-      side: "sell",
-      tokenKind: nft.kind,
-      offerer: seller.address,
-      contract: nft.contract.address,
-      tokenId: nft.id,
-      amount: nft.amount ?? 1,
-      paymentToken: paymentToken ?? chain.erc20Mock.address,
-      price,
-      counter: 0,
-      startTime: await getBlockTime(),
-      endTime: (await getBlockTime()) + 60,
-    });
-   // await order.signWithAddress(seller, chain.seaport.address);
+//     // Build and sign the order
+//     const builder = new Sdk.Seaport.Builders.SingleToken(chainId);
+//     const order = builder.build({
+//       side: "sell",
+//       tokenKind: nft.kind,
+//       offerer: seller.address,
+//       contract: nft.contract.address,
+//       tokenId: nft.id,
+//       amount: nft.amount ?? 1,
+//       paymentToken: paymentToken ?? chain.erc20Mock.address,
+//       price,
+//       counter: 0,
+//       startTime: await getBlockTime(),
+//       endTime: (await getBlockTime()) + 60,
+//     });
+//    // await order.signWithAddress(seller, chain.seaport.address);
 
-    listing.order = order;
-  }
-};
+//     listing.order = order;
+//   }
+// };
