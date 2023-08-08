@@ -1,5 +1,5 @@
 import shell from 'shelljs'
-import { getContractAddrByName } from './shared'
+import { getContractAddrByName, environments } from './shared'
 import { getDeploymentAddresses } from '../utils/readStatic'
 import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
@@ -11,12 +11,6 @@ type ENDPOINT_TYPE = {
 }
 
 const ENDPOINTS: ENDPOINT_TYPE = LZ_ENDPOINTS
-
-const environments: any = {
-  mainnet: ['moonbeam'],
-  // testnet: ['arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'bsc-testnet', 'mumbai', 'goerli', 'fuji']
-  testnet: ['fantom-testnet', 'fuji']
-}
 
 export const verifyAll = async function (taskArgs: any, hre: any) {
   const networks = environments[taskArgs.e]
