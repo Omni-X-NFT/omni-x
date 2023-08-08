@@ -13,7 +13,7 @@ type CHAINIDTYPE = {
 
 const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
-const AdvancedONFT721AAbi = loadAbi('../artifacts/contracts/token/onft721A/extension/collections/OmniWave.sol/OmniWave.json')
+const AdvancedONFT721AAbi = loadAbi('../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json')
 // const LZEndpointAbi = loadAbi('../artifacts/contracts/layerzero/LZEndpoint.sol/LZEndpoint.json')
 
 export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
