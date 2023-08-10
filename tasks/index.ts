@@ -3,7 +3,7 @@ import { deployOmniX, deployOmnixAll, addSingleChainCurrency, addCurrency, remov
 import { verifyOmni, verifyAll } from './verify'
 import { deployAll } from './deploy'
 import { deployAdvancedONFT721, prepareAdvancedONFT, set721Config, set721GaslessConfig, setAll721Config, setAll721GaslessConfig, prepareAllAdvancedONFT, prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless, deployAllAdvancedONFT721, deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './AdvancedONFTSuite'
-import { deployAdvancedONFT721A, expandCollection, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
+import { deployAdvancedONFT721A, expandCollection, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection, setBridgeFees } from './AdvancedONFTASuite'
 import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
 
 task(
@@ -152,6 +152,7 @@ task('prepareAdvancedONFT721A', 'prepareAdvancedONFT721A')
   .addParam('lzconfig', 'true or false for lz config')
   .addParam('startmint', 'true or false for sale started')
   .addParam('reveal', 'true or false for revealed metadata')
+  .addParam('bridgefee', 'true or false to set bridge fees')
   .setAction(prepareAdvancedONFT721A)
 
 task('prepareAllAdvancedONFT721A', 'prepareAllAdvancedONFT721A')
@@ -163,6 +164,12 @@ task('prepareAllAdvancedONFT721A', 'prepareAllAdvancedONFT721A')
   .addParam('netexclude', 'exclude chain name separated by single comma. Use none to ignore')
   .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
   .setAction(prepareAllAdvancedONFT721A)
+
+task('setBridgeFees', 'setBridgeFees')
+  .addParam('collection', 'collection name')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
+  .setAction(setBridgeFees)
 
 task('mint721A', 'mint721A')
   .addParam('amount', 'amount of tokens')
@@ -184,6 +191,7 @@ task('deployCollection', 'deployCollection')
   .addParam('lzconfig', 'true or false for lz config')
   .addParam('startmint', 'true or false for sale started')
   .addParam('reveal', 'true or false for revealed metadata')
+  .addParam('bridgefee', 'true or false to set bridge fees')
   .setAction(deployCollection)
 
 task('estimateSendFee', 'estimateSendFee')

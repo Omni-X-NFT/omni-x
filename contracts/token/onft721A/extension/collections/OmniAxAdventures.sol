@@ -3,7 +3,7 @@ pragma solidity ^0.8;
 
 import "../AdvancedONFT721ATimed.sol";
 
-contract OmniWave is AdvancedONFT721ATimed {
+contract OmniAxAdventures is AdvancedONFT721ATimed {
 
 
     uint64 public maxTokensPerMint = 20;

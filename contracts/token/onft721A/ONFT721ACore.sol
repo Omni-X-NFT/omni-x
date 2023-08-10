@@ -9,7 +9,7 @@ import "./IONFT721ACore.sol";
  abstract contract ONFT721ACore is NonblockingLzApp, ERC165, ReentrancyGuard, IONFT721ACore {
     uint16 public constant FUNCTION_TYPE_SEND = 1;
 
-    uint public bridgeFee = 50000000000000;
+    uint public bridgeFee;
 
 
     struct StoredCredit {
