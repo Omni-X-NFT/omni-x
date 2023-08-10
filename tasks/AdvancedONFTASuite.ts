@@ -80,6 +80,7 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
   }
 
   if (taskArgs.lzconfig === 'true') {
+    console.log(dstChainId)
     try {
       await submitTx(hre, onft721A, 'setDstChainIdToBatchLimit', [dstChainId, args.batchLimit])
       await submitTx(hre, onft721A, 'setDstChainIdToTransferGas', [dstChainId, args.transferGas])
