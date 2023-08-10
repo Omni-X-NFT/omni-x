@@ -191,7 +191,6 @@ task('deployCollection', 'deployCollection')
   .addParam('lzconfig', 'true or false for lz config')
   .addParam('startmint', 'true or false for sale started')
   .addParam('reveal', 'true or false for revealed metadata')
-  .addParam('bridgefee', 'true or false to set bridge fees')
   .setAction(deployCollection)
 
 task('estimateSendFee', 'estimateSendFee')
