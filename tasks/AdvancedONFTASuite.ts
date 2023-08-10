@@ -104,7 +104,7 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
           saleStarted: taskArgs.startmint === 'true',
           revealed: taskArgs.reveal === 'true',
           startTime: timestamp,
-          mintLength: 604800 // 2 weeks
+          mintLength: 604800 // 1 weeks
         }
         await submitTx(hre, onft721A, 'setNftState', [nftState])
         console.log('✅ set nft state')
@@ -289,10 +289,12 @@ export const deployCollection = async (taskArgs: any, hre: any) => {
   if (!taskArgs.e || networks.length === 0) {
     console.log(`Invalid environment argument: ${taskArgs.e}`)
   }
+  let checkWireUpCommand
 
-  let checkWireUpCommand = `npx hardhat deployAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --exclude none`
-  console.log(checkWireUpCommand)
-  shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+
+  // let checkWireUpCommand = `npx hardhat deployAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --exclude none`
+  // console.log(checkWireUpCommand)
+  // shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
   checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint false --reveal false --exclude none --netexclude none`
   console.log(checkWireUpCommand)
   shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
