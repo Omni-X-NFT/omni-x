@@ -63,7 +63,7 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
   const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
   let dstChainId
   if (taskArgs.target !== 'none') {
-    const dstChainId = CHAIN_IDS[taskArgs.target]
+    dstChainId = CHAIN_IDS[taskArgs.target]
   }
   let onft721A
   if (network.name === 'zksync' || network.name === 'zksync-testnet') {
