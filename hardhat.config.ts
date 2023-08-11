@@ -303,6 +303,7 @@ const config: HardhatUserConfig = {
           apiURL: 'https://api-nova.arbiscan.io/api'
         }
       }
+     
     ]
   },
 
