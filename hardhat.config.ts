@@ -252,12 +252,19 @@ const config: HardhatUserConfig = {
       bscTestnet: process.env.BSCSCAN_API_KEY || '',
       polygonMumbai: process.env.POLYGON_API_KEY || '',
       avalancheFujiTestnet: process.env.AVALANCHE_API_KEY || '',
+      mainnet: process.env.ETHERSCAN_API_KEY || '',
+      bsc: process.env.BSCSCAN_API_KEY || '',
+      polygon: process.env.POLYGON_API_KEY || '',
+      avalanche: process.env.AVALANCHE_API_KEY || '',
+      optimisticEthereum: process.env.OPTIMISTIC_API_KEY || '',
+      arbitrumOne: process.env.ARBITRUM_API_KEY || '',
       // arbitrumTestnet: process.env.ARBITRUM_API_KEY || '',
       // optimisticKovan: process.env.OPTIMISTIC_API_KEY || '',
       ftmTestnet: process.env.FANTOM_API_KEY || '',
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
       'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
       moonbeam: process.env.MOONBEAM_API_KEY || ''
+
     },
     customChains: [
       {
