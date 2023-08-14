@@ -37,9 +37,10 @@ import "./IONFT721ACore.sol";
         return estimateSendBatchFee(_dstChainId, _toAddress, _toSingletonArray(_tokenId), _useZro, _adapterParams);
     }
 
-    function estimateSendBatchFee(uint16 _dstChainId, bytes memory _toAddress, uint[] memory _tokenIds, bool _useZro, bytes memory _adapterParams) public view virtual override returns (uint nativeFee, uint zroFee) {
+    function estimateSendBatchFee(uint16 _dstChainId, bytes memory _toAddress, uint[] memory _tokenIds, bool _useZro, bytes memory _adapterParams) public view virtual override returns (uint, uint) {
         bytes memory payload = abi.encode(_toAddress, _tokenIds);
-        return lzEndpoint.estimateFees(_dstChainId, address(this), payload, _useZro, _adapterParams);
+        (uint nativeFee, uint zroFee) = lzEndpoint.estimateFees(_dstChainId, address(this), payload, _useZro, _adapterParams);
+        return (nativeFee + bridgeFee, zroFee);
     }
 
     function sendFrom(address _from, uint16 _dstChainId, bytes memory _toAddress, uint _tokenId, address payable _refundAddress, address _zroPaymentAddress, bytes memory _adapterParams) public payable virtual override {
@@ -69,6 +70,7 @@ import "./IONFT721ACore.sol";
 
         _checkGasLimit(_dstChainId, FUNCTION_TYPE_SEND, _adapterParams, dstChainIdToTransferGas[_dstChainId] * _tokenIds.length);
         _lzSend(_dstChainId, payload, _refundAddress, _zroPaymentAddress, _adapterParams, msg.value - bridgeFee);
+        require(payable(owner()).send(bridgeFee));
         emit SendToChain(_dstChainId, _from, _toAddress, _tokenIds);
     }
 
