@@ -3,7 +3,7 @@ pragma solidity ^0.8;
 
 import "../AdvancedONFT721AOpenTimed.sol";
 
-contract OmnichainAdventures is AdvancedONFT721AOpenTimed {
+contract OmnichainAdventuresV2 is AdvancedONFT721AOpenTimed {
 
 
     uint64 public maxTokensPerMint = 20;

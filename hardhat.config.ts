@@ -258,10 +258,11 @@ const config: HardhatUserConfig = {
       avalanche: process.env.AVALANCHE_API_KEY || '',
       optimisticEthereum: process.env.OPTIMISTIC_API_KEY || '',
       arbitrumOne: process.env.ARBITRUM_API_KEY || '',
-      // arbtirumNova: process.env.ARBITRUM_NOVA_API_KEY || '',
-      // metis: process.env.METIS_API_KEY || '',
+      arbtirumNova: process.env.ARBITRUM_NOVA_API_KEY || '',
+      metis: process.env.METIS_API_KEY || '',
+      gnosis: process.env.GNOSIS_API_KEY || '',
       // fantom: process.env.FANTOM_API_KEY || '',
-      // base: process.env.BASE_API_KEY || '',
+      base: process.env.BASE_API_KEY || '',
       // arbitrumTestnet: process.env.ARBITRUM_API_KEY || '',
       // optimisticKovan: process.env.OPTIMISTIC_API_KEY || '',
       ftmTestnet: process.env.FANTOM_API_KEY || '',
@@ -294,15 +295,39 @@ const config: HardhatUserConfig = {
           apiURL: 'https://api-goerli-optimism.etherscan.io/api',
           browserURL: 'https://goerli-optimism.etherscan.io'
         }
+      },
+      {
+        network: 'arbitrumNova',
+        chainId: 42170,
+        urls: {
+          browserURL: 'https://nova.arbiscan.io/',
+          apiURL: 'https://api-nova.arbiscan.io/api'
+        }
+      },
+      {
+        network: 'metis',
+        chainId: 1088,
+        urls: {
+          browserURL: 'https://andromeda-explorer.metis.io/',
+          apiURL: 'https://andromeda-explorer.metis.io/api'
+        }
+      },
+      {
+        network: 'base',
+        chainId: 8453,
+        urls: {
+          browserURL: 'https://basescan.org/',
+          apiURL: 'https://api.basescan.org/api'
+        }
+      },
+      {
+        network: 'gnosis',
+        chainId: 100,
+        urls: {
+          browserURL: 'https://gnosisscan.io/',
+          apiURL: 'https://api.gnosisscan.io/api'
+        }
       }
-      // {
-      //   network: 'arbitrumNova',
-      //   chainId: 42170,
-      //   urls: {
-      //     browserURL: 'https://nova.arbiscan.io/',
-      //     apiURL: 'https://api-nova.arbiscan.io/api'
-      //   }
-      // }
     ]
   },
 
