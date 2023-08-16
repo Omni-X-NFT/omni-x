@@ -234,7 +234,7 @@ export const submitReturnTx = async (hre: any, contract: any, methodName: any, a
     }
     if (methodName === 'hasStoredPayload') {
       funcOverrides = {
-        ...overrides,
+        ...overrides
       }
     }
     tx = await method(...args, funcOverrides)
@@ -254,7 +254,27 @@ export const submitReturnTx = async (hre: any, contract: any, methodName: any, a
 
     if (methodName === 'hasStoredPayload') {
       funcOverrides = {
+        ...overrides
+      }
+    }
+    tx = await method(...args, funcOverrides)
+  } else if (network.name === 'base') {
+    if (overrides) {
+      funcOverrides = {
         ...overrides,
+        maxFeePerGas: 66667192,
+        maxPriorityFeePerGas: 66667076
+      }
+    } else {
+      funcOverrides = {
+        maxFeePerGas: 66667192,
+        maxPriorityFeePerGas: 66667076
+      }
+    }
+
+    if (methodName === 'hasStoredPayload') {
+      funcOverrides = {
+        ...overrides
       }
     }
     tx = await method(...args, funcOverrides)
