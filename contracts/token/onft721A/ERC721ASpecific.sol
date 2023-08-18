@@ -385,7 +385,7 @@ contract ERC721ASpecific is IERC721ASpecific {
             // This saves 2143 gas on transfers of initialized tokens.
             // If the token is not burned, return `packed`. Otherwise, revert.
             if (packed & _BITMASK_BURNED == 0) return packed;
-        } else if (tokenId > 0 && tokenId <= _getMaxGlobalId()) {
+        } else if (tokenId <= _getMaxGlobalId()) {
             packed = _packedOwnerships[tokenId];
             if (packed != 0) return packed;
         }
@@ -493,7 +493,7 @@ contract ERC721ASpecific is IERC721ASpecific {
                 result = packed & _BITMASK_BURNED == 0;
             
         } else {
-            if (tokenId > 0 && _getMaxGlobalId() >= tokenId) {
+            if (_getMaxGlobalId() >= tokenId) {
                 result = _packedOwnerships[tokenId] != 0;
             }
             
