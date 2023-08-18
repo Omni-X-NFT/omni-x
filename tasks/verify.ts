@@ -31,7 +31,7 @@ export const verifyAll = async function (taskArgs: any, hre: any) {
       const endpointAddr = ENDPOINTS[network]
       if (address) {
         // const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} ${endpointAddr}`
-        const checkWireUpCommand = `npx hardhat verify --contract contracts/token/onft721A/extension/collections/OmniAxAdventuresV2.sol:OmniAxAdventuresV2 --network ${network} ${address} "${aonftArgs.name}" "${aonftArgs.symbol}" ${endpointAddr} ${aonftArgs.startId} ${aonftArgs.endId} ${aonftArgs.maxGlobalId} "${aonftArgs.baseURI}" "${aonftArgs.hiddenURI}" ${aonftArgs.tax} ${aonftArgs.price} ${aonftArgs.taxRecipient}`
+        const checkWireUpCommand = `npx hardhat verify --contract contracts/token/onft721A/extension/collections/OmnichainAdventuresV2.sol:OmnichainAdventuresV2 --network ${network} ${address} "${aonftArgs.name}" "${aonftArgs.symbol}" ${endpointAddr} ${aonftArgs.startId} ${aonftArgs.endId} ${aonftArgs.maxGlobalId} "${aonftArgs.baseURI}" "${aonftArgs.hiddenURI}" ${aonftArgs.tax} ${aonftArgs.price} ${aonftArgs.taxRecipient}`
         // const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} "${aonftArgs.name}" ${aonftArgs.symbol} ${endpointAddr} ${aonftArgs.startMintId} ${aonftArgs.endMintId} ${aonftArgs.maxTokensPerMint} "${aonftArgs.baseTokenURI}"`
         console.log(checkWireUpCommand)
         shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')

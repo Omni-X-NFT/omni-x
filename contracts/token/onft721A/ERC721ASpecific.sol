@@ -850,8 +850,8 @@ contract ERC721ASpecific is IERC721ASpecific {
         address to,
         uint256 tokenId
     ) internal {
-        require(tokenId > 0 && tokenId <= _getMaxGlobalId());
-        require(tokenId < _startTokenId() || tokenId > _getMaxId());
+        if (tokenId > _getMaxGlobalId()) _revert(TokenIdOutOfRange.selector);
+        if (tokenId >= _startTokenId() && tokenId <= _getMaxId()) _revert(InvalidBridgeId.selector);
         
 
          unchecked {
@@ -865,7 +865,6 @@ contract ERC721ASpecific is IERC721ASpecific {
                 0
             );
             
-            // I believe these operations are unecessary since quantity is always 1
             _packedAddressData[to] += 1 * ((1 << _BITPOS_NUMBER_MINTED) | 1);
 
             // Mask `to` to the lower 160 bits, in case the upper bits somehow aren't clean.
