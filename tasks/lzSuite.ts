@@ -57,7 +57,7 @@ export const setTrustedRemote = async function (taskArgs: any, hre: any) {
   let dstContractName = srcContractName
   if (taskArgs.contract) {
     srcContractName = taskArgs.contract
-    dstContractName = srcContractName
+    dstContractName = 'OmniWrappedFriend'
   }
 
   const dstChainId = CHAIN_IDS[taskArgs.target]

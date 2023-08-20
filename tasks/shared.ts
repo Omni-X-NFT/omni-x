@@ -13,7 +13,7 @@ import STARGATE from '../constants/stargate.json'
 
 
 export const environments: any = {
-  mainnet: ['base', 'arbitrum-nova', 'metis', 'gnosis', 'polygon-zkevm', 'moonbeam'],
+  mainnet: ['ethereum'],
   testnet: ['goerli', 'bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'mumbai']
 }
 

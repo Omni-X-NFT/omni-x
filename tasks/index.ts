@@ -5,7 +5,7 @@ import { deployAll } from './deploy'
 import { deployAdvancedONFT721, prepareAdvancedONFT, set721Config, set721GaslessConfig, setAll721Config, setAll721GaslessConfig, prepareAllAdvancedONFT, prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless, deployAllAdvancedONFT721, deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './AdvancedONFTSuite'
 import { deployAdvancedONFT721A, expandCollection, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection, setBridgeFees } from './AdvancedONFTASuite'
 import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
-
+import { deployOFT, bridgeOFT } from './OFTSuite'
 task(
   'setTrustedRemote',
   'setTrustedRemote(chainId, sourceAddr) to enable inbound/outbound messages with your other contracts',
@@ -234,3 +234,11 @@ task('hasStoredPayload', 'hasStoredPayload')
   .addParam('target', 'target network')
   .addParam('srcua', 'source user address')
   .setAction(hasStoredPayload)
+
+task('deployOFT')
+  .addParam('collection', 'collection name')
+  .setAction(deployOFT)
+task('bridgeOFT')
+  .addParam('amount', 'amount of token to send')
+  .addParam('target', 'target network')
+.setAction(bridgeOFT)
