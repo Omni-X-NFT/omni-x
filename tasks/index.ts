@@ -3,7 +3,7 @@ import { deployOmniX, deployOmnixAll, addSingleChainCurrency, addCurrency, remov
 import { verifyOmni, verifyAll } from './verify'
 import { deployAll } from './deploy'
 import { deployAdvancedONFT721, prepareAdvancedONFT, set721Config, set721GaslessConfig, setAll721Config, setAll721GaslessConfig, prepareAllAdvancedONFT, prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless, deployAllAdvancedONFT721, deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './AdvancedONFTSuite'
-import { deployAdvancedONFT721A, expandCollection, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection, setBridgeFees } from './AdvancedONFTASuite'
+import { deployAdvancedONFT721A, expandCollection, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection, setBridgeFees, trustedRemoteLookup } from './AdvancedONFTASuite'
 import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
 
 task(
@@ -234,3 +234,8 @@ task('hasStoredPayload', 'hasStoredPayload')
   .addParam('target', 'target network')
   .addParam('srcua', 'source user address')
   .setAction(hasStoredPayload)
+
+task('trustedRemoteLookup', 'trustedRemoteLookup')
+  .addParam('target', 'target network')
+  .addParam('collection', 'collection name')
+  .setAction(trustedRemoteLookup)

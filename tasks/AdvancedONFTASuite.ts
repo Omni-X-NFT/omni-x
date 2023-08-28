@@ -13,7 +13,7 @@ type CHAINIDTYPE = {
 
 const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
-const AdvancedONFT721AAbi = loadAbi('../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventuresV2.sol/OmnichainAdventuresV2.json')
+const AdvancedONFT721AAbi = loadAbi('../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json')
 // const LZEndpointAbi = loadAbi('../artifacts/contracts/layerzero/LZEndpoint.sol/LZEndpoint.json')
 
 export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
@@ -54,6 +54,20 @@ export const deployAllAdvancedONFT721A = async (taskArgs: any) => {
       shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
     })
   )
+}
+
+
+export const trustedRemoteLookup = async (taskArgs: any, hre: any) => {
+  const { ethers, network } = hre
+  const [owner] = await ethers.getSigners()
+  const targetDstChainId = CHAIN_IDS[taskArgs.target]
+  const collectionContract = createContractByName(hre, taskArgs.collection, AdvancedONFT721AAbi().abi, owner)
+  try {
+    const result = await submitReturnTx(hre, collectionContract, 'trustedRemoteLookup', [targetDstChainId])
+    console.log(`✅ trustedRemoteLookup for ${taskArgs.collection} on ${taskArgs.target} is ${result}`)
+  } catch (e: any) {
+    console.log(e)
+  }
 }
 
 export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
