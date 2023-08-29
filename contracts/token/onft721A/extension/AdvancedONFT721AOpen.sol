@@ -4,7 +4,7 @@ pragma solidity ^0.8;
 import "../ONFT721AOpen.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract AdvancedONFT721AOpenTimed is ONFT721AOpen {
+contract AdvancedONFT721AOpen is ONFT721AOpen {
 
     using Strings for uint;
 

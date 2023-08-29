@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8;
 
-import "../AdvancedONFT721ATimed.sol";
+import "../AdvancedONFT721AOpen.sol";
 
-contract OmniAxAdventures is AdvancedONFT721ATimed {
+contract OmniAxAdventures is AdvancedONFT721AOpen {
 
 
     uint64 public maxTokensPerMint = 20;
@@ -21,10 +21,10 @@ contract OmniAxAdventures is AdvancedONFT721ATimed {
         uint16 _tax,
         uint _price,
         address _taxRecipient
-    ) AdvancedONFT721ATimed(_name, _symbol, _lzEndpoint, _startId, _maxId, _maxGlobalId, _baseTokenURI, _hiddenURI, _tax, _price, _taxRecipient) {}
+    ) AdvancedONFT721AOpen(_name, _symbol, _lzEndpoint, _startId, _maxId, _maxGlobalId, _baseTokenURI, _hiddenURI, _tax, _price, _taxRecipient) {}
 
 
-    function tokenURI(uint256 _tokenId) public view virtual override(AdvancedONFT721ATimed) returns(string memory) {
+    function tokenURI(uint256 _tokenId) public view virtual override(AdvancedONFT721AOpen) returns(string memory) {
         require(_exists(_tokenId));
         if (state.revealed) {
             return metadata.hiddenMetadataURI;
