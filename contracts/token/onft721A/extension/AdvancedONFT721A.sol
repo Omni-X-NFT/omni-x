@@ -3,11 +3,18 @@ pragma solidity ^0.8;
 
 import "../ONFT721A.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "solmate/src/utils/MerkleProofLib.sol";
 
+error saleNotStarted();
+error zeroAmount();
+error maxSupplyReached();
+error insufficientValue();
+error nonWhitelist();
 
 contract AdvancedONFT721A is ONFT721A {
 
     using Strings for uint;
+    using MerkleProofLib for bytes32[];
 
     struct FinanceDetails {
         address payable beneficiary;
@@ -22,13 +29,15 @@ contract AdvancedONFT721A is ONFT721A {
     }
 
     struct NFTState {
-        bool saleStarted;
+        bool publicSaleStarted;
+        bool privateSaleStarted;
         bool revealed;
     }
 
     uint256 public startId;
     uint256 public maxId;
     uint256 public maxGlobalId;
+    bytes32 public merkleRoot;
 
     FinanceDetails private _financeDetails;
     Metadata public metadata;
@@ -60,11 +69,20 @@ contract AdvancedONFT721A is ONFT721A {
     }
 
     function mint(uint256 _nbTokens) external payable {
-        require(state.saleStarted);
-        require(_nbTokens != 0);
-        require(_nextTokenId() + _nbTokens - 1 <= maxId);
-        require(_nbTokens * _financeDetails.price <= msg.value);
+        if (!state.publicSaleStarted) _revert(saleNotStarted.selector);
+        if (_nbTokens == 0) _revert(zeroAmount.selector);
+        if (_nextTokenId() + _nbTokens - 1 > maxId) _revert(maxSupplyReached.selector);
+        if (_nbTokens * _financeDetails.price > msg.value) _revert(insufficientValue.selector);
         _safeMint(msg.sender, _nbTokens);
+    }
+
+    function whitelistMint(uint256 _nbTokens, bytes32[] calldata _merkleProof) external payable {
+        if (!state.privateSaleStarted) _revert(saleNotStarted.selector);
+        if (_nbTokens == 0) _revert(zeroAmount.selector);
+        if (_nextTokenId() + _nbTokens - 1 > maxId) _revert(maxSupplyReached.selector);
+        if (_nbTokens * _financeDetails.price > msg.value) _revert(insufficientValue.selector);
+        if (!(_merkleProof.verify(merkleRoot, keccak256(abi.encodePacked(msg.sender))))) _revert(nonWhitelist.selector);
+        _safeMint(msg.sender, _nbTokens);        
     }
 
     function _getMaxGlobalId() internal view override returns (uint256) {
@@ -79,6 +97,9 @@ contract AdvancedONFT721A is ONFT721A {
         return startId;
     }
 
+    function setMerkleRoot(bytes32 _newRoot) external onlyBenficiaryAndOwner() {
+        merkleRoot = _newRoot;
+    }
     function setMintRange(uint32 _start, uint32 _end) external onlyOwner {
         require (_start > uint32(_totalMinted()));
         require (_end > _start);
@@ -110,9 +131,11 @@ contract AdvancedONFT721A is ONFT721A {
         require(payable(_financeDetails.beneficiary).send(address(this).balance));
     } 
 
+
     function _baseURI() internal view override returns (string memory) {
         return metadata.baseURI;
     }
+
 
     function tokenURI(uint256 _tokenId) public view override(ERC721ASpecific, IERC721ASpecific) returns (string memory) {
         require(_exists(_tokenId));

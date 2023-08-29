@@ -132,8 +132,7 @@ contract AdvancedONFT721AOpen is ONFT721AOpen {
         if (state.revealed) {
             return metadata.hiddenMetadataURI;
         } 
-        return string(abi.encodePacked(_baseURI(), _tokenId.toString()));
-
+        return metadata.baseURI;
     }
 
 }
