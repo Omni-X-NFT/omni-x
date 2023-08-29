@@ -2,19 +2,22 @@ import { Contract } from 'ethers'
 import { BigNumber } from '@ethersproject/bignumber'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import path from 'path'
-import {
-  TakerOrder,
-  MakerOrder
-} from '../utils/order-types'
+import { TakerOrder, MakerOrder } from '../utils/order-types'
 import CHAIN_IDS from '../constants/chainIds.json'
 import STARGATE from '../constants/stargate.json'
 
-
-
-
 export const environments: any = {
-  mainnet: ['base', 'arbitrum-nova', 'metis', 'gnosis', 'polygon-zkevm', 'moonbeam'],
-  testnet: ['goerli', 'bsc-testnet', 'fuji', 'arbitrum-goerli', 'optimism-goerli', 'fantom-testnet', 'moonbeam_testnet', 'mumbai']
+  mainnet: ['optimism', 'ethereum', 'fantom', 'avalanche', 'arbitrum', 'polygon', 'bsc'],
+  testnet: [
+    'goerli',
+    'bsc-testnet',
+    'fuji',
+    'arbitrum-goerli',
+    'optimism-goerli',
+    'fantom-testnet',
+    'moonbeam_testnet',
+    'mumbai'
+  ]
 }
 
 export const stargateCompatibleChains: any = {
@@ -50,12 +53,16 @@ export const deployContract = async (hre: any, name: string, owner: any, initPar
   if (!existsSync(folderPath)) {
     mkdirSync(folderPath)
   }
-  writeFileSync(`${folderPath}/${name}.json`, JSON.stringify({
-    address: deployed.address
-  }), {
-    encoding: 'utf8',
-    flag: 'w'
-  })
+  writeFileSync(
+    `${folderPath}/${name}.json`,
+    JSON.stringify({
+      address: deployed.address
+    }),
+    {
+      encoding: 'utf8',
+      flag: 'w'
+    }
+  )
 
   return deployed
 }
@@ -106,7 +113,7 @@ export const toWei = (ethers: any, amount: number | string): BigNumber => {
   return ethers.utils.parseEther(amount.toString())
 }
 
-export const getBlockTime = async (ethers: any) : Promise<number> => {
+export const getBlockTime = async (ethers: any): Promise<number> => {
   const blockNumBefore = await ethers.provider.getBlockNumber()
   const blockBefore = await ethers.provider.getBlock(blockNumBefore)
   const timestampBefore = blockBefore.timestamp
@@ -114,7 +121,7 @@ export const getBlockTime = async (ethers: any) : Promise<number> => {
 }
 
 export const fillMakerOrder = async (
-  makeOrder : MakerOrder,
+  makeOrder: MakerOrder,
   tokenId: number,
   currency: string,
   collection: string,
@@ -135,12 +142,7 @@ export const fillMakerOrder = async (
   makeOrder.endTime = makeOrder.startTime + 3600 * 30
   makeOrder.signer = maker
 }
-export const fillTakerOrder = (
-  takerOrder : TakerOrder,
-  taker: string,
-  tokenId: number,
-  price: BigNumber
-) => {
+export const fillTakerOrder = (takerOrder: TakerOrder, taker: string, tokenId: number, price: BigNumber) => {
   takerOrder.tokenId = tokenId
   takerOrder.price = price
   takerOrder.minPercentageToAsk = 900
@@ -160,11 +162,10 @@ export const loadAbi = (file: string) => {
 }
 
 export const waitFor = (ms: number) => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(() => resolve(0), ms)
   })
 }
-
 
 export const submitTx = async (hre: any, contract: any, methodName: any, args: any[], overrides?: any) => {
   const { network } = hre
@@ -213,7 +214,13 @@ export const submitTx = async (hre: any, contract: any, methodName: any, args: a
   }
 }
 
-export const submitReturnTx = async (hre: any, contract: any, methodName: any, args: any[], overrides?: any): Promise<any> => {
+export const submitReturnTx = async (
+  hre: any,
+  contract: any,
+  methodName: any,
+  args: any[],
+  overrides?: any
+): Promise<any> => {
   const { network } = hre
   const method = contract[methodName]
   if (!method) {

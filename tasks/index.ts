@@ -1,16 +1,56 @@
 import { task } from 'hardhat/config'
-import { deployOmniX, deployOmnixAll, addSingleChainCurrency, addCurrency, removeAllUSDC, removeCurrency, omnix, setupBridge, prepareStargate } from './OmniXSuite'
+import {
+  deployOmniX,
+  deployOmnixAll,
+  addSingleChainCurrency,
+  addCurrency,
+  removeAllUSDC,
+  removeCurrency,
+  omnix,
+  setupBridge,
+  prepareStargate
+} from './OmniXSuite'
 import { verifyOmni, verifyAll } from './verify'
 import { deployAll } from './deploy'
-import { deployAdvancedONFT721, prepareAdvancedONFT, set721Config, set721GaslessConfig, setAll721Config, setAll721GaslessConfig, prepareAllAdvancedONFT, prepareAdvancedONFTGasless, prepareAllAdvancedONFTGasless, deployAllAdvancedONFT721, deployAdvancedONFT721Gasless, deployAllAdvancedONFT721Gasless } from './AdvancedONFTSuite'
-import { deployAdvancedONFT721A, expandCollection, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection, setBridgeFees, trustedRemoteLookup } from './AdvancedONFTASuite'
+import {
+  deployAdvancedONFT721,
+  prepareAdvancedONFT,
+  set721Config,
+  set721GaslessConfig,
+  setAll721Config,
+  setAll721GaslessConfig,
+  prepareAllAdvancedONFT,
+  prepareAdvancedONFTGasless,
+  prepareAllAdvancedONFTGasless,
+  deployAllAdvancedONFT721,
+  deployAdvancedONFT721Gasless,
+  deployAllAdvancedONFT721Gasless
+} from './AdvancedONFTSuite'
+import {
+  deployAdvancedONFT721A,
+  expandCollection,
+  estimateSendFee,
+  setAllMetadata,
+  setMetadata,
+  deployAllAdvancedONFT721A,
+  prepareAllAdvancedONFT721A,
+  prepareAdvancedONFT721A,
+  mint,
+  mintAll,
+  sendCross,
+  deployCollection,
+  setBridgeFees,
+  trustedRemoteLookup
+} from './AdvancedONFTASuite'
 import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
+import { moralisSnap, alchemySnap, completeSnapshot, convertToList } from './snapshot'
 
 task(
   'setTrustedRemote',
   'setTrustedRemote(chainId, sourceAddr) to enable inbound/outbound messages with your other contracts',
   setTrustedRemote
-).addParam('target', 'the target network name, ie: fuji, or mumbai, etc (from hardhat.config.js)')
+)
+  .addParam('target', 'the target network name, ie: fuji, or mumbai, etc (from hardhat.config.js)')
   .addParam('contract', 'Contract Name')
 
 task('addSingleChainCurrency', 'addSingleChainCurrency')
@@ -22,13 +62,9 @@ task('addCurrency', 'addCurrency')
   .addParam('token', 'token name')
   .setAction(addCurrency)
 
-task('removeCurrency', 'removeCurrency')
-  .addParam('token', 'token name')
-  .setAction(removeCurrency)
+task('removeCurrency', 'removeCurrency').addParam('token', 'token name').setAction(removeCurrency)
 
-task('removeAllUSDC', 'removeAllUSDC')
-  .addParam('e', 'testnet or mainnet')
-  .setAction(removeAllUSDC)
+task('removeAllUSDC', 'removeAllUSDC').addParam('e', 'testnet or mainnet').setAction(removeAllUSDC)
 
 task('omnix', 'omnix')
   .addParam('e', 'testnet or mainnet')
@@ -44,37 +80,24 @@ task('deployAllX', 'deploys an OmniX exchange')
   .addParam('dependencies', 'true or false to redeploy dependent contracts')
   .setAction(deployOmnixAll)
 
-task('verifyOmniX', 'verify an omni')
-  .setAction(verifyOmni)
+task('verifyOmniX', 'verify an omni').setAction(verifyOmni)
 
-task(
-  'setAllTrustedRemote',
-  'setAllTrustedRemote',
-  setAllTrustedRemote
-).addParam('e', 'testnet or mainnet')
+task('setAllTrustedRemote', 'setAllTrustedRemote', setAllTrustedRemote)
+  .addParam('e', 'testnet or mainnet')
   .addParam('contract', 'Contract Name')
   .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
   .addParam('netexclude', 'exclude chain name separated by single comma. Use none to ignore')
 
-task(
-  'deployAll',
-  'deploy all contracts',
-  deployAll
-).addParam('e', 'testnet or mainnet')
+task('deployAll', 'deploy all contracts', deployAll)
+  .addParam('e', 'testnet or mainnet')
   .addParam('tags', 'Contract file name')
   .addOptionalParam('reset', 'Deploy from scratch')
 
-task(
-  'verifyAll',
-  'verify all contracts',
-  verifyAll
-).addParam('e', 'testnet or mainnet')
+task('verifyAll', 'verify all contracts', verifyAll)
+  .addParam('e', 'testnet or mainnet')
   .addParam('tags', 'Contract file name')
 
-task(
-  'prepareStargate',
-  'set bridge and factory and create a pool'
-).setAction(prepareStargate)
+task('prepareStargate', 'set bridge and factory and create a pool').setAction(prepareStargate)
 
 task('setupBridge', 'setup chain and add liquidity to the pool')
   .addParam('dstchainname', 'destination chain name. ex: rinkeby')
@@ -171,9 +194,7 @@ task('setBridgeFees', 'setBridgeFees')
   .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
   .setAction(setBridgeFees)
 
-task('mint721A', 'mint721A')
-  .addParam('amount', 'amount of tokens')
-  .setAction(mint)
+task('mint721A', 'mint721A').addParam('amount', 'amount of tokens').setAction(mint)
 
 task('mintAll721A', 'mintAll721A')
   .addParam('e', 'testnet or mainnet')
@@ -193,12 +214,9 @@ task('deployCollection', 'deployCollection')
   .addParam('reveal', 'true or false for revealed metadata')
   .setAction(deployCollection)
 
-task('estimateSendFee', 'estimateSendFee')
-  .setAction(estimateSendFee)
+task('estimateSendFee', 'estimateSendFee').setAction(estimateSendFee)
 
-task('setMetadata', 'setMetadata')
-  .addParam('collection', 'collection name')
-  .setAction(setMetadata)
+task('setMetadata', 'setMetadata').addParam('collection', 'collection name').setAction(setMetadata)
 
 task('setAllMetadata', 'setAllMetadata')
   .addParam('collection', 'collection name')
@@ -213,10 +231,7 @@ task('expandCollection', 'expandCollection')
   .addParam('newchains')
   .addParam('lzconfig', 'true or false for lz config')
   .setAction(expandCollection)
-task('lzScan', 'lzScan')
-  .addParam('hash', 'tx hash')
-  .addParam('e', 'testnet or mainnet')
-  .setAction(lzScan)
+task('lzScan', 'lzScan').addParam('hash', 'tx hash').addParam('e', 'testnet or mainnet').setAction(lzScan)
 
 task('compile:solidity:solc:get-build', async (_, __, runSuper) => {
   const solcBuild = await runSuper()
@@ -239,3 +254,22 @@ task('trustedRemoteLookup', 'trustedRemoteLookup')
   .addParam('target', 'target network')
   .addParam('collection', 'collection name')
   .setAction(trustedRemoteLookup)
+
+task('moralisSnap', 'snapshot')
+  .addParam('target', 'target network')
+  .addParam('file', 'file name to write to')
+  .setAction(moralisSnap)
+
+task('alchemySnap', 'snapshot')
+  .addParam('target', 'target network')
+  .addParam('file', 'file name to write to')
+  .setAction(alchemySnap)
+
+task('completeSnapshot', 'completeSnapshot')
+  .addParam('target', 'target network')
+  .addParam('file', 'file name to write to')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
+  .setAction(completeSnapshot)
+
+task('convertToList', 'convertToList').addParam('file', 'file name to write to').setAction(convertToList)
