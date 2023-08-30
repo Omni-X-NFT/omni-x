@@ -59,30 +59,32 @@ contract AdvancedONFT721A is ONFT721A {
         string memory _hiddenURI,
         uint16 _tax,
         uint _price,
-        address _taxRecipient
+        address _taxRecipient,
+        address _beneficiary
     ) ONFT721A(_name, _symbol, 1, _lzEndpoint, _startId) {
         startId = _startId;
         maxGlobalId = _maxGlobalId;
         maxId = _maxId;
-        _financeDetails = FinanceDetails(payable(msg.sender), payable(_taxRecipient), _tax, _price );
+        _financeDetails = FinanceDetails(payable(_beneficiary), payable(_taxRecipient), _tax, _price );
         metadata = Metadata(_baseTokenURI, _hiddenURI);
     }
 
-    function mint(uint256 _nbTokens) external payable {
+    function mint(uint256 _nbTokens) public virtual payable {
         if (!state.publicSaleStarted) _revert(saleNotStarted.selector);
         if (_nbTokens == 0) _revert(zeroAmount.selector);
         if (_nextTokenId() + _nbTokens - 1 > maxId) _revert(maxSupplyReached.selector);
         if (_nbTokens * _financeDetails.price > msg.value) _revert(insufficientValue.selector);
-        _safeMint(msg.sender, _nbTokens);
+        _mint(msg.sender, _nbTokens);
     }
 
-    function whitelistMint(uint256 _nbTokens, bytes32[] calldata _merkleProof) external payable {
+    function whitelistMint(uint256 _nbTokens, bytes32[] calldata _merkleProof) public virtual payable {
         if (!state.privateSaleStarted) _revert(saleNotStarted.selector);
-        if (_nbTokens == 0) _revert(zeroAmount.selector);
-        if (_nextTokenId() + _nbTokens - 1 > maxId) _revert(maxSupplyReached.selector);
         if (_nbTokens * _financeDetails.price > msg.value) _revert(insufficientValue.selector);
         if (!(_merkleProof.verify(merkleRoot, keccak256(abi.encodePacked(msg.sender))))) _revert(nonWhitelist.selector);
-        _safeMint(msg.sender, _nbTokens);        
+        if (_nbTokens == 0) _revert(zeroAmount.selector);
+        if (_nextTokenId() + _nbTokens - 1 > maxId) _revert(maxSupplyReached.selector);
+
+        _mint(msg.sender, _nbTokens);        
     }
 
     function _getMaxGlobalId() internal view override returns (uint256) {
@@ -97,10 +99,10 @@ contract AdvancedONFT721A is ONFT721A {
         return startId;
     }
 
-    function setMerkleRoot(bytes32 _newRoot) external onlyBenficiaryAndOwner() {
+    function setMerkleRoot(bytes32 _newRoot) public onlyBenficiaryAndOwner() {
         merkleRoot = _newRoot;
     }
-    function setMintRange(uint32 _start, uint32 _end) external onlyOwner {
+    function setMintRange(uint32 _start, uint32 _end) public onlyOwner {
         require (_start > uint32(_totalMinted()));
         require (_end > _start);
         startId = _start;
@@ -108,16 +110,16 @@ contract AdvancedONFT721A is ONFT721A {
     }
     
 
-    function setFinanceDetails(FinanceDetails calldata _finance) external onlyOwner {
+    function setFinanceDetails(FinanceDetails calldata _finance) public onlyOwner {
         _financeDetails = _finance;
     }
 
 
-    function setMetadata(Metadata calldata _metadata) external onlyBenficiaryAndOwner {
+    function setMetadata(Metadata calldata _metadata) public onlyBenficiaryAndOwner {
         metadata = _metadata;
     }
 
-    function setNftState(NFTState calldata _state) external onlyBenficiaryAndOwner {
+    function setNftState(NFTState calldata _state) public onlyBenficiaryAndOwner {
         state = _state;
     }
 
