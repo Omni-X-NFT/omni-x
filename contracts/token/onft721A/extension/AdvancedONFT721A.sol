@@ -17,10 +17,12 @@ contract AdvancedONFT721A is ONFT721A {
     using MerkleProofLib for bytes32[];
 
     struct FinanceDetails {
+        
         address payable beneficiary;
         address payable taxRecipient;
         uint16 tax; // 100% = 10000
-        uint price;
+        uint128 price;
+
     }
 
     struct Metadata {
@@ -58,7 +60,7 @@ contract AdvancedONFT721A is ONFT721A {
         string memory _baseTokenURI,
         string memory _hiddenURI,
         uint16 _tax,
-        uint _price,
+        uint128 _price,
         address _taxRecipient,
         address _beneficiary
     ) ONFT721A(_name, _symbol, 1, _lzEndpoint, _startId) {

@@ -6,14 +6,15 @@ import { loadAbi, createContractByName, deployContract, environments, submitTx, 
 import fs from 'fs'
 import LZEndpointABI from '../constants/LZEndpointABI.json'
 
-
 type CHAINIDTYPE = {
-    [key: string]: number
+  [key: string]: number
 }
 
 const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
-const AdvancedONFT721AAbi = loadAbi('../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json')
+const AdvancedONFT721AAbi = loadAbi(
+  '../artifacts/contracts/token/onft721A/extension/collections/OmniFlowers.sol/OmniFlowers.json'
+)
 // const LZEndpointAbi = loadAbi('../artifacts/contracts/layerzero/LZEndpoint.sol/LZEndpoint.json')
 
 export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
@@ -33,7 +34,9 @@ export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
       args.hiddenURI,
       args.tax,
       args.price,
-      args.taxRecipient
+      args.taxRecipient,
+      args.premint,
+      args.beneficiary
     ])
   }
 }
@@ -56,7 +59,6 @@ export const deployAllAdvancedONFT721A = async (taskArgs: any) => {
   )
 }
 
-
 export const trustedRemoteLookup = async (taskArgs: any, hre: any) => {
   const { ethers, network } = hre
   const [owner] = await ethers.getSigners()
@@ -68,6 +70,41 @@ export const trustedRemoteLookup = async (taskArgs: any, hre: any) => {
   } catch (e: any) {
     console.log(e)
   }
+}
+
+export const startMint = async (taskArgs: any, hre: any) => {
+  const { ethers, network } = hre
+  const [owner] = await ethers.getSigners()
+  const onft = createContractByName(hre, taskArgs.collection, AdvancedONFT721AAbi().abi, owner)
+  const nftstate = {
+    publicSaleStarted: taskArgs.public === 'true',
+    privateSaleStarted: taskArgs.private === 'true',
+    revealed: taskArgs.reveal === 'true'
+  }
+  try {
+    await submitTx(hre, onft, 'setNftState', [nftstate])
+    console.log('✅ set nft state')
+  } catch (e: any) {
+    console.log(e)
+  }
+}
+
+export const startAllMint = async (taskArgs: any, hre: any) => {
+  let networks = environments[taskArgs.e]
+  if (!taskArgs.e || networks.length === 0) {
+    console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+  if (taskArgs.exclude !== 'none') {
+    const exclude = taskArgs.exclude.split(',')
+    networks = networks.filter((n: string) => !exclude.includes(n))
+  }
+  await Promise.all(
+    networks.map(async (network: string) => {
+      const checkWireUpCommand = `npx hardhat --network ${network} startMint --collection ${taskArgs.collection} --reveal ${taskArgs.reveal} --public ${taskArgs.public} --private ${taskArgs.private}`
+      console.log(checkWireUpCommand)
+      shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+    })
+  )
 }
 
 export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
@@ -107,26 +144,6 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
       console.log(e)
     }
   }
-  if (taskArgs.startmint === 'true' || taskArgs.reveal === 'true') {
-    const provider = hre.ethers.getDefaultProvider()
-    const block = await provider.getBlock('latest')
-    const timestamp = block.timestamp
-    console.log(`timestamp: ${timestamp}`)
-    if (args.startId !== args.endId) {
-      try {
-        const nftState = {
-          saleStarted: taskArgs.startmint === 'true',
-          revealed: taskArgs.reveal === 'true',
-          startTime: timestamp,
-          mintLength: 604800 // 1 weeks
-        }
-        await submitTx(hre, onft721A, 'setNftState', [nftState])
-        console.log('✅ set nft state')
-      } catch (e: any) {
-        console.log(e)
-      }
-    }
-  }
   if (taskArgs.bridgefee === 'true') {
     try {
       await submitTx(hre, onft721A, 'setBridgeFee', [args.bridgeFee])
@@ -151,7 +168,7 @@ export const setBridgeFees = async (taskArgs: any, hre: any) => {
 
   await Promise.all(
     networks.map(async (network: string) => {
-      const checkWireUpCommand = `npx hardhat prepareAdvancedONFT721A --network ${network} --target none --lzconfig false --startmint false --reveal false --bridgefee true --collection ${taskArgs.collection}`
+      const checkWireUpCommand = `npx hardhat prepareAdvancedONFT721A --network ${network} --target none --lzconfig false --bridgefee true --collection ${taskArgs.collection}`
       console.log(checkWireUpCommand)
       shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
     })
@@ -226,8 +243,8 @@ export const prepareAllAdvancedONFT721A = async (taskArgs: any) => {
   await Promise.all(
     networks.map(async (network: string) => {
       targets.map(async (target: string) => {
-        if ((network !== target)) {
-          const checkWireUpCommand = `npx hardhat --network ${network} prepareAdvancedONFT721A --target ${target} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal} --bridgefee false`
+        if (network !== target) {
+          const checkWireUpCommand = `npx hardhat --network ${network} prepareAdvancedONFT721A --target ${target} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig}  --bridgefee false`
           console.log(checkWireUpCommand)
           shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
         }
@@ -242,8 +259,28 @@ export const sendCross = async (taskArgs: any, hre: any) => {
   const dstChainId = CHAIN_IDS[taskArgs.target]
   const onft = createContractByName(hre, 'OmniWave', AdvancedONFT721AAbi().abi, owner)
   const adapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 400000])
-  const gas = await submitReturnTx(hre, onft, 'estimateSendFee', [dstChainId, owner.address, taskArgs.tokenid, false, adapterParams])
-  await submitTx(hre, onft, 'sendFrom', [owner.address, dstChainId, owner.address, taskArgs.tokenid, owner.address, ethers.constants.AddressZero, adapterParams], { value: (gas[0].add(50000000000000)).toString() })
+  const gas = await submitReturnTx(hre, onft, 'estimateSendFee', [
+    dstChainId,
+    owner.address,
+    taskArgs.tokenid,
+    false,
+    adapterParams
+  ])
+  await submitTx(
+    hre,
+    onft,
+    'sendFrom',
+    [
+      owner.address,
+      dstChainId,
+      owner.address,
+      taskArgs.tokenid,
+      owner.address,
+      ethers.constants.AddressZero,
+      adapterParams
+    ],
+    { value: gas[0].add(50000000000000).toString() }
+  )
 }
 
 export const mint = async (taskArgs: any, hre: any) => {
@@ -278,13 +315,13 @@ export const expandCollection = async (taskArgs: any, hre: any) => {
   checkWireUpCommand = `npx hardhat deployAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --exclude ${taskArgs.oldchains}`
   console.log(checkWireUpCommand)
   shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
-  checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint false --reveal false --netexclude ${taskArgs.oldchains} --exclude none `
+  checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --netexclude ${taskArgs.oldchains} --exclude none `
   console.log(checkWireUpCommand)
   shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
   checkWireUpCommand = `npx hardhat setAllTrustedRemote --e ${taskArgs.e} --contract ${taskArgs.collection} --netexclude ${taskArgs.oldchains} --exclude none`
   console.log(checkWireUpCommand)
   shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
-  checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint false --reveal false --netexclude ${taskArgs.newchains} --exclude ${taskArgs.oldchains} `
+  checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --netexclude ${taskArgs.newchains} --exclude ${taskArgs.oldchains} `
   console.log(checkWireUpCommand)
   shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
   checkWireUpCommand = `npx hardhat setAllTrustedRemote --e ${taskArgs.e} --contract ${taskArgs.collection} --netexclude ${taskArgs.newchains} --exclude ${taskArgs.oldchains}`
@@ -296,7 +333,7 @@ export const expandCollection = async (taskArgs: any, hre: any) => {
   // checkWireUpCommand = `npx hardhat verifyAll --e ${taskArgs.e} --tags OmnichainAdventures`
   // console.log(checkWireUpCommand)
   // shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
-  // checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig false --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal}`
+  // checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig false `
   // console.log(checkWireUpCommand)
   // shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
 }
@@ -308,14 +345,13 @@ export const deployCollection = async (taskArgs: any, hre: any) => {
   }
   let checkWireUpCommand
 
-
   checkWireUpCommand = `npx hardhat deployAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --exclude none`
   console.log(checkWireUpCommand)
   shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
-  checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint false --reveal false --exclude none --netexclude none`
+  checkWireUpCommand = `npx hardhat setAllTrustedRemote --e ${taskArgs.e} --contract ${taskArgs.collection} --exclude none --netexclude none`
   console.log(checkWireUpCommand)
   shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
-  checkWireUpCommand = `npx hardhat setAllTrustedRemote --e ${taskArgs.e} --contract ${taskArgs.collection} --exclude none --netexclude none`
+  checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --exclude none --netexclude none`
   console.log(checkWireUpCommand)
   shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
   checkWireUpCommand = `npx hardhat setBridgeFees --e ${taskArgs.e} --collection ${taskArgs.collection} --exclude none`
@@ -324,7 +360,7 @@ export const deployCollection = async (taskArgs: any, hre: any) => {
   checkWireUpCommand = `npx hardhat verifyAll --e ${taskArgs.e} --tags ${taskArgs.collection}`
   console.log(checkWireUpCommand)
   shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
-  // checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig false --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal}`
+  // checkWireUpCommand = `npx hardhat prepareAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --lzconfig false`
   // console.log(checkWireUpCommand)
   // shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
 }

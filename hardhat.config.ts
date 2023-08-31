@@ -35,7 +35,6 @@ const config: HardhatUserConfig = {
   zksolc: {
     version: 'latest',
     settings: {}
-
   },
 
   namedAccounts: {
@@ -52,13 +51,17 @@ const config: HardhatUserConfig = {
       zksync: false
     },
     ethereum: {
-      url: process.env.ETH_RPC !== undefined ? process.env.ETH_RPC : 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
+      url:
+        process.env.ETH_RPC !== undefined
+          ? process.env.ETH_RPC
+          : 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161', // public infura endpoint
       chainId: 1,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
     },
     avalanche: {
-      url: process.env.AVALACNHE_RPC !== undefined ? process.env.AVALANCHE_RPC : 'https://api.avax.network/ext/bc/C/rpc',
+      url:
+        process.env.AVALACNHE_RPC !== undefined ? process.env.AVALANCHE_RPC : 'https://api.avax.network/ext/bc/C/rpc',
       chainId: 43114,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
@@ -119,7 +122,10 @@ const config: HardhatUserConfig = {
       zksync: false
     },
     klaytn: {
-      url: process.env.KLAYTN_RPC !== undefined ? process.env.KLAYTN_RPC : 'https://public-node-api.klaytnapi.com/v1/cypress',
+      url:
+        process.env.KLAYTN_RPC !== undefined
+          ? process.env.KLAYTN_RPC
+          : 'https://public-node-api.klaytnapi.com/v1/cypress',
       chainId: 8217,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
@@ -186,7 +192,10 @@ const config: HardhatUserConfig = {
       ethNetwork: 'goerli'
     },
     'bsc-testnet': {
-      url: process.env.BSC_TESTNET_RPC !== undefined ? process.env.BSC_TESTNET_RPC : 'https://data-seed-prebsc-2-s2.binance.org:8545',
+      url:
+        process.env.BSC_TESTNET_RPC !== undefined
+          ? process.env.BSC_TESTNET_RPC
+          : 'https://data-seed-prebsc-2-s2.binance.org:8545',
       chainId: 97,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
@@ -258,9 +267,9 @@ const config: HardhatUserConfig = {
       avalanche: process.env.AVALANCHE_API_KEY || '',
       optimisticEthereum: process.env.OPTIMISTIC_API_KEY || '',
       arbitrumOne: process.env.ARBITRUM_API_KEY || '',
-      arbtirumNova: process.env.ARBITRUM_NOVA_API_KEY || '',
-      metis: process.env.METIS_API_KEY || '',
-      gnosis: process.env.GNOSIS_API_KEY || '',
+      // arbtirumNova: process.env.ARBITRUM_NOVA_API_KEY || '',
+      // metis: process.env.METIS_API_KEY || '',
+      // gnosis: process.env.GNOSIS_API_KEY || '',
       // fantom: process.env.FANTOM_API_KEY || '',
       base: process.env.BASE_API_KEY || '',
       // arbitrumTestnet: process.env.ARBITRUM_API_KEY || '',
@@ -269,7 +278,6 @@ const config: HardhatUserConfig = {
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
       'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
       moonbeam: process.env.MOONBEAM_API_KEY || ''
-
     },
     customChains: [
       {

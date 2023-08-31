@@ -5,7 +5,6 @@ import LZ_ENDPOINTS from '../constants/layerzeroEndpoints.json'
 import STARGATE from '../constants/stargate.json'
 import GREG_ARGS from '../constants/ONFT721AArgs.json'
 
-
 type ENDPOINT_TYPE = {
   [key: string]: string
 }
@@ -31,7 +30,7 @@ export const verifyAll = async function (taskArgs: any, hre: any) {
       const endpointAddr = ENDPOINTS[network]
       if (address) {
         // const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} ${endpointAddr}`
-        const checkWireUpCommand = `npx hardhat verify --contract contracts/token/onft721A/extension/collections/OmnichainAdventuresV2.sol:OmnichainAdventuresV2 --network ${network} ${address} "${aonftArgs.name}" "${aonftArgs.symbol}" ${endpointAddr} ${aonftArgs.startId} ${aonftArgs.endId} ${aonftArgs.maxGlobalId} "${aonftArgs.baseURI}" "${aonftArgs.hiddenURI}" ${aonftArgs.tax} ${aonftArgs.price} ${aonftArgs.taxRecipient}`
+        const checkWireUpCommand = `npx hardhat verify --contract contracts/token/onft721A/extension/collections/OmniFlowers.sol:OmniFlowers --network ${network} ${address} "${aonftArgs.name}" "${aonftArgs.symbol}" ${endpointAddr} ${aonftArgs.startId} ${aonftArgs.endId} ${aonftArgs.maxGlobalId} "${aonftArgs.baseURI}" "${aonftArgs.hiddenURI}" ${aonftArgs.tax} ${aonftArgs.price} ${aonftArgs.taxRecipient} ${aonftArgs.premint} ${aonftArgs.beneficiary}`
         // const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} "${aonftArgs.name}" ${aonftArgs.symbol} ${endpointAddr} ${aonftArgs.startMintId} ${aonftArgs.endMintId} ${aonftArgs.maxTokensPerMint} "${aonftArgs.baseTokenURI}"`
         console.log(checkWireUpCommand)
         shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')

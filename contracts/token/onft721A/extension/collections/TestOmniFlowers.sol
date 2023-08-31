@@ -6,9 +6,9 @@ import "../AdvancedONFT721A.sol";
 
 error exceedMaxTokensPerMint();
 
-contract OmniFlowers is AdvancedONFT721A {
+contract TestOmniFlowers is AdvancedONFT721A {
 
-  uint maxTokensPerMint = 3;
+  uint maxTokensPerMint = 5;
 
   constructor(
     string memory _name,
@@ -27,15 +27,14 @@ contract OmniFlowers is AdvancedONFT721A {
   ) AdvancedONFT721A( _name, _symbol, _lzEndpoint, _startId, _maxId, _maxGlobalId, _baseTokenURI, _hiddenURI, _tax, _price, _taxRecipient, _beneficiary) {
     if (preMint) {
       // increments of 4 to make transfer gas cheaper
-      for(uint i; i < 100;) {
-        _mint(_beneficiary, 5);
+      for(uint i; i < 1;) {
+        _mint(_beneficiary, 4);
         unchecked {
           i++;
         }
       }
     }
   }
-
 
   function whitelistMint(uint _nbTokens, bytes32[] calldata _merkleProof) public payable override {
     if(_nbTokens > maxTokensPerMint) _revert(exceedMaxTokensPerMint.selector);

@@ -40,7 +40,9 @@ import {
   sendCross,
   deployCollection,
   setBridgeFees,
-  trustedRemoteLookup
+  trustedRemoteLookup,
+  startMint,
+  startAllMint
 } from './AdvancedONFTASuite'
 import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
 import { moralisSnap, alchemySnap, completeSnapshot, convertToList } from './snapshot'
@@ -173,15 +175,11 @@ task('prepareAdvancedONFT721A', 'prepareAdvancedONFT721A')
   .addParam('collection', 'collection name')
   .addParam('target', 'target dst network')
   .addParam('lzconfig', 'true or false for lz config')
-  .addParam('startmint', 'true or false for sale started')
-  .addParam('reveal', 'true or false for revealed metadata')
   .addParam('bridgefee', 'true or false to set bridge fees')
   .setAction(prepareAdvancedONFT721A)
 
 task('prepareAllAdvancedONFT721A', 'prepareAllAdvancedONFT721A')
   .addParam('lzconfig', 'true or false for lz config')
-  .addParam('startmint', 'true or false for sale started')
-  .addParam('reveal', 'true or false for revealed metadata')
   .addParam('collection', 'collection name')
   .addParam('e', 'testnet or mainnet')
   .addParam('netexclude', 'exclude chain name separated by single comma. Use none to ignore')
@@ -273,3 +271,19 @@ task('completeSnapshot', 'completeSnapshot')
   .setAction(completeSnapshot)
 
 task('convertToList', 'convertToList').addParam('file', 'file name to write to').setAction(convertToList)
+
+task('startMint', 'startMint')
+  .addParam('collection', 'collection name')
+  .addParam('public', 'start public mint')
+  .addParam('private', 'start private mint')
+  .addParam('reveal', 'reveal metadata')
+  .setAction(startMint)
+
+task('startAllMint', 'startAllMint')
+  .addParam('collection', 'collection name')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('public', 'start public mint')
+  .addParam('private', 'start private mint')
+  .addParam('reveal', 'reveal metadata')
+  .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
+  .setAction(startAllMint)
