@@ -330,8 +330,31 @@ export const sendCross = async (taskArgs: any, hre: any) => {
 export const mint = async (taskArgs: any, hre: any) => {
   const { ethers } = hre
   const [owner] = await ethers.getSigners()
-  const onft = createContractByName(hre, 'OmniWave', AdvancedONFT721AAbi().abi, owner)
-  await submitTx(hre, onft, 'mint', [taskArgs.amount])
+  const onft = createContractByName(hre, 'OmniFlowers', AdvancedONFT721AAbi().abi, owner)
+  await submitTx(
+    hre,
+    onft,
+    'whitelistMint',
+    [
+      taskArgs.amount,
+      [
+        '0x190a19a87545d6d53aef2c2a6fae0104c4e15144ad314f79aede4d31b656e750',
+        '0xe05dc14cd651f320052c023a6a6a35be039dce5b31c490ab66a87ecdf846490d',
+        '0xa888b25ad33b256065cd9ab0547be1084f2067649d053ff55a3e7629efdc78bf',
+        '0xaaadaf4da7b97e8b7049d3f20c426f286c222418ed32c37a32b452db569c1cc5',
+        '0xd98c2e0f008e93a2a99a1fefbeaf59036f25729fa92e98b22c95a0be7228caf1',
+        '0x59b61a895bc680691a2a09034a815ae8e7e14e3a2ce373714bb753c2ff19e876',
+        '0x4073bd2a6073b8e4f9a0583eb58ef0afb70037146dfd9c42b92c2f29ce7b387b',
+        '0x4d9bc4a982d66b99408cee6c2953d3d6c51b38126d102ff5f6c095afcda0c389',
+        '0x4aea6db44be9e4bb59f729136689b2af5cd13b44e6183fff21b1b035409fdd78',
+        '0x2ea177625e98344193a9e49aff46274e4484d787a58768b81f4cfca4c7dde4c2',
+        '0x321af9145f7bc69f4f83afd386cec4dcfdd4acc9e205782c2b9f4822c13a349d',
+        '0x478d3f12b0c45a7fa2b265631ffd97592e0fef0436b088485c6a2df41c4cc048',
+        '0xabf1d5d7d4c440a21fd2af01900403b194267f7ffc64069e34ec4fcc74cf6ed2'
+      ]
+    ],
+    { value: 6000000000000000 }
+  )
   console.log(`✅ minted ${taskArgs.amount} to ${owner.address}`)
 }
 
