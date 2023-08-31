@@ -42,10 +42,12 @@ import {
   setBridgeFees,
   trustedRemoteLookup,
   startMint,
-  startAllMint
+  startAllMint,
+  setMerkleRoot,
+  setAllMerkleRoot
 } from './AdvancedONFTASuite'
 import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
-import { moralisSnap, alchemySnap, completeSnapshot, convertToList } from './snapshot'
+import { moralisSnap, alchemySnap, completeSnapshot, convertToList, MerkleGen } from './snapshot'
 
 task(
   'setTrustedRemote',
@@ -284,3 +286,13 @@ task('startAllMint', 'startAllMint')
   .addParam('reveal', 'reveal metadata')
   .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
   .setAction(startAllMint)
+
+task('merkleGen', 'merkleGen').addParam('adr', 'adrress to test').setAction(MerkleGen)
+
+task('setMerkleRoot', 'setMerkleRoot').addParam('collection', 'collection name').setAction(setMerkleRoot)
+
+task('setAllMerkleRoot', 'setAllMerkleRoot')
+  .addParam('collection', 'collection name')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
+  .setAction(setAllMerkleRoot)
