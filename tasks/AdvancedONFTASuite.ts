@@ -174,7 +174,7 @@ export const setMerkleRoot = async (taskArgs: any, hre: any) => {
   }
 
   try {
-    submitTx(hre, onft721A, 'setMerkleRoot', [args.merkleRoot])
+    await submitTx(hre, onft721A, 'setMerkleRoot', [args.merkleRoot])
   } catch (e: any) {
     console.log(e)
   }
