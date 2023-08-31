@@ -296,5 +296,3 @@ task('setAllMerkleRoot', 'setAllMerkleRoot')
   .addParam('e', 'testnet or mainnet')
   .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
   .setAction(setAllMerkleRoot)
-
-task('setMerkleRoot').addParam('collection', 'collection name').setAction(setMerkleRoot)
