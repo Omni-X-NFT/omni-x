@@ -139,7 +139,7 @@ contract AdvancedONFT721A is ONFT721A {
 
     function tokenURI(uint256 _tokenId) public view override(ERC721ASpecific, IERC721ASpecific) returns (string memory) {
         require(_exists(_tokenId));
-        if (state.revealed) {
+        if (!state.revealed) {
             return metadata.hiddenMetadataURI;
         } 
         return string(abi.encodePacked(_baseURI(), _tokenId.toString()));
