@@ -238,7 +238,7 @@ export const setMetadata = async (taskArgs: any, hre: any) => {
 
   const metadata = {
     baseURI: args.baseURI,
-    hiddenMetadataURI: args.hiddenURI
+    hiddenMetadataURI: args.hiddenURIf
   }
 
   try {
