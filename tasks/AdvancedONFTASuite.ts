@@ -1,4 +1,4 @@
-import shell from 'shelljs'
+ import shell from 'shelljs'
 import LZ_ENDPOINT from '../constants/layerzeroEndpoints.json'
 import ONFT_ARGS from '../constants/ONFT721AArgs.json'
 import * as CHAIN_ID from '../constants/chainIds.json'
@@ -101,6 +101,42 @@ export const startAllMint = async (taskArgs: any, hre: any) => {
   await Promise.all(
     networks.map(async (network: string) => {
       const checkWireUpCommand = `npx hardhat --network ${network} startMint --collection ${taskArgs.collection} --reveal ${taskArgs.reveal} --public ${taskArgs.public} --private ${taskArgs.private}`
+      console.log(checkWireUpCommand)
+      shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+    })
+  )
+}
+
+export const setFinanceDetails = async (taskArgs: any, hre: any) => {
+  const { ethers, network } = hre
+  const [owner] = await ethers.getSigners()
+  const onft = createContractByName(hre, taskArgs.collection, AdvancedONFT721AAbi().abi, owner)
+  const financestate = {
+    beneficiary: ONFT_ARGS[taskArgs.collection][network.name].beneficiary,
+    taxRecipient: ONFT_ARGS[taskArgs.collection][network.name].taxRecipient,
+    tax: ONFT_ARGS[taskArgs.collection][network.name].tax, // 100% = 10000
+    price: ONFT_ARGS[taskArgs.collection][network.name].price
+  }
+  try {
+    await submitTx(hre, onft, 'setFinanceDetails', [financestate])
+    console.log('✅ set finance details')
+  } catch (e: any) {
+    console.log(e)
+  }
+}
+
+export const setAllFinanceDetails = async (taskArgs: any, hre: any) => {
+  let networks = environments[taskArgs.e]
+  if (!taskArgs.e || networks.length === 0) {
+    console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+  if (taskArgs.exclude !== 'none') {
+    const exclude = taskArgs.exclude.split(',')
+    networks = networks.filter((n: string) => !exclude.includes(n))
+  }
+  await Promise.all(
+    networks.map(async (network: string) => {
+      const checkWireUpCommand = `npx hardhat --network ${network} setFinanceDetails --collection ${taskArgs.collection}`
       console.log(checkWireUpCommand)
       shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
     })

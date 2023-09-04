@@ -43,6 +43,8 @@ import {
   trustedRemoteLookup,
   startMint,
   startAllMint,
+  setFinanceDetails,
+  setAllFinanceDetails,
   setMerkleRoot,
   setAllMerkleRoot
 } from './AdvancedONFTASuite'
@@ -286,6 +288,16 @@ task('startAllMint', 'startAllMint')
   .addParam('reveal', 'reveal metadata')
   .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
   .setAction(startAllMint)
+
+task('setFinanceDetails', 'setFinanceDetails')
+  .addParam('collection', 'collection name')
+  .setAction(setFinanceDetails)
+
+task('setAllFinanceDetails', 'setAllFinanceDetails')
+  .addParam('collection', 'collection name')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
+  .setAction(setAllFinanceDetails)
 
 task('merkleGen', 'merkleGen').addParam('adr', 'adrress to test').setAction(MerkleGen)
 
