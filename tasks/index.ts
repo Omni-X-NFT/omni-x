@@ -266,7 +266,7 @@ task('alchemySnap', 'snapshot')
   .setAction(alchemySnap)
 
 task('completeSnapshot', 'completeSnapshot')
-  .addParam('target', 'target network')
+  .addParam('target', 'target collection')
   .addParam('file', 'file name to write to')
   .addParam('e', 'testnet or mainnet')
   .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
