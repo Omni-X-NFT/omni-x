@@ -256,12 +256,12 @@ task('trustedRemoteLookup', 'trustedRemoteLookup')
   .setAction(trustedRemoteLookup)
 
 task('moralisSnap', 'snapshot')
-  .addParam('target', 'target network')
+  .addParam('target', 'target collection')
   .addParam('file', 'file name to write to')
   .setAction(moralisSnap)
 
 task('alchemySnap', 'snapshot')
-  .addParam('target', 'target network')
+  .addParam('target', 'target collection')
   .addParam('file', 'file name to write to')
   .setAction(alchemySnap)
 

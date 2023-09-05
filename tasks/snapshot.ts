@@ -6,6 +6,10 @@ import { Network, Alchemy } from 'alchemy-sdk'
 import fs from 'fs'
 import shell from 'shelljs'
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 export const moralisSnap = async (taskArgs: any, hre: any) => {
   const { network } = hre
   const owners: any = {}
@@ -60,16 +64,8 @@ export const alchemySnap = async (taskArgs: any, hre: any) => {
   const { network } = hre
   const contractAddress = (snapshotArgs as any)[taskArgs.target][network.name]
 
-  const settings = {
-    apiKey: process.env.ALCHEMY_OP, // Replace with your Alchemy API Key.
-    network: Network.OPT_MAINNET // Replace with your network.
-  }
-
-  const alchemy = new Alchemy(settings)
-
   try {
-    const ownersArray: any = await alchemy.nft.getOwnersForContract(contractAddress)
-    const owners = ownersArray.owners
+    const owners = await getAlchemyResponse(network.name, contractAddress)
     const data = await fs.promises.readFile(`constants/${taskArgs.file}.json`, 'utf8')
     const jsonData = JSON.parse(data)
 
@@ -90,9 +86,6 @@ export const alchemySnap = async (taskArgs: any, hre: any) => {
   } catch (e) {
     console.log(e)
   }
-}
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function getMoralisResponse(network: string, contractAddress: string, cursor: string | undefined) {
@@ -150,6 +143,37 @@ async function getMoralisResponse(network: string, contractAddress: string, curs
   }
   response = response.toJSON()
   return response
+}
+
+async function getAlchemyResponse(network: string, contractAddress: string) {
+  let settings: any
+  if (network === 'polygon') {
+    settings = {
+      apiKey: process.env.ALCHEMY_MATIC, // Replace with your Alchemy API Key.
+      network: Network.MATIC_MAINNET // Replace with your network.
+    }
+  } else if (network === 'ethereum') {
+    settings = {
+      apiKey: process.env.ALCHEMY_ETH, // Replace with your Alchemy API Key.
+      network: Network.ETH_MAINNET // Replace with your network.
+    }
+  } else if (network === 'arbitrum') {
+    settings = {
+      apiKey: process.env.ALCHEMY_ARBITRUM, // Replace with your Alchemy API Key.
+      network: Network.ARB_MAINNET // Replace with your network.
+    }
+  } else if (network === 'optimism') {
+    settings = {
+      apiKey: process.env.ALCHEMY_OPTIMISM, // Replace with your Alchemy API Key.
+      network: Network.OPT_MAINNET // Replace with your network.
+    }
+  } else {
+    throw new Error('Unsupported network')
+  }
+  const alchemy = new Alchemy(settings)
+  console.log(contractAddress)
+  const ownersArray: any = await alchemy.nft.getOwnersForContract(contractAddress)
+  return ownersArray.owners
 }
 
 export const completeSnapshot = async (taskArgs: any, hre: any) => {
