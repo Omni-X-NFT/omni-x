@@ -41,7 +41,7 @@ contract AdvancedONFT721A is ONFT721A {
     uint256 public maxGlobalId;
     bytes32 public merkleRoot;
 
-    FinanceDetails private _financeDetails;
+    FinanceDetails public _financeDetails;
     Metadata public metadata;
     NFTState public state;
 

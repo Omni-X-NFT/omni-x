@@ -193,6 +193,21 @@ export const convertToList = async (taskArgs: any, hre: any) => {
   console.log('✅ List created')
 }
 
+export const removeDups = async (taskArgs: any, hre: any) => {
+  const data = await fs.promises.readFile(`constants/${taskArgs.file}_list.json`, 'utf8')
+  const jsonData = JSON.parse(data)
+
+  const finalList: any[] = []
+  for (const item in jsonData) {
+    if (!finalList.includes(item)) {
+      finalList.push(item)
+    }
+  }
+
+  await fs.promises.writeFile(`constants/${taskArgs.file}_list.json`, JSON.stringify(finalList, null, 2))
+  console.log('✅ List created')
+}
+
 export const MerkleGen = async function (taskArgs: any, hre: any) {
   const { ethers } = hre
   const leaves = (snapshotData as any).map((x: any) => keccak256(ethers.utils.solidityPack(['address'], [x])))

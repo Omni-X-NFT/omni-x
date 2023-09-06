@@ -49,7 +49,7 @@ import {
   setAllMerkleRoot
 } from './AdvancedONFTASuite'
 import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
-import { moralisSnap, alchemySnap, completeSnapshot, convertToList, MerkleGen } from './snapshot'
+import { moralisSnap, alchemySnap, completeSnapshot, convertToList, MerkleGen, removeDups } from './snapshot'
 
 task(
   'setTrustedRemote',
@@ -289,9 +289,7 @@ task('startAllMint', 'startAllMint')
   .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
   .setAction(startAllMint)
 
-task('setFinanceDetails', 'setFinanceDetails')
-  .addParam('collection', 'collection name')
-  .setAction(setFinanceDetails)
+task('setFinanceDetails', 'setFinanceDetails').addParam('collection', 'collection name').setAction(setFinanceDetails)
 
 task('setAllFinanceDetails', 'setAllFinanceDetails')
   .addParam('collection', 'collection name')
@@ -308,3 +306,5 @@ task('setAllMerkleRoot', 'setAllMerkleRoot')
   .addParam('e', 'testnet or mainnet')
   .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
   .setAction(setAllMerkleRoot)
+
+task('removeDups', 'removeDups').addParam('file', 'file name to write to').setAction(removeDups)
