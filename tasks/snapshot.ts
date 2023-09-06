@@ -5,6 +5,9 @@ import snapshotArgs from '../constants/snapshotArgs.json'
 import { Network, Alchemy } from 'alchemy-sdk'
 import fs from 'fs'
 import shell from 'shelljs'
+import { MerkleTree } from 'merkletreejs'
+import keccak256 from 'keccak256'
+import snapshotData from '../constants/newCyberConnectWL_list.json'
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -34,7 +37,7 @@ export const moralisSnap = async (taskArgs: any, hre: any) => {
       }
       dataCursor = response.cursor
       console.log('page complete')
-      await sleep(1000)
+      await sleep(2001)
     } while (dataCursor !== null && dataCursor !== '')
 
     const data = await fs.promises.readFile(`constants/${taskArgs.file}.json`, 'utf8')
@@ -159,12 +162,12 @@ async function getAlchemyResponse(network: string, contractAddress: string) {
     }
   } else if (network === 'arbitrum') {
     settings = {
-      apiKey: process.env.ALCHEMY_ARBITRUM, // Replace with your Alchemy API Key.
+      apiKey: process.env.ALCHEMY_ARB, // Replace with your Alchemy API Key.
       network: Network.ARB_MAINNET // Replace with your network.
     }
   } else if (network === 'optimism') {
     settings = {
-      apiKey: process.env.ALCHEMY_OPTIMISM, // Replace with your Alchemy API Key.
+      apiKey: process.env.ALCHEMY_OP, // Replace with your Alchemy API Key.
       network: Network.OPT_MAINNET // Replace with your network.
     }
   } else {
@@ -187,7 +190,7 @@ export const completeSnapshot = async (taskArgs: any, hre: any) => {
   }
   await Promise.all(
     networks.map(async (network: string) => {
-      if (network === 'optimism') {
+      if (network === 'optimism' || network === 'ethereum' || network === 'arbitrum' || network === 'polygon') {
         const checkWireUpCommand = `npx hardhat alchemySnap --network ${network} --file ${taskArgs.file} --target ${taskArgs.target}`
         console.log(checkWireUpCommand)
         shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
@@ -202,14 +205,43 @@ export const completeSnapshot = async (taskArgs: any, hre: any) => {
 
 export const convertToList = async (taskArgs: any, hre: any) => {
   // Read the JSON file
-  const data = await fs.promises.readFile(`constants/${taskArgs.file}.json`, 'utf8')
-  const jsonData = JSON.parse(data)
+  const newData = await fs.promises.readFile(`constants/${taskArgs.file}.json`, 'utf8')
+  const jsonData = JSON.parse(newData)
+  const oldData = await fs.promises.readFile(`constants/${taskArgs.file}_list.json`, 'utf8')
+  const oldJsonData = JSON.parse(oldData)
 
   // Get an array of all keys (addresses)
   const addressList = Object.keys(jsonData)
 
+  const finalList: any = []
+
+  for (const item of addressList) {
+    if (!finalList.includes(item)) {
+      finalList.push(item)
+    }
+  }
+
+  for (const item of oldJsonData) {
+    if (!finalList.includes(item)) {
+      finalList.push(item)
+    }
+  }
+  console.log(addressList.length + oldJsonData.length)
+  console.log(finalList.length)
+
   // Write the array to a new file
-  await fs.promises.writeFile(`constants/${taskArgs.file}_list.json`, JSON.stringify(addressList, null, 2))
+  await fs.promises.writeFile(`constants/${taskArgs.file}_list.json`, JSON.stringify(finalList, null, 2))
 
   console.log('✅ List created')
+}
+
+export const MerkleGen = async function (taskArgs: any, hre: any) {
+  const { ethers } = hre
+  const leaves = (snapshotData as any).map((x: any) => keccak256(ethers.utils.solidityPack(['address'], [x])))
+  const tree = new MerkleTree(leaves, keccak256, { sortPairs: true })
+  const root = tree.getHexRoot()
+  console.log('Merkle Root:', root.toString())
+  const leaf = keccak256(ethers.utils.solidityPack(['address'], [taskArgs.adr]))
+  const proof = tree.getHexProof(leaf)
+  console.log('Proof:', proof)
 }
