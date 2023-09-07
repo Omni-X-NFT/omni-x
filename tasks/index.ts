@@ -46,7 +46,9 @@ import {
   setFinanceDetails,
   setAllFinanceDetails,
   setMerkleRoot,
-  setAllMerkleRoot
+  setAllMerkleRoot,
+  withdraw,
+  withdrawAll
 } from './AdvancedONFTASuite'
 import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
 import { moralisSnap, alchemySnap, completeSnapshot, convertToList, MerkleGen, removeDups } from './snapshot'
@@ -306,3 +308,11 @@ task('setAllMerkleRoot', 'setAllMerkleRoot')
   .setAction(setAllMerkleRoot)
 
 task('removeDups', 'removeDups').addParam('file', 'file name to write to').setAction(removeDups)
+
+task('withdraw', 'withdraw').addParam('collection', 'collection name').setAction(withdraw)
+
+task('withdrawAll', 'withdrawAll')
+  .addParam('collection', 'collection name')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
+  .setAction(withdrawAll)
