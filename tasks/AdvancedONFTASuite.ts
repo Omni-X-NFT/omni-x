@@ -13,7 +13,7 @@ type CHAINIDTYPE = {
 const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
 const AdvancedONFT721AAbi = loadAbi(
-  '../artifacts/contracts/token/onft721A/extension/collections/OmniFlowers.sol/OmniFlowers.json'
+  '../artifacts/contracts/token/onft721A/extension/collections/PrimeGenesis.sol/PrimeGenesis.json'
 )
 // const LZEndpointAbi = loadAbi('../artifacts/contracts/layerzero/LZEndpoint.sol/LZEndpoint.json')
 
