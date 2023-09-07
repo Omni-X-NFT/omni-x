@@ -6,9 +6,9 @@ import "../AdvancedONFT721A.sol";
 
 error exceedMaxTokensPerMint();
 
-contract OmniFlowers is AdvancedONFT721A {
+contract PrimeGenesis is AdvancedONFT721A {
 
-  uint maxTokensPerMint = 3;
+  uint maxTokensPerMint = 5;
 
   constructor(
     string memory _name,
@@ -21,13 +21,15 @@ contract OmniFlowers is AdvancedONFT721A {
     string memory _hiddenURI,
     uint16 _tax,
     uint128 _price,
+    uint128 _wlPrice,
+    address token,
     address _taxRecipient,
     bool preMint,
     address _beneficiary
-  ) AdvancedONFT721A( _name, _symbol, _lzEndpoint, _startId, _maxId, _maxGlobalId, _baseTokenURI, _hiddenURI, _tax, _price, _taxRecipient, _beneficiary) {
+  ) AdvancedONFT721A( _name, _symbol, _lzEndpoint, _startId, _maxId, _maxGlobalId, _baseTokenURI, _hiddenURI, _tax, _price, _wlPrice, token,  _taxRecipient, _beneficiary) {
     if (preMint) {
       // increments of 4 to make transfer gas cheaper
-      for(uint i; i < 100;) {
+      for(uint i; i < 10;) {
         _mint(_beneficiary, 5);
         unchecked {
           i++;

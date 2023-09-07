@@ -4,7 +4,7 @@ pragma solidity ^0.8;
 import "../ONFT721A.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "solmate/src/utils/MerkleProofLib.sol";
-
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 error saleNotStarted();
 error zeroAmount();
 error maxSupplyReached();
@@ -20,8 +20,11 @@ contract AdvancedONFT721A is ONFT721A {
         
         address payable beneficiary;
         address payable taxRecipient;
-        uint16 tax; // 100% = 10000
+        address token;
         uint128 price;
+        uint128 wlPrice;
+        uint16 tax;
+        
 
     }
 
@@ -31,8 +34,7 @@ contract AdvancedONFT721A is ONFT721A {
     }
 
     struct NFTState {
-        bool publicSaleStarted;
-        bool privateSaleStarted;
+        bool saleStarted;
         bool revealed;
     }
 
@@ -41,12 +43,12 @@ contract AdvancedONFT721A is ONFT721A {
     uint256 public maxGlobalId;
     bytes32 public merkleRoot;
 
-    FinanceDetails public _financeDetails;
+    FinanceDetails public financeDetails;
     Metadata public metadata;
     NFTState public state;
 
     modifier onlyBenficiaryAndOwner() {
-        require(msg.sender == _financeDetails.beneficiary || msg.sender == owner(), "Caller is not beneficiary or owner");
+        require(msg.sender == financeDetails.beneficiary || msg.sender == owner(), "Caller is not beneficiary or owner");
         _;
     }
 
@@ -61,31 +63,33 @@ contract AdvancedONFT721A is ONFT721A {
         string memory _hiddenURI,
         uint16 _tax,
         uint128 _price,
+        uint128 _wlPrice,
+        address token,
         address _taxRecipient,
         address _beneficiary
     ) ONFT721A(_name, _symbol, 1, _lzEndpoint, _startId) {
         startId = _startId;
         maxGlobalId = _maxGlobalId;
         maxId = _maxId;
-        _financeDetails = FinanceDetails(payable(_beneficiary), payable(_taxRecipient), _tax, _price );
+        financeDetails = FinanceDetails(payable(_beneficiary), payable(_taxRecipient), token, _price, _wlPrice, _tax);
         metadata = Metadata(_baseTokenURI, _hiddenURI);
     }
 
     function mint(uint256 _nbTokens) public virtual payable {
-        if (!state.publicSaleStarted) _revert(saleNotStarted.selector);
+        if (!state.saleStarted) _revert(saleNotStarted.selector);
         if (_nbTokens == 0) _revert(zeroAmount.selector);
         if (_nextTokenId() + _nbTokens - 1 > maxId) _revert(maxSupplyReached.selector);
-        if (_nbTokens * _financeDetails.price > msg.value) _revert(insufficientValue.selector);
+        IERC20(financeDetails.token).transferFrom(msg.sender, address(this), financeDetails.price * _nbTokens);
         _mint(msg.sender, _nbTokens);
     }
 
     function whitelistMint(uint256 _nbTokens, bytes32[] calldata _merkleProof) public virtual payable {
-        if (!state.privateSaleStarted) _revert(saleNotStarted.selector);
-        if (_nbTokens * _financeDetails.price > msg.value) _revert(insufficientValue.selector);
+        if (!state.saleStarted) _revert(saleNotStarted.selector);
         if (!(_merkleProof.verify(merkleRoot, keccak256(abi.encodePacked(msg.sender))))) _revert(nonWhitelist.selector);
         if (_nbTokens == 0) _revert(zeroAmount.selector);
         if (_nextTokenId() + _nbTokens - 1 > maxId) _revert(maxSupplyReached.selector);
 
+        IERC20(financeDetails.token).transferFrom(msg.sender, address(this), financeDetails.wlPrice * _nbTokens);
         _mint(msg.sender, _nbTokens);        
     }
 
@@ -113,7 +117,7 @@ contract AdvancedONFT721A is ONFT721A {
     
 
     function setFinanceDetails(FinanceDetails calldata _finance) public onlyOwner {
-        _financeDetails = _finance;
+        financeDetails = _finance;
     }
 
 
@@ -126,13 +130,16 @@ contract AdvancedONFT721A is ONFT721A {
     }
 
     function withdraw() external onlyBenficiaryAndOwner {
-        require(_financeDetails.beneficiary != address(0));
-        require(_financeDetails.taxRecipient != address(0));
+        address beneficiary = financeDetails.beneficiary;
+        address taxRecipient = financeDetails.taxRecipient;
+        address token = financeDetails.token;
+        require(beneficiary != address(0));
+        require(taxRecipient != address(0));
         uint balance = address(this).balance;
-        uint taxFee = balance * _financeDetails.tax / 10000;
-        require(payable(_financeDetails.beneficiary).send(balance - taxFee));
-        require(payable(_financeDetails.taxRecipient).send(taxFee));
-        require(payable(_financeDetails.beneficiary).send(address(this).balance));
+        uint taxFee = balance * financeDetails.tax / 10000;
+        IERC20(token).transferFrom(address(this), beneficiary, balance - taxFee);
+        IERC20(token).transferFrom(address(this), taxRecipient, taxFee);
+        IERC20(token).transferFrom(address(this), beneficiary, IERC20(token).balanceOf(address(this)));
     } 
 
 
