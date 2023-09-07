@@ -77,8 +77,7 @@ export const startMint = async (taskArgs: any, hre: any) => {
   const [owner] = await ethers.getSigners()
   const onft = createContractByName(hre, taskArgs.collection, AdvancedONFT721AAbi().abi, owner)
   const nftstate = {
-    publicSaleStarted: taskArgs.public === 'true',
-    privateSaleStarted: taskArgs.private === 'true',
+    saleStarted: taskArgs.sale === 'true',
     revealed: taskArgs.reveal === 'true'
   }
   try {
@@ -100,7 +99,7 @@ export const startAllMint = async (taskArgs: any, hre: any) => {
   }
   await Promise.all(
     networks.map(async (network: string) => {
-      const checkWireUpCommand = `npx hardhat --network ${network} startMint --collection ${taskArgs.collection} --reveal ${taskArgs.reveal} --public ${taskArgs.public} --private ${taskArgs.private}`
+      const checkWireUpCommand = `npx hardhat --network ${network} startMint --collection ${taskArgs.collection} --sale ${taskArgs.sale} --private ${taskArgs.private}`
       console.log(checkWireUpCommand)
       shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
     })
@@ -111,11 +110,14 @@ export const setFinanceDetails = async (taskArgs: any, hre: any) => {
   const { ethers, network } = hre
   const [owner] = await ethers.getSigners()
   const onft = createContractByName(hre, taskArgs.collection, AdvancedONFT721AAbi().abi, owner)
+  const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
   const financestate = {
-    beneficiary: ONFT_ARGS[taskArgs.collection][network.name].beneficiary,
-    taxRecipient: ONFT_ARGS[taskArgs.collection][network.name].taxRecipient,
-    tax: ONFT_ARGS[taskArgs.collection][network.name].tax, // 100% = 10000
-    price: ONFT_ARGS[taskArgs.collection][network.name].price
+    beneficiary: args.beneficiary,
+    taxRecipient: args.taxRecipient,
+    token: args.token,
+    price: args.price,
+    wlPrice: args.wlPrice,
+    tax: args.tax
   }
   try {
     await submitTx(hre, onft, 'setFinanceDetails', [financestate])
