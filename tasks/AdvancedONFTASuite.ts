@@ -101,7 +101,7 @@ export const startAllMint = async (taskArgs: any, hre: any) => {
   }
   await Promise.all(
     networks.map(async (network: string) => {
-      const checkWireUpCommand = `npx hardhat --network ${network} startMint --collection ${taskArgs.collection} --sale ${taskArgs.sale} --private ${taskArgs.private}`
+      const checkWireUpCommand = `npx hardhat --network ${network} startMint --collection ${taskArgs.collection} --sale ${taskArgs.sale} --reveal ${taskArgs.reveal}`
       console.log(checkWireUpCommand)
       shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
     })

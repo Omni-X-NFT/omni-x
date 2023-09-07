@@ -270,7 +270,7 @@ const config: HardhatUserConfig = {
       // arbtirumNova: process.env.ARBITRUM_NOVA_API_KEY || '',
       // metis: process.env.METIS_API_KEY || '',
       // gnosis: process.env.GNOSIS_API_KEY || '',
-      // fantom: process.env.FANTOM_API_KEY || '',
+      opera: process.env.FANTOM_API_KEY || '',
       base: process.env.BASE_API_KEY || '',
       // arbitrumTestnet: process.env.ARBITRUM_API_KEY || '',
       // optimisticKovan: process.env.OPTIMISTIC_API_KEY || '',
