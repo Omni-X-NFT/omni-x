@@ -30,7 +30,7 @@ export const verifyAll = async function (taskArgs: any, hre: any) {
       const endpointAddr = ENDPOINTS[network]
       if (address) {
         // const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} ${endpointAddr}`
-        const checkWireUpCommand = `npx hardhat verify --contract contracts/token/onft721A/extension/collections/OmniFlowers.sol:OmniFlowers --network ${network} ${address} "${aonftArgs.name}" "${aonftArgs.symbol}" ${endpointAddr} ${aonftArgs.startId} ${aonftArgs.endId} ${aonftArgs.maxGlobalId} "${aonftArgs.baseURI}" "${aonftArgs.hiddenURI}" ${aonftArgs.tax} ${aonftArgs.price} ${aonftArgs.taxRecipient} ${aonftArgs.premint} ${aonftArgs.beneficiary}`
+        const checkWireUpCommand = `npx hardhat verify --contract contracts/token/onft721A/extension/collections/PrimeGenesis.sol:PrimeGenesis --network ${network} ${address} "${aonftArgs.name}" "${aonftArgs.symbol}" ${endpointAddr} ${aonftArgs.startId} ${aonftArgs.endId} ${aonftArgs.maxGlobalId} "${aonftArgs.baseURI}" "${aonftArgs.hiddenURI}" ${aonftArgs.tax} ${aonftArgs.price} ${aonftArgs.wlPrice} ${aonftArgs.token} ${aonftArgs.taxRecipient} ${aonftArgs.premint} ${aonftArgs.beneficiary}`
         // const checkWireUpCommand = `npx hardhat verify --network ${network} ${address} "${aonftArgs.name}" ${aonftArgs.symbol} ${endpointAddr} ${aonftArgs.startMintId} ${aonftArgs.endMintId} ${aonftArgs.maxTokensPerMint} "${aonftArgs.baseTokenURI}"`
         console.log(checkWireUpCommand)
         shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')

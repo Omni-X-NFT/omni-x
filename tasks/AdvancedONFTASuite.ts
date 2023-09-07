@@ -34,6 +34,8 @@ export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
       args.hiddenURI,
       args.tax,
       args.price,
+      args.wlPrice,
+      args.token,
       args.taxRecipient,
       args.premint,
       args.beneficiary
