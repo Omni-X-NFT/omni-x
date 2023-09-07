@@ -382,7 +382,7 @@ export const sendCross = async (taskArgs: any, hre: any) => {
 export const mint = async (taskArgs: any, hre: any) => {
   const { ethers } = hre
   const [owner] = await ethers.getSigners()
-  const onft = createContractByName(hre, 'OmniFlowers', AdvancedONFT721AAbi().abi, owner)
+  const onft = createContractByName(hre, 'PrimeGenesis', AdvancedONFT721AAbi().abi, owner)
   await submitTx(
     hre,
     onft,
@@ -390,22 +390,22 @@ export const mint = async (taskArgs: any, hre: any) => {
     [
       taskArgs.amount,
       [
-        '0x494af10542d888ad9f399442616fb70d114d4ff60c24a8dffa3c025e107ca818',
-        '0x00620bceb15045d8cd823e4fedeb2f45d34c74e386779ac6fff7810c511c2917',
-        '0x6b2539a4b57a1cd7f5f384cc0f5c03a9a8b7ffe7051819dfa8e2ad7431f2d371',
-        '0x5f49b907b5f0cec2597b1dd2762f7f824e03182c89b114846844a1798917d9d1',
-        '0xdb5234f097c24ccadd4d7ed9aea2fd21be5d11e6ecd1689ff45cc88b340bec34',
-        '0x13388436c7bfdedf2145e81e8f1e97470d552c823481e8dd76ec356ceda66b8d',
-        '0xdfbe3af64b2a1316ba0839d9e8658e021e3cedb64e6c1734dbecb4e8408d70ad',
-        '0x9fc91bd32bfd53b70b026b903151c5dcaedbf95d8e777afcbb2d99ae3eddb2ef',
-        '0x10b73f8802d2da2017f22fe6600ae377606598ab794b572f5db4c8775d267535',
-        '0xe17163366263e91b66cc5a05d169e8e13a86a32b053bc32653cb979e1a3230f5',
+        '0x31e66b8aae03a505e20f74d997aa54fd16a028b8cdc3ce4b2e695b82085319a9',
+        '0x311b75e6310bc08293ecb186a1668d1ccd6a90e1ffe2ca882cd5311362bb332c',
+        '0x936461247f75771b8ef036ccb911f8d0b1081129b2be481703db25fb4f00bca1',
+        '0xebc252c04ff3f9e228987e2f72bc4621f9a3439c5f38d9987e53a619a96ad3ac',
+        '0xc924256a037f64000b46f45b890a0e19bfc468fef7971aa4db3af58bc7dd75c7',
+        '0xc262dceadef5da7375a38c2ea30a0a09fb611cd039a1b9f2eefb759c1d4d19bd',
+        '0x256010b868cb9c0fefdc2b998d46228064944f9b7400ce8c4bd01ca361d18263',
+        '0xed5e3f9b25f5901517015c2fbef07a4b4af5b0ea07d6977d1c32439612c2f0bd',
+        '0xfa1e86c9cd5957ca3d08a9a1573d375b6e2db9c620bbb1e89420c94545741450',
+        '0x61f8321cbbb325eb008399d5154c2636837adfb34aa951783c648330a1f384d5',
         '0xf85706f674944cf7b10d680ab33257a44274a03f1d96f51aa874b4661ad71d4c',
         '0x0e21e06161297714f19b696f0b877f7d1c7d5bb4447d7320044e99cbc027b00e',
-        '0xfc01d7389947ee2724ad82ce9debd7e9efd130e8716a4a789df9b8917212fc03'
+        '0x4f5873f1ce75dc5f5d218edd7db16dede45693801124e60a805003753ba1e0be'
       ]
     ],
-    { value: '13000000000000000' }
+    { value: '0' }
   )
   console.log(`✅ minted ${taskArgs.amount} to ${owner.address}`)
 }
