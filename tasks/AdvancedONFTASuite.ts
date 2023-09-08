@@ -485,7 +485,7 @@ export const deployCollection = async (taskArgs: any, hre: any) => {
   // console.log(checkWireUpCommand)
   // shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
   checkWireUpCommand =
-    'npx hardhat startAllMint --collection PrimeGensis —e mainnet --sale false --reveal true --exclude arbitrum,ethereum,avalanche,fantom,polygon,gnosis,optimism'
+    'npx hardhat startAllMint --collection PrimeGensis --e mainnet --sale false --reveal true --exclude arbitrum,ethereum,avalanche,fantom,polygon,gnosis,optimism'
   console.log(checkWireUpCommand)
   shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
   checkWireUpCommand = `npx hardhat setBridgeFees --e ${taskArgs.e} --collection ${taskArgs.collection} --exclude arbitrum,ethereum,avalanche,fantom,polygon,gnosis,optimism`
