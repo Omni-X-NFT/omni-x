@@ -51,7 +51,15 @@ import {
   withdrawAll
 } from './AdvancedONFTASuite'
 import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
-import { moralisSnap, alchemySnap, completeSnapshot, convertToList, MerkleGen, removeDups } from './snapshot'
+import {
+  moralisSnap,
+  alchemySnap,
+  completeSnapshot,
+  convertToList,
+  MerkleGen,
+  removeDups,
+  getFlowers
+} from './snapshot'
 
 task(
   'setTrustedRemote',
@@ -318,3 +326,5 @@ task('withdrawAll', 'withdrawAll')
   .addParam('e', 'testnet or mainnet')
   .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
   .setAction(withdrawAll)
+
+task('getFlowers', 'getFlowers').setAction(getFlowers)

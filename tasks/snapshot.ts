@@ -7,7 +7,33 @@ import fs from 'fs'
 import shell from 'shelljs'
 import { MerkleTree } from 'merkletreejs'
 import keccak256 from 'keccak256'
+import path from 'path'
+import util from 'util'
 import snapshotData from '../constants/cyberConnectWL_list.json'
+import { loadAbi, createContractByName, deployContract, environments, submitTx, submitReturnTx } from './shared'
+
+const AdvancedONFT721AAbi = loadAbi(
+  '../artifacts/contracts/token/onft721A/extension/collections/OmniFlowers.sol/OmniFlowers.json'
+)
+// const LZEndpointAbi = loadAbi('../artifacts/contracts/layerzero/LZEndpoint.sol/LZEndpoint.json')
+
+function getContract(collection: string, owner: any, hre: any, network: string): any {
+  let onft721A
+  if (network === 'zksync' || network === 'zksync-testnet') {
+    const path = `../artifacts-zk/contracts/token/onft721A/extension/collections/${collection}.sol/${collection}.json`
+    if (!fs.existsSync(path)) {
+      console.log('zk aritfact not found please run npx hardhat compile --network zksync')
+      return
+    }
+    const ContractArtifact = require(path)
+    onft721A = createContractByName(hre, collection, ContractArtifact.abi, owner)
+  } else {
+    // onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
+    onft721A = createContractByName(hre, collection, AdvancedONFT721AAbi().abi, owner)
+  }
+
+  return onft721A
+}
 
 export const moralisSnap = async (taskArgs: any, hre: any) => {
   const { network } = hre
@@ -217,4 +243,76 @@ export const MerkleGen = async function (taskArgs: any, hre: any) {
   const leaf = keccak256(ethers.utils.solidityPack(['address'], [taskArgs.adr]))
   const proof = tree.getHexProof(leaf)
   console.log('Proof:', proof)
+}
+
+const flowersList = [
+  'Allium',
+  'Bell flower',
+  'Bloom corpse',
+  'Hydrangea',
+  'Jade vine',
+  'Middlemist red',
+  'Parrot flower',
+  'Tulip',
+  'Cherry blossoms',
+  'Dahlia',
+  'Dicentra splendens',
+  'Lotos',
+  'Venus Flytrap',
+  'Koi Flower',
+  'Moon Flower'
+]
+
+export const getFlowers = async (taskArgs: any, hre: any) => {
+  const matchingFiles: number[] = []
+  const { ethers, network } = hre
+
+  const [owner] = await ethers.getSigners()
+  const onft721A = getContract('OmniFlowers', owner, hre, network.name)
+
+  for (let i = 1; i <= 5000; i++) {
+    const filePath = path.join('constants/flowersMetadata', `${i}.json`)
+    try {
+      const data = await fs.promises.readFile(filePath, 'utf8')
+      const json = JSON.parse(data)
+
+      if (json.attributes) {
+        for (const attribute of json.attributes) {
+          if (attribute.trait_type === 'Flower' && flowersList.includes(attribute.value)) {
+            matchingFiles.push(i)
+            break
+          }
+        }
+      }
+    } catch (err) {
+      console.error(`Error reading file ${filePath}: ${err}`)
+    }
+  }
+  console.log(matchingFiles.slice(-50))
+  console.log(matchingFiles.length)
+  const jsonOwners = await fs.promises.readFile('constants/BouqetMapping.json', 'utf8')
+  const owners: any = JSON.parse(jsonOwners)
+  for (const file of matchingFiles) {
+    try {
+      const data = await onft721A.ownerOf(file)
+      if (
+        data &&
+        data !== ethers.constants.AddressZero &&
+        data !== '0x7E505Da275223B1bcFCCd3808DB70aE4FeFA274e' &&
+        data !== '0x10aB7ef6e83B28e3b85eca453701C89eb21DE7F8'
+      ) {
+        if (owners[data] !== undefined) {
+          owners[data] += 1
+        } else {
+          owners[data] = 1
+        }
+      }
+    } catch (err) {
+      console.error(`Error reading file ${file}: ${err}`)
+    }
+  }
+
+  await fs.promises.writeFile('constants/BouqetMapping.json', JSON.stringify(owners, null, 2))
+
+  console.log(owners)
 }
