@@ -32,7 +32,6 @@ contract AdvancedONFT721A is ONFT721A {
 
     struct NFTState {
         bool publicSaleStarted;
-        bool privateSaleStarted;
         bool revealed;
     }
 
@@ -80,7 +79,6 @@ contract AdvancedONFT721A is ONFT721A {
     }
 
     function whitelistMint(uint256 _nbTokens, bytes32[] calldata _merkleProof) public virtual payable {
-        if (!state.privateSaleStarted) _revert(saleNotStarted.selector);
         if (_nbTokens * _financeDetails.price > msg.value) _revert(insufficientValue.selector);
         if (!(_merkleProof.verify(merkleRoot, keccak256(abi.encodePacked(msg.sender))))) _revert(nonWhitelist.selector);
         if (_nbTokens == 0) _revert(zeroAmount.selector);
