@@ -46,6 +46,7 @@ contract AdvancedONFT721A is ONFT721A {
     FinanceDetails public financeDetails;
     Metadata public metadata;
     NFTState public state;
+    mapping (address => bool) public claimed;
 
     modifier onlyBenficiaryAndOwner() {
         require(msg.sender == financeDetails.beneficiary || msg.sender == owner(), "Caller is not beneficiary or owner");
@@ -83,14 +84,22 @@ contract AdvancedONFT721A is ONFT721A {
         _mint(msg.sender, _nbTokens);
     }
 
-    function whitelistMint(uint256 _nbTokens, bytes32[] calldata _merkleProof) public virtual payable {
+    function claim(uint256[] calldata  tokenIds, address to, bytes32[] calldata _merkleProof) public virtual payable {
         if (!state.saleStarted) _revert(saleNotStarted.selector);
-        if (!(_merkleProof.verify(merkleRoot, keccak256(abi.encodePacked(msg.sender))))) _revert(nonWhitelist.selector);
-        if (_nbTokens == 0) _revert(zeroAmount.selector);
-        if (_nextTokenId() + _nbTokens - 1 > maxId) _revert(maxSupplyReached.selector);
+        if (!(_merkleProof.verify(merkleRoot, keccak256(abi.encodePacked(to, tokenIds))))) _revert(nonWhitelist.selector);
+        uint256 len = tokenIds.length;
+        if ( len == 0) _revert(zeroAmount.selector);
+        if (_nextTokenId() + len - 1 > maxId) _revert(maxSupplyReached.selector);
+        require(!claimed[to], "already claimed");
 
-        IERC20(financeDetails.token).transferFrom(msg.sender, address(this), financeDetails.wlPrice * _nbTokens);
-        _mint(msg.sender, _nbTokens);        
+        for (uint i = 0; i < len;) {
+            bridgeMint(to, tokenIds[i]);
+            unchecked {
+                i++;
+            }
+        }
+
+        claimed[to] = true;
     }
 
     function _getMaxGlobalId() internal view override returns (uint256) {
@@ -137,9 +146,8 @@ contract AdvancedONFT721A is ONFT721A {
         require(taxRecipient != address(0));
         uint balance = address(this).balance;
         uint taxFee = balance * financeDetails.tax / 10000;
-        IERC20(token).transferFrom(address(this), beneficiary, balance - taxFee);
-        IERC20(token).transferFrom(address(this), taxRecipient, taxFee);
-        IERC20(token).transferFrom(address(this), beneficiary, IERC20(token).balanceOf(address(this)));
+        IERC20(token).transfer(beneficiary, balance - taxFee);
+        IERC20(token).transfer(taxRecipient, taxFee);
     } 
 
 

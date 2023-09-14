@@ -51,7 +51,14 @@ import {
   withdrawAll
 } from './AdvancedONFTASuite'
 import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
-import { moralisSnap, alchemySnap, completeSnapshot, convertToList, MerkleGen, removeDups } from './snapshot'
+import {
+  moralisSnap,
+  alchemySnap,
+  completeSnapshot,
+  convertToList,
+  MerkleGen,
+  getOwners
+} from './snapshot'
 
 task(
   'setTrustedRemote',
@@ -277,14 +284,16 @@ task('convertToList', 'convertToList').addParam('file', 'file name to write to')
 
 task('startMint', 'startMint')
   .addParam('collection', 'collection name')
-  .addParam('sale', 'start sale')
+  .addParam('public', 'start public mint')
+  .addParam('private', 'start private mint')
   .addParam('reveal', 'reveal metadata')
   .setAction(startMint)
 
 task('startAllMint', 'startAllMint')
   .addParam('collection', 'collection name')
   .addParam('e', 'testnet or mainnet')
-  .addParam('sale', 'start sale')
+  .addParam('public', 'start public mint')
+  .addParam('private', 'start private mint')
   .addParam('reveal', 'reveal metadata')
   .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
   .setAction(startAllMint)
@@ -307,7 +316,7 @@ task('setAllMerkleRoot', 'setAllMerkleRoot')
   .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
   .setAction(setAllMerkleRoot)
 
-task('removeDups', 'removeDups').addParam('file', 'file name to write to').setAction(removeDups)
+// task('removeDups', 'removeDups').addParam('file', 'file name to write to').setAction(removeDups)
 
 task('withdraw', 'withdraw').addParam('collection', 'collection name').setAction(withdraw)
 
@@ -316,3 +325,5 @@ task('withdrawAll', 'withdrawAll')
   .addParam('e', 'testnet or mainnet')
   .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
   .setAction(withdrawAll)
+
+task('getOwners', 'getOwners').setAction(getOwners)
