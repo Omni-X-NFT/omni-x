@@ -39,10 +39,7 @@ contract PrimeGenesis is AdvancedONFT721A {
   }
 
 
-  function whitelistMint(uint _nbTokens, bytes32[] calldata _merkleProof) public payable override {
-    if(_nbTokens > maxTokensPerMint) _revert(exceedMaxTokensPerMint.selector);
-    super.whitelistMint(_nbTokens, _merkleProof);
-  }
+
 
   function mint(uint _nbTokens) public payable override {
     if(_nbTokens > maxTokensPerMint) _revert(exceedMaxTokensPerMint.selector);

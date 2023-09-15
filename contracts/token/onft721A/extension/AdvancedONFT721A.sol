@@ -144,14 +144,14 @@ contract AdvancedONFT721A is ONFT721A {
         address token = financeDetails.token;
         require(beneficiary != address(0));
         require(taxRecipient != address(0));
-        uint balance = address(this).balance;
+        uint balance = IERC20(token).balanceOf(address(this));
         uint taxFee = balance * financeDetails.tax / 10000;
         IERC20(token).transfer(beneficiary, balance - taxFee);
         IERC20(token).transfer(taxRecipient, taxFee);
     } 
 
 
-    function _baseURI() internal view override returns (string memory) {
+function _baseURI() internal view override returns (string memory) {
         return metadata.baseURI;
     }
 
