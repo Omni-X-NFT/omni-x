@@ -47,7 +47,6 @@ contract AdvancedONFT721A is ONFT721A {
     FinanceDetails public financeDetails;
     Metadata public metadata;
     NFTState public state;
-    mapping (address => bool) public claimed;
 
     modifier onlyBenficiaryAndOwner() {
         require(msg.sender == financeDetails.beneficiary || msg.sender == owner(), "Caller is not beneficiary or owner");

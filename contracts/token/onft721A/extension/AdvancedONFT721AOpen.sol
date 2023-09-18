@@ -3,16 +3,28 @@ pragma solidity ^0.8;
 
 import "../ONFT721AOpen.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "solmate/src/utils/MerkleProofLib.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+
+error saleInactive();
+error zeroAmount();
+error maxSupplyReached();
+error insufficientValue();
+error nonWhitelist();
 contract AdvancedONFT721AOpen is ONFT721AOpen {
 
     using Strings for uint;
 
     struct FinanceDetails {
+        
         address payable beneficiary;
         address payable taxRecipient;
-        uint16 tax; // 100% = 10000
-        uint price;
+        address token;
+        uint128 price;
+        uint128 wlPrice;
+        uint16 tax;
+
     }
 
     struct Metadata {
@@ -30,13 +42,15 @@ contract AdvancedONFT721AOpen is ONFT721AOpen {
     uint256 public startId;
     uint256 public maxId;
     uint256 public maxGlobalId;
+    bytes32 public merkleRoot;
 
-    FinanceDetails public _financeDetails;
+
+    FinanceDetails public financeDetails;
     Metadata public metadata;
     NFTState public state;
 
     modifier onlyBenficiaryAndOwner() {
-        require(msg.sender == _financeDetails.beneficiary || msg.sender == owner(), "Caller is not beneficiary or owner");
+        require(msg.sender == financeDetails.beneficiary || msg.sender == owner(), "Caller is not beneficiary or owner");
         _;
     }
 
@@ -50,34 +64,46 @@ contract AdvancedONFT721AOpen is ONFT721AOpen {
         string memory _baseTokenURI,
         string memory _hiddenURI,
         uint16 _tax,
-        uint _price,
-        address _taxRecipient
+        uint128 _price,
+        uint128 _wlPrice,
+        address token,
+        address _taxRecipient,
+        address _beneficiary
     ) ONFT721AOpen(_name, _symbol, 1, _lzEndpoint, _startId) {
         startId = _startId;
         maxGlobalId = _maxGlobalId;
         maxId = _maxId;
-        _financeDetails = FinanceDetails(payable(msg.sender), payable(_taxRecipient), _tax, _price );
+        financeDetails = FinanceDetails(payable(_beneficiary), payable(_taxRecipient),token, _price, _wlPrice, _tax );
         metadata = Metadata(_baseTokenURI, _hiddenURI);
     }
 
-    function mint(uint256 _nbTokens) external virtual payable {
-        require(state.saleStarted, "Sale hasn't started");
 
-        require(_nbTokens != 0);
+    function mint(uint256 _nbTokens) public virtual payable {
+        if (!state.saleStarted) _revert(saleInactive.selector);
+        if (_nbTokens == 0) _revert(zeroAmount.selector);
+        if (_nextTokenId() + _nbTokens - 1 > maxId) _revert(maxSupplyReached.selector);
+        if (state.startTime + state.mintLength < block.timestamp) _revert(saleInactive.selector);
+        if (financeDetails.token == address(0)) {
+            if (msg.value < financeDetails.price * _nbTokens) _revert(insufficientValue.selector);
+        } else {
+            IERC20(financeDetails.token).transferFrom(msg.sender, address(this), financeDetails.price * _nbTokens);
+        }
 
+        _mint(msg.sender, _nbTokens);
+    }
+    function whitelistMint(uint256 _nbTokens, bytes32[] calldata _merkleProof) public virtual payable {
+        if (!(_merkleProof.verify(merkleRoot, keccak256(abi.encodePacked(msg.sender))))) _revert(nonWhitelist.selector);
+        if (!state.saleStarted) _revert(saleInactive.selector);
+        if (_nbTokens == 0) _revert(zeroAmount.selector);
+        if (_nextTokenId() + _nbTokens - 1 > maxId) _revert(maxSupplyReached.selector);
+        if (state.startTime + state.mintLength < block.timestamp) _revert(saleInactive.selector);
+        if (financeDetails.token == address(0)) {
+            if (msg.value < financeDetails.price * _nbTokens) _revert(insufficientValue.selector);
+        } else {
+            IERC20(financeDetails.token).transferFrom(msg.sender, address(this), financeDetails.price * _nbTokens);
+        }
 
-        require(_nextTokenId() + _nbTokens - 1 <= maxId, "max supply reached");
-
-
-        require(_nbTokens * _financeDetails.price <= msg.value, "not enough value");
-
-
-        require(state.startTime + state.mintLength >= block.timestamp, "minting expired");
-
-
-        _safeMint(msg.sender, _nbTokens);
-
-
+        _mint(msg.sender, _nbTokens);        
     }
 
     function _getMaxGlobalId() internal view override returns (uint256) {
@@ -101,7 +127,7 @@ contract AdvancedONFT721AOpen is ONFT721AOpen {
     
 
     function setFinanceDetails(FinanceDetails calldata _finance) external onlyOwner {
-        _financeDetails = _finance;
+        financeDetails = _finance;
     }
 
 
@@ -112,24 +138,33 @@ contract AdvancedONFT721AOpen is ONFT721AOpen {
     function setNftState(NFTState calldata _state) external onlyBenficiaryAndOwner {
         state = NFTState(_state.saleStarted, _state.revealed, block.timestamp, _state.mintLength);
     }
-
     function withdraw() external onlyBenficiaryAndOwner {
-        require(_financeDetails.beneficiary != address(0));
-        require(_financeDetails.taxRecipient != address(0));
-        uint balance = address(this).balance;
-        uint taxFee = balance * _financeDetails.tax / 10000;
-        require(payable(_financeDetails.beneficiary).send(balance - taxFee));
-        require(payable(_financeDetails.taxRecipient).send(taxFee));
-        require(payable(_financeDetails.beneficiary).send(address(this).balance));
-    } 
+        address beneficiary = financeDetails.beneficiary;
+        address taxRecipient = financeDetails.taxRecipient;
+        address token = financeDetails.token;
+        require(beneficiary != address(0));
+        require(taxRecipient != address(0));
 
+        if (token == address(0)) {
+            uint balance = address(this).balance;
+            uint taxFee = balance * financeDetails.tax / 10000;
+            payable(owner()).transfer(balance - taxFee);
+            payable(taxRecipient).transfer(taxFee);
+        } else {
+            uint balance = IERC20(token).balanceOf(address(this));
+            uint taxFee = balance * financeDetails.tax / 10000;
+            IERC20(token).transfer(beneficiary, balance - taxFee);
+            IERC20(token).transfer(taxRecipient, taxFee);
+
+        }
+    } 
     function _baseURI() internal view override returns (string memory) {
         return metadata.baseURI;
     }
 
     function tokenURI(uint256 _tokenId) public view virtual override(ERC721ASpecific, IERC721ASpecific) returns (string memory) {
         require(_exists(_tokenId));
-        if (state.revealed) {
+        if (!state.revealed) {
             return metadata.hiddenMetadataURI;
         } 
         return metadata.baseURI;
