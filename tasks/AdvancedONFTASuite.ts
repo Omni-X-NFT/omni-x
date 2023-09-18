@@ -11,6 +11,24 @@ type CHAINIDTYPE = {
     [key: string]: number
 }
 
+function getContract(collection: string, owner: any, hre: any, network: string): any {
+  let onft721A
+  if (network === 'zksync' || network === 'zksync-testnet') {
+    const path = `../artifacts-zk/contracts/token/onft721A/extension/collections/${collection}.sol/${collection}.json`
+    if (!fs.existsSync(path)) {
+      console.log('zk aritfact not found please run npx hardhat compile --network zksync')
+      return
+    }
+    const ContractArtifact = require(path)
+    onft721A = createContractByName(hre, collection, ContractArtifact.abi, owner)
+  } else {
+    // onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
+    onft721A = createContractByName(hre, collection, AdvancedONFT721AAbi().abi, owner)
+  }
+
+  return onft721A
+}
+
 const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
 const AdvancedONFT721AAbi = loadAbi('../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json')
@@ -135,6 +153,69 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
       console.log(e)
     }
   }
+}
+
+export const withdraw = async (taskArgs: any, hre: any) => {
+  const { ethers, network } = hre
+  const [owner] = await ethers.getSigners()
+  const onft721A = getContract(taskArgs.collection, owner, hre, network.name)
+
+  try {
+    await submitTx(hre, onft721A, 'withdraw', [])
+    console.log('✅ withdraw')
+  } catch (e: any) {
+    console.log(e)
+  }
+}
+
+export const withdrawAll = async (taskArgs: any) => {
+  let networks = environments[taskArgs.e]
+  if (!taskArgs.e || networks.length === 0) {
+    console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+  if (taskArgs.exclude !== 'none') {
+    const exclude = taskArgs.exclude.split(',')
+    networks = networks.filter((n: string) => !exclude.includes(n))
+  }
+  await Promise.all(
+    networks.map(async (network: string) => {
+      const checkWireUpCommand = `npx hardhat --network ${network} withdraw --collection ${taskArgs.collection}`
+      console.log(checkWireUpCommand)
+      shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+    })
+  )
+}
+
+export const setMerkleRoot = async (taskArgs: any, hre: any) => {
+  const { ethers, network } = hre
+  const [owner] = await ethers.getSigners()
+
+  const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
+  const onft721A = getContract(taskArgs.collection, owner, hre, network.name)
+
+  try {
+    await submitTx(hre, onft721A, 'setMerkleRoot', [args.merkleRoot])
+  } catch (e: any) {
+    console.log(e)
+  }
+}
+
+export const setAllMerkleRoot = async (taskArgs: any) => {
+  let networks = environments[taskArgs.e]
+  if (!taskArgs.e || networks.length === 0) {
+    console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+  if (taskArgs.exclude !== 'none') {
+    const exclude = taskArgs.exclude.split(',')
+    networks = networks.filter((n: string) => !exclude.includes(n))
+  }
+  await Promise.all(
+    networks.map(async (network: string) => {
+      const checkWireUpCommand = `npx hardhat --network ${network} setMerkleRoot --collection ${taskArgs.collection}`
+      console.log(checkWireUpCommand)
+      shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+    })
+  )
 }
 
 export const setBridgeFees = async (taskArgs: any, hre: any) => {

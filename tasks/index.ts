@@ -40,7 +40,11 @@ import {
   sendCross,
   deployCollection,
   setBridgeFees,
-  trustedRemoteLookup
+  trustedRemoteLookup,
+  setMerkleRoot,
+  setAllMerkleRoot,
+  withdraw,
+  withdrawAll
 } from './AdvancedONFTASuite'
 import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
 import { moralisSnap, alchemySnap, completeSnapshot, convertToList, MerkleGen } from './snapshot'
@@ -276,10 +280,20 @@ task('convertToList', 'convertToList').addParam('file', 'file name to write to')
 
 task('merkleGen', 'merkleGen').addParam('adr', 'adrress to test').setAction(MerkleGen)
 
-// task('setMerkleRoot', 'setMerkleRoot').addParam('collection', 'collection name').setAction(setMerkleRoot)
+task('setMerkleRoot', 'setMerkleRoot').addParam('collection', 'collection name').setAction(setMerkleRoot)
 
-// task('setAllMerkleRoot', 'setAllMerkleRoot')
-//   .addParam('collection', 'collection name')
-//   .addParam('e', 'testnet or mainnet')
-//   .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
-//   .setAction(setAllMerkleRoot)
+task('setAllMerkleRoot', 'setAllMerkleRoot')
+  .addParam('collection', 'collection name')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
+  .setAction(setAllMerkleRoot)
+
+// task('removeDups', 'removeDups').addParam('file', 'file name to write to').setAction(removeDups)
+
+task('withdraw', 'withdraw').addParam('collection', 'collection name').setAction(withdraw)
+
+task('withdrawAll', 'withdrawAll')
+  .addParam('collection', 'collection name')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('exclude', 'exclude chain name separated by single comma. Use none to ignore')
+  .setAction(withdrawAll)
