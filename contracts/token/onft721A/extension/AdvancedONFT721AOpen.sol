@@ -15,6 +15,7 @@ error nonWhitelist();
 contract AdvancedONFT721AOpen is ONFT721AOpen {
 
     using Strings for uint;
+    using MerkleProofLib for bytes32[];
 
     struct FinanceDetails {
         
