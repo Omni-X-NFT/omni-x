@@ -83,12 +83,12 @@ const config: HardhatUserConfig = {
     },
     moonbeam: {
       url: process.env.MOONBEAM_RPC !== undefined ? process.env.MOONBEAM_RPC : 'https://rpc.api.moonbeam.network',
-      chainId: 1287,
+      chainId: 1284,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
     },
     arbitrum: {
-      url: process.env.ARB_RPC !== undefined ? process.env.ARB_RPC :'https://rpc.ankr.com/arbitrum',
+      url: process.env.ARB_RPC !== undefined ? process.env.ARB_RPC : 'https://rpc.ankr.com/arbitrum',
       chainId: 42161,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
@@ -145,6 +145,18 @@ const config: HardhatUserConfig = {
     kava: {
       url: process.env.KAVA_RPC !== undefined ? process.env.KAVA_RPC : 'https://evm.kava.io',
       chainId: 2222,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
+    },
+    base: {
+      url: process.env.BASE_RPC !== undefined ? process.env.BASE_RPC : 'https://developer-access-mainnet.base.org',
+      chainId: 8453,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
+    },
+    mantle: {
+      url: process.env.MANTLE_RPC !== undefined ? process.env.MANTLE_RPC : 'https://rpc.mantle.xyz',
+      chainId: 5000,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
     },
@@ -240,12 +252,24 @@ const config: HardhatUserConfig = {
       bscTestnet: process.env.BSCSCAN_API_KEY || '',
       polygonMumbai: process.env.POLYGON_API_KEY || '',
       avalancheFujiTestnet: process.env.AVALANCHE_API_KEY || '',
+      mainnet: process.env.ETHERSCAN_API_KEY || '',
+      bsc: process.env.BSCSCAN_API_KEY || '',
+      polygon: process.env.POLYGON_API_KEY || '',
+      avalanche: process.env.AVALANCHE_API_KEY || '',
+      optimisticEthereum: process.env.OPTIMISTIC_API_KEY || '',
+      arbitrumOne: process.env.ARBITRUM_API_KEY || '',
+      arbtirumNova: process.env.ARBITRUM_NOVA_API_KEY || '',
+      metis: process.env.METIS_API_KEY || '',
+      gnosis: process.env.GNOSIS_API_KEY || '',
+      // fantom: process.env.FANTOM_API_KEY || '',
+      base: process.env.BASE_API_KEY || '',
       // arbitrumTestnet: process.env.ARBITRUM_API_KEY || '',
       // optimisticKovan: process.env.OPTIMISTIC_API_KEY || '',
       ftmTestnet: process.env.FANTOM_API_KEY || '',
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
       'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
-      'moonbeam_testnet': process.env.MOONBEAM_API_KEY || ''
+      moonbeam: process.env.MOONBEAM_API_KEY || ''
+
     },
     customChains: [
       {
@@ -270,6 +294,38 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://api-goerli-optimism.etherscan.io/api',
           browserURL: 'https://goerli-optimism.etherscan.io'
+        }
+      },
+      {
+        network: 'arbitrumNova',
+        chainId: 42170,
+        urls: {
+          browserURL: 'https://nova.arbiscan.io/',
+          apiURL: 'https://api-nova.arbiscan.io/api'
+        }
+      },
+      {
+        network: 'metis',
+        chainId: 1088,
+        urls: {
+          browserURL: 'https://andromeda-explorer.metis.io/',
+          apiURL: 'https://andromeda-explorer.metis.io/api'
+        }
+      },
+      {
+        network: 'base',
+        chainId: 8453,
+        urls: {
+          browserURL: 'https://basescan.org/',
+          apiURL: 'https://api.basescan.org/api'
+        }
+      },
+      {
+        network: 'gnosis',
+        chainId: 100,
+        urls: {
+          browserURL: 'https://gnosisscan.io/',
+          apiURL: 'https://api.gnosisscan.io/api'
         }
       }
     ]
