@@ -5,6 +5,8 @@ import "../ONFT721A.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../../../libraries/OmniLinearCurve.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "solmate/src/utils/MerkleProofLib.sol";
+
 
 error saleNotStarted();
 error zeroAmount();
@@ -21,6 +23,8 @@ error nonWhitelist();
 contract AdvancedONFT721APro is ONFT721A {
     using OmniLinearCurve for OmniLinearCurve.OmniCurve;
     using Strings for uint;
+    using MerkleProofLib for bytes32[];
+
     
 
     struct FinanceDetails {
@@ -61,8 +65,10 @@ contract AdvancedONFT721APro is ONFT721A {
     Metadata public metadata;
     NFTState public state;
     Pricing public pricing;
+    bytes32 public merkleRoot;
 
-    modifier onlyBenficiaryAndOwner() {
+
+    modifier onlyBeneficiaryAndOwner() {
         require(msg.sender == financeDetails.beneficiary || msg.sender == owner(), "Caller is not beneficiary or owner");
         _;
     }
@@ -126,6 +132,22 @@ contract AdvancedONFT721APro is ONFT721A {
         pricing.spotPrice = newSpotPrice;
     }
 
+         function whitelistMint(uint256 _nbTokens, bytes32[] calldata _merkleProof) public virtual payable {
+        if (!(_merkleProof.verify(merkleRoot, keccak256(abi.encodePacked(msg.sender))))) _revert(nonWhitelist.selector);
+        if (_nbTokens == 0) _revert(zeroAmount.selector);
+        if (_nextTokenId() + _nbTokens - 1 > maxId) _revert(maxSupplyReached.selector);
+        if (financeDetails.token == address(0)) {
+            if (_nbTokens * financeDetails.wlPrice > msg.value) _revert(insufficientValue.selector);
+        } else {
+            IERC20(financeDetails.token).transferFrom(msg.sender, address(this), financeDetails.wlPrice * _nbTokens);
+
+        }
+
+        _mint(msg.sender, _nbTokens);        
+    }
+
+
+
 
 
     // returns (newSpotPrice, totalCost)
@@ -154,6 +176,10 @@ contract AdvancedONFT721APro is ONFT721A {
         return startId;
     }
 
+    function setMerkleRoot(bytes32 _newRoot) public onlyBeneficiaryAndOwner() {
+        merkleRoot = _newRoot;
+    }
+
     function setMintRange(uint32 _start, uint32 _end) external onlyOwner {
         require (_start > uint32(_totalMinted()));
         require (_end > _start);
@@ -172,11 +198,11 @@ contract AdvancedONFT721APro is ONFT721A {
     }
 
 
-    function setMetadata(Metadata calldata _metadata) external onlyBenficiaryAndOwner {
+    function setMetadata(Metadata calldata _metadata) external onlyBeneficiaryAndOwner {
         metadata = _metadata;
     }
 
-    function setNftState(NFTState calldata _state) external onlyBenficiaryAndOwner {
+    function setNftState(NFTState calldata _state) external onlyBeneficiaryAndOwner {
         state = _state;
     }
 
@@ -184,7 +210,7 @@ contract AdvancedONFT721APro is ONFT721A {
      * @notice Allows the beneficiary or owner to withdraw funds from the contract.
      * @notice If financeDetails.token is address(0) native will be withdrawn else token will be withdrawn
      */
-    function withdraw() external onlyBenficiaryAndOwner {
+    function withdraw() external onlyBeneficiaryAndOwner {
         address beneficiary = financeDetails.beneficiary;
         address taxRecipient = financeDetails.taxRecipient;
         address token = financeDetails.token;

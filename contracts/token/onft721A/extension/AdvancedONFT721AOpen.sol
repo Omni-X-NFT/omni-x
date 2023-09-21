@@ -57,7 +57,7 @@ contract AdvancedONFT721AOpen is ONFT721AOpen {
     Metadata public metadata;
     NFTState public state;
 
-    modifier onlyBenficiaryAndOwner() {
+    modifier onlyBeneficiaryAndOwner() {
         require(msg.sender == financeDetails.beneficiary || msg.sender == owner(), "Caller is not beneficiary or owner");
         _;
     }
@@ -165,11 +165,14 @@ contract AdvancedONFT721AOpen is ONFT721AOpen {
     }
 
 
-    function setMetadata(Metadata calldata _metadata) external onlyBenficiaryAndOwner {
+    function setMetadata(Metadata calldata _metadata) external onlyBeneficiaryAndOwner {
         metadata = _metadata;
     }
 
-    function setNftState(NFTState calldata _state) external onlyBenficiaryAndOwner {
+    function setMerkleRoot(bytes32 _newRoot) public onlyBeneficiaryAndOwner() {
+        merkleRoot = _newRoot;
+    }
+    function setNftState(NFTState calldata _state) external onlyBeneficiaryAndOwner {
         state = NFTState(_state.saleStarted, _state.revealed, block.timestamp, _state.mintLength);
     }
 
@@ -177,7 +180,7 @@ contract AdvancedONFT721AOpen is ONFT721AOpen {
      * @notice Allows the beneficiary or owner to withdraw funds from the contract.
      * @notice If financeDetails.token is address(0) native will be withdrawn else token will be withdrawn
      */
-    function withdraw() external onlyBenficiaryAndOwner {
+    function withdraw() external onlyBeneficiaryAndOwner {
         address beneficiary = financeDetails.beneficiary;
         address taxRecipient = financeDetails.taxRecipient;
         address token = financeDetails.token;
