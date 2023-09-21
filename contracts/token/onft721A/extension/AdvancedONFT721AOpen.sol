@@ -12,6 +12,13 @@ error zeroAmount();
 error maxSupplyReached();
 error insufficientValue();
 error nonWhitelist();
+
+
+/**
+ * @title AdvancedONFT721AOpen
+ * @notice This contract extends the functionality of ONFT721A with advanced features.
+ * @dev This contract should be used for high supply open editions
+ */
 contract AdvancedONFT721AOpen is ONFT721AOpen {
 
     using Strings for uint;
@@ -55,6 +62,23 @@ contract AdvancedONFT721AOpen is ONFT721AOpen {
         _;
     }
 
+  /**
+     * @notice Constructor for creating the AdvancedONFT721A contract.
+     * @param _name Name of the NFT.
+     * @param _symbol Symbol of the NFT.
+     * @param _lzEndpoint Endpoint for lazy minting.
+     * @param _startId Starting ID for the NFTs.
+     * @param _maxId Maximum ID for the NFTs.
+     * @param _maxGlobalId Global maximum ID.
+     * @param _baseTokenURI Base URI for the token metadata.
+     * @param _hiddenURI URI for the hidden metadata (before reveal).
+     * @param _tax Tax rate.
+     * @param _price Price of the NFT.
+     * @param _wlPrice Whitelist price for the NFT.
+     * @param token Token address for payment (if not ETH).
+     * @param _taxRecipient Address receiving the tax.
+     * @param _beneficiary Beneficiary address.
+     */
     constructor(
         string memory _name,
         string memory _symbol,
@@ -78,7 +102,10 @@ contract AdvancedONFT721AOpen is ONFT721AOpen {
         metadata = Metadata(_baseTokenURI, _hiddenURI);
     }
 
-
+ /**
+     * @notice Allows users to mint NFTs.
+     * @param _nbTokens Number of tokens to mint.
+     */
     function mint(uint256 _nbTokens) public virtual payable {
         if (!state.saleStarted) _revert(saleInactive.selector);
         if (_nbTokens == 0) _revert(zeroAmount.selector);
@@ -92,6 +119,12 @@ contract AdvancedONFT721AOpen is ONFT721AOpen {
 
         _mint(msg.sender, _nbTokens);
     }
+
+      /**
+     * @notice Allows whitelisted users to mint NFTs at a special price.
+     * @param _nbTokens Number of tokens to mint.
+     * @param _merkleProof Merkle proof for verifying the whitelisting.
+     */
     function whitelistMint(uint256 _nbTokens, bytes32[] calldata _merkleProof) public virtual payable {
         if (!(_merkleProof.verify(merkleRoot, keccak256(abi.encodePacked(msg.sender))))) _revert(nonWhitelist.selector);
         if (!state.saleStarted) _revert(saleInactive.selector);
@@ -139,6 +172,11 @@ contract AdvancedONFT721AOpen is ONFT721AOpen {
     function setNftState(NFTState calldata _state) external onlyBenficiaryAndOwner {
         state = NFTState(_state.saleStarted, _state.revealed, block.timestamp, _state.mintLength);
     }
+
+     /**
+     * @notice Allows the beneficiary or owner to withdraw funds from the contract.
+     * @notice If financeDetails.token is address(0) native will be withdrawn else token will be withdrawn
+     */
     function withdraw() external onlyBenficiaryAndOwner {
         address beneficiary = financeDetails.beneficiary;
         address taxRecipient = financeDetails.taxRecipient;

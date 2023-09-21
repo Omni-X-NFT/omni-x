@@ -12,6 +12,11 @@ error maxSupplyReached();
 error insufficientValue();
 error nonWhitelist();
 
+/**
+ * @title AdvancedONFT721APro
+ * @notice This contract extends the functionality of ONFT721A with advanced features.
+ * @dev This contract includes whitelisting with both mints occuring at the same time and dynamic pricing
+ */
 
 contract AdvancedONFT721APro is ONFT721A {
     using OmniLinearCurve for OmniLinearCurve.OmniCurve;
@@ -62,6 +67,23 @@ contract AdvancedONFT721APro is ONFT721A {
         _;
     }
 
+  /**
+     * @notice Constructor for creating the AdvancedONFT721A contract.
+     * @param _name Name of the NFT.
+     * @param _symbol Symbol of the NFT.
+     * @param _lzEndpoint Endpoint for lazy minting.
+     * @param _startId Starting ID for the NFTs.
+     * @param _maxId Maximum ID for the NFTs.
+     * @param _maxGlobalId Global maximum ID.
+     * @param _baseTokenURI Base URI for the token metadata.
+     * @param _hiddenURI URI for the hidden metadata (before reveal).
+     * @param _tax Tax rate.
+     * @param _price Price of the NFT.
+     * @param _wlPrice Whitelist price for the NFT.
+     * @param token Token address for payment (if not ETH).
+     * @param _taxRecipient Address receiving the tax.
+     * @param _beneficiary Beneficiary address.
+     */
     constructor(
         string memory _name,
         string memory _symbol,
@@ -158,6 +180,10 @@ contract AdvancedONFT721APro is ONFT721A {
         state = _state;
     }
 
+    /**
+     * @notice Allows the beneficiary or owner to withdraw funds from the contract.
+     * @notice If financeDetails.token is address(0) native will be withdrawn else token will be withdrawn
+     */
     function withdraw() external onlyBenficiaryAndOwner {
         address beneficiary = financeDetails.beneficiary;
         address taxRecipient = financeDetails.taxRecipient;
