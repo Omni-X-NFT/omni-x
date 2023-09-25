@@ -6,10 +6,13 @@ import { loadAbi, createContractByName, deployContract, environments, submitTx, 
 import fs from 'fs'
 import LZEndpointABI from '../constants/LZEndpointABI.json'
 
-
 type CHAINIDTYPE = {
-    [key: string]: number
+  [key: string]: number
 }
+
+const AdvancedONFT721AAbi = loadAbi(
+  '../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json'
+)
 
 function getContract(collection: string, owner: any, hre: any, network: string): any {
   let onft721A
@@ -31,7 +34,6 @@ function getContract(collection: string, owner: any, hre: any, network: string):
 
 const CHAIN_IDS: CHAINIDTYPE = CHAIN_ID
 
-const AdvancedONFT721AAbi = loadAbi('../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json')
 // const LZEndpointAbi = loadAbi('../artifacts/contracts/layerzero/LZEndpoint.sol/LZEndpoint.json')
 
 export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
@@ -73,7 +75,6 @@ export const deployAllAdvancedONFT721A = async (taskArgs: any) => {
     })
   )
 }
-
 
 export const trustedRemoteLookup = async (taskArgs: any, hre: any) => {
   const { ethers, network } = hre
@@ -307,7 +308,7 @@ export const prepareAllAdvancedONFT721A = async (taskArgs: any) => {
   await Promise.all(
     networks.map(async (network: string) => {
       targets.map(async (target: string) => {
-        if ((network !== target)) {
+        if (network !== target) {
           const checkWireUpCommand = `npx hardhat --network ${network} prepareAdvancedONFT721A --target ${target} --collection ${taskArgs.collection} --lzconfig ${taskArgs.lzconfig} --startmint ${taskArgs.startmint} --reveal ${taskArgs.reveal} --bridgefee false`
           console.log(checkWireUpCommand)
           shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
@@ -323,8 +324,28 @@ export const sendCross = async (taskArgs: any, hre: any) => {
   const dstChainId = CHAIN_IDS[taskArgs.target]
   const onft = createContractByName(hre, 'OmniWave', AdvancedONFT721AAbi().abi, owner)
   const adapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 400000])
-  const gas = await submitReturnTx(hre, onft, 'estimateSendFee', [dstChainId, owner.address, taskArgs.tokenid, false, adapterParams])
-  await submitTx(hre, onft, 'sendFrom', [owner.address, dstChainId, owner.address, taskArgs.tokenid, owner.address, ethers.constants.AddressZero, adapterParams], { value: (gas[0].add(50000000000000)).toString() })
+  const gas = await submitReturnTx(hre, onft, 'estimateSendFee', [
+    dstChainId,
+    owner.address,
+    taskArgs.tokenid,
+    false,
+    adapterParams
+  ])
+  await submitTx(
+    hre,
+    onft,
+    'sendFrom',
+    [
+      owner.address,
+      dstChainId,
+      owner.address,
+      taskArgs.tokenid,
+      owner.address,
+      ethers.constants.AddressZero,
+      adapterParams
+    ],
+    { value: gas[0].add(50000000000000).toString() }
+  )
 }
 
 export const mint = async (taskArgs: any, hre: any) => {
@@ -343,6 +364,27 @@ export const mintAll = async (taskArgs: any) => {
   await Promise.all(
     networks.map(async (network: string) => {
       const checkWireUpCommand = `npx hardhat --network ${network} mint721A --amount ${taskArgs.amount}`
+      console.log(checkWireUpCommand)
+      shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+    })
+  )
+}
+
+export const transferOwnership = async (taskArgs: any, hre: any) => {
+  const { ethers } = hre
+  const [owner] = await ethers.getSigners()
+  const onft = getContract(taskArgs.collection, owner, hre, hre.network.name)
+  await submitTx(hre, onft, 'transferOwnership', [taskArgs.address])
+}
+
+export const transferAllOwnership = async (taskArgs: any) => {
+  const networks = environments[taskArgs.e]
+  if (!taskArgs.e || networks.length === 0) {
+    console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+  await Promise.all(
+    networks.map(async (network: string) => {
+      const checkWireUpCommand = `npx hardhat --network ${network} transferOwnership --address ${taskArgs.address} --collection ${taskArgs.collection}`
       console.log(checkWireUpCommand)
       shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
     })
@@ -388,7 +430,6 @@ export const deployCollection = async (taskArgs: any, hre: any) => {
     console.log(`Invalid environment argument: ${taskArgs.e}`)
   }
   let checkWireUpCommand
-
 
   checkWireUpCommand = `npx hardhat deployAllAdvancedONFT721A --e ${taskArgs.e} --collection ${taskArgs.collection} --exclude none`
   console.log(checkWireUpCommand)
