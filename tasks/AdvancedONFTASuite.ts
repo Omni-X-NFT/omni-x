@@ -530,3 +530,24 @@ export const estimateSendFee = async (taskArgs: any, hre: any) => {
   const gas = response[0]
   console.log(gas.toString())
 }
+
+export const transferOwnership = async (taskArgs: any, hre: any) => {
+  const { ethers } = hre
+  const [owner] = await ethers.getSigners()
+  const onft = getContract(taskArgs.collection, owner, hre, hre.network.name)
+  await submitTx(hre, onft, 'transferOwnership', [taskArgs.address])
+}
+
+export const transferAllOwnership = async (taskArgs: any) => {
+  const networks = environments[taskArgs.e]
+  if (!taskArgs.e || networks.length === 0) {
+    console.log(`Invalid environment argument: ${taskArgs.e}`)
+  }
+  await Promise.all(
+    networks.map(async (network: string) => {
+      const checkWireUpCommand = `npx hardhat --network ${network} transferOwnership --address ${taskArgs.address} --collection ${taskArgs.collection}`
+      console.log(checkWireUpCommand)
+      shell.exec(checkWireUpCommand).stdout.replace(/(\r\n|\n|\r|\s)/gm, '')
+    })
+  )
+}

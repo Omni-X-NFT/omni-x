@@ -48,17 +48,12 @@ import {
   setMerkleRoot,
   setAllMerkleRoot,
   withdraw,
-  withdrawAll
+  withdrawAll,
+  transferOwnership,
+  transferAllOwnership
 } from './AdvancedONFTASuite'
 import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
-import {
-  moralisSnap,
-  alchemySnap,
-  completeSnapshot,
-  convertToList,
-  MerkleGen,
-  getOwners
-} from './snapshot'
+import { moralisSnap, alchemySnap, completeSnapshot, convertToList, MerkleGen, getOwners } from './snapshot'
 
 task(
   'setTrustedRemote',
@@ -327,3 +322,14 @@ task('withdrawAll', 'withdrawAll')
   .setAction(withdrawAll)
 
 task('getOwners', 'getOwners').setAction(getOwners)
+
+task('transferOwnership', 'transferOwnership')
+  .addParam('collection', 'collection name')
+  .addParam('address', 'address to transfer ownership to')
+  .setAction(transferOwnership)
+
+task('transferAllOwnership', 'transferAllOwnership')
+  .addParam('e', 'testnet or mainnet')
+  .addParam('collection', 'collection name')
+  .addParam('address', 'address to transfer ownership to')
+  .setAction(transferAllOwnership)
