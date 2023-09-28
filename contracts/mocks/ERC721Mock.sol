@@ -24,6 +24,16 @@ contract ERC721Mock is ERC721, ERC721URIStorage, Ownable {
         _setTokenURI(tokenId, _tokenURI);
     }
 
+    function batchMint(uint amount) public {
+    
+        for (uint i = 0; i < amount; i++) {
+            uint256 tokenId = _tokenIdCounter.current();
+            _tokenIdCounter.increment();
+            _safeMint(msg.sender, tokenId);
+        }
+
+    }
+
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
         super._burn(tokenId);
     }

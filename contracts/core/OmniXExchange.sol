@@ -20,7 +20,7 @@ import {IFundManager} from "../interfaces/IFundManager.sol";
 import {IOmniXExchange} from "../interfaces/IOmniXExchange.sol";
 import {NonblockingLzApp} from "../lzApp/NonblockingLzApp.sol";
 import {IWETH} from "../interfaces/IWETH.sol";
-import {IOFT} from "../token/oft/IOFT.sol";
+import {IOFT} from "@layerzerolabs/solidity-examples/contracts/token/oft/IOFT.sol";
 
 import {OrderTypes} from "../libraries/OrderTypes.sol";
 import {BytesLib} from "../libraries/BytesLib.sol";

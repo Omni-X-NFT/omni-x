@@ -9,7 +9,8 @@ import {ICurrencyManager} from "../interfaces/ICurrencyManager.sol";
 import {IExecutionStrategy} from "../interfaces/IExecutionStrategy.sol";
 import {IRoyaltyFeeManager} from "../interfaces/IRoyaltyFeeManager.sol";
 import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
-import {IOFT} from "../token/oft/IOFT.sol";
+import {IOFT} from "@layerzerolabs/solidity-examples/contracts/token/oft/IOFT.sol";
+
 
 interface IFundManager {
     function getFeesAndFunds(

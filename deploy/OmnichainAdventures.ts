@@ -1,4 +1,4 @@
-import { Wallet, utils } from 'zksync-web3'
+import { Wallet } from 'zksync-web3'
 import * as ethers from 'ethers'
 import { Deployer } from '@matterlabs/hardhat-zksync-deploy'
 import OmnichainAdventureArgs from '../constants/ONFT721AArgs.json'
@@ -9,7 +9,6 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY || ''
-if (!PRIVATE_KEY) { throw '⛔️ Private key not detected! Add it to the .env file!' }
 
 export default async function (hre: any) {
   const wallet = new Wallet(PRIVATE_KEY)

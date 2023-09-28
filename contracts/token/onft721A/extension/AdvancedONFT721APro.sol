@@ -4,20 +4,37 @@ pragma solidity ^0.8;
 import "../ONFT721A.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../../../libraries/OmniLinearCurve.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "solmate/src/utils/MerkleProofLib.sol";
 
-error SaleNotStarted();
-error InvalidAmount();
-error MaxSupplyReached();
-error InsufficientValue();
+
+error saleNotStarted();
+error zeroAmount();
+error maxSupplyReached();
+error insufficientValue();
+error nonWhitelist();
+
+/**
+ * @title AdvancedONFT721APro
+ * @notice This contract extends the functionality of ONFT721A with advanced features.
+ * @dev This contract includes whitelisting with both mints occuring at the same time and dynamic pricing
+ */
 
 contract AdvancedONFT721APro is ONFT721A {
     using OmniLinearCurve for OmniLinearCurve.OmniCurve;
     using Strings for uint;
+    using MerkleProofLib for bytes32[];
+
+    
 
     struct FinanceDetails {
         address payable beneficiary;
         address payable taxRecipient;
-        uint16 tax; // 100% = 10000
+        address token;
+        uint128 price;
+        uint128 wlPrice;
+        uint16 tax;
+
     }
 
     struct Metadata {
@@ -43,16 +60,36 @@ contract AdvancedONFT721APro is ONFT721A {
     uint256 public maxId;
     uint256 public maxGlobalId;
 
-    FinanceDetails private _financeDetails;
+
+    FinanceDetails public financeDetails;
     Metadata public metadata;
     NFTState public state;
     Pricing public pricing;
+    bytes32 public merkleRoot;
 
-    modifier onlyBenficiaryAndOwner() {
-        require(msg.sender == _financeDetails.beneficiary || msg.sender == owner(), "Caller is not beneficiary or owner");
+
+    modifier onlyBeneficiaryAndOwner() {
+        require(msg.sender == financeDetails.beneficiary || msg.sender == owner(), "Caller is not beneficiary or owner");
         _;
     }
 
+  /**
+     * @notice Constructor for creating the AdvancedONFT721A contract.
+     * @param _name Name of the NFT.
+     * @param _symbol Symbol of the NFT.
+     * @param _lzEndpoint Endpoint for lazy minting.
+     * @param _startId Starting ID for the NFTs.
+     * @param _maxId Maximum ID for the NFTs.
+     * @param _maxGlobalId Global maximum ID.
+     * @param _baseTokenURI Base URI for the token metadata.
+     * @param _hiddenURI URI for the hidden metadata (before reveal).
+     * @param _tax Tax rate.
+     * @param _price Price of the NFT.
+     * @param _wlPrice Whitelist price for the NFT.
+     * @param token Token address for payment (if not ETH).
+     * @param _taxRecipient Address receiving the tax.
+     * @param _beneficiary Beneficiary address.
+     */
     constructor(
         string memory _name,
         string memory _symbol,
@@ -62,30 +99,56 @@ contract AdvancedONFT721APro is ONFT721A {
         uint256 _maxGlobalId,
         string memory _baseTokenURI,
         string memory _hiddenURI,
-        uint16 _tax,
-        address _taxRecipient
+       uint16 _tax,
+        uint128 _price,
+        uint128 _wlPrice,
+        address token,
+        address _taxRecipient,
+        address _beneficiary
     ) ONFT721A(_name, _symbol, 1, _lzEndpoint, _startId) {
         startId = _startId;
         maxGlobalId = _maxGlobalId;
         maxId = _maxId;
-        _financeDetails = FinanceDetails(payable(msg.sender), payable(_taxRecipient), _tax );
+        financeDetails = FinanceDetails(payable(_beneficiary), payable(_taxRecipient), token, _price, _wlPrice,  _tax );
         metadata = Metadata(_baseTokenURI, _hiddenURI);
     }
 
     function mint(uint256 _nbTokens) external payable {
-        if (!state.saleStarted) revert SaleNotStarted();
-        if (_nbTokens == 0) revert InvalidAmount();
-        if (_nextTokenId() + _nbTokens - 1 > maxId) revert MaxSupplyReached();
+        if (!state.saleStarted) _revert(saleNotStarted.selector);
+        if (_nbTokens == 0) _revert(zeroAmount.selector);
+        if (_nextTokenId() + _nbTokens - 1 > maxId) _revert(maxSupplyReached.selector);
 
         (uint128 newSpotPrice, uint256 totalPrice) = getPriceInfo( _nbTokens);
+        if (financeDetails.token == address(0)) {
+            if (msg.value < totalPrice) _revert(insufficientValue.selector);
+        } else {
+            IERC20(financeDetails.token).transferFrom(msg.sender, address(this), totalPrice);
+        }
         
-        if (msg.value < totalPrice) revert InsufficientValue();
 
-        _safeMint(msg.sender, _nbTokens);
+        _mint(msg.sender, _nbTokens);
 
         pricing.lastUpdate = block.timestamp;
         pricing.spotPrice = newSpotPrice;
     }
+
+         function whitelistMint(uint256 _nbTokens, bytes32[] calldata _merkleProof) public virtual payable {
+        if (!(_merkleProof.verify(merkleRoot, keccak256(abi.encodePacked(msg.sender))))) _revert(nonWhitelist.selector);
+        if (_nbTokens == 0) _revert(zeroAmount.selector);
+        if (_nextTokenId() + _nbTokens - 1 > maxId) _revert(maxSupplyReached.selector);
+        if (financeDetails.token == address(0)) {
+            if (_nbTokens * financeDetails.wlPrice > msg.value) _revert(insufficientValue.selector);
+        } else {
+            IERC20(financeDetails.token).transferFrom(msg.sender, address(this), financeDetails.wlPrice * _nbTokens);
+
+        }
+
+        _mint(msg.sender, _nbTokens);        
+    }
+
+
+
+
 
     // returns (newSpotPrice, totalCost)
     function getPriceInfo(uint256 amount) public view returns (uint128, uint256) {
@@ -113,6 +176,10 @@ contract AdvancedONFT721APro is ONFT721A {
         return startId;
     }
 
+    function setMerkleRoot(bytes32 _newRoot) public onlyBeneficiaryAndOwner() {
+        merkleRoot = _newRoot;
+    }
+
     function setMintRange(uint32 _start, uint32 _end) external onlyOwner {
         require (_start > uint32(_totalMinted()));
         require (_end > _start);
@@ -127,26 +194,41 @@ contract AdvancedONFT721APro is ONFT721A {
     
 
     function setFinanceDetails(FinanceDetails calldata _finance) external onlyOwner {
-        _financeDetails = _finance;
+        financeDetails = _finance;
     }
 
 
-    function setMetadata(Metadata calldata _metadata) external onlyBenficiaryAndOwner {
+    function setMetadata(Metadata calldata _metadata) external onlyBeneficiaryAndOwner {
         metadata = _metadata;
     }
 
-    function setNftState(NFTState calldata _state) external onlyBenficiaryAndOwner {
+    function setNftState(NFTState calldata _state) external onlyBeneficiaryAndOwner {
         state = _state;
     }
 
-    function withdraw() external onlyBenficiaryAndOwner {
-        require(_financeDetails.beneficiary != address(0));
-        require(_financeDetails.taxRecipient != address(0));
-        uint balance = address(this).balance;
-        uint taxFee = balance * _financeDetails.tax / 10000;
-        require(payable(_financeDetails.beneficiary).send(balance - taxFee));
-        require(payable(_financeDetails.taxRecipient).send(taxFee));
-        require(payable(_financeDetails.beneficiary).send(address(this).balance));
+    /**
+     * @notice Allows the beneficiary or owner to withdraw funds from the contract.
+     * @notice If financeDetails.token is address(0) native will be withdrawn else token will be withdrawn
+     */
+    function withdraw() external onlyBeneficiaryAndOwner {
+        address beneficiary = financeDetails.beneficiary;
+        address taxRecipient = financeDetails.taxRecipient;
+        address token = financeDetails.token;
+        require(beneficiary != address(0));
+        require(taxRecipient != address(0));
+
+        if (token == address(0)) {
+            uint balance = address(this).balance;
+            uint taxFee = balance * financeDetails.tax / 10000;
+            payable(owner()).transfer(balance - taxFee);
+            payable(taxRecipient).transfer(taxFee);
+        } else {
+            uint balance = IERC20(token).balanceOf(address(this));
+            uint taxFee = balance * financeDetails.tax / 10000;
+            IERC20(token).transfer(beneficiary, balance - taxFee);
+            IERC20(token).transfer(taxRecipient, taxFee);
+
+        }
     } 
 
     function _baseURI() internal view override returns (string memory) {

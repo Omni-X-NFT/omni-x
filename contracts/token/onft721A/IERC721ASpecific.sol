@@ -24,6 +24,17 @@ interface IERC721ASpecific {
     error BalanceQueryForZeroAddress();
 
     /**
+     * Bridge cannot mint tokenIds in this range
+     */
+    error InvalidBridgeId();
+
+    /**
+     * When the tokenId exceeds supply cap
+     */
+    error TokenIdOutOfRange();
+    
+
+    /**
      * Cannot mint to the zero address.
      */
     error MintToZeroAddress();

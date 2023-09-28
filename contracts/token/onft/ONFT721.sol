@@ -11,7 +11,7 @@ import "operator-filter-registry/src/DefaultOperatorFilterer.sol";
 
 // NOTE: this ONFT contract has no public minting logic.
 // must implement your own minting logic in child classes
-contract ONFT721 is ONFT721Core, ERC721, IONFT721, DefaultOperatorFilterer{
+contract ONFT721 is ONFT721Core, ERC721, IONFT721 {
     
 
     constructor(string memory _name, string memory _symbol, address _lzEndpoint, uint256 _minGasToTransferAndStore) ERC721(_name, _symbol) ONFT721Core(_minGasToTransferAndStore,_lzEndpoint) {}
@@ -33,28 +33,5 @@ contract ONFT721 is ONFT721Core, ERC721, IONFT721, DefaultOperatorFilterer{
         } else {
             _transfer(address(this), _toAddress, _tokenId);
         }
-    }
-    function setApprovalForAll(address operator, bool approved) public override(ERC721, IERC721) onlyAllowedOperatorApproval(operator) {
-        super.setApprovalForAll(operator, approved);
-    }
-
-    function approve(address operator, uint256 tokenId) public override(ERC721, IERC721) onlyAllowedOperatorApproval(operator) {
-        super.approve(operator, tokenId);
-    }
-
-    function transferFrom(address from, address to, uint256 tokenId) public override(ERC721, IERC721) onlyAllowedOperator(from) {
-        super.transferFrom(from, to, tokenId);
-    }
-
-    function safeTransferFrom(address from, address to, uint256 tokenId) public override(ERC721, IERC721) onlyAllowedOperator(from) {
-        super.safeTransferFrom(from, to, tokenId);
-    }
-
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data)
-        public
-        override(ERC721, IERC721)
-        onlyAllowedOperator(from)
-    {
-        super.safeTransferFrom(from, to, tokenId, data);
     }
 }

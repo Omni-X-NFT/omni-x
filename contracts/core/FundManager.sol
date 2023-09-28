@@ -12,7 +12,7 @@ import {IRoyaltyFeeManager} from "../interfaces/IRoyaltyFeeManager.sol";
 import {IStargatePoolManager} from "../interfaces/IStargatePoolManager.sol";
 import {IFundManager} from "../interfaces/IFundManager.sol";
 import {OmniXExchange} from "./OmniXExchange.sol";
-import {IOFT} from "../token/oft/IOFT.sol";
+import {IOFT} from "@layerzerolabs/solidity-examples/contracts/token/oft/IOFT.sol";
 import {OrderTypes} from "../libraries/OrderTypes.sol";
 import {BytesLib} from "../libraries/BytesLib.sol";
 
@@ -129,7 +129,7 @@ contract FundManager is IFundManager, Ownable {
                 bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
 
                 IOFT(currency).sendFrom{value: lzFee}(
-                    from, toChainId, toAddress, amount, payable(address(omnixExchange)), address(0x0), adapterParams, payload
+                    from, toChainId, toAddress, amount, payable(address(omnixExchange)), address(0x0), adapterParams
                 );
             }
         }
@@ -201,7 +201,7 @@ contract FundManager is IFundManager, Ownable {
                 bytes memory adapterParams = abi.encodePacked(LZ_ADAPTER_VERSION, gasForOmniLzReceive);
                 bytes memory toAddress = abi.encodePacked(to);
                 // get the fees we need to pay to LayerZero for message delivery
-                (uint256 messageFee, ) = IOFT(currency).estimateSendFee(toChainId, toAddress, amount, false, adapterParams, payload);
+                (uint256 messageFee, ) = IOFT(currency).estimateSendFee(toChainId, toAddress, amount, false, adapterParams);
                 return messageFee;
             }
         }

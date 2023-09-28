@@ -6,7 +6,8 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 
 import {ICurrencyManager} from "../interfaces/ICurrencyManager.sol";
 import {InterfaceChecker} from "../libraries/InterfaceChecker.sol";
-import {IOFT} from "../token/oft/IOFT.sol";
+import {IOFT} from "@layerzerolabs/solidity-examples/contracts/token/oft/IOFT.sol";
+
 
 /**
  * @title CurrencyManager
