@@ -186,13 +186,15 @@ contract AdvancedONFT721A is ONFT721A {
         if (token == address(0)) {
             uint balance = address(this).balance;
             uint taxFee = balance * financeDetails.tax / 10000;
-            payable(owner()).transfer(balance - taxFee);
+            payable(beneficiary).transfer(balance - taxFee);
             payable(taxRecipient).transfer(taxFee);
+            payable(beneficiary).transfer(address(this).balance);
         } else {
             uint balance = IERC20(token).balanceOf(address(this));
             uint taxFee = balance * financeDetails.tax / 10000;
             IERC20(token).transfer(beneficiary, balance - taxFee);
             IERC20(token).transfer(taxRecipient, taxFee);
+            IERC20(token).transfer(beneficiary, IERC20(token).balanceOf(address(this)));
 
         }
     } 
