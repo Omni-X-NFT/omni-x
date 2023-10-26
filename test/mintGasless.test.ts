@@ -72,4 +72,4 @@ describe('Mint Gasless: ', function () {
     const ONFTBalance = await instance.balanceOf(minter, amount)
     expect(await parseInt(ONFTBalance)).to.eq(amount)
   })
-}).
+})
