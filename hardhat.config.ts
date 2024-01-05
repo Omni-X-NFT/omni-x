@@ -88,7 +88,7 @@ const config: HardhatUserConfig = {
       zksync: false
     },
     arbitrum: {
-      url: process.env.ARB_RPC !== undefined ? process.env.ARB_RPC :'https://rpc.ankr.com/arbitrum',
+      url: process.env.ARB_RPC !== undefined ? process.env.ARB_RPC : 'https://rpc.ankr.com/arbitrum',
       chainId: 42161,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
@@ -139,6 +139,12 @@ const config: HardhatUserConfig = {
     canto: {
       url: process.env.CANTO_RPC !== undefined ? process.env.CANTO_RPC : 'https://mainnode.plexnode.org:8545',
       chainId: 7700,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
+    },
+    base: {
+      url: process.env.BASE_RPC !== undefined ? process.env.BASE_RPC : 'https://developer-access-mainnet.base.org',
+      chainId: 8453,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
     },
@@ -245,7 +251,8 @@ const config: HardhatUserConfig = {
       ftmTestnet: process.env.FANTOM_API_KEY || '',
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
       'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
-      'moonbeam_testnet': process.env.MOONBEAM_API_KEY || ''
+      base: process.env.BASE_API_KEY || ''
+      // 'moonbeam_testnet': process.env.MOONBEAM_API_KEY || ''
     },
     customChains: [
       {
@@ -270,6 +277,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://api-goerli-optimism.etherscan.io/api',
           browserURL: 'https://goerli-optimism.etherscan.io'
+        }
+      },
+      {
+        network: 'base',
+        chainId: 8453,
+        urls: {
+          browserURL: 'https://basescan.org/',
+          apiURL: 'https://api.basescan.org/api'
         }
       }
     ]
