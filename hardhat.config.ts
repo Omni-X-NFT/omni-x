@@ -258,7 +258,7 @@ const config: HardhatUserConfig = {
       avalanche: process.env.AVALANCHE_API_KEY || '',
       optimisticEthereum: process.env.OPTIMISTIC_API_KEY || '',
       arbitrumOne: process.env.ARBITRUM_API_KEY || '',
-      arbtirumNova: process.env.ARBITRUM_NOVA_API_KEY || '',
+      arbitrumNova: process.env.ARBITRUM_NOVA_API_KEY || '',
       metis: process.env.METIS_API_KEY || '',
       gnosis: process.env.GNOSIS_API_KEY || '',
       // fantom: process.env.FANTOM_API_KEY || '',
