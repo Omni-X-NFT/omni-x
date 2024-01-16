@@ -238,6 +238,11 @@ const config: HardhatUserConfig = {
       url: 'https://rpc.testnet.moonbeam.network',
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
+    },
+    'berachain-testnet': {
+      url: 'https://artio.rpc.berachain.com/',
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
     }
   },
 
@@ -270,7 +275,8 @@ const config: HardhatUserConfig = {
       ftmTestnet: process.env.FANTOM_API_KEY || '',
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
       'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
-      moonbeam: process.env.MOONBEAM_API_KEY || ''
+      moonbeam: process.env.MOONBEAM_API_KEY || '',
+      'berachain-testnet': 'xxxxx'
 
     },
     customChains: [
@@ -328,6 +334,14 @@ const config: HardhatUserConfig = {
         urls: {
           browserURL: 'https://gnosisscan.io/',
           apiURL: 'https://api.gnosisscan.io/api'
+        }
+      },
+      {
+        network: 'berachain-testnet',
+        chainId: 80085,
+        urls: {
+          browserURL: 'https://artio.beratrail.io/',
+          apiURL: 'https://api.routescan.io/v2/network/testnet/evm/80085/etherscan/api/'
         }
       }
     ]
