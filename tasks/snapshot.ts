@@ -1,6 +1,6 @@
 import Moralis from 'moralis'
 import { EvmChain } from '@moralisweb3/common-evm-utils'
-import { loadAbi, getContractAddrByName, environments } from './shared'
+import { environments } from './shared'
 import snapshotArgs from '../constants/snapshotArgs.json'
 import { Network, Alchemy } from 'alchemy-sdk'
 import fs from 'fs'
@@ -9,14 +9,16 @@ import { MerkleTree } from 'merkletreejs'
 import keccak256 from 'keccak256'
 import snapshotData from '../constants/newCyberConnectWL_list.json'
 
-function sleep(ms: number) {
+function sleep (ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 export const moralisSnap = async (taskArgs: any, hre: any) => {
   const { network } = hre
   const owners: any = {}
-  const contractAddress = (snapshotArgs as any)[taskArgs.target][network.name]
+  // const contractAddress = (snapshotArgs as any)[taskArgs.target][network.name]
+  const contractAddress = taskArgs.target
+  console.log(`moralisSnap: contract address ${contractAddress}`)
 
   await Moralis.start({
     apiKey: process.env.MORALIS
@@ -91,13 +93,13 @@ export const alchemySnap = async (taskArgs: any, hre: any) => {
   }
 }
 
-async function getMoralisResponse(network: string, contractAddress: string, cursor: string | undefined) {
+async function getMoralisResponse (network: string, contractAddress: string, cursor: string | undefined) {
   let response: any
   if (network === 'polygon') {
     response = await Moralis.EvmApi.nft.getNFTOwners({
       address: contractAddress,
       chain: EvmChain.POLYGON,
-      disableTotal: false,
+      format: 'decimal',
       limit: 100,
       cursor
     })
@@ -105,7 +107,7 @@ async function getMoralisResponse(network: string, contractAddress: string, curs
     response = await Moralis.EvmApi.nft.getNFTOwners({
       address: contractAddress,
       chain: EvmChain.BSC,
-      disableTotal: false,
+      format: 'decimal',
       limit: 100,
       cursor
     })
@@ -148,7 +150,7 @@ async function getMoralisResponse(network: string, contractAddress: string, curs
   return response
 }
 
-async function getAlchemyResponse(network: string, contractAddress: string) {
+async function getAlchemyResponse (network: string, contractAddress: string) {
   let settings: any
   if (network === 'polygon') {
     settings = {

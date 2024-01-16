@@ -12,6 +12,7 @@ import 'xdeployer'
 import '@nomicfoundation/hardhat-foundry'
 import '@matterlabs/hardhat-zksync-deploy'
 import '@matterlabs/hardhat-zksync-solc'
+import './tasks/airdropERC721'
 
 import * as dotenv from 'dotenv'
 dotenv.config()
