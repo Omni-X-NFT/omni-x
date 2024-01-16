@@ -50,6 +50,7 @@ import {
 } from './AdvancedONFTASuite'
 import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedRemote } from './lzSuite'
 import { moralisSnap, alchemySnap, completeSnapshot, convertToList, MerkleGen } from './snapshot'
+import { deployERC20 } from './deployERC20'
 
 task(
   'setTrustedRemote',
@@ -98,6 +99,8 @@ task('deployAll', 'deploy all contracts', deployAll)
   .addParam('e', 'testnet or mainnet')
   .addParam('tags', 'Contract file name')
   .addOptionalParam('reset', 'Deploy from scratch')
+
+task('deployERC20', 'deploy a mock ERC20 token', deployERC20)
 
 task('verifyAll', 'verify all contracts', verifyAll)
   .addParam('e', 'testnet or mainnet')
