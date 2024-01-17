@@ -161,6 +161,12 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
     },
+    celo: {
+      url: 'https://forno.celo.org',
+      chainId: 42220,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
+    },
     tenet: {
       url: process.env.TENET_RPC !== undefined ? process.env.TENET_RPC : 'https://rpc.tenet.org',
       chainId: 1559,
@@ -243,6 +249,18 @@ const config: HardhatUserConfig = {
       url: 'https://artio.rpc.berachain.com/',
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
+    },
+    aurora: {
+      url: 'https://mainnet.aurora.dev',
+      chainId: 1313161554,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
+    },
+    fuse: {
+      url: 'https://rpc.fuse.io',
+      chainId: 122,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
     }
   },
 
@@ -276,8 +294,11 @@ const config: HardhatUserConfig = {
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
       'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
       moonbeam: process.env.MOONBEAM_API_KEY || '',
-      'berachain-testnet': 'xxxxx'
-
+      'berachain-testnet': 'xxxxx',
+      celo: process.env.CELO_API_KEY || '',
+      aurora: process.env.AURORA_API_KEY || 'abc',
+      fuse: process.env.FUSE_API_KEY || '',
+      mantle: process.env.MANTLE_API_KEY || ''
     },
     customChains: [
       {
@@ -342,6 +363,38 @@ const config: HardhatUserConfig = {
         urls: {
           browserURL: 'https://artio.beratrail.io/',
           apiURL: 'https://api.routescan.io/v2/network/testnet/evm/80085/etherscan/api/'
+        }
+      },
+      {
+        network: 'celo',
+        chainId: 42220,
+        urls: {
+          apiURL: 'https://api.celoscan.io/api',
+          browserURL: 'https://celoscan.io/'
+        }
+      },
+      {
+        network: 'mantle',
+        chainId: 5000,
+        urls: {
+          apiURL: 'https://explorer.mantle.xyz/api',
+          browserURL: 'https://explorer.mantle.xyz/'
+        }
+      },
+      {
+        network: 'aurora',
+        chainId: 1313161554,
+        urls: {
+          apiURL: 'https://explorer.aurora.dev/api',
+          browserURL: 'https://explorer.aurora.dev/'
+        }
+      },
+      {
+        network: 'fuse',
+        chainId: 122,
+        urls: {
+          apiURL: 'https://explorer.fuse.io/api',
+          browserURL: 'https://explorer.fuse.io/'
         }
       }
     ]
