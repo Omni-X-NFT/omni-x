@@ -243,6 +243,11 @@ const config: HardhatUserConfig = {
       url: 'https://artio.rpc.berachain.com/',
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
+    },
+    'blast-sepolia': {
+      url: 'https://sepolia.blast.io',
+      accounts: [process.env.PRIVATE_KEY as string],
+      gasPrice: 1000000000
     }
   },
 
@@ -276,7 +281,8 @@ const config: HardhatUserConfig = {
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
       'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
       moonbeam: process.env.MOONBEAM_API_KEY || '',
-      'berachain-testnet': 'xxxxx'
+      'berachain-testnet': 'xxxxx',
+      'blast-sepolia': 'blastSepolia'
 
     },
     customChains: [
@@ -342,6 +348,14 @@ const config: HardhatUserConfig = {
         urls: {
           browserURL: 'https://artio.beratrail.io/',
           apiURL: 'https://api.routescan.io/v2/network/testnet/evm/80085/etherscan/api/'
+        }
+      },
+      {
+        network: 'blast-sepolia',
+        chainId: 168587773,
+        urls: {
+          apiURL: 'https://api.routescan.io/v2/network/testnet/evm/168587773/etherscan',
+          browserURL: 'https://testnet.blastscan.io'
         }
       }
     ]
