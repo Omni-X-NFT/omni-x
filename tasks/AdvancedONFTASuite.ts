@@ -10,11 +10,15 @@ type CHAINIDTYPE = {
   [key: string]: number
 }
 
+// const AdvancedONFT721AAbi = loadAbi(
+//   '../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json'
+// )
+
 const AdvancedONFT721AAbi = loadAbi(
-  '../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json'
+  '../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventuresV3.sol/OmnichainAdventuresV3.sol.json'
 )
 
-function getContract(collection: string, owner: any, hre: any, network: string): any {
+function getContract (collection: string, owner: any, hre: any, network: string): any {
   let onft721A
   if (network === 'zksync' || network === 'zksync-testnet') {
     const path = `../artifacts-zk/contracts/token/onft721A/extension/collections/${collection}.sol/${collection}.json`
@@ -41,21 +45,21 @@ export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
   const [owner] = await ethers.getSigners()
   const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
   const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
-  if (network.name !== 'zksync' && network.name !== 'zksync-testnet') {
-    await deployContract(hre, taskArgs.collection, owner, [
-      args.name,
-      args.symbol,
-      lzEndpoint,
-      args.startId,
-      args.endId,
-      args.maxGlobalId,
-      args.baseURI,
-      args.hiddenURI,
-      args.tax,
-      args.price,
-      args.taxRecipient
-    ])
-  }
+  // if (network.name !== 'zksync' && network.name !== 'zksync-testnet') {
+  await deployContract(hre, taskArgs.collection, owner, [
+    args.name,
+    args.symbol,
+    lzEndpoint,
+    args.startId,
+    args.endId,
+    args.maxGlobalId,
+    args.baseURI,
+    args.hiddenURI,
+    args.tax,
+    args.price,
+    args.taxRecipient
+  ])
+  // }
 }
 
 export const deployAllAdvancedONFT721A = async (taskArgs: any) => {
