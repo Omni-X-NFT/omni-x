@@ -1,14 +1,10 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
 
-
-
 import { FixedPointMathLib } from "solmate/src/utils/FixedPointMathLib.sol";
-
 
 library OmniLinearCurve {
     using FixedPointMathLib for uint256;
-
 
     struct OmniCurve {
         /// @notice last time the curve price was updated (resets decay).
@@ -19,7 +15,7 @@ library OmniLinearCurve {
         uint128 priceDelta;
         /// @notice Daily price decay rate (1e18+1e16 == 1% decay) per day.
         uint128 priceDecay;
-        /// @notice min price for minting radbros.
+        /// @notice min price for minting nfts.
         uint128 minPrice;
 
         uint128 maxPrice;
