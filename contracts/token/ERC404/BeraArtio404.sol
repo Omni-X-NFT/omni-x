@@ -5,13 +5,14 @@ import "./ERC404.sol";
 
 contract BeraArtio404 is ERC404 {
 
-  uint256 public constant MAX_SUPPLY = 100000000000000000000000000;
-  uint256 public mintPrice = 0.001 ether;
-  address public creatorAddress;
+    uint256 public constant MAX_SUPPLY = 100000000000000000000000000;
+    uint256 public mintPrice = 0.001 ether;
+    address public creatorAddress;
 
-  constructor() ERC404("BeraArtio404", "BA404", 18, MAX_SUPPLY, msg.sender){
-    _mint(msg.sender);
-  }
+    constructor(address _creatorAddress) ERC404("BeraArtio404", "BA404", 18, MAX_SUPPLY, msg.sender){
+        creatorAddress = _creatorAddress;
+        _mint(msg.sender);
+    }
 
     /// @notice Mint function to create new tokens
     /// @param numberOfTokens The number of tokens to mint
