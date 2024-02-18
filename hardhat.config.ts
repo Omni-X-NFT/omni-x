@@ -15,6 +15,7 @@ import '@matterlabs/hardhat-zksync-solc'
 import './tasks/airdropERC721'
 
 import * as dotenv from 'dotenv'
+// import { version } from 'os'
 dotenv.config()
 
 // You need to export an object to set up your config
@@ -24,14 +25,28 @@ const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
 
   solidity: {
-    version: '0.8.17',
-    settings: {
-      viaIR: true,
-      optimizer: {
-        enabled: true,
-        runs: 5
+    compilers: [
+      {
+        version: '0.8.17',
+        settings: {
+          viaIR: true,
+          optimizer: {
+            enabled: true,
+            runs: 5
+          }
+        }
+      },
+      {
+        version: '0.8.23',
+        settings: {
+          viaIR: true,
+          optimizer: {
+            enabled: true,
+            runs: 1000
+          }
+        }
       }
-    }
+    ]
   },
   zksolc: {
     version: 'latest',

@@ -52,6 +52,7 @@ import { lzScan, forceResume, hasStoredPayload, setTrustedRemote, setAllTrustedR
 import { moralisSnap, alchemySnap, completeSnapshot, convertToList, MerkleGen } from './snapshot'
 import { deployERC20 } from './deployERC20'
 import { deployERC404 } from './deployERC404'
+import { deployBoobaOnBera } from './deployBoobaOnBera'
 
 task(
   'setTrustedRemote',
@@ -104,6 +105,8 @@ task('deployAll', 'deploy all contracts', deployAll)
 task('deployERC20', 'deploy a mock ERC20 token', deployERC20)
 
 task('deployERC404', 'deploy a BeraARtio404.sol token', deployERC404)
+
+task('deployBoobaOnBera', 'deploy a BoobaOnBera.sol token', deployBoobaOnBera)
 
 task('verifyAll', 'verify all contracts', verifyAll)
   .addParam('e', 'testnet or mainnet')
