@@ -161,6 +161,18 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
     },
+    celo: {
+      url: process.env.CELO_RPC !== undefined ? process.env.CELO_RPC : 'https://forno.celo.org',
+      chainId: 42220,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
+    },
+    zora: {
+      url: process.env.ZORA_RPC !== undefined ? process.env.ZORA_RPC : 'https://rpc.zora.energy',
+      chainId: 7777777,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
+    },
     tenet: {
       url: process.env.TENET_RPC !== undefined ? process.env.TENET_RPC : 'https://rpc.tenet.org',
       chainId: 1559,

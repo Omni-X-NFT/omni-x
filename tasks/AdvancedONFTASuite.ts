@@ -11,10 +11,10 @@ type CHAINIDTYPE = {
 }
 
 const AdvancedONFT721AAbi = loadAbi(
-  '../artifacts/contracts/token/onft721A/extension/collections/OmnichainAdventures.sol/OmnichainAdventures.json'
+  '../artifacts/contracts/token/onft721A/extension/collections/AdvancedONFT721Open.sol/AdvancedONFT721AOpen.json'
 )
 
-function getContract(collection: string, owner: any, hre: any, network: string): any {
+function getContract (collection: string, owner: any, hre: any, network: string): any {
   let onft721A
   if (network === 'zksync' || network === 'zksync-testnet') {
     const path = `../artifacts-zk/contracts/token/onft721A/extension/collections/${collection}.sol/${collection}.json`
@@ -53,7 +53,10 @@ export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
       args.hiddenURI,
       args.tax,
       args.price,
-      args.taxRecipient
+      args.wlPrice,
+      args.token,
+      args.taxRecipient,
+      args.beneficiary
     ])
   }
 }
@@ -77,7 +80,7 @@ export const deployAllAdvancedONFT721A = async (taskArgs: any) => {
 }
 
 export const trustedRemoteLookup = async (taskArgs: any, hre: any) => {
-  const { ethers, network } = hre
+  const { ethers } = hre
   const [owner] = await ethers.getSigners()
   const targetDstChainId = CHAIN_IDS[taskArgs.target]
   const collectionContract = createContractByName(hre, taskArgs.collection, AdvancedONFT721AAbi().abi, owner)
