@@ -11,7 +11,7 @@ type CHAINIDTYPE = {
 }
 
 const AdvancedONFT721AAbi = loadAbi(
-  '../artifacts/contracts/token/onft721A/extension/collections/AdvancedONFT721Open.sol/AdvancedONFT721AOpen.json'
+  '../artifacts/contracts/token/onft721A/extension/AdvancedONFT721AOpen.sol/AdvancedONFT721AOpen.json'
 )
 
 function getContract (collection: string, owner: any, hre: any, network: string): any {
@@ -42,14 +42,14 @@ export const deployAdvancedONFT721A = async (taskArgs: any, hre: any) => {
   const args = (ONFT_ARGS as any)[taskArgs.collection][network.name]
   const lzEndpoint = (LZ_ENDPOINT as any)[network.name]
   if (network.name !== 'zksync' && network.name !== 'zksync-testnet') {
-    await deployContract(hre, taskArgs.collection, owner, [
+    await deployContract(hre, 'AdvancedONFT721AOpen', owner, [
       args.name,
       args.symbol,
       lzEndpoint,
       args.startId,
-      args.endId,
+      args.maxId,
       args.maxGlobalId,
-      args.baseURI,
+      args.basetokenURI,
       args.hiddenURI,
       args.tax,
       args.price,
@@ -112,7 +112,7 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
     onft721A = createContractByName(hre, taskArgs.collection, ContractArtifact.abi, owner)
   } else {
     // onft721A = createContractByName(hre, 'OmnichainAdventures', ContractArtifact.abi, owner)
-    onft721A = createContractByName(hre, taskArgs.collection, AdvancedONFT721AAbi().abi, owner)
+    onft721A = createContractByName(hre, 'AdvancedONFT721AOpen', AdvancedONFT721AAbi().abi, owner)
   }
 
   if (taskArgs.lzconfig === 'true') {
@@ -134,20 +134,21 @@ export const prepareAdvancedONFT721A = async (taskArgs: any, hre: any) => {
     const block = await provider.getBlock('latest')
     const timestamp = block.timestamp
     console.log(`timestamp: ${timestamp}`)
-    if (args.startId !== args.endId) {
-      try {
-        const nftState = {
-          saleStarted: taskArgs.startmint === 'true',
-          revealed: taskArgs.reveal === 'true',
-          startTime: timestamp,
-          mintLength: 604800 // 1 weeks
-        }
-        await submitTx(hre, onft721A, 'setNftState', [nftState])
-        console.log('✅ set nft state')
-      } catch (e: any) {
-        console.log(e)
+    // commented out the check because we need to set reveal for non-minting chains too
+    // if (args.startId !== args.maxId) {
+    try {
+      const nftState = {
+        saleStarted: taskArgs.startmint === 'true',
+        revealed: taskArgs.reveal === 'true',
+        startTime: timestamp,
+        mintLength: 3024000 // 5 weeks
       }
+      await submitTx(hre, onft721A, 'setNftState', [nftState])
+      console.log('✅ set nft state')
+    } catch (e: any) {
+      console.log(e)
     }
+    // }
   }
   if (taskArgs.bridgefee === 'true') {
     try {

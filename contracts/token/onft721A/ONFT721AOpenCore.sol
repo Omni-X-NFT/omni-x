@@ -70,6 +70,7 @@ import "./IONFT721ACore.sol";
 
         _checkGasLimit(_dstChainId, FUNCTION_TYPE_SEND, _adapterParams, dstChainIdToTransferGas[_dstChainId] * _tokenIds.length);
         _lzSend(_dstChainId, payload, _refundAddress, _zroPaymentAddress, _adapterParams, msg.value - bridgeFee);
+        require(payable(owner()).send(bridgeFee));
         emit SendToChain(_dstChainId, _from, _toAddress, _tokenIds);
     }
 

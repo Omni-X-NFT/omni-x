@@ -276,7 +276,7 @@ const config: HardhatUserConfig = {
       avalanche: process.env.AVALANCHE_API_KEY || '',
       optimisticEthereum: process.env.OPTIMISTIC_API_KEY || '',
       arbitrumOne: process.env.ARBITRUM_API_KEY || '',
-      arbitrumNova: process.env.ARBITRUM_NOVA_API_KEY || '',
+      'arbitrum-nova': process.env.ARBITRUM_NOVA_API_KEY || '',
       metis: process.env.METIS_API_KEY || '',
       gnosis: process.env.GNOSIS_API_KEY || '',
       // fantom: process.env.FANTOM_API_KEY || '',
@@ -288,7 +288,11 @@ const config: HardhatUserConfig = {
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
       'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
       moonbeam: process.env.MOONBEAM_API_KEY || '',
-      'berachain-testnet': 'xxxxx'
+      'berachain-testnet': 'xxxxx',
+      zora: 'zora', // apiKey is not required, just set a placeholder,
+      celo: process.env.CELO_API_KEY || '',
+      'polygon-zkevmn': process.env.POLYGON_ZKEVM_API_KEY || '',
+      mantle: 'mantle'
 
     },
     customChains: [
@@ -317,7 +321,7 @@ const config: HardhatUserConfig = {
         }
       },
       {
-        network: 'arbitrumNova',
+        network: 'arbitrum-nova',
         chainId: 42170,
         urls: {
           browserURL: 'https://nova.arbiscan.io/',
@@ -354,6 +358,38 @@ const config: HardhatUserConfig = {
         urls: {
           browserURL: 'https://artio.beratrail.io/',
           apiURL: 'https://api.routescan.io/v2/network/testnet/evm/80085/etherscan/api/'
+        }
+      },
+      {
+        network: 'zora',
+        chainId: 7777777,
+        urls: {
+          apiURL: 'https://api.routescan.io/v2/network/mainnet/evm/7777777/etherscan',
+          browserURL: 'https://zorascan.xyz'
+        }
+      },
+      {
+        network: 'celo',
+        chainId: 42220,
+        urls: {
+          apiURL: 'https://api.celoscan.io/api',
+          browserURL: 'https://celoscan.io/'
+        }
+      },
+      {
+        network: 'mantle',
+        chainId: 5000,
+        urls: {
+          apiURL: 'https://api.routescan.io/v2/network/mainnet/evm/5000/etherscan',
+          browserURL: 'https://mantlescan.info'
+        }
+      },
+      {
+        network: 'polygon-zkevm',
+        chainId: 1101,
+        urls: {
+          apiURL: 'https://api-zkevm.polygonscan.com/api',
+          browserURL: 'https://zkevm.polygonscan.com/'
         }
       }
     ]
