@@ -172,6 +172,7 @@ contract AdvancedONFT721AOpen is ONFT721AOpen {
     function setMerkleRoot(bytes32 _newRoot) public onlyBeneficiaryAndOwner() {
         merkleRoot = _newRoot;
     }
+    
     function setNftState(NFTState calldata _state) external onlyBeneficiaryAndOwner {
         state = NFTState(_state.saleStarted, _state.revealed, block.timestamp, _state.mintLength);
     }

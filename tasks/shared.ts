@@ -7,8 +7,9 @@ import CHAIN_IDS from '../constants/chainIds.json'
 import STARGATE from '../constants/stargate.json'
 
 export const environments: any = {
-  // mainnet: ['avalanche', 'bsc', 'fantom', 'ethereum', 'optimism', 'polygon', 'arbitrum'],
-  mainnet: ['arbitrum-nova', 'base', 'celo', 'fantom', 'gnosis', 'mantle', 'optimism', 'polygon', 'polygon-zkevm', 'zora'],
+  mainnet: ['arbitrum-nova', 'base', 'celo', 'fantom', 'gnosis', 'mantle', 'optimism', 'polygon-zkevm', 'zora', 'polygon'],
+  // mainnet: ['polygon'],
+  // mainnet: ['arbitrum-nova'], need to verify
   testnet: [
     'goerli',
     'bsc-testnet',

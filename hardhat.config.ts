@@ -291,7 +291,7 @@ const config: HardhatUserConfig = {
       'berachain-testnet': 'xxxxx',
       zora: 'zora', // apiKey is not required, just set a placeholder,
       celo: process.env.CELO_API_KEY || '',
-      'polygon-zkevmn': process.env.POLYGON_ZKEVM_API_KEY || '',
+      'polygon-zkevm': process.env.POLYGON_ZKEVM_API_KEY || '',
       mantle: 'mantle'
 
     },

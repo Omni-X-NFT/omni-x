@@ -326,15 +326,17 @@ export const sendCross = async (taskArgs: any, hre: any) => {
   const { ethers } = hre
   const [owner] = await ethers.getSigners()
   const dstChainId = CHAIN_IDS[taskArgs.target]
-  const onft = createContractByName(hre, 'OmniWave', AdvancedONFT721AAbi().abi, owner)
+  const onft = createContractByName(hre, 'AdvancedONFT721AOpen', AdvancedONFT721AAbi().abi, owner)
   const adapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 400000])
-  const gas = await submitReturnTx(hre, onft, 'estimateSendFee', [
+  const gas = await submitReturnTx(hre, onft, 'estimateSendBatchFee', [
     dstChainId,
     owner.address,
-    taskArgs.tokenid,
+    [Number(taskArgs.tokenid)],
     false,
     adapterParams
   ])
+  console.log('the gas is')
+  console.log(gas)
   await submitTx(
     hre,
     onft,
@@ -348,14 +350,14 @@ export const sendCross = async (taskArgs: any, hre: any) => {
       ethers.constants.AddressZero,
       adapterParams
     ],
-    { value: gas[0].add(50000000000000).toString() }
+    { value: gas[0] }
   )
 }
 
 export const mint = async (taskArgs: any, hre: any) => {
   const { ethers } = hre
   const [owner] = await ethers.getSigners()
-  const onft = createContractByName(hre, 'OmniWave', AdvancedONFT721AAbi().abi, owner)
+  const onft = createContractByName(hre, 'OmniGaws', AdvancedONFT721AAbi().abi, owner)
   await submitTx(hre, onft, 'mint', [taskArgs.amount])
   console.log(`✅ minted ${taskArgs.amount} to ${owner.address}`)
 }
@@ -458,32 +460,37 @@ export const estimateSendFee = async (taskArgs: any, hre: any) => {
   const { ethers } = hre
   const [owner] = await ethers.getSigners()
 
-  // get lz endpoint instance
-  const lzEndpoint = new ethers.Contract('0x3c2269811836af69497E5F486A85D7316753cf62', LZEndpointABI, owner)
+  // get lz endpoint instance, celo address
+  const lzEndpoint = new ethers.Contract('0x3A73033C0b1407574C76BdBAc67f126f6b4a9AA9', LZEndpointABI, owner)
 
   // establish adapterParams
-  const adapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 400000])
+  const adapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 200000])
 
   // load onft address
-
-  const onftAddress = '0xf42647D472B6D2299eB283081714C8657e657295'
+  const onftAddress = '0x092fAeB0Fb3B600A3323EB862ddF5563B35feD55'
+  const toAddress = '0xd26EE1836E288387A0e5c836Bc5368FB761D791C'
 
   // destination chain id
-  const dstChainId = 101
+  const dstChainId = 195
 
-  // use a list with single tokenId if it is not a batch send
-  const tokenIds = [1]
+  // use a list with a single tokenId if it is not a batch send
+  const tokenIds = [750000001]
   // get payload
   const abi = ethers.utils.defaultAbiCoder
-  const payload = abi.encode(['bytes', 'uint256[]'], [onftAddress, tokenIds])
+  const payload = abi.encode(['bytes', 'uint256[]'], [toAddress, tokenIds])
 
+  console.log(dstChainId)
+  console.log(toAddress)
+  console.log(payload)
+  console.log(false)
+  console.log(adapterParams)
   // get gas estimate
   const response = await lzEndpoint.estimateFees(
     dstChainId,
     onftAddress,
-    payload,
+    '0x',
     false, // useZro
-    adapterParams
+    '0x'
   )
   // native fee is first element in response array. It is returned as a BigNumber
   const gas = response[0]
