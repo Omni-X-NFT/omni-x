@@ -19,6 +19,9 @@ import { setAll721Config } from './setAll721Config'
 import { snap, convertFormat, addSTG, changeAmounts } from './takeSnapshot'
 import { analyzeStuckTx } from './analyzeStuckTx'
 import { deployAdvancedONFT721A, estimateSendFee, setAllMetadata, setMetadata, deployAllAdvancedONFT721A, prepareAllAdvancedONFT721A, prepareAdvancedONFT721A, mint, mintAll, sendCross, deployCollection } from './AdvancedONFTASuite'
+import { withdraw } from './withdraw'
+
+task('withdraw', 'withdraw funds from a ONFT contract', withdraw).addParam('address', 'address of the ONFT collection')
 
 task(
   'setTrustedRemote',

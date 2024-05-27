@@ -231,6 +231,11 @@ const config: HardhatUserConfig = {
       url: 'https://rpc.testnet.moonbeam.network',
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
+    },
+    mantle: {
+      url: 'https://rpc.mantle.xyz',
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
     }
   },
 
@@ -251,7 +256,8 @@ const config: HardhatUserConfig = {
       ftmTestnet: process.env.FANTOM_API_KEY || '',
       'arbitrum-goerli': process.env.ARBITRUM_API_KEY || '',
       'optimism-goerli': process.env.OPTIMISTIC_API_KEY || '',
-      base: process.env.BASE_API_KEY || ''
+      base: process.env.BASE_API_KEY || '',
+      opera: process.env.FANTOM_API_KEY || ''
       // 'moonbeam_testnet': process.env.MOONBEAM_API_KEY || ''
     },
     customChains: [
