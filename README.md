@@ -1,6 +1,6 @@
 # Omni X
 
-Omni X is an omnichain NFT marketplace based on top of LayerZero and LooksRare. The off-chain part is being served by a MongoDB Atlas cluster.
+Omni X is the first natively omnichain NFT launchpad
 
 # Etherscan verification
 
